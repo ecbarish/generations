@@ -30,11 +30,21 @@ function snap(g,o) { if(g.quiet&&!o.runs&&o.kind!=='end') return; g.events.push(
 
 /* Players who can still come in: batters on the bench, and pitchers who haven't pitched today. */
 function benchOf(L,g,side) { return batters(gClub(L,g,side)).filter(p=>!g.lineup[side].includes(p.id)&&!g.gone[side].includes(p.id)); }
+function unusedPitchers(L,g,side) { return pitchers(gClub(L,g,side)).filter(p=>!g.used[side].includes(p.id)); }
 function bullpenOf(L,g,side) { const c=gClub(L,g,side), rot=pitchers(c).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5).map(p=>p.id);
-  return pitchers(c).filter(p=>!g.used[side].includes(p.id)&&rested(p,g.key)).sort((a,b)=>(rot.includes(a.id)-rot.includes(b.id))||(rot.includes(a.id)?overall(a)-overall(b):overall(b)-overall(a))); }
+  return unusedPitchers(L,g,side).filter(p=>rested(p,g.key)).sort((a,b)=>(rot.includes(a.id)-rot.includes(b.id))||(rot.includes(a.id)?overall(a)-overall(b):overall(b)-overall(a))); }
+/* Once the pitcher on the mound is past the limit, someone who has not pitched today comes in even on short rest.
+   A rested arm is still preferred. The freshest tired arm is next, so a starter cannot throw the whole game. */
+function reliefChoice(L,g,side) { const restedPen=bullpenOf(L,g,side); if(restedPen.length) return restedPen;
+  const c=gClub(L,g,side), rot=pitchers(c).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5).map(p=>p.id);
+  const days=p=>p.rest&&g.key!==undefined?g.key-p.rest.day:99;
+  return unusedPitchers(L,g,side).slice().sort((a,b)=>days(b)-days(a)||(rot.includes(a.id)-rot.includes(b.id))||overall(b)-overall(a)); }
 
 /* Moves. Each is legal only between batters. They return '' or why not. */
-function changePitcher(L,g,side,id) { const p=bullpenOf(L,g,side).find(x=>x.id===id); if(!p) return 'That pitcher is not available.'; if(g.pa) return 'Wait for this batter to finish.';
+function changePitcher(L,g,side,id) {
+  const current=gPlayer(L,g,side,g.pitcher[side]);
+  const past=!!(current&&g.pbox[current.id]&&g.pbox[current.id].pitches>pitchLimit(g,side,current));
+  const p=(past?reliefChoice(L,g,side):bullpenOf(L,g,side)).find(x=>x.id===id); if(!p) return 'That pitcher is not available.'; if(g.pa) return 'Wait for this batter to finish.';
   const old=gPlayer(L,g,side,g.pitcher[side]); g.pitcher[side]=id; g.used[side].push(id); g.pbox[id]=g.pbox[id]||pline();
   snap(g,{kind:'move',side,t:gClub(L,g,side).short+' change pitchers: '+p.name+' comes in for '+lastName(old)+'.'}); return ''; }
 function substitute(L,g,side,outId,inId,how) { const p=benchOf(L,g,side).find(x=>x.id===inId), slot=g.lineup[side].indexOf(outId); if(g.pa) return 'Wait for this batter to finish.';
@@ -49,7 +59,7 @@ function pinchHit(L,g,side,inId) { return side!==g.half?'We are not batting.':su
 function pinchRun(L,g,side,base,inId) { const id=g.bases[base]; return side!==g.half||!id?'There is no runner there.':substitute(L,g,side,id,inId,'run'); }
 
 /* What Iona would do (and does, for every club the player doesn't manage). */
-function ionaPitching(L,g,side) { const p=gPlayer(L,g,side,g.pitcher[side]), b=g.pbox[p.id], pen=bullpenOf(L,g,side); if(!pen.length) return null;
+function ionaPitching(L,g,side) { const p=gPlayer(L,g,side,g.pitcher[side]), b=g.pbox[p.id], past=b.pitches>pitchLimit(g,side,p)+4, pen=bullpenOf(L,g,side).length?bullpenOf(L,g,side):(past?reliefChoice(L,g,side):[]); if(!pen.length) return null;
   const lead=g.score[side]-g.score[1-side], best=pen[0];
   if(b.pitches>pitchLimit(g,side,p)+4) return {kind:'tired',side,id:best.id};
   if(b.r>=6&&b.outs<15) return {kind:'shelled',side,id:best.id};
@@ -147,8 +157,9 @@ function stepGame(L,g) {
   const n=scored.length; s.rbi+=n; pb.r+=n; g.score[bat]+=n; g.line[bat][g.line[bat].length-1]+=n;
   if(n){ const lead=g.score[0]>g.score[1]?0:g.score[1]>g.score[0]?1:-1; if(lead===bat&&(!g.rec||g.rec.lead!==bat)) g.rec={lead:bat,w:g.pitcher[bat],l:g.pitcher[def]}; else if(lead<0) g.rec=null; }
   const names=scored.map(id=>lastName(gPlayer(L,g,bat,id))), last=pa.seq[pa.seq.length-1];
-  let text=b.name+' '+playWords(res,bb||{},last)+'.';
-  if(res==='k') text=b.name+' '+playWords(res,{},last)+' against '+lastName(p)+'.';
+  const sentence=t=>/[.!?]$/.test(t)?t:t+'.';
+  let text=sentence(b.name+' '+playWords(res,bb||{},last));
+  if(res==='k') text=sentence(b.name+' '+playWords(res,{},last)+' against '+p.name);
   if(dp) text=b.name+' grounds into a double play.';
   if(n) text+=' '+(res===4&&n===1?'':(n===1?names[0]+' scores.':names.slice(0,-1).join(', ')+' and '+names[n-1]+' score.'));
   g.pa=null; g.balls=0; g.strikes=0; g.order[bat]=(g.order[bat]+1)%9;

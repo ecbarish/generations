@@ -29,9 +29,36 @@ const DM = {
 function overall(p) {
   return Math.round(p.pitcher ? (p.stuff*.45+p.control*.35+p.stamina*.2) : (p.contact*.35+p.power*.25+p.eye*.2+p.glove*.2));
 }
+/* Names already living in this league, including a club that has not been pushed onto it yet. The set is not
+   saved: a loaded league rebuilds it from the players it already has, and those names are left as they are. */
+const namePools=new WeakMap();
+function namePool(r){
+  let used=r&&namePools.get(r);
+  if(used) return used;
+  used=new Set();
+  if(r&&Array.isArray(r.clubs)){
+    for(const c of r.clubs) for(const p of (c.players||[]).concat(c.farm||[])) if(p&&p.name) used.add(p.name);
+    for(const p of r.freeAgents||[]) if(p&&p.name) used.add(p.name);
+    for(const p of (r.draft&&r.draft.pool)||[]) if(p&&p.name) used.add(p.name);
+  }
+  if(r) namePools.set(r,used);
+  return used;
+}
+/* The first roll is unchanged. A second player who draws the same full name walks the name list without another
+   roll, so the dice that follow stay where they were. */
+function takeName(r){
+  const used=namePool(r), fi=ri(r,0,DM.first.length-1), li=ri(r,0,DM.last.length-1);
+  const nF=DM.first.length, nL=DM.last.length;
+  for(let k=0;k<nF*nL;k++){
+    const name=DM.first[(fi+Math.floor(k/nL))%nF]+' '+DM.last[(li+k)%nL];
+    if(!used.has(name)){ used.add(name); return name; }
+  }
+  const name=DM.first[fi]+' '+DM.last[li]+' '+(used.size+1);
+  used.add(name); return name;
+}
 function makePlayer(r, id, level, pitcher, pos) {
   const age=ri(r,21,34), g=()=>clamp(Math.round(level+(rnd(r)+rnd(r)-1)*14),25,92);
-  const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
+  const p={id, name:takeName(r), age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
   else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g(),speed:speedFor(id,age)});
   p.morale=freshMorale(); p.form=freshForm(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
@@ -43,7 +70,12 @@ function speedFor(id,age) { return clamp(32+((Math.imul(id,2654435761)>>>0)%46)-
 function potentialFor(r,p) { const o=overall(p); return Math.min(92, o+(p.age<=24?ri(r,3,18):p.age<=27?ri(r,0,8):0)); }
 /* What the club's scouts can tell about a ceiling: to the nearest 10 with no Scouting office, to the nearest 5 at
    level 1, exact from level 2. */
-function scoutCeiling(L,p) { const lv=L.upgrades.scouting, step=lv>=2?1:lv===1?5:10; return Math.round((p.pot||overall(p))/step)*step; }
+function scoutCeiling(L,p) {
+  const lv=L.upgrades.scouting, step=lv>=2?1:lv===1?5:10, o=overall(p);
+  const raw=Math.max(p.pot||o,o); let shown=Math.round(raw/step)*step;
+  if(shown<o) shown=Math.ceil(o/step)*step;
+  return shown;
+}
 function makeProspect(r,id) { const pitcher=rnd(r)<.4, p=makePlayer(r,id,ri(r,36,46),pitcher,DM.batPos[ri(r,0,8)]);
   p.age=ri(r,18,21); p.pot=Math.min(86,overall(p)+ri(r,6,30)); p.salary=150; p.years=3; p.prospect=true; return p; }
 function newLeague(seed=1) {
@@ -69,6 +101,15 @@ function setLineup(club, order) {
   let line=(order||club.lineup||[]).filter(id=>ids.has(id));
   const rest=batters(club).filter(p=>!line.includes(p.id)).sort((a,b)=>overall(b)-overall(a)).map(p=>p.id);
   club.lineup=line.concat(rest).slice(0,9);
+}
+/* A better bat takes the weakest spot in the order. A weaker one stays on the bench. */
+function seatIfBetter(club,p) {
+  if(!p||p.pitcher||!club.players.includes(p)||club.lineup.includes(p.id)) return;
+  if(club.lineup.length<9){ setLineup(club); return; }
+  let worstI=0;
+  for(let i=1;i<club.lineup.length;i++){ const a=club.players.find(x=>x.id===club.lineup[i]), b=club.players.find(x=>x.id===club.lineup[worstI]); if(a&&b&&overall(a)<overall(b)) worstI=i; }
+  const worst=club.players.find(x=>x.id===club.lineup[worstI]);
+  if(worst&&overall(p)>overall(worst)) club.lineup[worstI]=p.id;
 }
 /* A bench start keeps the batting slot of the player whose natural position matches. */
 function starterSlot(club,id) {
@@ -140,6 +181,12 @@ function finishDay(L) {
   return g;
 }
 function playDay(L) { const g=startDay(L,false); if(!g) return null; finishGame(L,g); return finishDay(L); }
+/* Sim this stretch: at most five season games, and stop when the final begins. The same path as Sim this game. */
+function simStretch(L,n) {
+  const want=Math.max(0,Math.min(5,n|0)); let played=0;
+  while(played<want && L.phase==='season' && !L.live){ if(!playDay(L)) break; played++; }
+  return played;
+}
 function startFinal(L) { const s=standings(L); L.phase='final'; L.final={teams:[s[0].i,s[1].i],wins:[0,0],games:[]}; }
 /* Best of three; the first-placed club is at home in games one and three. */
 function startFinalGame(L,manage) {
@@ -212,7 +259,7 @@ function draftAuto(L) { const d=L.draft; let g=0; while(d&&!d.done&&g++<10){ if(
 function callUp(L,id) { const c=L.clubs[DM.you], p=(c.farm||[]).find(x=>x.id===id); if(!p) return 'That player is not on the farm club.';
   if(c.players.length>=DM.rosterMax) return 'The roster is full ('+DM.rosterMax+'). Let someone go or send someone down first.';
   if(!p.sent&&payroll(c)+p.salary>c.budget) return 'The rookie salary would put the payroll over budget.';
-  c.farm.splice(c.farm.indexOf(p),1); p.prospect=false; p.sent=false; c.players.push(p); setLineup(c); return ''; }
+  c.farm.splice(c.farm.indexOf(p),1); p.prospect=false; p.sent=false; c.players.push(p); setLineup(c); seatIfBetter(c,p); return ''; }
 function sendDown(L,id) { const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p) return 'Nobody by that name.';
   if(p.age>25) return 'Only players 25 and under can go to the farm club.'; if((c.farm||[]).length>=FARM_MAX) return 'The farm club is full ('+FARM_MAX+').';
   if(!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters on the roster.'; if(p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers on the roster.';
@@ -314,7 +361,7 @@ function validLeague(o) {
       if (g.formKey !== undefined && (typeof g.formKey !== 'string' || !g.formKey.length || g.formKey.length > 80)) return false;
       if (g.formChanges !== undefined && (!Array.isArray(g.formChanges) || !g.formChanges.every(x => x &&
           [g.home,g.away].includes(x.club) && int(x.id) && o.clubs[x.club].players.some(p => p.id === x.id) &&
-          typeof x.name === 'string' && [x.before,x.after].every(n => int(n) && n >= -3 && n <= 3)))) return false;
+          typeof x.name === 'string' && [x.before,x.after].every(n => int(n) && n >= -5 && n <= 5)))) return false;
     }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
     if(o.moraleNotes!==undefined&&(!Array.isArray(o.moraleNotes)||o.moraleNotes.length>12||!o.moraleNotes.every(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.key)&&typeof x.text==='string'&&typeof x.kind==='string')))return false;
@@ -344,7 +391,7 @@ const SPORT = {
   lineup: c=>setLineup(c), sameRole: (a,b)=>a.pitcher===b.pitcher, farmMax: FARM_MAX, valid: o=>validLeague(o),
   cantLose: (c,p)=>!p.pitcher&&batters(c).length<=DM.minBatters ? 'You need at least nine batters. Sign one first.'
     : p.pitcher&&pitchers(c).length<=DM.minPitchers ? 'You need at least five pitchers. Sign one first.' : '',
-  signed: (L,p)=>{ if(p.bargain) ensureBargains(L);resetPlayerMorale(p,DM.you);delete p.marketVisitor; },
-  traded: (L,out,incoming,other)=>{out.forEach(p=>resetPlayerMorale(p,other));incoming.forEach(p=>resetPlayerMorale(p,DM.you));},
+  signed: (L,p)=>{ if(p.bargain) ensureBargains(L);resetPlayerMorale(p,DM.you);delete p.marketVisitor;seatIfBetter(L.clubs[DM.you],p); },
+  traded: (L,out,incoming,other)=>{out.forEach(p=>resetPlayerMorale(p,other));incoming.forEach(p=>resetPlayerMorale(p,DM.you));const you=L.clubs[DM.you];incoming.forEach(p=>{if(you.players.includes(p))seatIfBetter(you,p);});},
   upgraded: (L,k)=>{ if(k==='scouting') fillFreeAgents(L,L.freeAgents.length); }
 };

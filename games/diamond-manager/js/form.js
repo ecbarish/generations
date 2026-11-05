@@ -3,8 +3,8 @@
    Only completed, qualifying appearances count. No random rolls or bench penalties. */
 function freshForm(){return {recent:[],lastGame:null};}
 function validForm(f){return f===undefined||!!(f&&Array.isArray(f.recent)&&f.recent.length<=5&&f.recent.every(n=>Number.isInteger(n)&&n>=-1&&n<=1)&&(f.lastGame===null||(typeof f.lastGame==='string'&&f.lastGame.length>0&&f.lastGame.length<=80)));}
-function formBonus(p){return clamp((p.form?.recent||[]).reduce((n,x)=>n+x,0),-3,3);}
-function formWord(p){const n=formBonus(p);return n>=2?'Hot':n<=-2?'Cold':n===1?'Warming':n===-1?'Cooling':'Steady';}
+function formBonus(p){return clamp((p.form?.recent||[]).reduce((n,x)=>n+x,0),-5,5);}
+function formWord(p){const n=formBonus(p);return n>=5?'Hot':n<=-5?'Cold':n>=1?'Warming':n<=-1?'Cooling':'Steady';}
 function formRatings(p){const q={...p},n=formBonus(p);for(const k of p.pitcher?['stuff','control']:['contact','power','eye'])q[k]=clamp(p[k]+n,0,99);return q;}
 function formGameKey(L){return L.season+':'+(L.phase==='final'?'final:'+L.final.games.length:'day:'+L.day);}
 function recordForm(L,g){

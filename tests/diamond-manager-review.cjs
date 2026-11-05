@@ -92,7 +92,7 @@ async function review(browser, width, height) {
       const cold = club.players.find(p => p.id === club.lineup[1]);
       const pitcher = d.pitchers(club).slice().sort((a, b) => d.overall(b) - d.overall(a))[0];
       // Exercise the same recording function as completed games; no new random rolls.
-      for (let n = 0; n < 3; n++) d.recordForm(league, {
+      for (let n = 0; n < 5; n++) d.recordForm(league, {
         home: d.DM.you, away: 1, done: true, formKey: `review:${n}`,
         box: { [hot.id]: { ab: 4, h: 2 }, [cold.id]: { ab: 4, h: 0 } },
         pbox: { [pitcher.id]: { outs: 18, r: 1 } },
@@ -115,8 +115,8 @@ async function review(browser, width, height) {
       assert.equal(await label.innerText(), player.summary);
       assert.ok((await label.locator('..').innerText()).includes(player.name), 'Form stays beside the named player');
     }
-    assert.ok(fixture[0].summary.startsWith('Hot · next game +3'));
-    assert.ok(fixture[1].summary.startsWith('Cold · next game -3'));
+    assert.ok(fixture[0].summary.startsWith('Hot · next game +5'));
+    assert.ok(fixture[1].summary.startsWith('Cold · next game -5'));
     await capture(page, result, 'roster');
     result.checks.push('Named hot and cold batters show their next-game adjustments');
     await noOverflow(page, result, 'roster');
@@ -159,7 +159,7 @@ async function review(browser, width, height) {
     assert.equal(await rules.evaluate(node => node.open), true);
     const rulesText = await rules.locator('p').innerText();
     for (const text of ['last five qualifying appearances', 'three plate appearances', 'Pitchers need three innings',
-      'up to three either way', 'Five settled appearances', 'Glove, Speed and Stamina never change']) {
+      'up to five either way', 'Five settled appearances', 'Glove, Speed and Stamina never change']) {
       assert.ok(rulesText.includes(text), `Rules disclose: ${text}`);
     }
     await capture(page, result, 'rules');
