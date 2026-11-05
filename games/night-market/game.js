@@ -68,7 +68,19 @@
   }
 
   function bestBuyIndex() {
-    return M.bestIndex(state);
+    var tagged = M.bestIndex(state);
+    if (!(state.bulk === 1 || state.bulk === '1') || !(tagged >= 0)) return tagged;
+    var price = M.cost(tagged, state.stalls[tagged].owned, 1, state);
+    if (price <= state.cash + 0.001) return tagged;
+    var best = -1, score = Infinity, i, sec, one;
+    for (i = 0; i < state.stalls.length; i++) {
+      if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
+      one = M.cost(i, state.stalls[i].owned, 1, state);
+      if (one > state.cash + 0.001) continue;
+      sec = M.paybackSeconds(state, i, 1);
+      if (sec < score) { score = sec; best = i; }
+    }
+    return best >= 0 ? best : tagged;
   }
 
   /* The stall a player would save for. bestIndex stays the purchase rule, so a
@@ -194,7 +206,7 @@
     if (nextGoal) {
       var chapter = i === M.STALLS.length - 1 ? M.chapterLine(state) : '';
       var goalBit = chapter ? chapter + ' ' + M.nextGoalLine(state, i) : M.nextGoalLine(state, i);
-      if (i < 5 && st.owned >= 7 && st.owned < 10 && M.lowestOwned(state) < 10) goalBit += ' At 10 the whole lane earns twice as much.';
+      if (i < 5 && st.owned >= 7 && st.owned < 10 && st.owned === M.lowestOwned(state)) goalBit += ' The lane doubles once every stall has 10.';
       nextGoal.textContent = goalBit;
     }
     wait.textContent = M.paybackLine(state, i);
@@ -229,24 +241,27 @@
       else tag.hidden = true;
     }
     buy.classList.remove('best');
-    buy.dataset.count = String(offer.count);
+    var holdingBuy = typeof pressedBuy !== 'undefined' && pressedBuy && pressedBuy.el === buy && Date.now() - pressedBuy.t < 1500;
+    if (!holdingBuy) buy.dataset.count = String(offer.count);
     var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
     var slowMax = state.bulk === 'max' && offer.blocked === 'payback' && !firstMat;
     buy.classList.toggle('unroll', firstMat);
     buy.classList.toggle('refused', slowMax);
-    if (slowMax) {
+    if (!holdingBuy && slowMax) {
       buy.classList.remove('reserved', 'keep-slot');
       buy.disabled = false;
       buy.dataset.count = '1';
       buy.title = 'A bigger batch pays for itself too slowly. Max buys one.';
       buy.textContent = 'Max · 1 · ' + money(offer.cost);
       wait.textContent = 'Max will not buy a slow batch. It buys one. Use 1, 10 or Next for the rest.';
-    } else {
+    } else if (!holdingBuy) {
       buy.title = '';
       buy.textContent = firstMat
         ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
         : buyLabel(i, offer);
       buy.disabled = !(offer.count > 0);
+    } else if (slowMax) {
+      wait.textContent = 'Max will not buy a slow batch. It buys one. Use 1, 10 or Next for the rest.';
     }
     var needLine = li.querySelector('.need');
     if (needLine) {
@@ -288,6 +303,7 @@
     $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
     var rateLine = (freeze ? 'The night has ended.' : (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.')) + (freeze ? '' : holdSuffix());
+    if (!freeze && state.night && state.night.offer) rateLine += ' The stalls are paused.';
     var rateEl = $('#rate');
     rateEl.textContent = rateLine;
     rateEl.classList.toggle('flash', Date.now() < rateFlashUntil);
@@ -531,6 +547,8 @@
       $('#pick-lead').textContent = (omenQuiet ? omenQuiet.brief : 'No omen yet.') +
         (taken.length ? ' Charms tonight: ' + taken.join(', ') + '.' : ' No charm yet.') +
         ' ' + M.nextOfferLine(state);
+      var pausedQuiet = $('#pick-paused');
+      if (pausedQuiet) pausedQuiet.hidden = true;
       var idleChoices = $('#pick-choices');
       if (idleChoices && idleChoices.dataset.sig) {
         idleChoices.dataset.sig = '';
@@ -547,6 +565,8 @@
       ? 'Choose an omen for tonight.'
       : ((offer.kind === 'charm' ? 'Pick a charm for tonight, or skip: ' : 'Pick one for tonight, or skip: ') +
         choiceLead(offer.options, function (id) { return { name: M.choiceName(offer.kind, id) }; }));
+    var paused = $('#pick-paused');
+    if (paused) paused.hidden = false;
     var choices = $('#pick-choices');
     var sig = offer.kind + '|' + offer.options.join(',') + '|' + (state.night.rerollUsed ? 1 : 0);
     if (panel) {
@@ -601,6 +621,24 @@
       if (firstChoice) firstChoice.focus({ preventScroll: true });
     }
     placeOfferPanel();
+    if (offerModalSig === sig) revealOffer();
+  }
+  function revealOffer() {
+    var panel = $('#pick-panel');
+    if (!panel || !state.night || !state.night.offer) return;
+    var key = (state.night.offer.options || []).join('|');
+    if (panel.dataset.revealed === key) return;
+    panel.dataset.revealed = key;
+    var scroller = document.querySelector('.stalls');
+    if (!scroller) return;
+    if (!(scroller && scroller.scrollHeight > scroller.clientHeight + 2)) return;
+    var box = panel.getBoundingClientRect();
+    var sBox = scroller.getBoundingClientRect();
+    if (scroller.scrollTop < 24) {
+      if (box.bottom > sBox.bottom + 4 && box.top < sBox.bottom) scroller.scrollTop += Math.min(box.bottom - sBox.bottom + 8, 72);
+      return;
+    }
+    if (box.top < sBox.top - 4 || box.bottom > sBox.bottom + 4) scroller.scrollTop += box.top - sBox.top;
   }
   function trapTab(panel, e) {
     if (!panel || e.key !== 'Tab') return false;
@@ -965,6 +1003,7 @@
         lane('buy', i, had, state.stalls[i].owned);
         if (i === M.STALLS.length - 1 && had < 1 && state.stalls[i].owned >= 1) revealFinale();
       }
+      pointerDown = false;
     }
     else return;
     persist();

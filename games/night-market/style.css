@@ -158,6 +158,11 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 .pick p { margin: 0 0 0.35rem; }
 .pick .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .pick button { flex: 1 1 100%; min-width: 0; min-height: 44px; text-align: left; overflow-wrap: anywhere; }
+@media (max-width: 1000px) {
+  /* A one-line option and a wrapped one used to swap 44px for 62px and shove Skip. */
+  /* The longest omen is about seven lines. Every option is that tall, so Skip does not jump and the words are not cut off. */
+  .pick button { min-height: 7.2rem; height: auto; overflow: visible; }
+}
 #rate.flash { background: var(--amber-wash); }
 .pick .choices + .choices { margin-top: 0.35rem; }
 .codex { margin-top: 0.4rem; color: var(--mute); }
@@ -238,8 +243,11 @@ button[aria-pressed="true"], button.ask, button.best {
 .best-tag[hidden] { display: none !important; }
 .habit, .facts, .wait, .next-goal, .payback-hint { margin: 0.2rem 0; font-variant-numeric: tabular-nums; }
 .stall h2 { min-height: 2.5rem; }
-.habit { min-height: 3.8rem; }
+.habit { min-height: 3.2rem; }
+/* The doubling sentence wraps once a scrollbar narrows the row. Habit gives up
+   the same space, so the row is no taller and the stalls under it stay put. */
 .facts, .wait, .next-goal, .need { min-height: 4.2rem; display: block; }
+.facts { min-height: 4.8rem; }
 .need { color: var(--mute); margin: 0; min-height: 2.4rem; line-height: 1.2; }
 .facts:empty, .wait:empty, .next-goal:empty { display: block; }
 .pour { min-height: 1.35rem; }
@@ -280,6 +288,10 @@ button[aria-pressed="true"], button.ask, button.best {
 }
 /* The Unroll label wraps onto a second line. The button is that tall from the
    first paint, so the rows under the Story Mat do not drop when it opens. */
+/* The closed mat names its price on a second line. The next-goal box lends
+   that height, so opening the mat does not shrink the row. */
+#stalls [data-i="5"] .wait { min-height: 4.8rem; }
+#stalls [data-i="5"] .next-goal { min-height: 3.6rem; }
 #stalls [data-i="5"] [data-act="buy"] {
   white-space: normal;
   height: auto;

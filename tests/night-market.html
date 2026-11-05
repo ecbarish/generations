@@ -3027,9 +3027,12 @@ document.querySelector('#run').onclick = async function () {
       layout.style.height = size[1] + 'px';
       var label = size[0] + 'x' + size[1];
       lw.scrollTo(0, 0);
+      var stallList = ld.getElementById('stalls');
+      stallList.scrollTop = 0;
       lm.render();
       var pad = parseFloat(lw.getComputedStyle(ld.documentElement).scrollPaddingTop) || 0;
-      ld.getElementById('stalls').scrollIntoView({ block: 'start' });
+      stallList.scrollTop = 0;
+      stallList.scrollIntoView({ block: 'start' });
       lm.render();
       var phone = size[0] <= 1000;
       var pin = ld.querySelector(phone ? '#goal-pin' : '#coin-pin');
@@ -3429,7 +3432,64 @@ document.querySelector('#run').onclick = async function () {
     var hintNight = M.fresh();
     hintNight.stalls[0].hired = true;
     hintNight.stalls[0].owned = 9;
-    check('the goal hints before the lane doubles at 10', /At 10 the whole lane earns twice as much/.test(M.goal(hintNight)) && /Next bonus: 25 Tea Stalls, x2/.test(M.goal(hintNight)));
+    check('ten tea stalls do not claim the lane doubles', !/once every stall has 10/.test(M.goal(hintNight)) && !/At 10 the whole lane/.test(M.goal(hintNight)) && /Next bonus: 25 Tea Stalls, x2/.test(M.goal(hintNight)));
+    hintNight.stalls.forEach(function (st, i) { if (i < 5) { st.hired = true; st.owned = 9; } });
+    check('the page goal does not pretend one stall doubles the lane', !/At 10 the whole lane/.test(M.goal(hintNight)));
+    var nearPair = M.fresh();
+    nearPair.stalls[0].hired = true;
+    nearPair.stalls[0].owned = 40;
+    var lineA = 'Your income 2.12K to 2.22K a second.';
+    var lineB = 'Your income 2.12K to 2.24K a second. Tea Stall earns more.';
+    check('near-equal displayed outcomes are duplicates', M.nearOutcome(lineA, lineB) && !M.nearOutcome(lineA, 'Your income 2.12K to 4.24K a second.'));
+    var omenCut = false, omenSeed;
+    [1, 2, 5, 99, 2024, 4111981860].forEach(function (omenSeed) {
+      var omenState = M.fresh();
+      M.armNight(omenState, 1, omenSeed);
+      var omenOpts = omenState.night.offer.options.join(',');
+      if (/wick|mooncake/.test(omenOpts)) omenCut = true;
+      M.armNight(omenState, 2, omenSeed);
+      if (/wick|mooncake/.test(omenState.night.offer.options.join(','))) omenCut = true;
+    });
+    check('an opening omen does not cut a stall\'s income', !omenCut);
+    var saveBuy = M.fresh();
+    saveBuy.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 4 ? 20 : 0; });
+    saveBuy.cash = 500;
+    saveBuy.bulk = 1;
+    check('an affordable stall is the buy when the tray is out of reach', M.bestIndex(saveBuy) >= 0);
+    check('two price cuts under two coins are not offered together', (function () {
+      var penny = M.fresh();
+      penny.stalls[0].hired = true;
+      penny.stalls[0].owned = 8;
+      penny.cash = 100;
+      var cheap = M.choiceLine(penny, 'lane', 'price@1');
+      var priced = M.choiceLine(penny, 'priced', 'tea');
+      var move = function (line) {
+        var found = /([\d.]+) to ([\d.]+)/.exec(line || '');
+        return found ? parseFloat(found[1]) - parseFloat(found[2]) : 99;
+      };
+      return move(cheap) < 2 && move(priced) < 2 && !M.pairOk(penny, 'pick', 'lane:price@1', 'priced:tea');
+    })());
+    var variety = M.fresh();
+    M.armNight(variety, 1, 99);
+    variety.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 5 ? 12 : 0; });
+    variety.cash = 1e9;
+    variety.night.offer = null;
+    var seenPairs = [], seenLines = [], repeatedCard = false, varietyGuard = 0;
+    while (varietyGuard++ < 10) {
+      variety.night.quiet = 90;
+      variety.night.pendingFallback = null;
+      M.nextOfferLine(variety);
+      M.elapse(variety, 1);
+      if (!variety.night.offer) M.elapse(variety, 1);
+      if (!variety.night.offer) break;
+      var pairNow = (variety.night.subjectPairs || []).slice(-1)[0] || '';
+      var lineNow = variety.night.offer.options.map(function (id) { return M.choiceLine(variety, variety.night.offer.kind, id); }).sort().join('|');
+      if ((pairNow && seenPairs.indexOf(pairNow) >= 0) || seenLines.indexOf(lineNow) >= 0) repeatedCard = true;
+      if (pairNow) seenPairs.push(pairNow);
+      seenLines.push(lineNow);
+      M.skipOffer(variety);
+    }
+    check('a night does not repeat a pair or a line (' + seenPairs.join(',') + ')', !repeatedCard && seenPairs.length >= 4);
 
     var playFrame = await openLane('../games/night-market/index.html', 390, 844);
     var pw = playFrame.contentWindow, pd = pw.document, pg = pw.__nightMarket, PM = pw.NightMarket;
@@ -3518,7 +3578,10 @@ document.querySelector('#run').onclick = async function () {
     pg.state.cash = 1e6;
     pg.state.night.offer = null;
     pg.render();
-    check('nearing 10 of a stall hints that the lane doubles', /At 10 the whole lane earns twice as much/.test(pd.querySelector('#stalls [data-i="0"] .next-goal').textContent));
+    check('ten of one stall does not say the lane doubles', !/once every stall has 10/.test(pd.querySelector('#stalls [data-i="0"] .next-goal').textContent));
+    pg.state.stalls.forEach(function (st, i) { if (i < 5) { st.hired = true; st.owned = 9; } });
+    pg.render();
+    check('the stall that is holding the lane at 10 says when the lane doubles', /The lane doubles once every stall has 10/.test(pd.querySelector('#stalls [data-i="0"] .next-goal').textContent));
     var pickSlot = pd.querySelector('#pick').getBoundingClientRect().top;
     var stallBelow = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
     pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry'] };
@@ -3530,6 +3593,55 @@ document.querySelector('#run').onclick = async function () {
     pg.render();
     var stallBelowShut = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
     check('the choice card stays on its slot when it opens', Math.abs(pickOpenTop - pickSlot) < 2 && Math.abs(stallBelowOpen - stallBelow) < 2 && Math.abs(stallBelowShut - stallBelow) < 2);
+    playFrame.style.width = '390px';
+    playFrame.style.height = '844px';
+    pg.state.stalls[5].owned = 0;
+    pg.state.night.kept = false;
+    pg.state.night.offer = { kind: 'charm', stall: 'tea', options: ['mei-quick', 'mei-regulars'] };
+    pg.state.night.rerollUsed = false;
+    pg.render();
+    check('an open card says the stalls are paused', /The stalls are paused/.test(pd.querySelector('#rate').textContent));
+    var shortSkip = pd.querySelector('#pick [data-act="skip"]').getBoundingClientRect().top;
+    pg.state.night.offer = { kind: 'charm', stall: 'dumpling', options: ['bo-queue', 'bo-steam'] };
+    pg.render();
+    var tallSkip = pd.querySelector('#pick [data-act="skip"]').getBoundingClientRect().top;
+    var optionHeights = [];
+    pd.querySelectorAll('#pick button').forEach(function (b) {
+      if (!b.hidden) optionHeights.push(b.getBoundingClientRect().height);
+    });
+    check('pick buttons keep one height so Skip does not jump', Math.abs(tallSkip - shortSkip) < 2 && optionHeights.every(function (h) { return h >= 62; }));
+    pg.state.night.offer = null;
+    pg.state.bulk = 'max';
+    pg.state.stalls[0].hired = true;
+    pg.state.stalls[0].owned = 3;
+    pg.state.cash = 80;
+    pg.render();
+    var heldBuy = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+    var heldCount = parseInt(heldBuy.dataset.count, 10);
+    heldBuy.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 7 }));
+    pg.state.cash += 1000000;
+    pg.render();
+    var heldOwned = pg.state.stalls[0].owned;
+    heldBuy.click();
+    pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0, pointerId: 7 }));
+    check('Max buys the count it was showing when the press began', heldCount > 0 && pg.state.stalls[0].owned === heldOwned + heldCount);
+    playFrame.style.width = '1280px';
+    playFrame.style.height = '800px';
+    pg.state.night.offer = null;
+    pg.state.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 5 ? 8 : 0; });
+    pg.render();
+    var stallScroll = pd.querySelector('.stalls');
+    if (stallScroll) stallScroll.scrollTop = stallScroll.scrollHeight;
+    pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
+    pg.state.night.rerollUsed = false;
+    var revealed = pd.querySelector('#pick-panel');
+    if (revealed) delete revealed.dataset.revealed;
+    pg.render();
+    var cardBox = pd.querySelector('#pick-panel').getBoundingClientRect();
+    var listBox = stallScroll.getBoundingClientRect();
+    check('the choice card scrolls into the stall list when it opens', cardBox.height > 40 && cardBox.top >= listBox.top - 4 && cardBox.top < listBox.bottom);
+    pg.state.night.offer = null;
+    if (stallScroll) stallScroll.scrollTop = 0;
     [360, 390].forEach(function (phoneW) {
       playFrame.style.width = phoneW + 'px';
       playFrame.style.height = phoneW === 360 ? '780px' : '844px';
@@ -3626,6 +3738,155 @@ document.querySelector('#run').onclick = async function () {
     }
     var matShift = playedMatShift(99);
     check('a played night does not move the rows below the Story Mat (' + matShift.shift.toFixed(1) + 'px)', matShift.opened && matShift.shift < 2);
+    function rowBoxes() {
+      var boxes = [];
+      pd.querySelectorAll('#stalls > [data-i]').forEach(function (el) {
+        var rect = el.getBoundingClientRect();
+        boxes.push({ top: rect.top, h: rect.height });
+      });
+      return boxes;
+    }
+    function playedEveryRow(seed) {
+      var gutter = pd.getElementById('scrollbar-gutter-proof');
+      if (!gutter) {
+        gutter = pd.createElement('style');
+        gutter.id = 'scrollbar-gutter-proof';
+        gutter.textContent = 'html{overflow-y:scroll !important;scrollbar-gutter:stable !important}';
+        pd.head.appendChild(gutter);
+      }
+      playFrame.style.width = '320px';
+      playFrame.style.height = '568px';
+      armPlayed(seed);
+      pg.state.bulk = 'max';
+      var clock = pw.Date.now;
+      var origin = clock.call(pw.Date) + 10000;
+      var sim = 0;
+      pw.Date.now = function () { return origin + sim * 1000; };
+      pg.render();
+      var prev = rowBoxes();
+      var worst = 0, where = '', opened = 0;
+      while (sim < 1400 && !opened) {
+        if (pg.state.night.offer) {
+          sim += 0.4;
+          var take = pd.querySelector('#pick-choices button');
+          if (take) take.click();
+        }
+        var acted = false, si;
+        for (si = 0; si < pg.state.stalls.length; si++) {
+          if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
+          var hireBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="hire"]');
+          var serveBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="serve"]');
+          if (hireBtn && !hireBtn.disabled) hireBtn.click();
+          else if (serveBtn) serveBtn.click();
+          acted = true;
+          break;
+        }
+        if (!acted) {
+          var best = -1, score = Infinity;
+          for (si = 0; si < 5; si++) {
+            if (!pg.state.stalls[si].hired || !PM.unlocked(pg.state, si)) continue;
+            var quote = PM.quote(pg.state, si, 'max');
+            if (!(quote.count > 0)) continue;
+            var sec = PM.paybackSeconds(pg.state, si, quote.count);
+            if (sec < score) { score = sec; best = si; }
+          }
+          var press = best >= 0 ? pd.querySelector('#stalls [data-i="' + best + '"] [data-act="buy"]') : null;
+          if (press && !press.disabled) press.click();
+        }
+        var gained = PM.income(pg.state);
+        if (gained > 0) { pg.state.cash += gained; pg.state.lifetime += gained; }
+        sim += 1;
+        pg.render();
+        var now = rowBoxes();
+        if (sim > 2) {
+          for (si = 0; si < now.length; si++) {
+            var dH = Math.abs(now[si].h - prev[si].h);
+            var dT = Math.abs(now[si].top - prev[si].top);
+            var delta = dH > dT ? dH : dT;
+            if (delta > worst) {
+              worst = delta;
+              where = 't=' + Math.round(sim) + ' row ' + si + ' height ' + prev[si].h.toFixed(0) + '→' + now[si].h.toFixed(0) + ' top ' + (now[si].top - prev[si].top).toFixed(1);
+            }
+          }
+        }
+        var unroll = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+        if (unroll && /Unroll/.test(unroll.textContent)) opened = Math.round(sim);
+        prev = now;
+      }
+      pw.Date.now = clock;
+      if (gutter.parentNode) gutter.parentNode.removeChild(gutter);
+      return { opened: opened, worst: worst, where: where };
+    }
+    var everyRow = playedEveryRow(99);
+    check('a played night does not resize or move any stall row (' + everyRow.worst.toFixed(1) + 'px ' + everyRow.where + ')', everyRow.opened > 0 && everyRow.worst < 2);
+    function playedGaps(seed, width, height, earn) {
+      playFrame.style.width = width + 'px';
+      playFrame.style.height = height + 'px';
+      armPlayed(seed);
+      pg.state.bulk = 1;
+      var clock = pw.Date.now;
+      var origin = clock.call(pw.Date) + 10000;
+      var sim = 0;
+      pw.Date.now = function () { return origin + sim * 1000; };
+      pg.render();
+      var last = 0, worst = 0, at = '0', times = [];
+      while (sim < 240 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
+        var pick = pd.querySelector('#pick');
+        if (pick && !pick.classList.contains('quiet')) {
+          var gap = sim - last;
+          if (times.length && gap > worst) { worst = gap; at = Math.round(last) + '→' + Math.round(sim); }
+          times.push(Math.round(sim));
+          last = sim;
+          sim += 0.4;
+          var choice = pd.querySelector('#pick-choices button');
+          if (choice) choice.click();
+        }
+        var acted = false, si;
+        for (si = 0; si < pg.state.stalls.length; si++) {
+          if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
+          var hireBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="hire"]');
+          var serveBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="serve"]');
+          if (hireBtn && !hireBtn.disabled) hireBtn.click();
+          else if (serveBtn) serveBtn.click();
+          acted = true;
+          break;
+        }
+        if (!acted) {
+          var target = -1, pay = Infinity;
+          for (si = 0; si < pg.state.stalls.length; si++) {
+            if (!pg.state.stalls[si].hired || !PM.unlocked(pg.state, si)) continue;
+            if (PM.cost(si, pg.state.stalls[si].owned, 1, pg.state) > pg.state.cash) continue;
+            var sec = PM.paybackSeconds(pg.state, si, 1);
+            if (sec < pay) { pay = sec; target = si; }
+          }
+          var press = target >= 0 ? pd.querySelector('#stalls [data-i="' + target + '"] [data-act="buy"]') : null;
+          if (press && !press.disabled) press.click();
+        }
+        if (earn) {
+          var earned = PM.income(pg.state);
+          if (earned > 0) { pg.state.cash += earned; pg.state.lifetime += earned; }
+        }
+        sim += 1;
+        pg.render();
+      }
+      var tail = sim - last;
+      if (tail > worst) { worst = tail; at = Math.round(last) + '→' + Math.round(sim); }
+      pw.Date.now = clock;
+      return { worst: worst, at: at, times: times.join(',') };
+    }
+    var gapCases = [
+      playedGaps(99, 320, 568, false),
+      playedGaps(4111981860, 390, 844, false),
+      playedGaps(99, 320, 568, true),
+      playedGaps(4111981860, 390, 844, true),
+      playedGaps(2024, 844, 390, true),
+      playedGaps(1, 390, 844, true)
+    ];
+    var gapWorst = 0, gapWhere = '';
+    gapCases.forEach(function (row, i) {
+      if (row.worst > gapWorst) { gapWorst = row.worst; gapWhere = i + ' ' + row.at + ' [' + row.times + ']'; }
+    });
+    check('a played buy-1 night keeps an offer within 120 seconds from the start (' + gapWorst.toFixed(0) + 's ' + gapWhere + ')', gapWorst <= 120);
     armPlayed(1);
     pg.state.stalls[0].hired = true;
     pg.state.stalls[0].owned = 4;
@@ -3693,6 +3954,15 @@ document.querySelector('#run').onclick = async function () {
         if (/M$/.test(token)) return parseFloat(token) * 1000000;
         return /K$/.test(token) ? parseFloat(token) * 1000 : parseFloat(token);
       }
+      function rowBoxes() {
+        var boxes = [];
+        pd.querySelectorAll('#stalls > [data-i]').forEach(function (el) {
+          var rect = el.getBoundingClientRect();
+          boxes.push({ top: rect.top, h: rect.height });
+        });
+        return boxes;
+      }
+      var prevBoxes = rowBoxes();
       var midGaps = [];
       while (sim < 1700 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
         var pick = pd.querySelector('#pick');
@@ -3737,8 +4007,6 @@ document.querySelector('#run').onclick = async function () {
             if (skip && !skip.hidden) skip.click();
           }
         }
-        var matWas = PM.unlocked(pg.state, 5);
-        var topsBefore = matWas ? null : rowTops();
         var acted = false, si;
         for (si = 0; si < pg.state.stalls.length; si++) {
           if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
@@ -3774,21 +4042,21 @@ document.querySelector('#run').onclick = async function () {
           var press = target >= 0 ? pd.querySelector('#stalls [data-i="' + target + '"] [data-act="buy"]') : null;
           if (press && !press.disabled) press.click();
         }
-        if (topsBefore && !matWas && PM.unlocked(pg.state, 5)) {
-          var topsAfter = rowTops();
-          var matTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
-          var below = pd.querySelectorAll('#stalls > [data-i], .save');
-          for (var si = 0; si < topsBefore.length; si++) {
-            if (below[si].getBoundingClientRect().top + 0.5 < matTop) continue;
-            var moved = Math.abs(topsAfter[si] - topsBefore[si]);
-            if (moved > shift) shift = moved;
-          }
-        }
         var earned = PM.income(pg.state) * 2;
         if (earned > 0) { pg.state.cash += earned; pg.state.lifetime += earned; }
         if (PM.dawnDue(pg.state) && !pg.state.night.kept) { sim += 2; dawn = sim; break; }
         sim += 2;
         pg.render();
+        var nowBoxes = rowBoxes();
+        if (sim > 4 && nowBoxes.length === prevBoxes.length) {
+          for (si = 0; si < nowBoxes.length; si++) {
+            var dH = Math.abs(nowBoxes[si].h - prevBoxes[si].h);
+            var dT = Math.abs(nowBoxes[si].top - prevBoxes[si].top);
+            if (dH > shift) shift = dH;
+            if (dT > shift) shift = dT;
+          }
+        }
+        prevBoxes = nowBoxes;
         var goalNow = pd.querySelector('#goal');
         if (goalNow && goalNow.scrollHeight > goalNow.clientHeight + 1) overflow++;
       }
@@ -3810,6 +4078,12 @@ document.querySelector('#run').onclick = async function () {
       browserStats[sizeKey] = { max: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 }, hand: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 } };
       playFrame.style.width = browserSizes[bSize][0] + 'px';
       playFrame.style.height = browserSizes[bSize][1] + 'px';
+      if (browserSizes[bSize][0] === 320 && !pd.getElementById('scrollbar-gutter-proof')) {
+        var gutterStyle = pd.createElement('style');
+        gutterStyle.id = 'scrollbar-gutter-proof';
+        gutterStyle.textContent = 'html{overflow-y:scroll !important;scrollbar-gutter:stable !important}';
+        pd.head.appendChild(gutterStyle);
+      }
       for (var bSeed = 0; bSeed < browserSeeds.length; bSeed++) {
         await new Promise(function (r) { setTimeout(r, 0); });
         ['max', 1].forEach(function (mode) {
