@@ -7,7 +7,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.4 system
 header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{margin:0;font-size:1.5rem;letter-spacing:.02em}
 .tag{color:var(--soft);font-size:.9rem}
-.home{color:var(--accent);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.home{color:var(--accent);text-decoration:none;font-weight:600;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
 section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
 .listing{display:grid;gap:12px;grid-template-columns:1fr}
 .house{width:100%;max-width:340px;height:auto;justify-self:center}
@@ -18,21 +18,34 @@ section{background:var(--card);border:1px solid var(--line);border-radius:10px;p
 .choice{display:grid;gap:4px}.choice.wide{grid-column:1/-1}
 .label{font-size:.85rem;color:var(--soft)}
 button{font:inherit;min-height:44px;min-width:44px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .stepper{display:flex;align-items:center;gap:8px}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
 .toggle{display:flex;gap:6px;flex-wrap:wrap}.toggle button{flex:1 1 auto}
 .toggle button[aria-checked="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.rehab button{text-align:left;flex:1 1 220px}.rehab small{display:block;color:inherit;opacity:.8}
+.rehab button{text-align:left;flex:1 1 220px;min-height:76px}.rehab small{display:block;color:inherit;opacity:.8}
 .month{width:100%;border-collapse:collapse;margin:12px 0}
 .month th{text-align:left;font-weight:400;padding:4px 0;color:var(--soft)}.month td{text-align:right;padding:4px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
 .month tr+tr{border-top:1px dashed var(--line)}.month .total th,.month .total td{font-weight:700;color:var(--ink);padding-top:8px}
+.month tr.total.good td{color:var(--good)}.month tr.total.bad td{color:var(--bad)}
 .measures{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:1fr 1fr}
 .measures li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.measures .v{white-space:nowrap}
 .measures small{grid-column:1/-1;color:var(--soft);font-size:.8rem}
+.note-stack{display:grid}.note-stack>span{grid-area:1/1}.note-hold{visibility:hidden}
 .measures .v{font-weight:700;font-variant-numeric:tabular-nums}
 .good .v{color:var(--good)}.bad .v{color:var(--bad)}
+.outlook-slot{display:grid;margin:12px 0 0}
+.outlook-slot>.outlook{grid-area:1/1;margin:0}
+.outlook{margin:12px 0 0;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:#fff}
+.outlook.good{background:#eef6ee;border-color:#a8c8ac}.outlook.bad{background:#fbe9df;border-color:#e0b8a8}
+.outlook-hold{display:grid;visibility:hidden}
+.outlook-hold>span{grid-area:1/1}
+.outlook b{font-size:1.05rem}
+.of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
+.answer .actions{flex-wrap:nowrap}.answer .actions button{flex:1 1 0}
 .primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
 .answer h2{margin:0 0 6px}.answer p{margin:6px 0}
 .months{list-style:none;padding:0;margin:10px 0;display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
@@ -43,21 +56,82 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
+.goal-slot,.budget-slot{display:grid}.goal-slot>*,.budget-slot>*{grid-area:1/1;margin:0;align-self:start}
+.goal-hold,.budget-hold{visibility:hidden}
+.budget-hold{display:grid}.budget-hold>span{grid-area:1/1}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.cash b{display:inline-block;min-width:9ch;text-align:right}
+.budget-slot,#giveup,#finale{grid-column:1/-1}
+.budget-slot{margin:4px 0 0}
+.finale{background:transparent;border:0;padding:0}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:.78rem;color:var(--soft);line-height:1.2;overflow-wrap:anywhere;min-width:0}
+.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
 .doors .now{border-color:var(--ink);background:#fff;box-shadow:0 0 0 2px var(--gold)}
 .doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
-.doors .gone{opacity:.6;text-decoration:line-through}
+.doors .gone{color:var(--soft);text-decoration:line-through}
 .afford{margin:10px 0 0;color:var(--bad);font-weight:600}
+.shortcash{margin:8px 0 0;color:var(--bad);font-weight:700}
+@media (max-width:859px) and (max-height:900px){
+ .desk{padding:6px 10px 10px}
+ section{padding:8px 10px}
+ .street{gap:4px}
+ .goal-slot,.cash{grid-column:1/-1}
+ .cash{text-align:left}
+ .rehab{flex-wrap:nowrap}
+ .rehab button{min-height:44px;flex:1 1 0;padding:4px;font-size:.72rem}
+ .actions{flex-wrap:nowrap;margin-top:8px}
+}
+@media (max-width:859px) and (max-height:700px){
+ .desk{padding:4px 8px 8px}
+ header .tag{display:none}
+ header h1{font-size:1.05rem}
+ section{padding:4px 8px}
+ .street{gap:2px}
+ .goal{font-size:.9rem}
+ .budget{font-size:.8rem}
+ .goal-slot,.cash{grid-column:1/-1}
+ .cash{text-align:left}
+ .doors li{padding:2px 1px}
+ .doors li b{font-size:.8rem}
+ .rehab{flex-wrap:nowrap}
+ .rehab button{min-height:44px;flex:1 1 0;padding:4px 4px;font-size:.72rem}
+ .sheet h2{margin:0 0 4px;font-size:1rem}
+ .choices{gap:4px}
+ .label{font-size:.75rem}
+ .stepper output{min-width:5.5em;font-size:1rem}
+ .shortcash{margin:4px 0 0}
+ .actions{margin-top:6px}
+}
 .house svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
 .yours{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px}
 .yours li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
 .yours li small{grid-column:1/-1;color:var(--soft)}.yours .pays{background:#eef6ee}.yours .lost{background:#fbe9df}
 @media (min-width:860px){
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
- header,.street,.answer{grid-column:1/-1}
+ header,.street{grid-column:1/-1}
+}
+@media (max-width:859px){
+ .desk{display:flex;flex-direction:column}
+ .street{order:1}.sheet{order:2}.listing{order:3}.answer{order:4}
+}
+@media (max-height:450px) and (min-width:700px){
+ .desk{display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,1.3fr);align-items:start}
+ header{grid-column:1/-1;grid-row:1}
+ .street{grid-column:1;grid-row:2;order:0}
+ .sheet{grid-column:2;grid-row:2;order:0}
+ .listing{grid-column:1;grid-row:3;order:0}
 }
 @media (max-width:420px){.choices,.measures{grid-template-columns:1fr}.months{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:420px) and (max-height:860px){
+ .choices{grid-template-columns:1fr 1fr}
+ .choice.wide{grid-column:1/-1}
+}
+@media (max-width:400px) and (max-height:600px){
+ #sheetTitle{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ #dealActions button{font-size:.8rem;padding:4px 6px}
+ .street{gap:1px}
+ .rehab button,.rehab button small{font-size:.62rem;line-height:1.15}
+ .doors li{padding:1px 1px}
+}
 @media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}

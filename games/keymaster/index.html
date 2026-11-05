@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Keymaster · Generations</title><link rel="stylesheet" href="style.css"></head><body>
 <main class="desk">
 <header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Keymaster</h1><span class="tag">Alder Street, Millbrook</span></header>
-<section class="street" id="street" aria-label="Your street"><p class="goal" id="goal"></p><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><p class="cash">Your cash: <b id="cash"></b></p></section>
+<section class="street" id="street" aria-label="Your street"><div class="goal-slot"><p class="goal goal-hold" aria-hidden="true">Own 3 homes on Alder Street that each pay you in their first year: 0 of 3 so far.</p><p class="goal" id="goal"></p></div><p class="cash">Your cash: <b id="cash"></b></p><div class="budget-slot"><p class="budget budget-hold" aria-hidden="true"><span>You still need 3 homes that pay. Careful buys take about $171,750 of your $200,000.</span><span>You can't reach 3 homes that pay from here.</span><span>You bought 3 homes and made 88 offers. You still have $200,000 of your savings.</span></p><p class="budget" id="budget"></p></div><div class="actions" id="giveup" hidden><button type="button" data-act="end">End the street</button><button type="button" data-act="again">Walk Alder Street again</button></div><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><section class="finale" id="finale" hidden></section></section>
 <section class="listing" aria-labelledby="addr">
  <div class="house" id="house"></div>
  <div class="facts">
@@ -14,12 +14,16 @@
  <h2 id="sheetTitle">Run the numbers</h2>
  <div class="choices">
   <div class="choice"><span class="label" id="offerLabel">Your offer</span>
-   <div class="stepper" role="group" aria-labelledby="offerLabel"><button type="button" data-offer="-2000" aria-label="Offer $2,000 less">−</button><output id="offer" aria-live="polite"></output><button type="button" data-offer="2000" aria-label="Offer $2,000 more">+</button></div></div>
+   <div class="stepper" role="group" aria-labelledby="offerLabel"><button type="button" data-offer="-2000" aria-label="Offer $2,000 less">−</button><output id="offer" aria-live="polite"></output><button type="button" data-offer="2000" aria-label="Offer $2,000 more">+</button></div>
+   <small class="of-ask" id="ofAsk"></small></div>
   <div class="choice"><span class="label" id="downLabel">Down payment</span>
    <div class="toggle" role="radiogroup" aria-labelledby="downLabel"><button type="button" role="radio" data-down="0.2">20%</button><button type="button" role="radio" data-down="0.25">25%</button></div></div>
   <div class="choice wide"><span class="label" id="rehabLabel"></span>
    <div class="toggle rehab" role="radiogroup" aria-labelledby="rehabLabel"></div></div>
  </div>
+ <div class="actions" id="dealActions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
+ <p class="shortcash" id="shortCash" hidden>Not enough cash for this offer.</p>
+ <section class="answer" id="answer" hidden aria-live="polite"></section>
  <table class="month" aria-label="One month of the deal">
   <tr><th id="rentLabel"></th><td id="rent"></td></tr>
   <tr><th>Set aside for empty months and repairs (10%)</th><td id="aside"></td></tr>
@@ -27,15 +31,17 @@
   <tr><th id="loanLabel">Mortgage</th><td id="mortgage"></td></tr>
   <tr class="total"><th>Cash flow, each month</th><td id="flow"></td></tr>
  </table>
+ <div class="outlook-slot" id="outlookSlot">
+  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"></p>
+  <p class="outlook" id="outlook"></p>
+ </div>
  <ul class="measures" aria-label="How the deal measures up">
   <li data-m="cap"><b>Cap rate</b> <span class="v"></span><small>What it earns a year before the loan, on the price. Rentals nearby sell at 7.5%.</small></li>
-  <li data-m="coc"><b>Cash-on-cash</b> <span class="v"></span><small></small></li>
+  <li data-m="coc"><b>Cash-on-cash</b> <span class="v"></span><small><span class="note-stack"><span class="note-live"></span></span></small></li>
   <li data-m="one"><b>The 1% rule</b> <span class="v"></span><small>A quick screen: monthly rent at least 1% of the price.</small></li>
-  <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small></small></li>
+  <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small><span class="note-stack"><span class="note-live"></span></span></small></li>
  </ul>
  <p class="afford" id="afford" hidden></p>
- <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
 </section>
-<section class="answer" id="answer" hidden aria-live="polite"></section>
 </main>
 <script src="../../shared/engine.js"></script><script src="model.js"></script><script src="game.js"></script></body></html>

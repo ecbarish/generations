@@ -16,11 +16,13 @@
 
  // The five homes, in the order they come up for sale. Numbers are round on purpose: the player should be able to
  // check them on paper. `baseRent` is rent already coming in; each plan's `rent` is what the worked part brings once let.
- // `lowest` is the sellers' lowest price; offers from `counterAt` of asking up to it get a counter at `lowest`.
+ // `lowest` is the price they will take: an offer at or above it is a yes. From `counterAt` of
+ // asking up to that price they counter at `lowest`. Below `counterAt` they refuse. A higher offer
+ // is never a worse answer than a lower one.
  // Each `events` entry is a month of the first year: a repair (`cost`), or rent lost (`loseRent` in dollars, `lose` a share).
  const STREET=[
   {id:'alder14', address:'14 Alder Street', kind:'Duplex, built 1962', picture:'duplex',
-   ask:240000, lowest:216000, floor:0.90, counterAt:0.84, taxes:3600, insurance:1500, baseRent:1100,
+   ask:240000, lowest:232000, floor:0.90, counterAt:0.84, taxes:3600, insurance:1500, baseRent:1100,
    blurb:'Two units side by side. Unit A is let to a long-time tenant. Unit B has been empty since spring and needs work. '+
          'The owners have already moved away for a new job and would like a quick, simple sale.',
    units:['Unit A: $1,100 a month. Let: Mrs Okafor, 6 years, pays on the 1st','Unit B: empty, needs work'],
@@ -37,7 +39,7 @@
    events:[{m:3,cost:1100,note:'The water heater: $1,100'},{m:8,lose:1,note:'Between tenants for a month'}],
    lesson:'A nice house is not always a good rental.'},
   {id:'alder22', address:'22 Alder Street', kind:'Triplex, built 1931', picture:'triplex',
-   ask:255000, lowest:235000, counterAt:0.85, taxes:5400, insurance:2400, baseRent:0,
+   ask:255000, lowest:247000, counterAt:0.85, taxes:5400, insurance:2400, baseRent:0,
    blurb:'Three flats, let cheaply for years. Worn kitchens, old carpet and a roof that leaks over the top flat. '+
          'The owner is retiring and wants it gone before winter.',
    units:['Three flats, each let for $750 a month','Each could let for $950 refreshed, or $1,150 fully renovated'],
@@ -57,7 +59,7 @@
    events:[{m:6,cost:1200,note:'The sewer line backs up: $1,200'},{m:11,lose:1,note:'Between tenants for a month'}],
    lesson:'The 1% rule is only a quick screen.'},
   {id:'alder31', address:'31 Alder Street', kind:'Cottage, built 1940', picture:'cottage',
-   ask:150000, lowest:138000, counterAt:0.85, taxes:2400, insurance:1100, baseRent:0,
+   ask:150000, lowest:146000, counterAt:0.85, taxes:2400, insurance:1100, baseRent:0,
    blurb:'Two bedrooms at the quiet end of the street. Small, plain and solid. The last tenant stayed nine years.',
    units:['Empty: two bedrooms, one bath','Homes like it nearby let for about $1,300 a month'],
    planLabel:'Before you let it', rentLabel:'Rent, once let',
@@ -109,11 +111,12 @@
   };
  }
 
- // The sellers' answer to an offer: yes, a counter at their lowest, or no.
+ // Yes at their take-price and above, a counter at that price down to the floor, and a refusal below it.
+ // The counter price does not rise as the offer rises, so a higher bid is never a worse answer.
  function respond(price,L=LISTING){
-  const lowest=lowestOf(L);
-  if(price>=lowest)return {answer:'yes',price};
-  if(price>=L.ask*L.counterAt)return {answer:'counter',price:lowest};
+  const take=lowestOf(L), floor=L.ask*L.counterAt;
+  if(price>=take)return {answer:'yes',price};
+  if(price>=floor)return {answer:'counter',price:take};
   return {answer:'no',price:null};
  }
 
@@ -149,6 +152,85 @@
   return {word:'A costly buy',text:'You paid more than it is worth once let, and the rent did not make up the difference.'};
  }
 
+ // The year's verdict for the choice on the worksheet, before anyone has bought. `counts` is the street's
+ // goal: a thin buy or better (the same test as paying()).
+ function yearOutlook(choice,L=LISTING){
+  const y=firstYear(choice,L), v=verdict(y.onCash);
+  return {word:v.word, text:v.text, counts:y.onCash>=0, onCash:y.onCash, cashIn:y.analysis.cashIn, cashFlow:y.analysis.cashFlow};
+ }
+
+ // Which levers would bring this choice inside the cash on hand. minPrice is the lowest offer the screen
+ // will allow right now: a counter locks it to the sellers' price, so a lower offer is not offered as a way out.
+ // The price you would actually pay. A counter is not a finished buy until their price fits.
+ function payPrice(price,L=LISTING){
+  const r=respond(price,L);
+  if(r.answer==='yes')return price;
+  if(r.answer==='counter')return r.price;
+  return null;
+ }
+ const cheapCache=new Map();
+ // Cheapest seller-accepted buy on this home that still pays you. Null when none does.
+ function cheapestPaying(L=LISTING){
+  if(cheapCache.has(L.id))return cheapCache.get(L.id);
+  let best=null; const plans=plansOf(L), seen=new Set();
+  for(let price=L.ask-60000; price<=L.ask+20000; price+=2000){
+   const pay=payPrice(price,L); if(pay==null)continue;
+   for(const down of [0.2,0.25])for(const rehab of Object.keys(plans)){
+    const key=pay+'|'+down+'|'+rehab; if(seen.has(key))continue; seen.add(key);
+    const y=yearOutlook({price:pay,down,rehab},L);
+    if(y.counts&&(!best||y.cashIn<best.cashIn))best={cashIn:y.cashIn,price:pay,down,rehab};
+   }
+  }
+  cheapCache.set(L.id,best); return best;
+ }
+ // How many more paying homes the cash can still cover. Careful buys are the cheapest ones.
+ function orderOf(run){
+  const ids=run&&Array.isArray(run.order)?run.order:null;
+  if(!ids||ids.length!==STREET.length||new Set(ids).size!==STREET.length) return [];
+  const list=ids.map(id=>STREET.find(h=>h.id===id));
+  return list.some(h=>!h)?[]:list;
+ }
+ function streetBudget(run){
+  const need=Math.max(0,GOAL-paying(run)), costs=[], list=orderOf(run);
+  for(let i=run.at;i<list.length;i++){const b=cheapestPaying(list[i]); if(b)costs.push(b.cashIn);}
+  costs.sort((a,b)=>a-b);
+  const careful=costs.slice(0,need).reduce((s,n)=>s+n,0);
+  let left=run.cash, covers=0; for(const c of costs)if(left>=c){left-=c; covers++;}
+  return {need, careful, covers, possible:need===0||(costs.length>=need&&careful<=run.cash)};
+ }
+ function projectBuy(run,choice){
+  const L=current(run), y=yearOutlook(choice,L);
+  return {cash:run.cash-y.cashIn, at:run.at+1, homes:run.homes.concat([{bought:true,onCash:y.counts?1:-1}]), order:run.order};
+ }
+ // This finished buy is what makes three paying homes impossible. A price the sellers reject spends nothing.
+ function dooms(run,choice){
+  const L=current(run); if(!L)return false;
+  const pay=payPrice(choice.price,L); if(pay==null)return false;
+  return streetBudget(run).possible&&!streetBudget(projectBuy(run,Object.assign({},choice,{price:pay}))).possible;
+ }
+
+ function affordHint(run,choice,L=current(run),minPrice=choice.price){
+  const a=analyze(choice,L), plans=plansOf(L);
+  const payNow=payPrice(choice.price,L);
+  const fits=!!payNow&&analyze({price:payNow,down:choice.down,rehab:choice.rehab},L).cashIn<=run.cash&&a.cashIn<=run.cash;
+  if(fits)return {fits:true, any:true, price:false, down:false, work:false, cashIn:a.cashIn};
+  const seen=new Set(); let any=false, price=false, down=false, work=false;
+  const curCost=(plans[choice.rehab]||plans.asis).cost;
+  const floor=Math.min(minPrice,choice.price);
+  for(let p=floor; p<=L.ask+20000; p+=2000){
+   const pay=payPrice(p,L); if(pay==null||pay<floor)continue;
+   for(const d of [0.2,0.25])for(const rehab of Object.keys(plans)){
+    const key=pay+'|'+d+'|'+rehab; if(seen.has(key))continue; seen.add(key);
+    if(analyze({price:pay,down:d,rehab},L).cashIn>run.cash)continue;
+    any=true;
+    if(pay<choice.price&&d===choice.down&&rehab===choice.rehab)price=true;
+    if(d<choice.down)down=true;
+    if(plans[rehab].cost<curCost&&pay===payNow&&d===choice.down)work=true;
+   }
+  }
+  return {fits:false, any, price, down, work, cashIn:a.cashIn};
+ }
+
  // What happened when you passed: the next buyer paid the sellers' lowest and did the full renovation.
  function passed(L=LISTING){
   const y=firstYear({price:lowestOf(L),down:0.25,rehab:'full'},L);
@@ -156,8 +238,17 @@
  }
 
  // ---- KM-STREET: one run along Alder Street. A run is plain data, so a later save (KM-SAVE) can keep it as it is.
- function newRun(){return {cash:START_CASH, at:0, homes:[]};}
- const current=run=>STREET[run.at]||null;
+ function mixOrder(seed){
+  const ids=STREET.map(h=>h.id); let s=seed>>>0;
+  const rnd=()=>{s=s+0x6D2B79F5|0; let t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296;};
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1)); const t=ids[i]; ids[i]=ids[j]; ids[j]=t;}
+  if(ids.every((id,i)=>id===STREET[i].id)){const t=ids[0]; ids[0]=ids[1]; ids[1]=t;}
+  return ids;
+ }
+ function newRun(seed){
+  return {cash:START_CASH, at:0, homes:[], offers:0, order:seed!=null?mixOrder(seed):STREET.map(h=>h.id)};
+ }
+ const current=run=>orderOf(run)[run.at]||null;
  const canAfford=(run,choice,L=current(run))=>!!L&&analyze(choice,L).cashIn<=run.cash;
  // Buy the home that is up: the cash goes, the home and its first year are kept, and the next listing comes up.
  function buyHome(run,choice){
@@ -182,16 +273,22 @@
  function valid(o){
   if(!o||o.v!==SAVE_VERSION||o.game!=='keymaster'||!isNum(o.cash)||o.cash<0||o.cash>START_CASH)return false;
   if(!Number.isInteger(o.at)||o.at<0||o.at>STREET.length||!Array.isArray(o.homes)||o.homes.length!==o.at)return false;
-  return o.homes.every((h,i)=>h&&h.id===STREET[i].id&&typeof h.bought==='boolean'&&
-   (!h.bought||(isNum(h.onCash)&&isNum(h.cashFlow)&&h.choice&&isNum(h.choice.price)&&isNum(h.choice.down)&&!!STREET[i].plans[h.choice.rehab])));
+  if(!Array.isArray(o.order)||o.order.length!==STREET.length||new Set(o.order).size!==STREET.length) return false;
+  if(o.order.some(id=>!STREET.some(h=>h.id===id))) return false;
+  const ids=o.order;
+  return o.homes.every((h,i)=>{
+   const home=STREET.find(s=>s.id===ids[i]);
+   return h&&home&&h.id===ids[i]&&typeof h.bought==='boolean'&&
+    (!h.bought||(isNum(h.onCash)&&isNum(h.cashFlow)&&h.choice&&isNum(h.choice.price)&&isNum(h.choice.down)&&!!home.plans[h.choice.rehab]));
+  });
  }
- const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
- const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,offers:run.offers||0,order:(run.order||[]).slice(),homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h))),offers:isNum(o.offers)?o.offers:0,order:o.order.slice()});
  // One line for the hub's card: how the street is going.
  const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
 
- const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,passed,
-  newRun,current,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
+ const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,yearOutlook,affordHint,cheapestPaying,streetBudget,dooms,passed,
+  newRun,current,orderOf,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.KeymasterModel=api;
 })(typeof window!=='undefined'?window:globalThis);

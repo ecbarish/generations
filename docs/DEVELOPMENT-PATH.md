@@ -357,6 +357,7 @@ Six toddler places (Evan, 2026-10-14; docs/proposals/little-ranch-next.md "Six t
 ### Parked (Evan decides when)
 Primordial beyond light polish, a second sport. Proposals welcome; no builds.
 - [x] KM0 [parked until Evan gives it a focus slot] (merged: #379, c1d4d9c, 2026-10-14, v0.1.0) **Keymaster**, the property-portfolio game built on Evan's deal analyzer (docs/proposals/keymaster.md, 18-19/21). Smallest test when unparked: one listing, one analyzer, one buy.
+- [ ] KM-FINISH [any] (claimed: Grok, 2026-11-05) One finish pass so a newcomer can see whether a home's first year would count before offering, change the down payment on a counter, and pass a home the cash cannot buy. Files: `games/keymaster/`, `tests/keymaster.html`, the Lab card alt in `launcher/games.js`. No save-format change. Done when the asking-price refresh on 14 Alder Street no longer reads as a win, and a `keymaster-save-v1` save from before this pass still loads.
 Judged ideas and the scorecard for new ones: docs/proposals/new-game-ideas.md (2026-10-09).
 
 ### Main Street (business game) and its card shop (unparked by Evan 2026-10-09)
