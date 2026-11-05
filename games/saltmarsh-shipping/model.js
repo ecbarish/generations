@@ -633,16 +633,11 @@
      moves you to the next price. A fitting leaves the list where it is. */
   function shedNote(state) {
     if (!state) return '';
-    var passed = shedPasses(state);
     var price = warehousePrice(state);
-    var sheds = state.warehouses || 1;
-    var next = price == null ? '' : ' The next shed is ' + coins(price) + ' coins.';
-    if (!passed.length) {
-      if (price == null && sheds >= MAX_WAREHOUSES) return ' The yard is full. Four sheds are standing.';
-      return next;
-    }
-    var names = passed.map(function (row) { return row.name; }).join(' and ');
-    return ' You chose the ' + names + ' instead of a shed.' + next + ' Choosing a fitting does not raise this price.';
+    var next = price == null ? 'none' : coins(price);
+    var sloop = state.forks && state.forks.sloop === 'fit' ? 'done' : 'open';
+    var schooner = state.forks && state.forks.schooner === 'fit' ? 'done' : 'open';
+    return ' The lighter sloop hulls are ' + sloop + '. The deeper schooner holds are ' + schooner + '. The next shed is ' + next + ' coins. Choosing a fitting does not raise this price.';
   }
 
   function needMore(state, cost) {

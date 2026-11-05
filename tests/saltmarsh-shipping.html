@@ -1783,6 +1783,156 @@ document.querySelector('#run').onclick = async function () {
     var labelAfter = pressBtn.textContent;
     pressBtn.dispatchEvent(new pressWin.MouseEvent('click', { bubbles: true, cancelable: true }));
     check('a tap that starts on a price still buys after the label changes', shown === 1 && labelAfter !== labelAtPress && pressState.boats[0].owned === ownedBefore + shown);
+    async function bulkReads(width, height) {
+      var box = await loadFrame('bulk labels ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var clipped = '';
+      ['1 at a time', '10 at a time'].forEach(function (label) {
+        var button = null;
+        Array.prototype.forEach.call(doc.querySelectorAll('.bulk button'), function (el) {
+          if (el.textContent === label) button = el;
+        });
+        if (!button) { clipped = label + ' missing'; return; }
+        var range = doc.createRange();
+        range.selectNodeContents(button);
+        var text = range.getBoundingClientRect();
+        var bounds = button.getBoundingClientRect();
+        var cut = text.bottom > bounds.bottom + 1 || text.right > bounds.right + 1 || text.top < bounds.top - 1 || button.scrollHeight > button.clientHeight + 1 || button.scrollWidth > button.clientWidth + 1 || bounds.height < 44;
+        if (cut) clipped = label + ' ' + Math.round(bounds.width) + 'x' + Math.round(bounds.height) + ' scroll ' + button.scrollWidth + 'x' + button.scrollHeight;
+      });
+      check('at ' + width + ' by ' + height + ' both bulk labels are fully visible (' + (clipped || 'clear') + ')', clipped === '');
+    }
+    await bulkReads(320, 568);
+    async function shedStays(width, height) {
+      var box = await loadFrame('shed stays ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e9;
+      st.boats[1].owned = 10;
+      st.warehouses = 1;
+      st.forks.sloop = null;
+      delete st.fittings['sloop-hull'];
+      win.__saltmarsh.render();
+      var trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+      trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var before = trigger.getBoundingClientRect().top;
+      var sign = doc.querySelector('[data-act="route"]');
+      var signBefore = sign ? sign.getBoundingClientRect().top : null;
+      doc.querySelector('#choice [data-which="shed"]').click();
+      trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+      var moved = Math.abs(trigger.getBoundingClientRect().top - before);
+      var signNow = doc.querySelector('[data-act="route"]');
+      var signMoved = sign && signNow ? Math.abs(signNow.getBoundingClientRect().top - signBefore) : 0;
+      var shedBtn = doc.querySelector('#sheds [data-act="shed"]');
+      var shedBefore = shedBtn.getBoundingClientRect().top;
+      if (!shedBtn.disabled) shedBtn.click();
+      shedBtn = doc.querySelector('#sheds [data-act="shed"]');
+      var shedMoved = Math.abs(shedBtn.getBoundingClientRect().top - shedBefore);
+      check('at ' + width + ' by ' + height + ' the sloop shed buy stays (' + moved.toFixed(1) + 'px, sign ' + signMoved.toFixed(1) + 'px, shed ' + shedMoved.toFixed(1) + 'px)', moved < 2 && signMoved < 2 && shedMoved < 2);
+    }
+    await shedStays(390, 844);
+    await shedStays(375, 812);
+    await shedStays(320, 568);
+    function inkSpare(doc, root) {
+      var walker = doc.createTreeWalker(root, doc.defaultView.NodeFilter.SHOW_TEXT);
+      var rects = [];
+      var node;
+      while ((node = walker.nextNode())) {
+        if (!node.textContent.trim()) continue;
+        var el = node.parentElement;
+        if (!el || !el.offsetParent || doc.defaultView.getComputedStyle(el).visibility === 'hidden') continue;
+        var range = doc.createRange();
+        range.setStart(node, 0);
+        range.setEnd(node, node.textContent.length);
+        var box = range.getBoundingClientRect();
+        if (box.height > 0) rects.push(box);
+      }
+      rects.sort(function (a, b) { return a.top - b.top; });
+      var bounds = root.getBoundingClientRect();
+      var gap = 0;
+      if (!rects.length) return bounds.height;
+      gap = Math.max(gap, rects[0].top - bounds.top);
+      var i;
+      for (i = 1; i < rects.length; i++) gap = Math.max(gap, rects[i].top - rects[i - 1].bottom);
+      gap = Math.max(gap, bounds.bottom - rects[rects.length - 1].bottom);
+      return gap;
+    }
+    async function blankSpare(width, height) {
+      var box = await loadFrame('blank ' + width);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var st = win.__saltmarsh.state;
+      st.trips = 3;
+      st.cash = 1e6;
+      st.boats[0].owned = 4;
+      win.__saltmarsh.render();
+      var settledGap = inkSpare(doc, doc.getElementById('settled'));
+      var shedGap = inkSpare(doc, doc.getElementById('sheds'));
+      st.boats[1].owned = 10;
+      win.__saltmarsh.render();
+      var captainGap = 0;
+      Array.prototype.forEach.call(doc.querySelectorAll('.captain'), function (card) {
+        captainGap = Math.max(captainGap, inkSpare(doc, card));
+      });
+      check('at ' + width + ' by ' + height + ' empty settled, shed and captain rows keep at most one line spare (' + settledGap.toFixed(1) + ' / ' + shedGap.toFixed(1) + ' / ' + captainGap.toFixed(1) + 'px)', settledGap <= 24 && shedGap <= 24 && captainGap <= 24 && doc.querySelectorAll('.captain').length === 4);
+    }
+    await blankSpare(844, 390);
+    await blankSpare(390, 844);
+    var guard = await loadFrame('guards', '&state=fleet');
+    guard.style.width = '390px';
+    guard.style.height = '844px';
+    var guardWin = guard.contentWindow;
+    var guardDoc = guard.contentDocument;
+    await new Promise(function (resolve) { setTimeout(resolve, 80); });
+    var guardState = guardWin.__saltmarsh.state;
+    guardState.trips = 3;
+    guardState.cash = 1e15;
+    guardState.boats[0].owned = 0;
+    guardState.boats[1].owned = 0;
+    guardState.boats[2].owned = 0;
+    guardState.boats[3].owned = 0;
+    guardState.warehouses = 1;
+    guardWin.__saltmarsh.render();
+    check('every hull keeps a place once the shop is open', guardDoc.querySelectorAll('#boats li').length === 4);
+    check('the sheds are on the page with the boats', guardDoc.getElementById('sheds').hidden === false && /shed/i.test(guardDoc.getElementById('sheds').textContent));
+    guardDoc.querySelector('#boats').style.marginTop = '1400px';
+    guardWin.scrollTo(0, 0);
+    var farBuy = guardDoc.querySelector('#boats [data-act="buy"]');
+    farBuy.click();
+    check('a buy keeps the scroll position (' + Math.round(guardWin.scrollY) + 'px)', Math.abs(guardWin.scrollY) <= 2 && guardState.boats[0].owned > 0);
+    check('the page does not anchor the scroll', guardWin.getComputedStyle(guardDoc.documentElement).overflowAnchor === 'none' && guardWin.getComputedStyle(guardDoc.querySelector('.window')).overflowAnchor === 'none');
+    var pricedBuy = guardDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var buyStyle = guardWin.getComputedStyle(pricedBuy);
+    check('a boat button keeps a fixed 44px height (' + buyStyle.height + ' / ' + buyStyle.maxHeight + ')', buyStyle.height === '44px' && buyStyle.maxHeight === '44px' && pricedBuy.getBoundingClientRect().height >= 44 && pricedBuy.scrollHeight <= pricedBuy.clientHeight + 1);
+    guardDoc.querySelector('#boats').style.marginTop = '';
+    guardState.boats[2].owned = 10;
+    guardState.routes = {};
+    guardState.routeGear = {};
+    guardState.gearQuote = null;
+    guardWin.__saltmarsh.render();
+    var gear = guardDoc.getElementById('route-gear');
+    var gearBefore = gear ? gear.offsetHeight : 0;
+    var below = guardDoc.getElementById('lights');
+    var belowBefore = below ? below.getBoundingClientRect().top : 0;
+    guardState.routes.kelp = 1;
+    guardWin.__saltmarsh.render();
+    gear = guardDoc.getElementById('route-gear');
+    below = guardDoc.getElementById('lights');
+    var gearShift = gear ? Math.abs(gear.offsetHeight - gearBefore) : 999;
+    var belowShift = below ? Math.abs(below.getBoundingClientRect().top - belowBefore) : 0;
+    var gearMin = gear ? guardWin.getComputedStyle(gear).minHeight : '';
+    check('the spare sail keeps its height (' + gearBefore + ' to ' + (gear ? gear.offsetHeight : 0) + ', min ' + gearMin + ', lights ' + belowShift.toFixed(1) + 'px)', gear && gearMin !== '0px' && gearMin !== 'auto' && gearShift < 2 && belowShift < 2);
     await packAll(1280, 800);
     await packAll(844, 390);
     await packAll(390, 844);

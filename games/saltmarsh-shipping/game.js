@@ -164,11 +164,35 @@
       box.appendChild(copy);
       box.appendChild(actions);
     }
-    copy.textContent = body + M.shedNote(state);
+    copy.textContent = body;
+    var hold = box.querySelector('.shed-hold');
+    if (!hold) {
+      hold = document.createElement('p');
+      hold.className = 'shed-hold';
+      box.insertBefore(hold, box.querySelector('.actions'));
+    }
+    hold.replaceChildren();
+    var note = M.shedNote(state).replace(/^\s+/, '');
+    var mark = note.indexOf('The next shed is ');
+    if (mark >= 0) {
+      hold.appendChild(document.createTextNode(note.slice(0, mark + 'The next shed is '.length)));
+      var price = document.createElement('span');
+      price.className = 'shed-price';
+      var rest = note.slice(mark + 'The next shed is '.length);
+      var coinsAt = rest.indexOf(' coins.');
+      price.textContent = coinsAt >= 0 ? rest.slice(0, coinsAt) : rest;
+      hold.appendChild(price);
+      hold.appendChild(document.createTextNode(coinsAt >= 0 ? rest.slice(coinsAt) : ''));
+    } else hold.textContent = note;
     var shedBtn = box.querySelector('[data-act="shed"]');
-    if (price == null || M.openFork(state)) shedBtn.hidden = true;
-    else {
-      shedBtn.hidden = false;
+    shedBtn.hidden = false;
+    if (price == null) {
+      shedBtn.disabled = true;
+      shedBtn.textContent = 'The yard is full';
+    } else if (M.openFork(state)) {
+      shedBtn.disabled = true;
+      shedBtn.textContent = 'Shed · ' + money(price);
+    } else {
       shedBtn.disabled = !(state.cash >= price);
       shedBtn.textContent = 'Shed · ' + money(price) + (state.cash >= price ? '' : ' · ' + M.needMore(state, price));
     }
@@ -330,13 +354,23 @@
   }
 
   function settledSentence(row) {
-    if (row.lockedName === 'Another shed' && M.warehousePrice(state) != null) {
-      return row.takenName + ' is taken. The shed from that choice was not built. A dearer shed can still be raised from the list.';
-    }
-    if (row.lockedName === 'Another shed') {
-      return row.takenName + ' is taken. The shed from that choice was not built. There is no third shed at that step.';
-    }
-    return row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+    if (row.id === 'sloop' && row.lockedName === 'Another shed') return 'Sloop hulls taken. Not built.';
+    if (row.id === 'sloop') return 'Shed taken. Hulls not built.';
+    if (row.id === 'schooner' && row.lockedName === 'Another shed') return 'Holds taken. Shed not built.';
+    if (row.id === 'schooner') return 'Shed taken. Holds not built.';
+    if (row.id === 'quay' && row.takenName === 'A lamp on the quay') return 'Quay lamp taken. Holds unbuilt.';
+    if (row.id === 'quay') return 'Holds taken. Quay lamp unbuilt.';
+    if (row.id === 'pilot' && row.takenName === 'A bell on the pier') return 'Pier bell taken. Coal unbuilt.';
+    return 'Coal taken. Pier bell unbuilt.';
+  }
+
+  /* One visible line, the same height as the line left after the choice. */
+  function pendingLine(row) {
+    if (row.id === 'sloop') return 'Not yet: sloop hulls or a shed.';
+    if (row.id === 'schooner') return 'Not yet: schooner holds or shed.';
+    if (row.id === 'quay') return 'Not yet: quay lamp or holds.';
+    if (row.id === 'pilot') return 'Not yet: pier bell or coal.';
+    return settledSentence(row);
   }
 
   /* The line the open choice will leave behind. It stays in the list, unseen,
@@ -359,8 +393,8 @@
       [
         { id: 'sloop', takenName: 'Lighter sloop hulls', lockedName: 'Another shed' },
         { id: 'schooner', takenName: 'Deeper schooner holds', lockedName: 'Another shed' },
-        { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds', hold: 'A lamp on the quay is taken. Deeper bark holds stays unbuilt.' },
-        { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs', hold: 'A bell on the pier is taken. Coal for the night runs stays unbuilt.' }
+        { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds' },
+        { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs' }
       ].forEach(function (row) { if (!known[row.id]) rows.push(row); });
     }
     var pendingId = {};
@@ -374,11 +408,7 @@
     list.replaceChildren();
     rows.forEach(function (row) {
       var li = document.createElement('li');
-      li.textContent = row.hold || settledSentence(row);
-      if (pendingId[row.id]) {
-        li.style.visibility = 'hidden';
-        li.setAttribute('aria-hidden', 'true');
-      }
+      li.textContent = pendingId[row.id] ? pendingLine(row) : settledSentence(row);
       list.appendChild(li);
     });
   }
@@ -1275,6 +1305,8 @@
     keepPlace(function () {
       persist();
       render();
+      var again = document.querySelector('#boats [data-i="' + i + '"] [data-act="buy"]');
+      if (again && again.focus) again.focus();
     });
   });
 

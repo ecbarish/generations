@@ -122,12 +122,22 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   pointer-events: none;
 }
 .window:not([data-phase="dock"]):has(#crew:not([hidden])) #ask[hidden] { display: none !important; }
-.bulk { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin: 0 0 0.6rem; min-height: 44px; }
-.bulk button { flex: 1 1 0; width: 0; height: 44px; min-height: 44px; max-height: 44px; overflow: hidden; font-variant-numeric: tabular-nums; }
+.bulk { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin: 0 0 0.6rem; align-items: stretch; }
+.bulk button {
+  flex: 1 1 0;
+  width: 0;
+  min-height: 44px;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
 .boats, .captains, .log ol { list-style: none; margin: 0; padding: 0; }
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
 .boat .habit, .boat .facts, .boat .wait { min-height: 1.45em; }
-.boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
+.boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .settled h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
 /* Numbers stay whole. Buttons use a short label on one line. Status lines that can
    grow from one line to two keep a two-line slot, so a longer figure cannot push
@@ -165,7 +175,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .rate {
   white-space: nowrap;
 }
-#away-rule { white-space: normal; }
+#away-rule { white-space: normal; min-height: 2.9em; }
 .boats,
 .boat,
 .captain { min-width: 0; }
@@ -197,17 +207,23 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .light-card { min-height: 12.6rem; }
 .light-card .habit { min-height: 4.8em; }
 .light-card .actions { min-height: 2.75rem; }
-#sheds { min-height: 20rem; }
+#sheds .actions { min-height: 44px; }
+#sheds .actions button[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+#sheds .shed-hold { margin: 0.15rem 0 0; }
+.shed-price { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; }
 #route-gear { min-height: 12.5rem; }
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
   .boat .wait,
-  .captain .wait,
   #rate {
     white-space: normal;
     min-height: 2.9em;
   }
+  .captain .wait { white-space: normal; }
 }
 @media (max-width: 340px) {
   .route-card h3,
@@ -217,6 +233,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   border-top: 1px solid var(--sky);
   padding: 0.65rem 0 0.2rem;
 }
+.settled ul { margin: 0; padding: 0; list-style: none; }
+.settled li { padding: 0.1rem 0 0; }
+.sheds { padding-bottom: 0.25rem; }
+.settled { padding-bottom: 0; }
+#sheds h2, #settled h2 { margin: 0; }
+#sheds p { margin: 0; }
 .locked { color: var(--hull); }
 .ending { background: var(--water); color: var(--mist); }
 #ending.ending:not([hidden]) {
