@@ -149,9 +149,24 @@ document.querySelector('#run').onclick=async()=>{
   }
   check('in a counter, 20%, 25% and a work plan move the button 2px or less ('+counterMoves.join('; ')+')',counterMoves.every(s=>+s.match(/(\d+\.\d+)$/)[1]<=2));
   check('stepping across the yes/counter point moves Make this offer and Pass 2px or less ('+outlookMoves.map(m=>m.label+' offer '+m.offer.toFixed(1)+' pass '+m.pass.toFixed(1)).join('; ')+')',outlookMoves.every(m=>m.offer<=2&&m.pass<=2));
+  H.again();await wait(40);
+  frame.style.width='1024px';frame.style.height='768px';await wait(120);
+  H.S.phase='run';H.S.counter=null;H.S.noes=0;H.S.price=240000;H.S.down=0.25;H.S.rehab='refresh';
+  d.querySelector('#answer').hidden=true;H.render();await wait(40);
+  const priceSteps=[];let priceWorst=0;
+  for(let i=1;i<=12;i++){
+   const offerAt=place('#offerBtn'),passAt=place('#passBtn');
+   click('[data-offer="-2000"]');await wait(20);
+   const offerMove=Math.abs(place('#offerBtn')-offerAt),passMove=Math.abs(place('#passBtn')-passAt);
+   priceSteps.push(i+':'+offerMove.toFixed(1)+'/'+passMove.toFixed(1));
+   priceWorst=Math.max(priceWorst,offerMove,passMove);
+  }
+  check('twelve steps of $2,000 down from a fresh offer at 1024 move Make this offer and Pass 2px or less ('+priceSteps.join(', ')+')',priceWorst<=2);
   frame.style.width='320px';frame.style.height='568px';await wait(80);
   const midWord=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return false;const s=node.textContent,range=d.createRange();let last=null;for(let i=0;i<s.length;i++){range.setStart(node,i);range.setEnd(node,i+1);const rect=range.getClientRects()[0];if(!rect)continue;if(last!==null&&rect.top>last+1&&s[i-1]!==' ')return true;last=rect.top;}return false;};
   check('door labels at 320 do not split a word',![...d.querySelectorAll('#doors li')].some(midWord));
+  const wordFits=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return true;const range=d.createRange();range.selectNodeContents(node);const box=li.getBoundingClientRect();const ink=range.getBoundingClientRect();return ink.left>=box.left-0.5&&ink.right<=box.right+0.5;};
+  check('door words fit inside the door at 320',![...d.querySelectorAll('#doors li')].some(li=>!wordFits(li)));
   const lum=c=>{const f=v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);return 0.2126*f(c[0])+0.7152*f(c[1])+0.0722*f(c[2]);};
   const rgb=s=>{const m=s.match(/\d+/g).map(Number);return [m[0]/255,m[1]/255,m[2]/255];};
   const blend=(fg,bg,a)=>fg.map((v,i)=>v*a+bg[i]*(1-a));

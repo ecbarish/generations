@@ -94,16 +94,19 @@
   $('#flow').textContent=money(a.cashFlow);
   $('#flow').closest('tr').className='total '+(view.o.counts?'good':a.cashFlow<0?'bad':'');
   const cocNote=x=>'Your yearly cash flow, '+money(x.cashFlow*12)+', on the '+money(x.cashIn)+' you put in (down payment, closing costs, the work).';
-  const arvNote=(x,cost)=>'What it is worth let, from its net income. Paying '+money(choice.price)+' plus '+money(cost)+' of work leaves you '+(x.equity>=0?money(x.equity)+' of equity on day one.':money(-x.equity)+' under water on day one.');
+  const arvNote=(x,cost)=>'What it is worth let, from its net income. Paying '+money(x.price)+' plus '+money(cost)+' of work leaves you '+(x.equity>=0?money(x.equity)+' of equity on day one.':money(-x.equity)+' under water on day one.');
+  // Wide stand-ins, so a shorter price cannot unwrap the note onto fewer lines.
+  const COC_HOLD='Your yearly cash flow, $88,888, on the $888,888 you put in (down payment, closing costs, the work).';
+  const ARV_HOLD='What it is worth let, from its net income. Paying $888,888 plus $88,888 of work leaves you $888,888 under water on day one.';
   // Every plan's note stays in the box, so switching the work cannot change its height.
   const reserve=(m,lines)=>{const stack=document.querySelector('[data-m="'+m+'"] .note-stack');stack.replaceChildren();lines.forEach((t,i)=>{const s=document.createElement('span');s.className=i?'note-hold':'note-live';if(i)s.setAttribute('aria-hidden','true');s.textContent=t;stack.appendChild(s);});};
   const alts=Object.entries(L.plans).map(([k,plan])=>{const x=M.analyze(Object.assign({},choice,{rehab:k}),L);return {k,x,plan};});
   const mark=(m,ok,v,note)=>{const li=document.querySelector('[data-m="'+m+'"]');li.className=ok?'good':'bad';li.querySelector('.v').textContent=v;if(note!==undefined){const live=li.querySelector('.note-live');if(live)live.textContent=note;else li.querySelector('small').textContent=note;}};
   mark('cap',a.capRate>=L.marketCap,pct(a.capRate));
-  reserve('coc',[cocNote(a),...alts.filter(t=>t.k!==S.rehab).map(t=>cocNote(t.x))]);
+  reserve('coc',[cocNote(a),COC_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>cocNote(t.x))]);
   mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),cocNote(a));
   mark('one',a.onePercent>=0.01,pct(a.onePercent,2));
-  reserve('arv',[arvNote(a,L.plans[S.rehab].cost),...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);
+  reserve('arv',[arvNote(a,L.plans[S.rehab].cost),ARV_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);
   mark('arv',a.equity>=0,money(a.arv),arvNote(a,L.plans[S.rehab].cost));
   $('#outlookSlot').hidden=S.phase==='done';
   $('#outlook').className='outlook '+(view.o.counts?'good':'bad');

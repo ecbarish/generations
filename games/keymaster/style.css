@@ -30,6 +30,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .month tr.total.good td{color:var(--good)}.month tr.total.bad td{color:var(--bad)}
 .measures{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:1fr 1fr}
 .measures li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.measures li b,.measures .v{min-height:2.52em}
+.measures .v{white-space:nowrap}
 .measures small{grid-column:1/-1;color:var(--soft);font-size:.8rem}
 .note-stack{display:grid}.note-stack>span{grid-area:1/1}.note-hold{visibility:hidden}
 .measures .v{font-weight:700;font-variant-numeric:tabular-nums}
@@ -55,7 +57,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:.78rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
+.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
 .doors .now{border-color:var(--ink);background:#fff;box-shadow:0 0 0 2px var(--gold)}
 .doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
