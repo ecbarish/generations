@@ -393,6 +393,12 @@ button[aria-pressed="true"], button.ask, button.best {
   /* The longest goal is three lines here. The box keeps that height, and the words are not cut off. */
   #goal { min-height: 3.2rem; max-height: none; overflow: visible; line-height: 1.15; font-size: 0.9rem; }
   #lane-goal { min-height: 2.8rem; max-height: 2.8rem; overflow: hidden; }
+  /* Charm names and the next-choice sentence share this slot. The type is a
+     step smaller so every word fits, and the slot is that tall from the first
+     paint, so a new charm does not move the stall under it. */
+  .pick { height: 8.75rem; min-height: 8.75rem; max-height: 8.75rem; }
+  .pick.quiet #pick-lead { font-size: 14px; line-height: 1.2; margin-bottom: 0; }
+  .pick.quiet .pick-panel { height: 100%; overflow: hidden; padding-top: 0.2rem; padding-bottom: 0; }
   #bulk-help { min-height: 1.3rem; margin: 0; font-size: 0.8rem; }
 }
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.

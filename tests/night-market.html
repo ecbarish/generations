@@ -3558,6 +3558,30 @@ document.querySelector('#run').onclick = async function () {
     armPlayed(1);
     goalFits('opening');
     check(goalOverflows.length ? 'a goal line is cut off at 320: ' + goalOverflows.join(' | ') : 'every goal line fits in its box at 320', goalOverflows.length === 0);
+    armPlayed(1);
+    pg.state.night.omen = 'ferry';
+    pg.state.night.charms = [];
+    pg.state.night.offer = null;
+    pg.render();
+    var charmStallBefore = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    pg.state.night.charms = PM.CHARMS.map(function (c) { return c.id; });
+    pg.render();
+    var charmLead = pd.querySelector('#pick-lead');
+    var charmPick = pd.querySelector('#pick');
+    var charmRange = pd.createRange();
+    charmRange.selectNodeContents(charmLead);
+    var charmLeadBox = charmRange.getBoundingClientRect();
+    var charmPickBox = charmPick.getBoundingClientRect();
+    var charmStallAfter = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    check('at 320 the charm line is fully visible',
+      Math.abs(charmStallAfter - charmStallBefore) < 2 &&
+      charmLeadBox.height > 40 &&
+      charmLeadBox.top >= charmPickBox.top - 1 &&
+      charmLeadBox.bottom <= charmPickBox.bottom + 1 &&
+      charmLeadBox.left >= charmPickBox.left - 1 &&
+      charmLeadBox.right <= charmPickBox.right + 1 &&
+      /Wen's patience/.test(charmLead.textContent) &&
+      /next choice/.test(charmLead.textContent));
     playFrame.style.width = '360px';
     playFrame.style.height = '780px';
     armPlayed(2);
