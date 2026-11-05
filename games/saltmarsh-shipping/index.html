@@ -9,6 +9,11 @@
 </head>
 <body>
 <main class="window" id="office" data-phase="dock">
+  <div id="choice-back" class="choice-back" hidden></div>
+  <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
+    <h2 id="choice-title">A choice on the desk</h2>
+    <div id="choice-cards"></div>
+  </section>
   <header>
     <div class="top">
       <a class="home" href="../../index.html">Back to the arcade</a>
@@ -39,19 +44,55 @@
       <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     </div>
     <ol class="boats" id="boats"></ol>
-    <section id="choice" class="choice" hidden>
-      <h2>A choice on the desk</h2>
-      <div id="choice-cards"></div>
-    </section>
     <section id="sheds" hidden></section>
-    <section id="log" class="log" hidden>
-      <h2>Harbour log</h2>
-      <ol id="log-lines" aria-live="polite"></ol>
+    <section id="settled" class="settled" hidden>
+      <h2>Settled on the desk</h2>
+      <ul id="settled-list"></ul>
     </section>
     <section id="fleet" class="fleet" hidden>
       <h2>The fleet</h2>
       <div class="chart" id="chart"></div>
       <ol class="captains" id="captains"></ol>
+    </section>
+    <section id="routes" class="routes" hidden>
+      <h2>Trade routes</h2>
+      <p id="routes-note"></p>
+      <div id="route-gear" class="route-card" hidden></div>
+      <div id="route-cards"></div>
+    </section>
+    <section id="lights" class="lights" hidden>
+      <h2>Lighthouses</h2>
+      <p id="lights-note"></p>
+      <div id="light-cards"></div>
+    </section>
+    <section id="harbour-work" class="finale" hidden>
+      <h2>Harbour work</h2>
+      <p id="work-note"></p>
+      <div class="actions"><button type="button" id="work-go" data-act="work">Do the harbour work</button></div>
+    </section>
+    <section id="errand" class="finale" hidden>
+      <h2>An errand</h2>
+      <p id="errand-note"></p>
+      <div class="actions"><button type="button" id="errand-go" data-act="errand">Run the errand</button></div>
+    </section>
+    <section id="provision" class="finale" hidden>
+      <h2 id="provision-title">For the last voyage</h2>
+      <p id="provision-note"></p>
+      <div id="provision-cards"></div>
+      <div class="actions" id="provision-actions"><button type="button" id="provision-go" data-act="prep">Pack the next item</button></div>
+    </section>
+    <section id="finale" class="finale" hidden>
+      <h2>The last voyage</h2>
+      <p id="finale-note"></p>
+      <div class="actions"><button type="button" id="finale-go">Set sail</button></div>
+    </section>
+    <section id="ending" class="ending" tabindex="-1" hidden>
+      <h2>Home past the lights</h2>
+      <p id="ending-lead"></p>
+      <ul id="ending-stats"></ul>
+      <h3>Credits</h3>
+      <ol id="credits"></ol>
+      <div id="new-harbour"></div>
     </section>
   </div>
   <details class="save">
@@ -59,7 +100,14 @@
     <div id="tools"></div>
   </details>
   <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
-  <p class="goalbar" id="goal" aria-live="polite"></p>
+  <section id="log" class="log" hidden>
+    <h2>Harbour log</h2>
+    <ol id="log-lines" aria-live="polite"></ol>
+  </section>
+  <div class="goalbar" id="goalbar">
+    <p class="aim" id="aim" hidden></p>
+    <p id="goal" role="button" tabindex="0" aria-live="polite"></p>
+  </div>
 </main>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/idle-core.js"></script>

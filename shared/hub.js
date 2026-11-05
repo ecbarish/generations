@@ -10,7 +10,7 @@
     'starfall-preview': 'Build a frontier guild town: post jobs, cook at the inn, work the forge, then hire help.',
     realmbound: 'A classic-MMO adventure from level 1 to 60. Quest, dungeon, raid, or let Auto play.'
   };
-  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1 };
+  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1, 'saltmarsh-shipping': 1 };
   const GODOT_SAVES = {};
   const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1', keymaster: 'keymaster-save-v1' };
   const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer);

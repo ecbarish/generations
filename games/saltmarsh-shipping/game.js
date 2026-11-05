@@ -7,10 +7,10 @@
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var VERSION = '0.1.1';
+  var VERSION = '0.2.3';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
-  var view = { rowing: 0, ripple: null };
+  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
   var taps = [];
   var idle = null;
   var awayOn = false;
@@ -18,11 +18,21 @@
   Arcade.versions[KEY] = M.SAVE_VERSION;
   Arcade.validators[KEY] = M.valid;
 
+  function previewName() {
+    var search = '';
+    try { search = window.location && window.location.search || ''; } catch (e) { search = ''; }
+    var match = /(?:\?|&)state=(fleet|lamps|final)(?:&|$)/.exec(search);
+    return match ? match[1] : '';
+  }
+  var preview = previewName();
   var raw = null;
-  try { raw = Arcade.load(KEY); } catch (e) { raw = null; }
-  var state = M.openSave(raw);
+  if (!preview) {
+    try { raw = Arcade.load(KEY); } catch (e) { raw = null; }
+  }
+  var state = preview ? (M.preset(preview) || M.openSave(null)) : M.openSave(raw);
 
   function persist(obj) {
+    if (preview) return false;
     if (Arcade.held[KEY]) return false;
     if (!obj) {
       state.seen = Date.now();
@@ -53,54 +63,87 @@
     }
   });
 
+  function boatQuote(i) {
+    if (state.bulk !== 'max') return M.quote(state, i, state.bulk);
+    var open = M.quote(state, i, 'max');
+    var cap = M.goalCap(state, i);
+    if (!(open.count > 0) || cap == null) return open;
+    var room = cap - state.boats[i].owned;
+    if (!(room > 0)) return open;
+    var count = Math.min(open.count, room);
+    var q = M.quote(state, i, count);
+    q.toGoal = q.count === room;
+    return q;
+  }
+
   function buyLabel(i) {
-    var q = M.quote(state, i, state.bulk);
+    var q = boatQuote(i);
     if (state.bulk === 'max') {
-      if (!(q.count > 0)) return 'Max · one costs ' + money(q.cost) + ' coins';
-      return 'Buy up to ' + q.count + ' · ' + money(q.cost) + ' coins';
+      if (!(q.count > 0)) {
+        var one = M.quote(state, i, 1);
+        return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
+      }
+      if (q.toGoal) return 'To the goal · ' + q.count + ' · ' + money(q.cost);
+      return 'Buy up to ' + q.count + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
-    return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
+    var label = 'Buy ' + n + ' · ' + money(q.cost);
+    if (!(q.count > 0)) label += ' · ' + M.needMore(state, q.cost);
+    return label;
   }
 
   function visibleBoats() {
     var phase = P.read(state);
     if (!phase.boats) return [];
-    var last = 0;
-    for (var i = 0; i < M.BOATS.length; i++) {
-      if (M.unlocked(state, i)) last = i + 1;
-    }
-    return M.BOATS.slice(0, Math.min(M.BOATS.length, last + 1));
+    /* All four hulls stay on the page once the shop is open, so a purchase
+       cannot insert a new row and shove the buttons underneath. */
+    return M.BOATS.slice();
+  }
+
+  function showLine(el, text) {
+    if (!el) return;
+    el.textContent = text || '';
+    if (text) el.setAttribute('title', text);
+    else el.removeAttribute('title');
   }
 
   function fillBoat(li, i) {
     var boat = M.BOATS[i];
     var open = M.unlocked(state, i);
     var owned = state.boats[i].owned;
+    var marked = li.classList.contains('goal-target');
     li.className = 'boat' + (open ? '' : ' closed');
+    if (marked) li.classList.add('goal-target');
     li.querySelector('h2').textContent = boat.name + (owned > 0 ? ' · ' + owned : '');
-    li.querySelector('.habit').textContent = open ? M.lookLine(state, i) : boat.next;
+    showLine(li.querySelector('.habit'), open ? M.lookLine(state, i) : boat.next);
     var facts = li.querySelector('.facts');
     var wait = li.querySelector('.wait');
     var buy = li.querySelector('[data-act="buy"]');
     if (!open) {
       facts.textContent = '';
-      wait.textContent = i === 0 ? 'Row three cargoes first.' : '';
+      showLine(wait, i === 0 ? 'Row three cargoes first.' : '');
       buy.hidden = true;
       return;
     }
     var rate = M.production(state, i);
-    facts.textContent = owned > 0 ? money(rate) + ' coins a second from these.' : 'None tied up yet.';
-    wait.textContent = M.paybackLine(state, i);
+    showLine(facts, owned > 0 ? M.rateWords(rate) + ' from these.' : 'None tied up yet.');
+    showLine(wait, M.paybackLine(state, i));
     buy.hidden = false;
-    buy.textContent = buyLabel(i);
-    buy.disabled = !(M.quote(state, i, state.bulk).count > 0);
+    var priced = boatQuote(i);
+    var boatGoal = P.nextAct(state);
+    if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
+      priced = { count: boatGoal.count, cost: boatGoal.cost };
+      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
+    } else buy.textContent = buyLabel(i);
+    buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
+    buy.dataset.count = String(priced.count || 0);
+    buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
   }
 
   function fillSheds() {
     var box = $('#sheds');
     var phase = P.read(state);
-    box.hidden = !phase.sheds;
+    box.hidden = !(phase.boats || phase.sheds);
     if (box.hidden) return;
     var price = M.warehousePrice(state);
     var sheds = state.warehouses;
@@ -122,12 +165,36 @@
       box.appendChild(actions);
     }
     copy.textContent = body;
+    var hold = box.querySelector('.shed-hold');
+    if (!hold) {
+      hold = document.createElement('p');
+      hold.className = 'shed-hold';
+      box.insertBefore(hold, box.querySelector('.actions'));
+    }
+    hold.replaceChildren();
+    var note = M.shedNote(state).replace(/^\s+/, '');
+    var mark = note.indexOf('The next shed is ');
+    if (mark >= 0) {
+      hold.appendChild(document.createTextNode(note.slice(0, mark + 'The next shed is '.length)));
+      var priceEl = document.createElement('span');
+      priceEl.className = 'shed-price';
+      var rest = note.slice(mark + 'The next shed is '.length);
+      var coinsAt = rest.indexOf(' coins.');
+      priceEl.textContent = coinsAt >= 0 ? rest.slice(0, coinsAt) : rest;
+      hold.appendChild(priceEl);
+      hold.appendChild(document.createTextNode(coinsAt >= 0 ? rest.slice(coinsAt) : ''));
+    } else hold.textContent = note;
     var shedBtn = box.querySelector('[data-act="shed"]');
-    if (price == null || M.openFork(state)) shedBtn.hidden = true;
-    else {
-      shedBtn.hidden = false;
+    shedBtn.hidden = false;
+    if (price == null) {
+      shedBtn.disabled = true;
+      shedBtn.textContent = 'The yard is full';
+    } else if (M.openFork(state)) {
+      shedBtn.disabled = true;
+      shedBtn.textContent = 'Shed · ' + money(price);
+    } else {
       shedBtn.disabled = !(state.cash >= price);
-      shedBtn.textContent = 'Raise another shed · ' + money(price) + ' coins';
+      shedBtn.textContent = 'Shed · ' + money(price) + (state.cash >= price ? '' : ' · ' + M.needMore(state, price));
     }
   }
 
@@ -152,11 +219,9 @@
   function fillCaptains() {
     var list = $('#captains');
     var shown = [];
-    M.CAPTAINS.forEach(function (cap, i) {
-      var need = i === 0 ? M.WREN_AT : M.UNLOCK_AT;
-      if (state.boats[cap.tier].owned < need && !state.captains[i].hired) return;
-      shown.push(i);
-    });
+    /* Every captain keeps a place once the fleet is open, so hiring one
+       does not push the routes and the lights down. */
+    M.CAPTAINS.forEach(function (cap, i) { shown.push(i); });
     var sig = shown.join(',') + ':' + state.captains.map(function (c) { return c.hired ? 1 : 0; }).join('');
     if (list.dataset.sig !== sig) {
       list.dataset.sig = sig;
@@ -186,12 +251,13 @@
       var eachText = money(each);
       var title = li.querySelector('h3');
       if (title) title.textContent = M.CAPTAINS[i].name + ' · ' + eachText + ' coins';
-      if (!state.captains[i].hired) status.textContent = eachText + ' coins a haul, once they take a boat.';
+      if (!state.captains[i].hired) showLine(status, eachText + '/haul, once they take a boat.');
       else {
         var next = M.nextIn(state, i, Date.now());
         var brought = state.captains[i].brought || 0;
-        var back = next === Infinity ? 'The haul is waiting on shed room.' : 'Back in ' + (next > 0 ? next + 's' : 'a moment') + '.';
-        status.textContent = each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back;
+        var back = next === Infinity ? 'needs a shed' : (next > 0 ? 'back ' + next + 's' : 'back now');
+        var perk = i === 0 ? M.wrenPerkLine(state) : i === 1 ? M.bramblePerkLine(state) : '';
+        showLine(status, eachText + '/haul · ' + back + (perk ? ' · ' + perk : '') + ' · ' + money(brought) + ' so far');
       }
     });
   }
@@ -225,65 +291,644 @@
     markNote.textContent = count === 1 ? 'Hollis has marked the chart once.' : 'Hollis has marked the chart ' + count + ' times.';
   }
 
+  function cardButton(which, title, line) {
+    var wrap = document.createElement('div');
+    wrap.className = 'choice-card';
+    var h = document.createElement('h3');
+    h.textContent = title;
+    var p = document.createElement('p');
+    p.className = 'habit';
+    p.textContent = line;
+    var actions = document.createElement('div');
+    actions.className = 'actions';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.which = which;
+    actions.appendChild(button);
+    wrap.appendChild(h);
+    wrap.appendChild(p);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  function choiceTrigger(offer) {
+    if (!offer) return null;
+    if (offer.id === 'sloop') return document.querySelector('#boats [data-i="1"] [data-act="buy"]');
+    if (offer.id === 'schooner') return document.querySelector('#boats [data-i="2"] [data-act="buy"]');
+    if (offer.id === 'quay') return document.querySelector('#light-cards [data-light="quay"] button');
+    if (offer.id === 'pilot') return document.querySelector('#routes');
+    return null;
+  }
+
   function fillChoice() {
     var box = $('#choice');
     if (!box) return;
-    var offer = M.choiceOffer(state);
+    var back = $('#choice-back');
+    var offer = M.deskChoice(state);
     box.hidden = !offer;
+    if (back) back.hidden = !offer;
     if (box.hidden) return;
+    var bar = $('#goalbar');
+    if (bar) {
+      box.style.bottom = bar.offsetHeight + 'px';
+      box.style.maxHeight = 'calc(100vh - ' + (bar.offsetHeight + 8) + 'px)';
+    }
     var host = $('#choice-cards');
-    if (host.dataset.sig !== offer.id) {
-      host.dataset.sig = offer.id;
+    var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
       host.replaceChildren();
-      function card(which, title, line) {
+      offer.cards.forEach(function (card) {
+        var wrap = cardButton(card.which, card.name, card.line);
+        wrap.querySelector('button').dataset.act = 'fork';
+        host.appendChild(wrap);
+      });
+    }
+    offer.cards.forEach(function (card) {
+      var button = host.querySelector('[data-which="' + card.which + '"]');
+      if (!button) return;
+      button.disabled = !card.affordable;
+      var label = 'Take · ' + money(card.cost);
+      button.textContent = card.affordable || !(card.cost > 0) ? label : label + ' · ' + M.needMore(state, card.cost);
+    });
+  }
+
+  function settledSentence(row) {
+    if (row.id === 'sloop' && row.lockedName === 'Another shed') return 'Sloop hulls taken. Not built.';
+    if (row.id === 'sloop') return 'Shed taken. Hulls not built.';
+    if (row.id === 'schooner' && row.lockedName === 'Another shed') return 'Holds taken. Shed not built.';
+    if (row.id === 'schooner') return 'Shed taken. Holds not built.';
+    if (row.id === 'quay' && row.takenName === 'A lamp on the quay') return 'Quay lamp taken. Holds unbuilt.';
+    if (row.id === 'quay') return 'Holds taken. Quay lamp unbuilt.';
+    if (row.id === 'pilot' && row.takenName === 'A bell on the pier') return 'Pier bell taken. Coal unbuilt.';
+    return 'Coal taken. Pier bell unbuilt.';
+  }
+
+  /* One visible line, the same height as the line left after the choice. */
+  function pendingLine(row) {
+    if (row.id === 'sloop') return 'Not yet: sloop hulls or a shed.';
+    if (row.id === 'schooner') return 'Not yet: schooner holds or shed.';
+    if (row.id === 'quay') return 'Not yet: quay lamp or holds.';
+    if (row.id === 'pilot') return 'Not yet: pier bell or coal.';
+    return settledSentence(row);
+  }
+
+  /* The line the open choice will leave behind. It stays in the list, unseen,
+     so taking the choice does not push the button that opened it. */
+  function pendingSettled(offer) {
+    if (!offer) return null;
+    if (offer.id === 'quay') return { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds' };
+    if (offer.id === 'pilot') return { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs' };
+    return null;
+  }
+
+  function fillSettled() {
+    var box = $('#settled');
+    if (!box) return;
+    var rows = M.settledForks(state).slice();
+    var known = {};
+    rows.forEach(function (row) { known[row.id] = true; });
+    var phase = P.read(state);
+    if (phase.boats || rows.length) {
+      [
+        { id: 'sloop', takenName: 'Lighter sloop hulls', lockedName: 'Another shed' },
+        { id: 'schooner', takenName: 'Deeper schooner holds', lockedName: 'Another shed' },
+        { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds' },
+        { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs' }
+      ].forEach(function (row) { if (!known[row.id]) rows.push(row); });
+    }
+    var pendingId = {};
+    rows.forEach(function (row) { if (!known[row.id]) pendingId[row.id] = true; });
+    box.hidden = !rows.length;
+    if (box.hidden) return;
+    var list = $('#settled-list');
+    var sig = rows.map(function (row) { return row.id + row.takenName + (pendingId[row.id] ? '?' : ''); }).join('|');
+    if (list.dataset.sig === sig) return;
+    list.dataset.sig = sig;
+    list.replaceChildren();
+    rows.forEach(function (row) {
+      var li = document.createElement('li');
+      li.textContent = pendingId[row.id] ? pendingLine(row) : settledSentence(row);
+      list.appendChild(li);
+    });
+  }
+
+  function fillRoutes() {
+    var box = $('#routes');
+    if (!box) return;
+    var phase = P.read(state);
+    box.hidden = !phase.routesOpen || state.ended;
+    if (box.hidden) return;
+    var offers = M.routeOffers(state, true);
+    var note = $('#routes-note');
+    var done = M.routesComplete(state);
+    note.textContent = done
+      ? 'Every route on the chart has been signed.'
+      : offers.length
+        ? 'A price stays while that card is on the desk. Signing one does not raise the others.'
+        : 'The next contract is not on the desk yet.';
+    var host = $('#route-cards');
+    if (done && M.finaleOffer && M.finaleOffer(state)) {
+      if (host.dataset.sig !== 'folded') {
+        host.dataset.sig = 'folded';
+        host.replaceChildren();
+      }
+      var gearFold = $('#route-gear');
+      if (gearFold) gearFold.hidden = true;
+      return;
+    }
+    var offerById = {};
+    offers.forEach(function (offer) { offerById[offer.id] = offer; });
+    var rows = [];
+    M.ROUTES.forEach(function (spec) {
+      var signed = (state.routes && state.routes[spec.id]) || 0;
+      var offer = offerById[spec.id] || null;
+      if (!offer && signed <= 0) return;
+      rows.push({ spec: spec, offer: offer, signed: signed });
+    });
+    var sig = rows.map(function (row) {
+      var cost = row.offer ? Math.round(row.offer.cost) : 0;
+      return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
+    }).join('|');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      rows.forEach(function (row) {
+        var spec = row.spec;
+        var offer = row.offer;
         var wrap = document.createElement('div');
-        wrap.className = 'choice-card';
+        wrap.className = 'route-card';
+        wrap.dataset.route = spec.id;
         var h = document.createElement('h3');
-        h.textContent = title;
+        var contract = M.routeContract(state, spec.id);
+        h.textContent = row.signed >= spec.depths
+          ? spec.name + ' · ' + contract.signed + ' signed'
+          : spec.name + ' · contract ' + contract.next + ' of ' + contract.depths;
         var p = document.createElement('p');
         p.className = 'habit';
-        p.textContent = line;
+        var risk = spec.risk > 0 ? ' About ' + Math.round(spec.risk * 100) + '% can be lost.' : ' Nothing is risked.';
+        p.textContent = spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
+        var gain = document.createElement('p');
+        gain.className = 'facts';
+        var peek = !offer && row.signed > 0 && row.signed < spec.depths ? M.peekRoute(state, spec) : null;
+        if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
+        else if (peek) gain.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
+        else gain.textContent = 'Signed.';
+        wrap.appendChild(h);
+        wrap.appendChild(p);
+        wrap.appendChild(gain);
         var actions = document.createElement('div');
         actions.className = 'actions';
         var button = document.createElement('button');
         button.type = 'button';
-        button.dataset.act = 'fork';
-        button.dataset.which = which;
+        button.dataset.route = spec.id;
+        if (offer) button.dataset.act = 'route';
+        else {
+          button.disabled = true;
+          button.textContent = peek ? (money(peek.cost) + ' · after the current one') : 'Signed';
+        }
         actions.appendChild(button);
-        wrap.appendChild(h);
-        wrap.appendChild(p);
         wrap.appendChild(actions);
         host.appendChild(wrap);
+      });
+    }
+    Array.prototype.forEach.call(host.querySelectorAll('[data-act="route"]'), function (button) {
+      var id = button.dataset.route;
+      var offer = offerById[id] || null;
+      if (!offer) return;
+      var heading = button.parentNode && button.parentNode.parentNode ? button.parentNode.parentNode.querySelector('h3') : null;
+      if (heading) {
+        var contractNow = M.routeContract(state, id);
+        heading.textContent = contractNow.signed >= contractNow.depths
+          ? offer.name + ' · ' + contractNow.signed + ' signed'
+          : offer.name + ' · contract ' + contractNow.next + ' of ' + contractNow.depths;
       }
-      card('fit', offer.fit.name, offer.fit.line);
-      card('shed', offer.shed.name, offer.shed.line);
+      button.disabled = !offer.affordable;
+      var label = 'Sign · ' + money(offer.cost);
+      button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+    });
+    Array.prototype.forEach.call(host.querySelectorAll('button[disabled][data-route]'), function (button) {
+      var spec = null;
+      M.ROUTES.forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
+      if (!spec) return;
+      var peek = M.peekRoute(state, spec);
+      var card = button.parentNode && button.parentNode.parentNode;
+      var facts = card ? card.querySelector('.facts') : null;
+      if (!peek) return;
+      var contractNow = M.routeContract(state, spec.id);
+      button.textContent = money(peek.cost) + ' · after the current one';
+      if (facts) facts.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
+    });
+    var gear = M.gearOffer(state);
+    var gearHost = $('#route-gear');
+    if (!gearHost) {
+      gearHost = document.createElement('div');
+      gearHost.id = 'route-gear';
+      gearHost.className = 'route-card';
+      box.appendChild(gearHost);
     }
-    var fitBtn = host.querySelector('[data-which="fit"]');
-    var shedBtn = host.querySelector('[data-which="shed"]');
-    if (fitBtn) {
-      fitBtn.disabled = !offer.fit.affordable;
-      fitBtn.textContent = offer.fit.name + ' · ' + money(offer.fit.cost) + ' coins';
-    }
-    if (shedBtn) {
-      shedBtn.disabled = !offer.shed.affordable;
-      shedBtn.textContent = M.shedChoiceText(offer.shed.cost);
+    /* Sail stays above the route cards, so a new Sign row cannot push it down. */
+    if (host && gearHost.compareDocumentPosition(host) & Node.DOCUMENT_POSITION_PRECEDING) box.insertBefore(gearHost, host);
+    if (!gear) {
+      if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig === sig) gearHost.hidden = false;
+      else if (gearHost.dataset.id && gearHost.hidden === false && gearHost.offsetHeight > 0) {
+        var held = gearHost.offsetHeight;
+        gearHost.dataset.hold = '1';
+        gearHost.dataset.holdSig = sig;
+        gearHost.style.minHeight = held + 'px';
+        gearHost.replaceChildren();
+        var heldNote = document.createElement('p');
+        heldNote.className = 'habit';
+        heldNote.textContent = 'The spare sail is fitted.';
+        var heldActions = document.createElement('div');
+        heldActions.className = 'actions';
+        var heldBtn = document.createElement('button');
+        heldBtn.type = 'button';
+        heldBtn.disabled = true;
+        heldBtn.textContent = 'Fitted';
+        heldActions.appendChild(heldBtn);
+        gearHost.appendChild(heldNote);
+        gearHost.appendChild(heldActions);
+        gearHost.hidden = false;
+      } else {
+        gearHost.hidden = false;
+        gearHost.dataset.hold = '';
+        if (gearHost.dataset.reserved !== '1') {
+          gearHost.dataset.reserved = '1';
+          gearHost.replaceChildren();
+          var waitH = document.createElement('h3');
+          waitH.textContent = 'Spare sail';
+          var waitP = document.createElement('p');
+          waitP.className = 'habit';
+          waitP.textContent = 'A spare sail waits for the first route you sign.';
+          var waitA = document.createElement('div');
+          waitA.className = 'actions';
+          var waitB = document.createElement('button');
+          waitB.type = 'button';
+          waitB.disabled = true;
+          waitB.textContent = 'Not yet';
+          waitA.appendChild(waitB);
+          gearHost.appendChild(waitH);
+          gearHost.appendChild(waitP);
+          gearHost.appendChild(waitA);
+        }
+      }
+    } else {
+      if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig !== sig) {
+        gearHost.dataset.hold = '';
+        gearHost.style.minHeight = '';
+        gearHost.dataset.id = '';
+      }
+      gearHost.hidden = false;
+      if (gearHost.dataset.id !== gear.id) {
+        gearHost.dataset.id = gear.id;
+        gearHost.dataset.hold = '';
+        gearHost.style.minHeight = '';
+        gearHost.replaceChildren();
+        var gh = document.createElement('h3');
+        gh.textContent = 'Spare sail · ' + gear.name.replace(/^A spare sail for /, '');
+        var gp = document.createElement('p');
+        gp.className = 'habit';
+        gp.textContent = gear.line;
+        var ga = document.createElement('div');
+        ga.className = 'actions';
+        var gb = document.createElement('button');
+        gb.type = 'button';
+        gb.dataset.act = 'gear';
+        gb.dataset.route = gear.id;
+        ga.appendChild(gb);
+        gearHost.appendChild(gh);
+        gearHost.appendChild(gp);
+        gearHost.appendChild(ga);
+      }
+      var gearBtn = gearHost.querySelector('button');
+      if (gearBtn) {
+        gearBtn.disabled = !gear.affordable;
+        var gearLabel = 'Sail · ' + money(gear.cost);
+        gearBtn.textContent = gear.affordable ? gearLabel : gearLabel + ' · ' + M.needMore(state, gear.cost);
+      }
     }
   }
 
-  function render() {
+  function fillLights() {
+    var box = $('#lights');
+    if (!box) return;
+    var phase = P.read(state);
+    box.hidden = !phase.lighthousesOpen || state.ended;
+    if (box.hidden) return;
+    var offers = M.lightOffers(state, true);
+    var burning = M.lightsLit(state);
+    $('#lights-note').textContent = burning >= 4
+      ? '4 lit. Every lighthouse on the coast is burning.'
+      : burning + ' lit. Four lighthouses. Each one changes the routes.';
+    var host = $('#light-cards');
+    if (M.allLightsLit(state) && M.finaleOffer && M.finaleOffer(state)) {
+      if (host.dataset.sig !== 'folded') {
+        host.dataset.sig = 'folded';
+        host.replaceChildren();
+      }
+      return;
+    }
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      M.LIGHTS.forEach(function (spec) {
+        var stage = state.lights[spec.id] || 0;
+        var offer = null;
+        for (var i = 0; i < offers.length; i++) if (offers[i].id === spec.id) offer = offers[i];
+        var wrap = document.createElement('div');
+        wrap.className = 'light-card';
+        wrap.dataset.light = spec.id;
+        var h = document.createElement('h3');
+        h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
+        var p = document.createElement('p');
+        p.className = 'habit';
+        var lineAt = stage >= 2 ? spec.lines.length - 1 : stage;
+        p.textContent = spec.lines[lineAt] || spec.lines[0];
+        wrap.appendChild(h);
+        wrap.appendChild(p);
+        var actions = document.createElement('div');
+        actions.className = 'actions';
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.light = spec.id;
+        if (offer) button.dataset.act = 'light';
+        else {
+          button.disabled = true;
+          button.textContent = 'Burning';
+        }
+        actions.appendChild(button);
+        wrap.appendChild(actions);
+        host.appendChild(wrap);
+      });
+    }
+    Array.prototype.forEach.call(host.querySelectorAll('[data-act="light"]'), function (button) {
+      var offer = null;
+      for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
+      if (!offer) return;
+      var desk = M.deskChoice(state);
+      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
+      if (offer.blocked) {
+        button.disabled = true;
+        button.textContent = offer.blocked;
+        return;
+      }
+      button.disabled = !offer.affordable;
+      var label = verb + ' · ' + money(offer.cost);
+      button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+    });
+  }
+
+  function fillWork() {
+    var box = $('#harbour-work');
+    if (!box) return;
+    var offer = M.finaleOffer && M.finaleOffer(state) ? null : (M.workOffer ? M.workOffer(state) : null);
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#work-note').textContent = offer.name + '. ' + offer.line;
+    var button = $('#work-go');
+    button.disabled = !(state.cash >= offer.cost);
+    var label = offer.name + ' · ' + money(offer.cost);
+    button.textContent = state.cash >= offer.cost ? label : label + ' · ' + M.needMore(state, offer.cost);
+  }
+
+  function fillErrand() {
+    var box = $('#errand');
+    if (!box) return;
+    var offer = M.finaleOffer && M.finaleOffer(state) ? null : (M.errandOffer ? M.errandOffer(state) : null);
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#errand-note').textContent = offer.name + '. ' + offer.line;
+    var button = $('#errand-go');
+    button.disabled = !(state.cash >= offer.cost);
+    var label = offer.name + ' · ' + money(offer.cost);
+    button.textContent = state.cash >= offer.cost ? label : label + ' · ' + M.needMore(state, offer.cost);
+  }
+
+  function fillProvision() {
+    var box = $('#provision');
+    if (!box) return;
+    var open = M.voyageOpen && M.voyageOpen(state);
+    var offers = open && M.preparationOffers ? M.preparationOffers(state) : [];
+    box.hidden = !open;
+    if (box.hidden) return;
+    var title = $('#provision-title');
+    var done = M.PREPARATIONS.length - offers.length;
+    if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
+    $('#provision-note').textContent = offers.length
+      ? 'These prices don\'t go up as your fleet grows.'
+      : 'All eight are packed.';
+    var host = $('#provision-cards');
+    var actions = $('#provision-actions');
+    var doneMap = state.prepDone || {};
+    var sig = M.PREPARATIONS.map(function (item) { return item.id + (doneMap[item.id] ? ':' + doneMap[item.id] : ':0'); }).join('|');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      if (!offers.length) {
+        host.style.minHeight = '';
+        host.dataset.heldHeight = '';
+        var packed = document.createElement('p');
+        packed.className = 'habit';
+        packed.textContent = 'All eight are packed.';
+        host.appendChild(packed);
+      } else {
+        M.PREPARATIONS.forEach(function (item) {
+          var card = document.createElement('div');
+          card.className = 'route-card';
+          var h = document.createElement('h3');
+          var picked = doneMap[item.id];
+          var chosen = null;
+          if (item.choice && picked) item.choice.forEach(function (opt) { if (opt.id === picked) chosen = opt; });
+          h.textContent = chosen ? item.name + ' · ' + chosen.name : (picked ? item.name + ' · packed' : item.name);
+          var p = document.createElement('p');
+          p.className = 'habit';
+          if (chosen) p.textContent = chosen.line;
+          else if (item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
+          else p.textContent = item.line || '';
+          card.appendChild(h);
+          card.appendChild(p);
+          host.appendChild(card);
+        });
+      }
+    }
+    if (offers.length) {
+      var held = parseFloat(host.dataset.heldHeight || '0');
+      var nowH = host.offsetHeight;
+      if (nowH > held) {
+        host.dataset.heldHeight = String(nowH);
+        host.style.minHeight = nowH + 'px';
+      }
+    }
+    var current = offers[0];
+    var button = $('#provision-go');
+    var alt = $('#provision-alt');
+    if (!current) {
+      button.hidden = true;
+      if (actions) {
+        actions.hidden = true;
+        actions.style.minHeight = '';
+        actions.dataset.heldHeight = '';
+      }
+      if (alt) alt.hidden = true;
+      return;
+    }
+    button.hidden = false;
+    if (actions) actions.hidden = false;
+    button.dataset.prep = current.id;
+    button.dataset.which = current.choice ? current.choice[0].id : '';
+    var mainName = current.choice ? current.choice[0].name : current.name;
+    var mainLabel = mainName + ' · ' + money(current.cost);
+    button.disabled = !(state.cash >= current.cost);
+    button.textContent = state.cash >= current.cost ? mainLabel : mainLabel + ' · ' + M.needMore(state, current.cost);
+    if (current.choice) {
+      if (!alt) {
+        alt = document.createElement('button');
+        alt.type = 'button';
+        alt.id = 'provision-alt';
+        alt.dataset.act = 'prep';
+        button.parentNode.appendChild(alt);
+      }
+      alt.hidden = false;
+      alt.dataset.prep = current.id;
+      alt.dataset.which = current.choice[1].id;
+      var altLabel = current.choice[1].name + ' · ' + money(current.cost);
+      alt.disabled = !(state.cash >= current.cost);
+      alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
+    } else if (alt) alt.hidden = true;
+    if (actions) {
+      var rowH = actions.offsetHeight;
+      var rowHeld = parseFloat(actions.dataset.heldHeight || '0');
+      if (rowH > rowHeld + 0.5) {
+        actions.dataset.heldHeight = String(rowH);
+        actions.style.minHeight = rowH + 'px';
+      }
+    }
+  }
+
+  function fillFinale() {
+    var box = $('#finale');
+    if (!box) return;
+    var offer = M.finaleOffer(state);
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#finale-note').textContent = offer.line;
+    var button = $('#finale-go');
+    button.disabled = false;
+    button.textContent = 'Set sail';
+  }
+
+  function fillEnding() {
+    var box = $('#ending');
+    if (!box) return;
+    box.hidden = !state.ended;
+    if (box.hidden) return;
+    var stats = state.ending || M.statsOf(state, Date.now());
+    var voyageHow = '';
+    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot took the deep channel, and every route paid a little more.';
+    if (state.prepDone && state.prepDone.pilot === 'chart') voyageHow = ' The bought chart stayed in the cabin, and the boats earned a little more.';
+    $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.' + voyageHow;
+    var list = $('#ending-stats');
+    var watch = stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch';
+    var chartLine = stats.charts > 0
+      ? 'Charts for a new harbour: ' + stats.charts + '. Each chart shows a route before its season on the next harbour.'
+      : 'Charts for a new harbour: none yet. A long watch draws one, and it shows a route before its season.';
+    var lines = [
+      'Time at the office: ' + watch + '. This is the whole watch, across every visit, not only the page open now.',
+      'Coins earned: ' + money(stats.lifetime),
+      'Boats tied up: ' + stats.boats,
+      'Routes signed: ' + stats.voyages,
+      'Captain hauls: ' + (stats.hauls > 0 ? stats.hauls : 'none yet'),
+      'Lighthouses burning: ' + stats.lights + ' of four',
+      chartLine
+    ];
+    if (list.dataset.sig !== lines.join('|')) {
+      list.dataset.sig = lines.join('|');
+      list.replaceChildren();
+      lines.forEach(function (text) {
+        var li = document.createElement('li');
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+    var credits = $('#credits');
+    if (!credits.childElementCount) {
+      [
+        'The Saltmarsh Shipping Office',
+        'Capt. Wren, who counted every coin',
+        'Capt. Bramble, who waited for the kettle',
+        'Capt. Hollis, who marked the chart',
+        'Capt. Pell, who named the boat',
+        'The gull, who took one',
+        'You, who rowed the first cargo'
+      ].forEach(function (text) {
+        var li = document.createElement('li');
+        li.textContent = text;
+        credits.appendChild(li);
+      });
+    }
+    var again = $('#new-harbour');
+    if (!again.childElementCount) {
+      var lead = document.createElement('p');
+      lead.textContent = 'Open a new harbour. You may ask one captain to come across.';
+      again.appendChild(lead);
+      var actions = document.createElement('div');
+      actions.className = 'actions';
+      M.CAPTAINS.forEach(function (cap, i) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.act = 'anew';
+        button.dataset.captain = String(i);
+        button.textContent = 'Ask ' + cap.name + ' to come. ' + (cap.harbour || cap.habit);
+        actions.appendChild(button);
+      });
+      var empty = document.createElement('button');
+      empty.type = 'button';
+      empty.dataset.act = 'anew';
+      empty.dataset.captain = '-1';
+      empty.textContent = 'Open it with an empty pier';
+      actions.appendChild(empty);
+      again.appendChild(actions);
+    }
+  }
+
+  function scrollTo(el) {
+    if (!el || !el.scrollIntoView) return;
+    var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduced = motion || (window.Settings && Settings.reduced());
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  function render(fromClock) {
+    var sec = Math.floor(Date.now() / 1000);
+    view.allowPrices = !fromClock || view.priceSec !== sec;
+    if (view.allowPrices) view.priceSec = sec;
     var phase = P.read(state);
     $('#office').dataset.phase = P.name(state);
     $('#coins').textContent = money(state.cash);
-    $('#away-rule').textContent = M.awayRule(state);
+    showLine($('#away-rule'), M.awayRule(state));
     var boatsRate = M.income(state);
     var captainsRate = M.captainRate(state);
+    var routeRate = M.routeIncome(state);
     var rateLine = $('#rate');
-    var totalRate = boatsRate + captainsRate;
-    if (!(boatsRate > 0) && !(captainsRate > 0)) rateLine.textContent = 'Nothing is earning yet.';
-    else if (captainsRate > 0) rateLine.textContent = money(totalRate) + ' coins a second. The captains add ' + money(captainsRate) + '.';
-    else rateLine.textContent = money(boatsRate) + ' coins a second';
-    if (totalRate > 0) document.title = '+' + money(totalRate) + '/s · Saltmarsh Shipping';
+    var totalRate = boatsRate + captainsRate + routeRate;
+    if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
+    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
+    else showLine(rateLine, M.rateWords(totalRate));
     $('#goal').textContent = P.goal(state);
+    var aim = $('#aim');
+    if (aim) {
+      var aimText = P.aim(state);
+      aim.hidden = !aimText || !!state.ended;
+      aim.textContent = aimText;
+    }
+    var scene = document.querySelector('.scene');
+    if (scene) {
+      if (state.ended) scene.textContent = 'Night on the Saltmarsh coast. The lighthouses are burning.';
+      else if (state.trips < M.HAND_TRIPS) scene.textContent = 'Row this cargo. Three trips, and a second boat can tie up.';
+      else scene.textContent = 'The Saltmarsh coast, from the office window.';
+    }
     var rowing = view.rowing > 0 && performance.now() - view.rowing < 650;
     var row = $('#row');
     row.disabled = rowing;
@@ -294,8 +939,9 @@
     var crew = $('#crew');
     var askIndex = -1;
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
-    ask.hidden = askIndex < 0;
-    if (askIndex >= 0) {
+    var deskOpen = !!M.deskChoice(state);
+    ask.hidden = askIndex < 0 || deskOpen;
+    if (askIndex >= 0 && !deskOpen) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
       if (crew) crew.hidden = true;
@@ -311,7 +957,8 @@
         crew.textContent = 'The pier stays clear for Capt. Wren.';
       } else crew.hidden = true;
     }
-    $('#bulk').hidden = !phase.boats;
+    $('#bulk').hidden = !phase.boats || state.ended;
+    $('#row').hidden = !!state.ended;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(state.bulk) === b.dataset.bulk ? 'true' : 'false');
     });
@@ -329,8 +976,25 @@
     }
     Array.prototype.forEach.call(list.children, function (li) { fillBoat(li, +li.dataset.i); });
     fillChoice();
+    fillSettled();
+    fillRoutes();
+    fillLights();
+    fillWork();
+    fillErrand();
+    fillProvision();
+    fillFinale();
+    fillEnding();
     fillSheds();
     fillLog();
+    if (state.ended && !view.endingOn) {
+      view.endingOn = true;
+      var endingBox = $('#ending');
+      if (endingBox) {
+        endingBox.tabIndex = -1;
+        scrollTo(endingBox);
+        if (endingBox.focus) endingBox.focus();
+      }
+    }
     var fleet = $('#fleet');
     var openedFleet = fleet.hidden && phase.fleet;
     fleet.hidden = !phase.fleet;
@@ -341,14 +1005,16 @@
         openedFleet = true;
         fleet.classList.add('reveal');
         persist();
-        var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var reduced = motion || (window.Settings && Settings.reduced());
-        var choice = $('#choice');
-        var target = choice && !choice.hidden ? choice : fleet;
-        if (target.scrollIntoView) target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       }
     }
+    var desk = M.deskChoice(state);
+    view.choice = desk ? desk.id : '';
+    var routes = $('#routes');
+    if (routes && !routes.hidden) view.routes = true;
     if (openedFleet) fleet.classList.add('reveal');
+    Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function (el) {
+      if (el.textContent) el.setAttribute('title', el.textContent);
+    });
     if (audio && audio.render) audio.render();
   }
 
@@ -437,8 +1103,12 @@
     });
   }
 
+  function actNow() {
+    return typeof window.__saltmarshTime === 'number' ? window.__saltmarshTime : Date.now();
+  }
+
   function hireAt(index) {
-    if (!M.hire(state, index).ok) return;
+    if (!M.hire(state, index, actNow()).ok) return;
     if (state.sound) audio.sfx('level');
     persist();
     render();
@@ -452,14 +1122,66 @@
     hireAt(index);
   });
 
-  document.addEventListener('click', function (e) {
+  var armed = null;
+  document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest('button');
-    if (!b || b.disabled) return;
+    if (!b) { armed = null; return; }
+    var li = b.closest('[data-i]');
+    armed = {
+      t: performance.now(),
+      el: b,
+      act: b.dataset.act || '',
+      route: b.dataset.route || '',
+      light: b.dataset.light || '',
+      count: b.dataset.count || '',
+      chunk: b.dataset.chunk || '',
+      which: b.dataset.which || '',
+      prep: b.dataset.prep || '',
+      bulk: b.dataset.bulk || '',
+      id: b.id || '',
+      tier: li ? li.dataset.i : ''
+    };
+  }, true);
+  function remembered(b) {
+    if (!armed || !b) return null;
+    if (performance.now() - armed.t > 400) return null;
+    if (armed.el === b) return armed;
+    /* A render between press and click replaces the node. The same control
+       still counts: same action, same boat, route or light. */
+    var li = b.closest('[data-i]');
+    var tier = li ? li.dataset.i : '';
+    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.id || '') === armed.id) return armed;
+    return null;
+  }
+  function keepPlace(work) {
+    var x = window.scrollX;
+    var y = window.scrollY;
+    work();
+    if (window.scrollX !== x || Math.abs(window.scrollY - y) > 1) window.scrollTo(x, y);
+  }
+
+  document.addEventListener('click', function (e) {
+    view.freshPrices = true;
+    var b = e.target.closest('button');
+    var held = remembered(b);
+    if (!b || (b.disabled && !held)) return;
+    if (held) {
+      b.dataset.act = held.act;
+      if (held.route) b.dataset.route = held.route;
+      if (held.light) b.dataset.light = held.light;
+      if (held.count) b.dataset.count = held.count;
+      if (held.chunk) b.dataset.chunk = held.chunk;
+      if (held.which) b.dataset.which = held.which;
+      if (held.prep) b.dataset.prep = held.prep;
+      if (held.bulk) b.dataset.bulk = held.bulk;
+    }
     if (b.id === 'row' || b.id === 'sound' || b.id === 'ask' || b.classList.contains('arc-set-btn')) return;
     if (b.dataset.bulk) {
-      M.setBulk(state, b.dataset.bulk);
-      persist();
-      render();
+      keepPlace(function () {
+        M.setBulk(state, b.dataset.bulk);
+        persist();
+        render();
+      });
       return;
     }
     if (b.dataset.act === 'away') {
@@ -469,13 +1191,91 @@
       return;
     }
     if (b.dataset.act === 'fork') {
-      var offer = M.choiceOffer(state);
-      if (offer && M.chooseFork(state, offer.id, b.dataset.which).ok) {
+      var offer = M.deskChoice(state);
+      var trigger = choiceTrigger(offer);
+      if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
+        if (state.sound) audio.sfx('quest');
+        keepPlace(function () {
+          persist();
+          render();
+        });
+        if (trigger && trigger.isConnected && trigger.focus) trigger.focus({ preventScroll: true });
+      }
+      return;
+    }
+    if (b.dataset.act === 'gear') {
+      if (M.buyGear(state, b.dataset.route).ok) {
+        if (state.sound) audio.sfx('quest');
+        keepPlace(function () { persist(); render(); });
+      }
+      return;
+    }
+    if (b.dataset.act === 'route') {
+      if (M.signRoute(state, b.dataset.route).ok) {
+        if (state.sound) audio.sfx('quest');
+        keepPlace(function () { persist(); render(); });
+      }
+      return;
+    }
+    if (b.dataset.act === 'light') {
+      if (M.buildLight(state, b.dataset.light).ok) {
+        if (state.sound) audio.sfx('quest');
+        keepPlace(function () { persist(); render(); });
+      }
+      return;
+    }
+    if (b.dataset.act === 'prep' || b.id === 'provision-go') {
+      if (M.buyPreparation(state, b.dataset.prep, b.dataset.which || '', actNow()).ok) {
+        if (state.sound) audio.sfx('quest');
+        keepPlace(function () {
+          persist();
+          render();
+        });
+        if (M.preparationsComplete(state)) {
+          var sail = $('#finale-go');
+          if (sail) {
+            sail.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+            if (sail.focus) sail.focus({ preventScroll: true });
+          }
+        }
+      }
+      return;
+    }
+    if (b.dataset.act === 'work' || b.id === 'work-go') {
+      if (M.buyWork(state, actNow()).ok) {
         if (state.sound) audio.sfx('quest');
         persist();
         render();
       }
+      return;
+    }
+    if (b.dataset.act === 'errand' || b.id === 'errand-go') {
+      if (M.buyErrand(state, actNow()).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.id === 'finale-go') {
+      if (M.launchFinale(state, Date.now()).ok) {
+        if (state.sound) audio.sfx('level');
+        persist();
+        render();
+        scrollTo($('#ending'));
+      }
+      return;
+    }
+    if (b.dataset.act === 'anew') {
+      M.newHarbour(state, +b.dataset.captain, Date.now());
+      view.choice = '';
+      view.routes = false;
+      view.endingOn = false;
+      bootIdle(null);
+      persist();
+      render();
+      window.scrollTo(0, 0);
       return;
     }
     if (b.dataset.act === 'shed') {
@@ -493,8 +1293,11 @@
     if (!li || b.dataset.act !== 'buy') return;
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
-    var result = M.buy(state, i, state.bulk);
+    var shown = +b.getAttribute('data-count');
+    if (!(shown > 0)) return;
+    var result = M.buy(state, i, shown);
     if (!result.ok) return;
+    if (b.dataset.chunk === '1') M.commitGoal(state, 'boat');
     var nowOwned = state.boats[i].owned;
     if (result.notes && result.notes.length) {
       var wrap = $('.harbour-wrap');
@@ -502,8 +1305,12 @@
       pop(rect.left + rect.width * 0.62, rect.top + 24, result.notes[0].split('.')[0]);
     }
     if (state.sound) audio.sfx(M.lookIndex(had) !== M.lookIndex(nowOwned) || (result.notes && result.notes.length) ? 'quest' : 'coin');
-    persist();
-    render();
+    keepPlace(function () {
+      persist();
+      render();
+      var again = document.querySelector('#boats [data-i="' + i + '"] [data-act="buy"]');
+      if (again && again.focus) again.focus();
+    });
   });
 
   $('#sound').addEventListener('click', function () { audio.cycle(); persist(); });
@@ -529,6 +1336,7 @@
   drawTools();
   $('details.save').addEventListener('toggle', function () { if (this.open) drawTools(); });
 
+  if (typeof state.born !== 'number') state.born = Date.now();
   var cashBeforeAway = state.cash;
   var booksBeforeAway = M.captainBooks(state);
   var haulsBeforeAway = M.captainHauls(state);
@@ -537,6 +1345,7 @@
   if (summary) M.collectCaptains(state, Date.now(), M.OFFLINE_RATE);
   state.seen = Date.now();
   persist();
+  if (summary && summary.credited) state.played = (state.played || 0) + summary.credited;
   if (summary && (summary.gained > 0 || summary.capped || state.cash !== cashBeforeAway)) {
     showAway(summary, {
       before: cashBeforeAway,
@@ -605,7 +1414,9 @@
   }
 
   setInterval(function () {
+    if (window.__saltmarshHold) return;
     var before = state.cash;
+    if (document.visibilityState !== 'hidden') state.played = (state.played || 0) + 0.25;
     var paid = M.collectCaptains(state, Date.now(), 1);
     if (paid.length) {
       persist();
@@ -615,8 +1426,121 @@
         pop(rect.left + rect.width * 0.5, rect.top + 36, '+' + money(state.cash - before));
       }
     }
-    render();
+    render(!paid.length);
   }, 250);
+
+  function showGoal() {
+    var sel = P.target(state);
+    var el = sel ? document.querySelector(sel) : null;
+    if (!el) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.goal-target'), function (node) {
+      node.classList.remove('goal-target');
+    });
+    el.classList.add('goal-target');
+    scrollTo(el);
+    if (view.goalTimer) clearTimeout(view.goalTimer);
+    view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
+  }
+  var goalEl = $('#goal');
+  if (goalEl) {
+    goalEl.addEventListener('click', showGoal);
+    goalEl.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      showGoal();
+    });
+  }
+
+  function usableControl(b) {
+    return !!(b && !b.disabled && !b.hidden && !b.closest('[hidden]'));
+  }
+
+  /* One click of whatever the goal bar is asking for. The pacing run uses this,
+     so a measured wait is a wait on the step the player can see. */
+  function followGoal() {
+    var goal = ($('#goal') && $('#goal').textContent) || '';
+    var act = P.nextAct(state);
+    if (/^Choose a route/.test(goal)) {
+      var routeAct = P.nextAct(state);
+      var routeBtn = routeAct && routeAct.kind === 'route'
+        ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
+        : null;
+      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^Pick bell or coal/.test(goal)) {
+      var bellBtn = document.querySelector('#choice button');
+      if (usableControl(bellBtn)) { bellBtn.click(); return true; }
+      return false;
+    }
+    if (/^Choose fresh|^Choose a pilot/.test(goal)) {
+      var prepBtn = act && act.kind === 'prep'
+        ? document.querySelector('#provision [data-prep="' + act.id + '"]' + (act.which ? '[data-which="' + act.which + '"]' : ''))
+        : $('#provision-go');
+      if (usableControl(prepBtn)) { prepBtn.click(); return true; }
+      return false;
+    }
+    if (/^Choose /.test(goal)) {
+      var choice = document.querySelector('#choice button');
+      if (usableControl(choice)) { choice.click(); return true; }
+      return false;
+    }
+    if (/^Ask /.test(goal)) {
+      var ask = $('#ask');
+      if (usableControl(ask)) { ask.click(); return true; }
+      return false;
+    }
+    if (/^Row /.test(goal)) {
+      var row = $('#row');
+      if (usableControl(row)) { row.click(); return true; }
+      return false;
+    }
+    if (/^Set sail/.test(goal)) {
+      var sail = $('#finale-go');
+      if (usableControl(sail)) { sail.click(); return true; }
+      return false;
+    }
+    if (/^Pack /.test(goal)) {
+      var packBtn = act && act.kind === 'prep'
+        ? document.querySelector('#provision [data-prep="' + act.id + '"]')
+        : $('#provision-go');
+      if (usableControl(packBtn)) { packBtn.click(); return true; }
+      return false;
+    }
+    if (/^Do the harbour work/.test(goal)) {
+      var workBtn = $('#work-go');
+      if (usableControl(workBtn)) { workBtn.click(); return true; }
+      return false;
+    }
+    if (/^Run the errand/.test(goal)) {
+      var errandBtn = $('#errand-go');
+      if (usableControl(errandBtn)) { errandBtn.click(); return true; }
+      return false;
+    }
+    if (/^Send /.test(goal)) {
+      var send = $('#finale-go');
+      if (usableControl(send)) { send.click(); return true; }
+      return false;
+    }
+    if (/^Sign /.test(goal) && act && act.kind === 'route') {
+      var routeBtn = document.querySelector('#route-cards [data-route="' + act.id + '"] [data-act="route"]');
+      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^(Raise|Light) the /.test(goal) && act && act.kind === 'light') {
+      var lightBtn = document.querySelector('#light-cards [data-light="' + act.id + '"] [data-act="light"]');
+      if (usableControl(lightBtn)) { lightBtn.click(); return true; }
+      return false;
+    }
+    if (/^Buy |^Tie up /.test(goal)) {
+      var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
+      var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
+      if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);
+      if (usableControl(buy)) { buy.click(); return true; }
+      return false;
+    }
+    return false;
+  }
 
   window.__saltmarsh = {
     state: state,
@@ -625,6 +1549,8 @@
     away: function () { return awayOn; },
     taps: taps,
     view: view,
+    preview: preview,
+    followGoal: followGoal,
     M: M,
     P: P
   };

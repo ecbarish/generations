@@ -62,6 +62,11 @@ window.ArcadeGames=[
    tags:['Ages 2 to 4','No reading','Nothing to lose'],cover:'ranch',kind:'kids',
    goal:'Sit with a little one and tap: the bowl, the sponge, the bush and the baby. The visit ends with a lullaby at bedtime.',
    controls:'Taps or the mouse; drag the sponge for bubbles. Grown-ups: hold the lock in the corner for three seconds to leave or turn the sound off.'},
+  {id:'saltmarsh-shipping',title:'Saltmarsh Shipping Office',tcls:'t-mmo',status:['Test version','s-proto'],href:'games/saltmarsh-shipping/index.html',
+   blurb:'Row the first cargoes yourself, then tie up boats and send them on routes along the Saltmarsh coast. Captains bring the coin home. Lighthouses change the runs, and the office ends when the last voyage goes out.',
+   tags:['Shipping office','Routes and lights','A real ending'],cover:'saltmarsh',
+   kind:'build',goal:'Build the fleet, choose the routes, light the coast, and send the last voyage.',
+   controls:'Mouse or tap: Row the cargo, buy boats, and choose a route or a light when the desk offers one. The game remembers the office on this device.'},
 ];
 
 /* AR-SHELVE (Evan, 2026-10-13): off the site but kept. Their code, folders and save keys stay; old direct links still open.
