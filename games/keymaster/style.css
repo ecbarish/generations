@@ -18,6 +18,7 @@ section{background:var(--card);border:1px solid var(--line);border-radius:10px;p
 .choice{display:grid;gap:4px}.choice.wide{grid-column:1/-1}
 .label{font-size:.85rem;color:var(--soft)}
 button{font:inherit;min-height:44px;min-width:44px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .stepper{display:flex;align-items:center;gap:8px}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
 .toggle{display:flex;gap:6px;flex-wrap:wrap}.toggle button{flex:1 1 auto}
@@ -26,11 +27,16 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .month{width:100%;border-collapse:collapse;margin:12px 0}
 .month th{text-align:left;font-weight:400;padding:4px 0;color:var(--soft)}.month td{text-align:right;padding:4px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
 .month tr+tr{border-top:1px dashed var(--line)}.month .total th,.month .total td{font-weight:700;color:var(--ink);padding-top:8px}
+.month tr.total.good td{color:var(--good)}.month tr.total.bad td{color:var(--bad)}
 .measures{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:1fr 1fr}
 .measures li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
 .measures small{grid-column:1/-1;color:var(--soft);font-size:.8rem}
 .measures .v{font-weight:700;font-variant-numeric:tabular-nums}
 .good .v{color:var(--good)}.bad .v{color:var(--bad)}
+.outlook{margin:12px 0 0;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:#fff}
+.outlook.good{background:#eef6ee;border-color:#a8c8ac}.outlook.bad{background:#fbe9df;border-color:#e0b8a8}
+.outlook b{font-size:1.05rem}
+.of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
 .primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}

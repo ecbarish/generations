@@ -42,55 +42,93 @@
  function street(){
   const done=M.paying(R);
   $('#goal').textContent=M.finished(R)?(M.won(R)?'You built a street that pays.':'The street is sold.'):
-   'Own '+M.GOAL+' homes on Alder Street that each pay you: '+done+' of '+M.GOAL+' so far.';
+   'Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
   $('#cash').textContent=money(R.cash);
   $('#doors').innerHTML=M.STREET.map((h,i)=>{
    const got=R.homes[i];const cls=got?(got.bought?'owned'+(got.onCash<0?' costly':''):'gone'):(i===R.at?'now':'');
-   const what=got?(got.bought?'Yours':'Sold'):(i===R.at?'For sale now':'Coming up');
+   const what=got?(got.bought?(got.onCash>=0?'Pays you':'Costly'):'Sold'):(i===R.at?'For sale':'Coming up');
    return '<li class="'+cls+'"'+(i===R.at&&!M.finished(R)?' aria-current="step"':'')+'><b>'+h.address.split(' ')[0]+'</b>'+what+'</li>';}).join('');
+ }
+
+ // The deal the worksheet is showing. A counter keeps your offer in S.price (so the sellers can quote it)
+ // and shows their price instead, with the down payment and the work still yours to change.
+ function shownChoice(){return S.phase==='counter'?Object.assign({},S,{price:S.counter}):S;}
+ function ofAsk(price){
+  const n=Math.round(price/L.ask*1000)/10;
+  const t=Math.abs(n-Math.round(n))<0.05?String(Math.round(n)):n.toFixed(1);
+  return t+'% of the asking price';
+ }
+ function outlookOf(choice){
+  const o=M.yearOutlook(choice,L), r=M.respond(choice.price,L);
+  let line=o.counts?'This first year would count toward your street.':'This first year would not count toward your street.';
+  if(!o.counts&&r.answer==='yes')line+=' The sellers can say yes to this price.';
+  else if(o.counts&&r.answer!=='yes')line+=' Only if they take this offer.';
+  return {o,line};
+ }
+ function cashWarning(choice){
+  const locked=S.phase==='counter';
+  const hint=M.affordHint(R,choice,L,locked?choice.price:MIN());
+  if(hint.fits)return '';
+  const need='This needs '+money(hint.cashIn)+' of your cash, and you have '+money(R.cash)+'. ';
+  if(!hint.any)return need+(locked
+   ?'Neither down payment nor a smaller plan for the work fits their price. Walk away, and keep your cash for a later door.'
+   :'Nothing on this home fits, even with a lower offer, 20% down and less work. Pass, and keep your cash for a later door.');
+  const bits=[];
+  if(hint.price)bits.push('a lower offer');
+  if(hint.down)bits.push('20% down');
+  if(hint.work)bits.push('less work');
+  return need+(bits.length?bits.join(' or ')+' would fit.':'A different mix of price, down payment and work would fit.');
  }
 
  function render(){
   street();if(!L)return;
-  const a=M.analyze(S,L), live=S.phase==='run', afford=M.canAfford(R,S,L);
-  $('#offer').textContent=money(S.price);
+  const choice=shownChoice(), a=M.analyze(choice,L), view=outlookOf(choice);
+  const running=S.phase==='run', choosing=running||S.phase==='counter';
+  $('#offerLabel').textContent=S.phase==='counter'?'Their price':'Your offer';
+  $('#offer').textContent=money(choice.price);$('#ofAsk').textContent=ofAsk(choice.price);
   document.querySelectorAll('[data-down]').forEach(b=>b.setAttribute('aria-checked',String(+b.dataset.down===S.down)));
   document.querySelectorAll('[data-rehab]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.rehab===S.rehab)));
   $('#rent').textContent=money(a.rent);$('#aside').textContent='−'+money(a.setAside);$('#fixed').textContent='−'+money(a.fixed);
   $('#loanLabel').textContent='Mortgage ('+pct(1-S.down,0)+' borrowed at '+pct(L.rate,0)+', '+L.years+' years)';
   $('#mortgage').textContent='−'+money(a.mortgage);
-  $('#flow').textContent=money(a.cashFlow);$('#flow').closest('tr').className='total '+(a.cashFlow>=200?'good':a.cashFlow<0?'bad':'');
+  $('#flow').textContent=money(a.cashFlow);
+  $('#flow').closest('tr').className='total '+(view.o.counts?'good':a.cashFlow<0?'bad':'');
   const mark=(m,ok,v,note)=>{const li=document.querySelector('[data-m="'+m+'"]');li.className=ok?'good':'bad';li.querySelector('.v').textContent=v;if(note!==undefined)li.querySelector('small').textContent=note;};
   mark('cap',a.capRate>=L.marketCap,pct(a.capRate));
   mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),'Your yearly cash flow, '+money(a.cashFlow*12)+', on the '+money(a.cashIn)+' you put in (down payment, closing costs, the work).');
   mark('one',a.onePercent>=0.01,pct(a.onePercent,2));
-  mark('arv',a.equity>=0,money(a.arv),'What it is worth let, from its net income. Paying '+money(S.price)+' plus '+money(L.plans[S.rehab].cost)+
+  mark('arv',a.equity>=0,money(a.arv),'What it is worth let, from its net income. Paying '+money(choice.price)+' plus '+money(L.plans[S.rehab].cost)+
    ' of work leaves you '+(a.equity>=0?money(a.equity)+' of equity on day one.':money(-a.equity)+' under water on day one.'));
-  document.querySelectorAll('.sheet button').forEach(b=>b.disabled=!live);
-  $('[data-offer="-2000"]').disabled=!live||S.price<=MIN();$('[data-offer="2000"]').disabled=!live||S.price>=MAX();
-  $('#afford').hidden=!live||afford;
-  $('#afford').textContent='This needs '+money(a.cashIn)+' of your cash, and you have '+money(R.cash)+'. A smaller down payment, less work or a lower price would fit.';
-  if(live&&!afford)$('#offerBtn').disabled=true;
+  $('#outlook').hidden=S.phase==='done';
+  $('#outlook').className='outlook '+(view.o.counts?'good':'bad');
+  $('#outlook').innerHTML='<b>'+view.o.word+'.</b> '+view.line;
+  const warn=choosing?cashWarning(choice):'';
+  $('#afford').hidden=!warn;$('#afford').textContent=warn;
+  document.querySelectorAll('.sheet button').forEach(b=>b.disabled=!choosing);
+  $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
+  $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
  }
 
  function show(html){const box=$('#answer');box.innerHTML=html;box.hidden=false;box.scrollIntoView&&box.scrollIntoView({block:'nearest'});}
  const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.STREET[R.at].address)+'</button></div>';
 
+ function paintCounter(){
+  const choice=shownChoice(), view=outlookOf(choice), warn=cashWarning(choice), fits=!warn;
+  show('<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
+   '<p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p>'+
+   (warn?'<p class="afford">'+warn+'</p>':'')+
+   '<p><small>You can still change the down payment and the work.</small></p>'+
+   '<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>');
+ }
+
  function offer(){
   if(S.phase!=='run'||!M.canAfford(R,S,L))return;
   const r=M.respond(S.price,L);
   if(r.answer==='yes'){buy(S.price,'The sellers say yes to '+money(S.price)+'.');return;}
-  if(r.answer==='counter'){
-   S.phase='counter';S.counter=r.price;render();
-   const fits=M.canAfford(R,{...S,price:r.price},L);
-   show('<h2>They come back at '+money(r.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(r.price)+'."</p>'+
-    (fits?'':'<p class="afford">At '+money(r.price)+' this needs more cash than you have.</p>')+
-    '<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(r.price)+'</button><button type="button" data-act="walk">Walk away</button></div>');
-   return;
-  }
+  if(r.answer==='counter'){S.phase='counter';S.counter=r.price;render();paintCounter();return;}
   S.noes++;
   if(S.noes>=2){lose('They stop answering your offers, and sell to another buyer.');return;}
-  show('<h2>They say no</h2><p>"That is well below what we are asking." They are willing to sell, but not at '+money(S.price)+'. You can make one more offer.</p>'+
+  show('<h2>They say no</h2><p>"That is well below what we are asking." This offer is '+ofAsk(S.price)+'. They will still talk if you come back closer to the asking price. One more offer this far below, and they sell to someone else.</p>'+
    '<div class="actions"><button type="button" class="primary" data-act="change">Change your offer</button></div>');
  }
 
@@ -151,8 +189,8 @@
  document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.offer){S.price=Math.max(MIN(),Math.min(MAX(),S.price+ +b.dataset.offer));render();}
-  else if(b.dataset.down){S.down=+b.dataset.down;render();}
-  else if(b.dataset.rehab){S.rehab=b.dataset.rehab;render();}
+  else if(b.dataset.down){S.down=+b.dataset.down;render();if(S.phase==='counter')paintCounter();}
+  else if(b.dataset.rehab){S.rehab=b.dataset.rehab;render();if(S.phase==='counter')paintCounter();}
   else if(b.id==='offerBtn')offer();
   else if(b.id==='passBtn')lose('You pass on '+L.address+'.');
   else if(b.dataset.act==='take')buy(S.counter,'You take their '+money(S.counter)+'.');

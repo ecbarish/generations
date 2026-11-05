@@ -149,6 +149,32 @@
   return {word:'A costly buy',text:'You paid more than it is worth once let, and the rent did not make up the difference.'};
  }
 
+ // The year's verdict for the choice on the worksheet, before anyone has bought. `counts` is the street's
+ // goal: a thin buy or better (the same test as paying()).
+ function yearOutlook(choice,L=LISTING){
+  const y=firstYear(choice,L), v=verdict(y.onCash);
+  return {word:v.word, text:v.text, counts:y.onCash>=0, onCash:y.onCash, cashIn:y.analysis.cashIn, cashFlow:y.analysis.cashFlow};
+ }
+
+ // Which levers would bring this choice inside the cash on hand. minPrice is the lowest offer the screen
+ // will allow right now: a counter locks it to the sellers' price, so a lower offer is not offered as a way out.
+ function affordHint(run,choice,L=current(run),minPrice=choice.price){
+  const a=analyze(choice,L);
+  if(a.cashIn<=run.cash)return {fits:true, any:true, price:false, down:false, work:false, cashIn:a.cashIn};
+  const plans=plansOf(L), prices=new Set([choice.price]);
+  for(let p=minPrice;p<=choice.price;p+=2000)prices.add(p);
+  let any=false, price=false, down=false, work=false;
+  const curCost=(plans[choice.rehab]||plans.asis).cost;
+  for(const p of prices)for(const d of [0.2,0.25])for(const rehab of Object.keys(plans)){
+   if(analyze({price:p,down:d,rehab},L).cashIn>run.cash)continue;
+   any=true;
+   if(p<choice.price&&d===choice.down&&rehab===choice.rehab)price=true;
+   if(d<choice.down&&p===choice.price&&rehab===choice.rehab)down=true;
+   if(plans[rehab].cost<curCost&&p===choice.price&&d===choice.down)work=true;
+  }
+  return {fits:false, any, price, down, work, cashIn:a.cashIn};
+ }
+
  // What happened when you passed: the next buyer paid the sellers' lowest and did the full renovation.
  function passed(L=LISTING){
   const y=firstYear({price:lowestOf(L),down:0.25,rehab:'full'},L);
@@ -191,7 +217,7 @@
  const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
 
- const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,passed,
+ const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,yearOutlook,affordHint,passed,
   newRun,current,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.KeymasterModel=api;
 })(typeof window!=='undefined'?window:globalThis);

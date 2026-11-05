@@ -14,7 +14,8 @@
  <h2 id="sheetTitle">Run the numbers</h2>
  <div class="choices">
   <div class="choice"><span class="label" id="offerLabel">Your offer</span>
-   <div class="stepper" role="group" aria-labelledby="offerLabel"><button type="button" data-offer="-2000" aria-label="Offer $2,000 less">−</button><output id="offer" aria-live="polite"></output><button type="button" data-offer="2000" aria-label="Offer $2,000 more">+</button></div></div>
+   <div class="stepper" role="group" aria-labelledby="offerLabel"><button type="button" data-offer="-2000" aria-label="Offer $2,000 less">−</button><output id="offer" aria-live="polite"></output><button type="button" data-offer="2000" aria-label="Offer $2,000 more">+</button></div>
+   <small class="of-ask" id="ofAsk"></small></div>
   <div class="choice"><span class="label" id="downLabel">Down payment</span>
    <div class="toggle" role="radiogroup" aria-labelledby="downLabel"><button type="button" role="radio" data-down="0.2">20%</button><button type="button" role="radio" data-down="0.25">25%</button></div></div>
   <div class="choice wide"><span class="label" id="rehabLabel"></span>
@@ -27,6 +28,7 @@
   <tr><th id="loanLabel">Mortgage</th><td id="mortgage"></td></tr>
   <tr class="total"><th>Cash flow, each month</th><td id="flow"></td></tr>
  </table>
+ <p class="outlook" id="outlook"></p>
  <ul class="measures" aria-label="How the deal measures up">
   <li data-m="cap"><b>Cap rate</b> <span class="v"></span><small>What it earns a year before the loan, on the price. Rentals nearby sell at 7.5%.</small></li>
   <li data-m="coc"><b>Cash-on-cash</b> <span class="v"></span><small></small></li>
