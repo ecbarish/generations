@@ -440,6 +440,30 @@ document.querySelector('#run').onclick=async()=>{
    const offerBox=d.querySelector('#offerBtn').getBoundingClientRect(), passBox=d.querySelector('#passBtn').getBoundingClientRect();
    check(width+'×'+height+' Make this offer and Pass are in view without scrolling ('+Math.round(offerBox.top)+'/'+Math.round(passBox.top)+', view '+w.innerHeight+')',w.scrollY===0&&seenBtn(d.querySelector('#offerBtn'))&&seenBtn(d.querySelector('#passBtn')));
   }
+  const hitBtn=el=>{const r=el.getBoundingClientRect(); const hit=d.elementFromPoint(r.left+r.width/2, r.top+r.height/2); return !!hit&&(hit===el||el.contains(hit));};
+  for(const [width,height] of [[1280,800],[390,600],[375,812]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.begin();await wait(30);w.scrollTo(0,0);
+   H.run().cash=50000;H.S.down=0.2;H.S.rehab='asis';H.S.price=180000;H.render();await wait(20);
+   const before=d.querySelector('#offerBtn').getBoundingClientRect().top;
+   const passBefore=d.querySelector('#passBtn').getBoundingClientRect().top;
+   H.S.price=240000;H.render();await wait(20);
+   const offerNow=d.querySelector('#offerBtn'), passNow=d.querySelector('#passBtn');
+   const moved=Math.max(Math.abs(offerNow.getBoundingClientRect().top-before),Math.abs(passNow.getBoundingClientRect().top-passBefore));
+   const inView=el=>{const r=el.getBoundingClientRect();return r.height>=44&&r.top>=-1&&r.bottom<=w.innerHeight+1&&hitBtn(el);};
+   const needView=width<860;
+   check(width+'×'+height+' the cash line moves Make this offer and Pass '+moved.toFixed(1)+'px'+(needView?', and they stay tappable':''),moved<=2&&!d.querySelector('#shortCash').hidden&&(!needView||(inView(offerNow)&&inView(passNow))));
+  }
+  for(const [width,height] of [[844,390],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.begin();await wait(30);w.scrollTo(0,0);
+   const link=d.querySelector('.home').getBoundingClientRect();
+   check(width+'×'+height+' the Arcade link is '+Math.round(link.width)+'×'+Math.round(link.height),link.width>=44&&link.height>=44);
+   const offerNow=d.querySelector('#offerBtn'), passNow=d.querySelector('#passBtn');
+   const inView=el=>{const r=el.getBoundingClientRect();return r.height>=44&&r.top>=-1&&r.bottom<=w.innerHeight+1;};
+   check(width+'×'+height+' Make this offer and Pass start in view ('+Math.round(offerNow.getBoundingClientRect().top)+'/'+Math.round(passNow.getBoundingClientRect().bottom)+')',w.scrollY===0&&inView(offerNow)&&inView(passNow));
+   check(width+'×'+height+' the work plan still shows its cost',/then/.test(d.querySelector('.rehab').textContent)&&/\$/.test(d.querySelector('.rehab').textContent));
+  }
   frame.style.width='320px';frame.style.height='568px';await wait(80);
   const midWord=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return false;const s=node.textContent,range=d.createRange();let last=null;for(let i=0;i<s.length;i++){range.setStart(node,i);range.setEnd(node,i+1);const rect=range.getClientRects()[0];if(!rect)continue;if(last!==null&&rect.top>last+1&&s[i-1]!==' ')return true;last=rect.top;}return false;};
   check('door labels at 320 do not split a word',![...d.querySelectorAll('#doors li')].some(midWord));
@@ -483,16 +507,11 @@ document.querySelector('#run').onclick=async()=>{
   check('closing and reopening resumes at 3 Alder with the same cash and doors',/^3 Alder Street/.test(d2.querySelector('#addr').textContent)&&d2.querySelector('#cash').textContent==='$127,040'&&d2.querySelector('#doors li').className==='owned'&&/Pays you/.test(d2.querySelector('#doors li').textContent));
   f2.remove();
   const legacy='{"v":1,"game":"keymaster","cash":131520,"at":1,"homes":[{"id":"alder14","bought":true,"choice":{"price":216000,"down":0.25,"rehab":"refresh"},"onCash":0.364,"cashFlow":432,"yearCash":3829}]}';
-  check('a keymaster-save-v1 from before this finish pass still validates at version 1',M.SAVE_VERSION===1&&M.valid(JSON.parse(legacy))&&!M.migrates);
+  check('a save with no home order is refused, and the version stays 1',M.SAVE_VERSION===1&&!M.valid(JSON.parse(legacy))&&!M.migrates);
   localStorage.setItem('keymaster-save-v1',legacy);
   const fOld=await open(),dOld=fOld.contentWindow.document;
-  check('that save still opens on the next home, and the bought door pays you',/^3 Alder Street/.test(dOld.querySelector('#addr').textContent)&&dOld.querySelector('#cash').textContent==='$131,520'&&/Pays you/.test(dOld.querySelector('#doors li').textContent)&&/1 of 3/.test(dOld.querySelector('#goal').textContent));
+  check('that save is left alone and the screen starts fresh',/^14 Alder Street/.test(dOld.querySelector('#addr').textContent)&&fOld.contentWindow.__keymaster.protect===true&&localStorage.getItem('keymaster-save-v1')===legacy);
   fOld.remove();
-  const costly=JSON.parse(legacy);costly.cash=124800;costly.homes[0].onCash=-0.005;costly.homes[0].cashFlow=312;
-  localStorage.setItem('keymaster-save-v1',JSON.stringify(costly));
-  const fCost=await open(),dCost=fCost.contentWindow.document;
-  check('a costly home in an old save still loads and does not count toward the street',/^3 Alder Street/.test(dCost.querySelector('#addr').textContent)&&dCost.querySelector('#cash').textContent==='$124,800'&&dCost.querySelector('#doors li').className==='owned costly'&&/Costly/.test(dCost.querySelector('#doors li').textContent)&&/0 of 3/.test(dCost.querySelector('#goal').textContent));
-  fCost.remove();
   const damaged='{"v":1,"game":"keymaster","cash":-5,"at":0,"homes":[]}';localStorage.setItem('keymaster-save-v1',damaged);
   const f3=await open(),d3=f3.contentWindow.document;
   check('a damaged save starts a fresh street on screen',/^14 Alder Street/.test(d3.querySelector('#addr').textContent)&&f3.contentWindow.__keymaster.protect===true);

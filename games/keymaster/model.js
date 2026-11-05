@@ -186,9 +186,9 @@
  // How many more paying homes the cash can still cover. Careful buys are the cheapest ones.
  function orderOf(run){
   const ids=run&&Array.isArray(run.order)?run.order:null;
-  if(!ids||ids.length!==STREET.length||new Set(ids).size!==STREET.length) return STREET;
+  if(!ids||ids.length!==STREET.length||new Set(ids).size!==STREET.length) return [];
   const list=ids.map(id=>STREET.find(h=>h.id===id));
-  return list.some(h=>!h)?STREET:list;
+  return list.some(h=>!h)?[]:list;
  }
  function streetBudget(run){
   const need=Math.max(0,GOAL-paying(run)), costs=[], list=orderOf(run);
@@ -246,9 +246,7 @@
   return ids;
  }
  function newRun(seed){
-  const run={cash:START_CASH, at:0, homes:[], offers:0};
-  if(seed!=null) run.order=mixOrder(seed);
-  return run;
+  return {cash:START_CASH, at:0, homes:[], offers:0, order:seed!=null?mixOrder(seed):STREET.map(h=>h.id)};
  }
  const current=run=>orderOf(run)[run.at]||null;
  const canAfford=(run,choice,L=current(run))=>!!L&&analyze(choice,L).cashIn<=run.cash;
@@ -275,24 +273,17 @@
  function valid(o){
   if(!o||o.v!==SAVE_VERSION||o.game!=='keymaster'||!isNum(o.cash)||o.cash<0||o.cash>START_CASH)return false;
   if(!Number.isInteger(o.at)||o.at<0||o.at>STREET.length||!Array.isArray(o.homes)||o.homes.length!==o.at)return false;
-  const ids=Array.isArray(o.order)&&o.order.length===STREET.length?o.order:STREET.map(h=>h.id);
-  if(new Set(ids).size!==STREET.length||ids.some(id=>!STREET.some(h=>h.id===id))) return false;
+  if(!Array.isArray(o.order)||o.order.length!==STREET.length||new Set(o.order).size!==STREET.length) return false;
+  if(o.order.some(id=>!STREET.some(h=>h.id===id))) return false;
+  const ids=o.order;
   return o.homes.every((h,i)=>{
    const home=STREET.find(s=>s.id===ids[i]);
    return h&&home&&h.id===ids[i]&&typeof h.bought==='boolean'&&
     (!h.bought||(isNum(h.onCash)&&isNum(h.cashFlow)&&h.choice&&isNum(h.choice.price)&&isNum(h.choice.down)&&!!home.plans[h.choice.rehab]));
   });
  }
- const serialize=run=>{
-  const out={v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,offers:run.offers||0,homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))};
-  if(run.order) out.order=run.order.slice();
-  return out;
- };
- const restore=o=>{
-  const run={cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h))),offers:isNum(o.offers)?o.offers:0};
-  if(Array.isArray(o.order)) run.order=o.order.slice();
-  return run;
- };
+ const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,offers:run.offers||0,order:(run.order||[]).slice(),homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h))),offers:isNum(o.offers)?o.offers:0,order:o.order.slice()});
  // One line for the hub's card: how the street is going.
  const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
