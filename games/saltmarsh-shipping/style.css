@@ -219,11 +219,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
   .boat .wait,
+  .captain .wait,
   #rate {
     white-space: normal;
     min-height: 2.9em;
   }
-  .captain .wait { white-space: normal; }
 }
 @media (max-width: 340px) {
   .route-card h3,

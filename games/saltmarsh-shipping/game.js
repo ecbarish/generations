@@ -176,12 +176,12 @@
     var mark = note.indexOf('The next shed is ');
     if (mark >= 0) {
       hold.appendChild(document.createTextNode(note.slice(0, mark + 'The next shed is '.length)));
-      var price = document.createElement('span');
-      price.className = 'shed-price';
+      var priceEl = document.createElement('span');
+      priceEl.className = 'shed-price';
       var rest = note.slice(mark + 'The next shed is '.length);
       var coinsAt = rest.indexOf(' coins.');
-      price.textContent = coinsAt >= 0 ? rest.slice(0, coinsAt) : rest;
-      hold.appendChild(price);
+      priceEl.textContent = coinsAt >= 0 ? rest.slice(0, coinsAt) : rest;
+      hold.appendChild(priceEl);
       hold.appendChild(document.createTextNode(coinsAt >= 0 ? rest.slice(coinsAt) : ''));
     } else hold.textContent = note;
     var shedBtn = box.querySelector('[data-act="shed"]');
@@ -558,13 +558,13 @@
           waitH.textContent = 'Spare sail';
           var waitP = document.createElement('p');
           waitP.className = 'habit';
-          waitP.textContent = 'A spare sail waits for the first route you sign. It pays a little more, and the other prices stay.';
+          waitP.textContent = 'A spare sail waits for the first route you sign.';
           var waitA = document.createElement('div');
           waitA.className = 'actions';
           var waitB = document.createElement('button');
           waitB.type = 'button';
           waitB.disabled = true;
-          waitB.textContent = 'Sail';
+          waitB.textContent = 'Not yet';
           waitA.appendChild(waitB);
           gearHost.appendChild(waitH);
           gearHost.appendChild(waitP);
