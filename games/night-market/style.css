@@ -159,12 +159,23 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   padding: 0.45rem 0.6rem 0.35rem;
 }
 @media (max-width: 420px) and (max-height: 640px) {
-  .pick:not(.quiet) .pick-panel { top: 0.2rem; padding: 0.3rem 0.45rem 0.25rem; max-height: calc(100vh - 0.3rem); }
-  .pick:not(.quiet) .pick-panel .choices { gap: 0.25rem; }
+  /* Three tradeoff lines plus Skip and Reroll have to stay on a 568px phone. */
+  .pick:not(.quiet) .pick-panel { top: 0.15rem; padding: 0.2rem 0.4rem 0.15rem; max-height: calc(100vh - 0.2rem); }
+  .pick:not(.quiet) .pick-panel p { margin: 0 0 0.1rem; font-size: 0.78rem; line-height: 1.15; }
+  .pick:not(.quiet) .pick-panel .choices,
+  .pick:not(.quiet) .choices + .choices { gap: 0.15rem; margin-top: 0.1rem; }
+  .pick:not(.quiet) button {
+    min-height: 44px;
+    height: auto;
+    padding: 0.22rem 0.4rem;
+    font-size: 0.78rem;
+    line-height: 1.15;
+  }
 }
 .pick p { margin: 0 0 0.35rem; }
 .pick .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .pick button { flex: 1 1 100%; min-width: 0; min-height: 44px; text-align: left; overflow-wrap: anywhere; }
+.pick .choices + .choices button { flex: 1 1 40%; }
 @media (max-width: 1000px) {
   /* A one-line option and a wrapped one used to swap 44px for 62px and shove Skip. */
   /* The longest omen is about seven lines. Every option is that tall, so Skip does not jump and the words are not cut off. */
@@ -191,6 +202,11 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   }
 }
 #rate.flash { background: var(--amber-wash); }
+.crowd { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; background: var(--paper); color: var(--ink); padding: 0.35rem 0.6rem calc(0.35rem + env(safe-area-inset-bottom)); box-shadow: 0 -1px 0 var(--rule); }
+.crowd[hidden] { display: none !important; }
+.crowd p { margin: 0 0 0.3rem; }
+.crowd .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.crowd button { min-height: 44px; min-width: 44px; flex: 1 1 8rem; }
 .pick .choices + .choices { margin-top: 0.35rem; }
 .codex { margin-top: 0.4rem; color: var(--mute); }
 .codex summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }

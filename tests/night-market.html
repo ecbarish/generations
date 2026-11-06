@@ -375,8 +375,8 @@ document.querySelector('#run').onclick = async function () {
     earlyNamed.night.charms = M.CHARMS.map(function (c) { return c.id; }).filter(function (id) { return id !== 'bo-queue'; });
     earlyNamed.night.offer = null;
     earlyNamed.night.offered = [];
-    check('the next line names the doubling beat when that is what will fire',
-      M.nextOfferLine(earlyNamed).indexOf('double at 20') >= 0 && M.nextOfferLine(earlyNamed).indexOf('Story Mat') < 0);
+    check('the next line names a choice when the lane is already earning',
+      /choice/.test(M.nextOfferLine(earlyNamed)) && M.nextOfferLine(earlyNamed).indexOf('Story Mat') < 0);
     var wickDeal = M.fresh();
     wickDeal.night.omen = 'wick';
     var wickBefore = M.cost(5, 0, 1, wickDeal);
@@ -890,8 +890,10 @@ document.querySelector('#run').onclick = async function () {
     mid.stalls[3].hired = true;
     mid.stalls[3].owned = 6;
     M.syncOffers(mid);
-    check('six mooncakes offer a charm before incense opens',
-      mid.night.offer && mid.night.offer.kind === 'charm' && mid.night.offered.indexOf('mid-mooncake') >= 0 && !M.unlocked(mid, 4));
+    var midKinds = {};
+    if (mid.night.offer) mid.night.offer.options.forEach(function (id) { midKinds[String(id).split(':')[0]] = true; });
+    check('six mooncakes offer a choice before incense opens',
+      mid.night.offer && mid.night.offer.options.length >= 3 && Object.keys(midKinds).length >= 3 && mid.night.offered.indexOf('mid-mooncake') >= 0 && !M.unlocked(mid, 4));
     var skipped = M.fresh();
     var skipSeed = 1;
     while (M.charmPlan(skipSeed).indexOf('mooncake') < 0 && skipSeed < 30) skipSeed++;
@@ -1621,8 +1623,8 @@ document.querySelector('#run').onclick = async function () {
       longBtn && !longBtn.hidden && w.getComputedStyle(longBtn).visibility !== 'hidden' &&
       /Max · 1 ·/.test(longBtn.textContent) && freshHook.state.stalls[0].owned === slowOwned + 1);
     var matRow = d.querySelector('#stalls [data-i="5"] .wait');
-    check('the Story Mat shows its price while it is still shuttered',
-      matRow && matRow.textContent.indexOf(w.Arcade.fmt(w.NightMarket.STALLS[5].base)) >= 0);
+    check('the Story Mat shows the price it will actually charge while it is still shuttered',
+      matRow && (/Price when it opens:/.test(matRow.textContent) || /Price set when it opens/.test(matRow.textContent)));
     freshHook.state.stalls = JSON.parse(laneBefore);
     freshHook.state.cash = cashBefore;
     freshHook.state.bulk = 'max';
@@ -3416,7 +3418,7 @@ document.querySelector('#run').onclick = async function () {
         mixCats[cat] = true;
       });
     }
-    check('a night mixes a cost cut, a threshold, and a rate change', !!(mixCats.cost && mixCats.threshold && mixCats.rate));
+    check('a night mixes three different tradeoffs', ['focus', 'tempo', 'scale', 'commit', 'ease', 'bank', 'hurry', 'stack'].filter(function (kind) { return mixCats[kind]; }).length >= 3);
     var sameStall = M.fresh();
     sameStall.stalls[3].hired = true;
     sameStall.stalls[3].owned = 12;

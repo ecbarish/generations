@@ -156,7 +156,6 @@
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? shutterLine(i) : '';
-      if (i === M.STALLS.length - 1) wait.textContent += ' Catalogue price ' + money(M.STALLS[5].base) + ' coins.';
       serve.hidden = false;
       buy.hidden = false;
       ask.hidden = false;
@@ -299,7 +298,13 @@
     var need = M.unlockNeed(state, i);
     var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
     var line = stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
-    if (i === M.STALLS.length - 1) line = M.matSecondsLeft(state) > 0 ? M.matCountdown(state) : ('Old Wen opens the Story Mat at ' + need + ' incense trays.');
+    if (i === M.STALLS.length - 1) {
+      if (M.matSecondsLeft(state) > 0) {
+        var preview = M.matLivePrice(state);
+        if (preview > 0 && state.night) state.night.matShown = preview;
+        line = M.matCountdown(state) + (preview > 0 ? (' Price when it opens: ' + money(preview) + ' coins.') : ' Price set when it opens.');
+      } else line = 'Old Wen opens the Story Mat at ' + need + ' incense trays.';
+    }
     return line;
   }
 
@@ -340,7 +345,12 @@
        card are the same peek. */
     if (M.nextOfferLine) M.nextOfferLine(state);
     var nowMs = Date.now();
-    if (M.noteWall) M.noteWall(state, nowMs, document.hidden);
+    if (M.noteWall) {
+      var wallBefore = state.night && state.night.wallMs || 0;
+      M.noteWall(state, nowMs, document.hidden);
+      var wallAfter = state.night && state.night.wallMs || 0;
+      if (Math.floor(wallAfter / 10000) !== Math.floor(wallBefore / 10000)) persist();
+    }
     var quietDt = (nowMs - lastElapse) / 1000;
     lastElapse = nowMs;
     if (quietDt > 0) M.elapse(state, Math.min(quietDt, 120));
@@ -425,6 +435,7 @@
       if (window.scrollY !== stayedForDawn) window.scrollTo(0, stayedForDawn);
     }
     renderCodex();
+    renderCrowd();
     var laneNow = window.NightLane;
     if (laneNow && laneNow.signature && laneNow.refresh) {
       var nextSig = laneNow.signature();
@@ -787,6 +798,44 @@
       box.appendChild(line);
     });
   }
+  function renderCrowd() {
+    var box = $('#crowd');
+    if (!box || !M.lateView) return;
+    var pick = $('#pick');
+    var modal = pick && !pick.classList.contains('quiet');
+    var view = modal ? null : M.lateView(state);
+    if (!view) { box.hidden = true; return; }
+    box.hidden = false;
+    var lead = $('#crowd-lead');
+    if (lead) lead.textContent = view.lead;
+    var choices = $('#crowd-choices');
+    var sig = view.kind + '|' + view.mark;
+    if (choices.dataset.sig === sig) return;
+    choices.dataset.sig = sig;
+    choices.replaceChildren();
+    if (view.kind === 'early-mat') {
+      var nowBtn = document.createElement('button');
+      nowBtn.type = 'button';
+      nowBtn.dataset.act = 'mat-now';
+      var premium = M.matLivePrice(state) > 0 ? M.matLivePrice(state) * (20 / 12) : 0;
+      nowBtn.textContent = premium > 0 ? ('Open now · ' + money(premium) + ' coins') : 'Open now';
+      var waitBtn = document.createElement('button');
+      waitBtn.type = 'button';
+      waitBtn.dataset.act = 'mat-wait';
+      waitBtn.textContent = 'Wait for 15:00';
+      choices.appendChild(nowBtn);
+      choices.appendChild(waitBtn);
+      return;
+    }
+    (view.stalls || []).forEach(function (row) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.act = 'rush';
+      btn.dataset.stall = row.id;
+      btn.textContent = row.name;
+      choices.appendChild(btn);
+    });
+  }
 
   // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
   // on a desktop and on a phone. A stalled timer pays at most one second, so a hold cannot run ahead
@@ -1001,6 +1050,14 @@
     }
     if (b.dataset.act === 'reroll') {
       if (M.reroll(state)) { persist(); render(); focusOffer(); }
+      return;
+    }
+    if (b.dataset.act === 'mat-now' || b.dataset.act === 'mat-wait' || b.dataset.act === 'rush') {
+      if (M.takeLate) M.takeLate(state, b.dataset.act === 'rush' ? b.dataset.stall : (b.dataset.act === 'mat-now' ? 'now' : 'wait'));
+      var crowdChoices = $('#crowd-choices');
+      if (crowdChoices) crowdChoices.dataset.sig = '';
+      persist();
+      render();
       return;
     }
     if (b.dataset.act === 'next-night') {
