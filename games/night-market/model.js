@@ -341,6 +341,7 @@
       axisLog: ['rate-trade+rate-trade'],
       lastExact: omenOptions.slice().sort().join('|'),
       matOffer: 0,
+      weakPriceAt: [],
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -583,9 +584,25 @@
     return stallField(state, stall.id, 'serves', stall.serves);
   }
 
+  /* Fifteen minutes of the night's own clock. This is wall time, including the
+     moments a choice card is open. The pacing buyer never advances it. */
+  var MAT_CLOCK = 900;
+  function laneHasOneOfEach(state) {
+    var i;
+    if (!state || !state.stalls) return false;
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i] || !(state.stalls[i].owned >= 1)) return false;
+    }
+    return true;
+  }
+  function matByClock(state) {
+    if (!(state && state.night && state.night.age >= MAT_CLOCK && laneHasOneOfEach(state))) return false;
+    return state.bulk === 1 || state.bulk === '1';
+  }
   function unlocked(state, i) {
     if (!spec(i)) return false;
     if (i === 0) return true;
+    if (i === STALLS.length - 1 && matByClock(state)) return true;
     return state.stalls[i - 1].owned >= unlockNeed(state, i);
   }
 
@@ -770,12 +787,14 @@
     }
     /* A lower-prices choice never touches the Story Mat. */
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
-    /* Eighteen minutes in, the first mat is locked to about twenty seconds of
-       the lane's earnings then, and never more than the catalogue price. */
-    if (stall.id === 'stories' && owned === 0 && state && state.night && state.night.age >= 1080) {
+    /* At fifteen minutes the first mat, if it is still unbought, costs about
+       eight seconds of what the lane earns then. A night that reached ten
+       incense trays earlier still pays the catalogue price. The pacing buyer
+       does not advance the night clock, so this price never applies there. */
+    if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state) && (state.bulk === 1 || state.bulk === '1')) {
       if (!(state.night.matOffer > 0)) {
         var laneRate = income(state);
-        state.night.matOffer = laneRate > 0 ? Math.min(total, Math.max(50000, laneRate * 20)) : total;
+        state.night.matOffer = Math.min(total, Math.max(12000, laneRate > 0 ? laneRate * 8 : 12000));
       }
       if (state.night.matOffer > 0 && state.night.matOffer < total) total = state.night.matOffer;
     }
@@ -993,6 +1012,7 @@
       bonus = nextBonus(state, i, need);
       var nxt = spec(i + 1);
       var follow = nxt ? (' ' + nxt.vendor + ' opens the ' + nxt.name + ' at ' + need + '.') : '';
+      if (i + 1 === STALLS.length - 1 && state.night && state.night.age < MAT_CLOCK) follow += ' It also opens at 15:00.';
       return withBonus((left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '.' + follow, bonus);
     }
     var matI = STALLS.length - 1;
@@ -1233,6 +1253,7 @@
         axisLog: (night.axisLog || []).slice(),
         lastExact: typeof night.lastExact === 'string' ? night.lastExact : '',
         matOffer: night.matOffer > 0 ? night.matOffer : 0,
+        weakPriceAt: (night.weakPriceAt || []).map(function (n) { return n ? 1 : 0; }),
         lanePay: night.lanePay > 0 ? Math.floor(night.lanePay) : 0,
         priceEase: night.priceEase > 0 ? Math.floor(night.priceEase) : 0,
         fillerOpen: night.fillerOpen || 0,
@@ -1289,6 +1310,7 @@
     state.night.axisLog = keepIds(o.night.axisLog, function (id) { return /^[a-z+-]+$/.test(id); });
     state.night.lastExact = typeof o.night.lastExact === 'string' ? o.night.lastExact : '';
     state.night.matOffer = o.night.matOffer > 0 ? o.night.matOffer : 0;
+    state.night.weakPriceAt = Array.isArray(o.night.weakPriceAt) ? o.night.weakPriceAt.map(function (n) { return n ? 1 : 0; }) : [];
     state.night.lanePay = o.night.lanePay > 0 ? Math.floor(o.night.lanePay) : 0;
     state.night.priceEase = o.night.priceEase > 0 ? Math.floor(o.night.priceEase) : 0;
     state.night.fillerOpen = o.night.fillerOpen > 0 ? Math.floor(o.night.fillerOpen) : 0;
@@ -1387,6 +1409,8 @@
       state.night.axisLog = state.night.axisLog || [];
       if (offer.options.length >= 2) state.night.axisLog.push(axisPairKey(offer.kind, offer.options[0], offer.options[1]));
       state.night.lastExact = exactKey(offer.options);
+      state.night.weakPriceAt = state.night.weakPriceAt || [];
+      state.night.weakPriceAt.push(offerHasWeakPrice(offer) ? 1 : 0);
       rememberLines(state, offer);
       if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
       if (offer.kind === 'pick') {
@@ -2768,7 +2792,8 @@
     if (soonest) return 'The next choice comes when the ' + soonest.name + ' opens.';
     var mat = STALLS.length - 1;
     if (!state.stalls[mat] || state.stalls[mat].owned < 1) return 'The next choice comes while you save for the Story Mat.';
-    return 'No more choices tonight.';
+    if (dawnDue(state)) return 'No more choices tonight.';
+    return 'The next choice comes before the lane is quiet for long.';
   }
   function offerLine(state, charm) {
     if (!charm || !charm.stall) return charm && charm.line ? charm.line : '';

@@ -153,7 +153,7 @@
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? shutterLine(i) : '';
-      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'Unroll the Story Mat for ' + money(M.cost(i, 0, 1, state)) + ' coins.';
+      if (i === M.STALLS.length - 1) wait.textContent += ' Catalogue price ' + money(M.STALLS[5].base) + ' coins.';
       serve.hidden = false;
       buy.hidden = false;
       ask.hidden = false;
@@ -283,7 +283,10 @@
       needLine.textContent = shortfall ? ('Need ' + money(gap) + ' more.') : '';
       if (!shortfall && i < M.STALLS.length - 1 && !M.unlocked(state, i + 1)) {
         var openAt = M.unlockNeed(state, i + 1);
-        if (st.owned < openAt) needLine.textContent = M.STALLS[i + 1].vendor + ' opens at ' + openAt + '.';
+        if (st.owned < openAt) {
+          needLine.textContent = M.STALLS[i + 1].vendor + ' opens at ' + openAt + '.';
+          if (i + 1 === M.STALLS.length - 1) needLine.textContent = 'Old Wen opens at ' + openAt + ' trays, or at 15:00.';
+        }
       }
     }
   }
@@ -292,7 +295,9 @@
     var stall = M.STALLS[i];
     var need = M.unlockNeed(state, i);
     var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
-    return stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
+    var line = stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
+    if (i === M.STALLS.length - 1) line = 'Old Wen opens the Story Mat at ' + need + ' incense trays, or at 15:00.';
+    return line;
   }
 
   function rebindIdle() {
@@ -887,11 +892,19 @@
     hold = h;
   });
   ['pointerup', 'pointercancel', 'blur'].forEach(function (ev) { (ev === 'blur' ? window : document).addEventListener(ev, stopHold); });
-  document.addEventListener('contextmenu', function (e) {
-    var t = e.target && e.target.closest && e.target.closest('button');
+  window.addEventListener('contextmenu', function (e) {
+    var node = e.target;
+    if (node && node.nodeType !== 1) node = node.parentElement;
+    var t = node && node.closest && node.closest('button, #pick, .actions, #bulk');
+    if (!t && typeof e.clientX === 'number') {
+      var under = document.elementFromPoint(e.clientX, e.clientY);
+      t = under && under.closest && under.closest('button, #pick, .actions, #bulk');
+    }
     if (!t) return;
-    if (t.dataset.act === 'serve' || t.dataset.act === 'buy' || t.dataset.act === 'hire' || t.dataset.bulk || (t.closest && t.closest('#pick'))) e.preventDefault();
-  });
+    if (t.closest('#pick') || t.closest('.actions') || t.closest('#bulk') || t.dataset.act === 'serve' || t.dataset.act === 'buy' || t.dataset.act === 'hire') {
+      e.preventDefault();
+    }
+  }, true);
 
   /* A render between press and release moves the button, and the click never lands.
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
