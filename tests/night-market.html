@@ -4247,6 +4247,70 @@ document.querySelector('#run').onclick = async function () {
       landRound('pick', ['lane:pay@1@1', 'lane:price@1']);
     });
     check(landBits.length ? 'a compact landscape pick is short or below the fold: ' + landBits.join(' | ') : 'at 844×390, 667×375 and 740×360 every pick is at least 44px and inside the window', landBits.length === 0);
+    var phoneDawn = [];
+    [[390, 844], [320, 568]].forEach(function (size) {
+      playFrame.style.width = size[0] + 'px';
+      playFrame.style.height = size[1] + 'px';
+      armPlayed(11);
+      pg.state.bulk = 'max';
+      pg.render();
+      var sim = 0, matAt = 0, weakBack = 0, weak = 0, tiny = 0, options = 0, seen = '', prevWeak = false;
+      var clock = pw.Date.now;
+      var origin = clock.call(pw.Date) + 20000;
+      pw.Date.now = function () { return origin + sim * 1000; };
+      while (sim < 1600 && !matAt) {
+        var offer = pg.state.night.offer;
+        if (offer && offer.options) {
+          var sig = offer.options.join(',');
+          if (sig !== seen) {
+            seen = sig;
+            var cardWeak = false;
+            offer.options.forEach(function (id) {
+              options++;
+              var text = PM.choiceLine(pg.state, offer.kind, id) || '';
+              if (/Prices are 5% lower/.test(text)) { weak++; cardWeak = true; }
+              if (/^Your income /.test(text) && / a second\.$/.test(text) && text.indexOf('earns') < 0) tiny++;
+            });
+            if (cardWeak && prevWeak) weakBack++;
+            prevWeak = cardWeak;
+          }
+          sim += 2;
+          var take = pd.querySelector('#pick-choices button');
+          if (take) take.click();
+        }
+        var acted = false, si;
+        for (si = 0; si < 5; si++) {
+          if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
+          var hire = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="hire"]');
+          var serve = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="serve"]');
+          if (hire && !hire.disabled) { hire.click(); acted = true; break; }
+          if (serve) { serve.click(); acted = true; break; }
+        }
+        if (!acted) {
+          var target = -1;
+          for (si = 4; si >= 0; si--) if (PM.unlocked(pg.state, si) && pg.state.stalls[si].hired) { target = si; break; }
+          var press = target >= 0 ? pd.querySelector('#stalls [data-i="' + target + '"] [data-act="buy"]') : null;
+          if (press && !press.disabled) press.click();
+          var matBtn = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+          if (PM.unlocked(pg.state, 5) && matBtn && !matBtn.disabled && pg.state.stalls[5].owned < 1) matBtn.click();
+        }
+        var earned = PM.income(pg.state);
+        if (earned > 0 && !pg.state.night.offer) { pg.state.cash += earned * 2; pg.state.lifetime += earned * 2; }
+        if (pg.state.stalls[5].owned >= 1) matAt = sim;
+        sim += 2;
+        pg.render();
+      }
+      pw.Date.now = clock;
+      var mins = (matAt / 60).toFixed(1);
+      if (!(matAt > 0 && matAt <= 22 * 60) || weakBack || (options && tiny / options > 0.4)) {
+        phoneDawn.push(size.join('x') + ' mat ' + mins + 'm weakBack ' + weakBack + ' tiny ' + tiny + '/' + options);
+      }
+    });
+    check(phoneDawn.length ? 'a phone night misses the Story Mat: ' + phoneDawn.join(' | ') : 'a phone night reaches the Story Mat within 22 minutes at 390 and 320', phoneDawn.length === 0);
+    var menuBtn = pd.querySelector('#stalls [data-act="buy"]');
+    var menuEvent = new pw.MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    menuBtn.dispatchEvent(menuEvent);
+    check('a long press on Buy does not open a menu', menuEvent.defaultPrevented);
     var gateState = PM.fresh();
     var gateFound = 0, gateTry;
     for (gateTry = 2; gateTry < 80 && !gateFound; gateTry++) {

@@ -340,6 +340,7 @@
       subjectPairs: [],
       axisLog: ['rate-trade+rate-trade'],
       lastExact: omenOptions.slice().sort().join('|'),
+      matOffer: 0,
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -767,8 +768,17 @@
       var k;
       for (k = 0; k < n; k++) total += unitCost(priced, owned + k);
     }
-    /* A lower-prices choice never touches the Story Mat, so the first mat stays the catalogue price. */
+    /* A lower-prices choice never touches the Story Mat. */
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
+    /* Eighteen minutes in, the first mat is locked to about twenty seconds of
+       the lane's earnings then, and never more than the catalogue price. */
+    if (stall.id === 'stories' && owned === 0 && state && state.night && state.night.age >= 1080) {
+      if (!(state.night.matOffer > 0)) {
+        var laneRate = income(state);
+        state.night.matOffer = laneRate > 0 ? Math.min(total, Math.max(50000, laneRate * 20)) : total;
+      }
+      if (state.night.matOffer > 0 && state.night.matOffer < total) total = state.night.matOffer;
+    }
     return total;
   }
 
@@ -1222,6 +1232,7 @@
         lastStalls: (night.lastStalls || []).slice(),
         axisLog: (night.axisLog || []).slice(),
         lastExact: typeof night.lastExact === 'string' ? night.lastExact : '',
+        matOffer: night.matOffer > 0 ? night.matOffer : 0,
         lanePay: night.lanePay > 0 ? Math.floor(night.lanePay) : 0,
         priceEase: night.priceEase > 0 ? Math.floor(night.priceEase) : 0,
         fillerOpen: night.fillerOpen || 0,
@@ -1277,6 +1288,7 @@
     state.night.lastStalls = keepIds(o.night.lastStalls, function (id) { return stallIndex(id) >= 0 || id === 'lane' || id === 'prices'; });
     state.night.axisLog = keepIds(o.night.axisLog, function (id) { return /^[a-z+-]+$/.test(id); });
     state.night.lastExact = typeof o.night.lastExact === 'string' ? o.night.lastExact : '';
+    state.night.matOffer = o.night.matOffer > 0 ? o.night.matOffer : 0;
     state.night.lanePay = o.night.lanePay > 0 ? Math.floor(o.night.lanePay) : 0;
     state.night.priceEase = o.night.priceEase > 0 ? Math.floor(o.night.priceEase) : 0;
     state.night.fillerOpen = o.night.fillerOpen > 0 ? Math.floor(o.night.fillerOpen) : 0;
@@ -2431,7 +2443,40 @@
   /* A card that still passes. The stalls just shown stay blocked until nothing
      else will, so a quiet night does not put the same stall on two cards. */
   function offerUsable(state, pack) {
-    return !!(pack && pack.offer && !repeatExact(state, pack.offer) && !axisOverused(state, offerAxisKey(pack.offer)));
+    if (!pack || !pack.offer || repeatExact(state, pack.offer) || axisOverused(state, offerAxisKey(pack.offer))) return false;
+    if (lastWasWeakPrice(state) && offerHasWeakPrice(pack.offer)) return false;
+    if (tinyPayHeavy(state) && offerHasTinyPay(pack.offer)) return false;
+    return true;
+  }
+  function offerHasWeakPrice(offer) {
+    var i, id;
+    for (i = 0; i < offer.options.length; i++) {
+      id = optionId(offer.kind, offer.options[i]);
+      if (optionKind(offer.kind, offer.options[i]) === 'lane' && String(id).indexOf('price') === 0) return true;
+    }
+    return false;
+  }
+  function offerHasTinyPay(offer) {
+    var i, id;
+    for (i = 0; i < offer.options.length; i++) {
+      id = optionId(offer.kind, offer.options[i]);
+      if (optionKind(offer.kind, offer.options[i]) === 'lane' && String(id).indexOf('pay') === 0 && laneSteps(id) <= 1) return true;
+    }
+    return false;
+  }
+  function lastWasWeakPrice(state) {
+    return !!(state.night && state.night.lastExact && state.night.lastExact.indexOf('lane:price') >= 0);
+  }
+  function tinyPayHeavy(state) {
+    var shown = (state.night && state.night.shown) || [];
+    var tiny = 0, i, steps;
+    for (i = 0; i < shown.length; i++) {
+      if (shown[i].indexOf('lane:pay@') !== 0) continue;
+      steps = parseInt(shown[i].split('@')[2], 10) || 1;
+      if (steps <= 1) tiny++;
+    }
+    var options = Math.max(((state.night.axisLog || []).length) * 2, 1);
+    return (tiny + 1) / options > 0.3;
   }
   function forceOffer(state) {
     var found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
@@ -2445,9 +2490,10 @@
       if (offerUsable(state, varied)) found = varied;
     }
     if (found) return found;
-    var steps = 1, before = income(state), text = moneyText(before), n;
+    var steps = 1, before = income(state), text = moneyText(before), n, minSteps;
+    minSteps = tinyPayHeavy(state) ? 2 : 1;
     if (before > 0) {
-      for (n = 1; n <= 6; n++) {
+      for (n = minSteps; n <= 6; n++) {
         state.night.lanePay = (state.night.lanePay || 0) + n;
         var after = income(state);
         state.night.lanePay -= n;
@@ -2460,7 +2506,7 @@
     var payId = 'lane:pay@' + serial + '@' + steps;
     var priceId = 'lane:price@' + priceSerial;
     var lanePack = { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
-    if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + priceSerial, false) && pairOk(state, 'pick', payId, priceId) && !repeatExact(state, lanePack.offer)) {
+    if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + priceSerial, false) && pairOk(state, 'pick', payId, priceId) && !repeatExact(state, lanePack.offer) && !lastWasWeakPrice(state) && !(steps <= 1 && tinyPayHeavy(state))) {
       if (!axisOverused(state, offerAxisKey(lanePack.offer))) return lanePack;
     }
     /* No stall from the card just shown is free. A lane card names no stall,

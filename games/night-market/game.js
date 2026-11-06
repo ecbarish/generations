@@ -887,7 +887,11 @@
     hold = h;
   });
   ['pointerup', 'pointercancel', 'blur'].forEach(function (ev) { (ev === 'blur' ? window : document).addEventListener(ev, stopHold); });
-  document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-act="serve"]')) e.preventDefault(); });
+  document.addEventListener('contextmenu', function (e) {
+    var t = e.target && e.target.closest && e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.act === 'serve' || t.dataset.act === 'buy' || t.dataset.act === 'hire' || t.dataset.bulk || (t.closest && t.closest('#pick'))) e.preventDefault();
+  });
 
   /* A render between press and release moves the button, and the click never lands.
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
