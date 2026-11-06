@@ -178,11 +178,11 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
     max-height: calc(100vh - 0.35rem);
     overflow: visible;
   }
-  .pick:not(.quiet) .pick-panel p { margin: 0 0 0.15rem; font-size: 0.92rem; line-height: 1.15; }
+  .pick:not(.quiet) .pick-panel p { margin: 0 0 0.1rem; font-size: 0.92rem; line-height: 1.15; }
   .pick:not(.quiet) .choices,
-  .pick:not(.quiet) .choices + .choices { gap: 0.2rem; margin-top: 0.2rem; }
+  .pick:not(.quiet) .choices + .choices { gap: 0.15rem; margin-top: 0.15rem; }
   .pick:not(.quiet) button {
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     height: auto;
     padding: 0.2rem 0.45rem;
     font-size: 0.92rem;

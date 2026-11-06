@@ -4208,42 +4208,45 @@ document.querySelector('#run').onclick = async function () {
     var touchBuy = pw.getComputedStyle(pd.querySelector('#stalls [data-act="buy"]')).touchAction;
     var touchPick = pw.getComputedStyle(pd.querySelector('#pick button')).touchAction;
     check('holding buy or a choice does not scroll the page', touchBuy === 'none' && touchPick === 'none');
-    playFrame.style.width = '844px';
-    playFrame.style.height = '390px';
-    armPlayed(3);
-    pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
-    pg.state.night.rerollUsed = false;
-    var landPanel = pd.querySelector('#pick-panel');
-    if (landPanel) delete landPanel.dataset.revealed;
-    pw.scrollTo(0, 0);
-    pg.render();
-    var landH = pd.documentElement.clientHeight;
-    function landBox(el) {
-      if (!el || el.hidden) return null;
-      var b = el.getBoundingClientRect();
-      var range = pd.createRange();
-      range.selectNodeContents(el);
-      var text = range.getBoundingClientRect();
-      return b.height > 8 && b.top >= -1 && b.bottom <= landH + 1 && text.top >= b.top - 1 && text.bottom <= b.bottom + 1.5;
-    }
     var landBits = [];
-    if (!landBox(pd.querySelector('#pick-lead'))) landBits.push('choose');
-    if (!landBox(pd.querySelector('#pick-paused'))) landBits.push('paused');
-    Array.prototype.forEach.call(pd.querySelectorAll('#pick-choices button'), function (b, i) {
-      if (!landBox(b)) landBits.push('option ' + i + ' ' + Math.round(b.getBoundingClientRect().bottom));
+    [[844, 390], [667, 375], [740, 360]].forEach(function (size) {
+      playFrame.style.width = size[0] + 'px';
+      playFrame.style.height = size[1] + 'px';
+      armPlayed(3);
+      pg.state.stalls[0].hired = true;
+      pg.state.stalls[0].owned = 8;
+      pg.state.night.kept = true;
+      function landRound(kind, options) {
+        pg.state.night.offer = { kind: kind, stall: null, options: options };
+        pg.state.night.rerollUsed = false;
+        var panel = pd.querySelector('#pick-panel');
+        if (panel) delete panel.dataset.revealed;
+        pw.scrollTo(0, 0);
+        pg.render();
+        var landH = pd.documentElement.clientHeight;
+        function landFit(el) {
+          if (!el || el.hidden) return true;
+          var b = el.getBoundingClientRect();
+          var range = pd.createRange();
+          range.selectNodeContents(el);
+          var text = range.getBoundingClientRect();
+          var button = el.tagName === 'BUTTON';
+          var tall = !button || b.height >= 44;
+          var inside = b.height > 8 && b.top >= -1 && b.bottom <= landH + 1 && text.top >= b.top - 1 && text.bottom <= b.bottom + 1.5;
+          return tall && inside;
+        }
+        var label = size.join('x') + ' ' + kind;
+        if (!landFit(pd.querySelector('#pick-lead'))) landBits.push(label + ' choose');
+        if (!landFit(pd.querySelector('#pick-paused'))) landBits.push(label + ' paused');
+        Array.prototype.forEach.call(pd.querySelectorAll('#pick button'), function (b) {
+          if (b.hidden) return;
+          if (!landFit(b)) landBits.push(label + ' ' + Math.round(b.getBoundingClientRect().height) + 'px ' + b.textContent.trim().slice(0, 18) + ' bot ' + Math.round(b.getBoundingClientRect().bottom));
+        });
+      }
+      landRound('omen', ['rain', 'ferry', 'alley']);
+      landRound('pick', ['lane:pay@1@1', 'lane:price@1']);
     });
-    var landSkip = pd.querySelector('#pick [data-act="skip"]');
-    var landAgain = pd.querySelector('#pick [data-act="reroll"]');
-    if (landAgain && !landAgain.hidden && !landBox(landAgain)) landBits.push('reroll ' + Math.round(landAgain.getBoundingClientRect().bottom));
-    pg.state.night.offer = { kind: 'pick', stall: null, options: ['lane:pay@1@1', 'lane:price@1'] };
-    pg.state.night.rerollUsed = false;
-    if (landPanel) delete landPanel.dataset.revealed;
-    pg.render();
-    if (landSkip) landSkip = pd.querySelector('#pick [data-act="skip"]');
-    if (!landBox(pd.querySelector('#pick-lead'))) landBits.push('pick choose');
-    if (landSkip && !landSkip.hidden && !landBox(landSkip)) landBits.push('skip ' + Math.round(landSkip.getBoundingClientRect().bottom));
-    if (!landBox(pd.querySelector('#pick [data-act="reroll"]'))) landBits.push('pick reroll');
-    check(landBits.length ? 'the landscape card is below the fold: ' + landBits.join(', ') : 'at 844 by 390 the choose line, Skip, Reroll and the omen options are in view', landBits.length === 0);
+    check(landBits.length ? 'a compact landscape pick is short or below the fold: ' + landBits.join(' | ') : 'at 844×390, 667×375 and 740×360 every pick is at least 44px and inside the window', landBits.length === 0);
     var gateState = PM.fresh();
     var gateFound = 0, gateTry;
     for (gateTry = 2; gateTry < 80 && !gateFound; gateTry++) {
