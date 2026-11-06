@@ -4257,7 +4257,7 @@ document.querySelector('#run').onclick = async function () {
       pg.state.bulk = 1;
       pg.state.stalls.forEach(function (st) { st.owned = 0; st.serves = 0; st.hired = false; });
       pg.render();
-      var sim = 0, matAt = 0, cards = 0, seen = '', flags = [], minute = [];
+      var sim = 0, matAt = 0, cards = 0, seen = '', flags = [], kinds = [], minute = [], worstGap = 0, lastCard = 0;
       var clock = pw.Date.now;
       var origin = clock.call(pw.Date);
       pw.Date.now = function () { return origin + Math.round(sim * 1000); };
@@ -4271,9 +4271,21 @@ document.querySelector('#run').onclick = async function () {
           if (sig !== seen) {
             seen = sig;
             cards++;
-            var weak = offer.options.some(function (id) { return /Prices are 5% lower/.test(PM.choiceLine(pg.state, offer.kind, id) || ''); });
-            var laneOnly = offer.options.every(function (id) { return String(id).indexOf('lane:') === 0; });
-            flags.push(weak ? (laneOnly ? 2 : 1) : 0);
+            var gap = cards > 1 ? sim - lastCard : 0;
+            if (cards > 1 && gap > worstGap) worstGap = gap;
+            lastCard = sim;
+            var texts = offer.options.map(function (id) { return PM.choiceLine(pg.state, offer.kind, id) || ''; });
+            var weak = texts.some(function (text) { return /Prices are 5% lower/.test(text); });
+            flags.push(weak ? 1 : 0);
+            kinds.push(texts.map(function (text) {
+              if (/Prices are 5% lower/.test(text)) return 'flat-cut';
+              if (/doubles at/.test(text)) return 'doubling';
+              if (/cheaper/.test(text)) return 'stall-cut';
+              if (/earns more/.test(text)) return 'stall-raise';
+              if (/^Your income /.test(text) && / a second\.$/.test(text)) return 'lane-raise';
+              if (/^Your income /.test(text)) return 'rate-trade';
+              return 'other';
+            }).sort().join('+'));
           }
           var take = pd.querySelector('#pick-choices button');
           if (take) take.click();
@@ -4311,17 +4323,22 @@ document.querySelector('#run').onclick = async function () {
       pw.Date.now = clock;
       if (pg.rebind) pg.rebind();
       var space = '';
-      var fi, fw, fn;
+      var fi;
       for (fi = 1; fi < flags.length; fi++) {
-        if (flags[fi] === 1 && flags[fi - 1] === 1) space = 'two stall price cuts in a row at card ' + (fi + 1);
+        if (flags[fi] && flags[fi - 1]) space = 'flat cuts back to back at card ' + (fi + 1);
       }
+      for (fi = 0; fi + 2 < flags.length && !space; fi++) {
+        if (flags[fi] + flags[fi + 1] + flags[fi + 2] > 1) space = 'two flat cuts in cards ' + (fi + 1) + '-' + (fi + 3);
+      }
+      if (worstGap > 120) space = (space ? space + ', ' : '') + 'gap ' + worstGap.toFixed(0) + 's';
+      var kept = (pg.state.night.flatCutKept || []).join(',');
+      if (kept) space = (space ? space + ', ' : '') + 'kept flat cut on card ' + kept;
       var mins = matAt ? (matAt / 60).toFixed(1) : 'none';
-      var weakCards = [];
-      flags.forEach(function (bit, index) { if (bit) weakCards.push(index + 1); });
-      if (!(matAt > 0 && matAt <= 21 * 60)) {
-        phoneDawn.push(size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm weak ' + weakCards.join(',') + ' | ' + minute.join(' || '));
+      var kindList = kinds.map(function (kind, index) { return (index + 1) + ' ' + kind; }).join(', ');
+      if (!(matAt > 0 && matAt <= 21 * 60) || space) {
+        phoneDawn.push(size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm ' + (space || 'no mat') + ' | ' + kindList);
       } else {
-        phoneDawn.push('ok ' + size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm cuts ' + (weakCards.join(',') || 'none') + (space ? ' ' + space : ''));
+        phoneDawn.push('ok ' + size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm gap ' + worstGap.toFixed(0) + 's [' + kindList + ']');
       }
     });
     check(phoneDawn.some(function (line) { return line.indexOf('ok ') !== 0; }) ? 'a human night misses the Story Mat: ' + phoneDawn.join(' ## ') : 'a human night buys the Story Mat by 21 minutes (' + phoneDawn.join('; ') + ')', phoneDawn.every(function (line) { return line.indexOf('ok ') === 0; }));

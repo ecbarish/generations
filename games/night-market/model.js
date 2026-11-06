@@ -312,7 +312,7 @@
   function beginNight(n, seed) {
     seed = (seed >>> 0) || 1;
     var omenOptions = drawOmens(seed, null, 0);
-    return {
+    var night = {
       n: n > 0 ? Math.floor(n) : 1,
       seed: seed,
       omen: null,
@@ -341,7 +341,9 @@
       axisLog: ['rate-trade+rate-trade'],
       lastExact: omenOptions.slice().sort().join('|'),
       matOffer: 0,
-      weakPriceAt: [],
+      weakPriceAt: [0],
+      flatCutKept: [],
+      lastSpoken: [],
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -349,6 +351,11 @@
       pairs: [],
       offer: { kind: 'omen', stall: null, options: omenOptions }
     };
+    night.lastSpoken = omenOptions.map(function (id) {
+      var row = omenById(id);
+      return row ? row.line : id;
+    });
+    return night;
   }
   function patches(state) {
     var list = [], i, charm;
@@ -1376,6 +1383,101 @@
   function offeredHas(state, id) {
     return state.night.offered.indexOf(id) >= 0;
   }
+  /* A flat "all prices -5%" cut is crowded when the card before it was one,
+     or when either of the previous two cards was one. That is a second cut
+     inside some three-card window. */
+  function flatCutTight(state) {
+    var recent = (state.night && state.night.weakPriceAt) || [];
+    var n = recent.length;
+    if (n && recent[n - 1]) return true;
+    if (n >= 2 && recent[n - 2]) return true;
+    return false;
+  }
+  function lineNamesBlocked(state, line) {
+    var spoken = (state.night && state.night.lastSpoken) || [];
+    var blob = spoken.join(' ');
+    var i;
+    if (!line || !blob) return false;
+    for (i = 0; i < STALLS.length; i++) {
+      if (blob.indexOf(STALLS[i].name) >= 0 && line.indexOf(STALLS[i].name) >= 0) return true;
+    }
+    return false;
+  }
+  function replacementPool(state) {
+    var pool = [], i, id, n, serial, shown, sk, num, twist;
+    var ids = ['tea', 'dumpling', 'lantern', 'mooncake', 'incense'];
+    for (i = 0; i < ids.length; i++) {
+      id = ids[i];
+      if (offerGate(state, 'early', id, false)) pool.push('early:' + id);
+      if (offerGate(state, 'boost', id, false)) pool.push('boost:' + id);
+      if (offerGate(state, 'priced', id, false)) pool.push('priced:' + id);
+      n = againCount(state, id);
+      if (n > 0) {
+        serial = 0;
+        shown = state.night.shown || [];
+        for (sk = 0; sk < shown.length; sk++) {
+          if (shown[sk].indexOf('again:' + id + '@') !== 0) continue;
+          num = parseInt(shown[sk].split('@')[1], 10);
+          if (num > serial) serial = num;
+        }
+        [1, 4, 8].forEach(function (scale) {
+          var count = n * scale;
+          var body;
+          if (count > AGAIN_CAP) return;
+          body = id + '@' + (serial + scale) + '@' + count;
+          if (offerGate(state, 'again', body, false)) pool.push('again:' + body);
+        });
+      }
+    }
+    var twists = twistPool(state);
+    for (i = 0; i < twists.length; i++) {
+      twist = twists[i].id;
+      if (offerGate(state, 'twist', twist, false)) pool.push('twist:' + twist);
+    }
+    return pool;
+  }
+  /* Swap a crowded flat cut for a doubling, a stall raise, a single-stall
+     price cut, or a rate trade. The card still opens in this slot. */
+  function substituteFlatCut(state, offer) {
+    if (!offer || offer.kind !== 'pick' || !offerHasWeakPrice(offer) || !flatCutTight(state)) return null;
+    var pool = replacementPool(state);
+    var keep = [], i, j, a, b, axis;
+    for (i = 0; i < offer.options.length; i++) {
+      if (!offerHasWeakPrice({ kind: 'pick', options: [offer.options[i]] })) keep.push(offer.options[i]);
+    }
+    function accept(left, right, allowSeen) {
+      var savedRepeat, pairPasses;
+      if (!left || !right || left === right) return false;
+      if (!offerGate(state, 'pick', left, false) || !offerGate(state, 'pick', right, false)) return false;
+      if (!lineNamesBlocked(state, choiceLine(state, 'pick', left)) && !lineNamesBlocked(state, choiceLine(state, 'pick', right))) {
+        /* A repeated stall name is what the played-night check calls a repeat. */
+      } else return false;
+      savedRepeat = !!state.night.allowRepeat;
+      state.night.allowRepeat = !!allowSeen;
+      pairPasses = pairOk(state, 'pick', left, right);
+      state.night.allowRepeat = savedRepeat;
+      if (!pairPasses) return false;
+      if (state.night.lastExact && exactKey([left, right]) === state.night.lastExact) return false;
+      if (offerHasWeakPrice({ kind: 'pick', options: [left, right] })) return false;
+      return true;
+    }
+    function search(allowSeen) {
+      if (keep.length === 1) {
+        for (i = 0; i < pool.length; i++) {
+          if (accept(keep[0], pool[i], allowSeen)) return [keep[0], pool[i]];
+        }
+      }
+      for (i = 0; i < pool.length; i++) {
+        for (j = i + 1; j < pool.length; j++) {
+          a = pool[i];
+          b = pool[j];
+          if (accept(a, b, allowSeen)) return [a, b];
+        }
+      }
+      return null;
+    }
+    return search(false) || search(true);
+  }
   function placeOffer(state, offer) {
     peekCached = null;
     if (offer && offer.generated) {
@@ -1384,6 +1486,14 @@
       offer.options = kept.slice(0, 2);
       if (!pairOk(state, offer.kind, offer.options[0], offer.options[1])) return false;
       if (state.night.lastExact && exactKey(offer.options) === state.night.lastExact) return false;
+      if (offer.kind === 'pick' && offerHasWeakPrice(offer) && flatCutTight(state)) {
+        var swapped = substituteFlatCut(state, offer);
+        if (swapped) offer.options = swapped;
+        else {
+          state.night.flatCutKept = state.night.flatCutKept || [];
+          state.night.flatCutKept.push((state.night.weakPriceAt || []).length + 1);
+        }
+      }
       var key = pairKey(offer.kind, offer.options);
       state.night.pairs = state.night.pairs || [];
       state.meta.pairs = state.meta.pairs || [];
@@ -1409,8 +1519,6 @@
       state.night.axisLog = state.night.axisLog || [];
       if (offer.options.length >= 2) state.night.axisLog.push(axisPairKey(offer.kind, offer.options[0], offer.options[1]));
       state.night.lastExact = exactKey(offer.options);
-      state.night.weakPriceAt = state.night.weakPriceAt || [];
-      state.night.weakPriceAt.push(offerHasWeakPrice(offer) ? 1 : 0);
       rememberLines(state, offer);
       if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
       if (offer.kind === 'pick') {
@@ -1423,6 +1531,11 @@
         });
       }
     }
+    state.night.lastSpoken = (offer.options || []).map(function (id) {
+      return choiceLine(state, offer.kind, id) || '';
+    });
+    state.night.weakPriceAt = state.night.weakPriceAt || [];
+    state.night.weakPriceAt.push(offerHasWeakPrice(offer) ? 1 : 0);
     touchQuiet(state);
     rememberCards(state, offer);
     if (!state.night.offer) state.night.offer = offer;
