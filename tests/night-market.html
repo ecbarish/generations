@@ -3779,6 +3779,18 @@ document.querySelector('#run').onclick = async function () {
         }
         sim += 1;
         pg.render();
+        if (!was && PM.unlocked(pg.state, 5)) {
+          opened = true;
+          var afterClock = rowTops();
+          var clockTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
+          for (si = 0; si < before.length; si++) {
+            var clockEl = pd.querySelectorAll('#stalls > [data-i], .save')[si];
+            if (clockEl.getBoundingClientRect().top + 0.5 < clockTop) continue;
+            var clockDelta = Math.abs(afterClock[si] - before[si]);
+            if (clockDelta > shift) shift = clockDelta;
+          }
+          break;
+        }
       }
       pw.Date.now = clock;
       return { opened: opened, shift: shift };
@@ -4107,6 +4119,8 @@ document.querySelector('#run').onclick = async function () {
               target = wait > 90 ? afford : -1;
             }
           }
+          var matI = pg.state.stalls.length - 1;
+          if (PM.unlocked(pg.state, matI) && pg.state.stalls[matI].hired && pg.state.stalls[matI].owned < 1) target = matI;
           if (!(target >= 0)) {
             for (si = 0; si < pg.state.stalls.length; si++) if (PM.unlocked(pg.state, si)) frontier = si;
             target = frontier >= 0 && pg.state.stalls[frontier].hired ? frontier : PM.bestIndex(pg.state);
@@ -4247,8 +4261,49 @@ document.querySelector('#run').onclick = async function () {
       landRound('pick', ['lane:pay@1@1', 'lane:price@1']);
     });
     check(landBits.length ? 'a compact landscape pick is short or below the fold: ' + landBits.join(' | ') : 'at 844×390, 667×375 and 740×360 every pick is at least 44px and inside the window', landBits.length === 0);
+    (function () {
+      var spaced = M.fresh();
+      M.armNight(spaced, 1, 1);
+      spaced.bulk = 1;
+      var flatRounds = [], seenRound = 0, guard = 0;
+      function flatNow() {
+        var offer = spaced.night.offer;
+        if (!offer || !offer.options) return false;
+        return offer.options.some(function (id) { return /Prices are 5% lower/.test(M.choiceLine(spaced, offer.kind, id) || ''); });
+      }
+      function spend() {
+        if (M.income(spaced) > 0) M.addCash(spaced, M.income(spaced));
+        var i, poured = false;
+        for (i = 0; i < 5; i++) {
+          if (!M.unlocked(spaced, i) || spaced.stalls[i].hired) continue;
+          if (M.canHire(spaced, i)) M.hire(spaced, i); else M.handSell(spaced, i);
+          poured = true;
+          break;
+        }
+        if (poured) return;
+        for (i = 4; i >= 0; i--) {
+          if (M.unlocked(spaced, i) && spaced.stalls[i].hired && M.quote(spaced, i, 1).count > 0) { M.buyExact(spaced, i, 1); break; }
+        }
+      }
+      while (spaced.night.round < 15 && guard++ < 5000) {
+        M.elapse(spaced, 1);
+        if (!spaced.night.offer) { spend(); continue; }
+        if (spaced.night.round !== seenRound) {
+          seenRound = spaced.night.round;
+          var wasFlat = flatNow();
+          if (!spaced.night.rerollUsed && spaced.night.round % 2 === 0) M.reroll(spaced);
+          if ((wasFlat || flatNow()) && flatRounds.indexOf(spaced.night.round) < 0) flatRounds.push(spaced.night.round);
+          if (spaced.night.round % 3 === 0) M.skipOffer(spaced);
+          else M.choose(spaced, 0);
+        }
+      }
+      var crowded = '';
+      var fi;
+      for (fi = 1; fi < flatRounds.length; fi++) if (flatRounds[fi] - flatRounds[fi - 1] <= 2) crowded = flatRounds.join(',');
+      check('rerolls and skips keep a flat cut more than two rounds apart (' + (flatRounds.join(',') || 'none') + ' through round ' + spaced.night.round + (crowded ? ' crowded ' + crowded : '') + ')', !crowded && spaced.night.round >= 15);
+    })();
     var phoneDawn = [];
-    [[390, 844, 1], [1280, 800, 1], [320, 568, 11]].forEach(function (size) {
+    [[390, 844, 1, false], [1280, 800, 1, false], [320, 568, 11, false], [390, 844, 1, true]].forEach(function (size) {
       playFrame.style.width = size[0] + 'px';
       playFrame.style.height = size[1] + 'px';
       PM.armNight(pg.state, 1, size[2]);
@@ -4295,6 +4350,7 @@ document.querySelector('#run').onclick = async function () {
           if (earned > 0) { pg.state.cash += earned * 2.5; pg.state.lifetime += earned * 2.5; }
           var acted = false, si;
           for (si = 0; si < 6; si++) {
+            if (size[3] && si === 4) continue;
             if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
             var hire = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="hire"]');
             var serve = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="serve"]');
@@ -4302,12 +4358,12 @@ document.querySelector('#run').onclick = async function () {
             if (serve && !serve.hidden) { serve.click(); acted = true; break; }
           }
           if (!acted) {
-            var target = -1;
             for (si = 5; si >= 0; si--) {
+              if (size[3] && si === 4) continue;
               if (!PM.unlocked(pg.state, si) || !pg.state.stalls[si].hired) continue;
               if (si === 5 && pg.state.stalls[5].owned >= 1) continue;
               var press = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="buy"]');
-              if (press && !press.disabled && !press.hidden) { press.click(); target = si; break; }
+              if (press && !press.disabled && !press.hidden) { press.click(); break; }
             }
           }
         }
@@ -4317,7 +4373,8 @@ document.querySelector('#run').onclick = async function () {
           var matBox = matRow ? matRow.getBoundingClientRect() : null;
           var viewH = pd.documentElement.clientHeight;
           var shown = !!(matBox && matBox.height > 8 && matBox.top < viewH && matBox.bottom > 0);
-          minute.push(Math.round(sim) + 's cash ' + Math.round(pg.state.cash) + ' rate ' + Math.round(PM.income(pg.state)) + ' owned ' + pg.state.stalls.map(function (s) { return s.owned; }).join(',') + ' mat ' + (PM.unlocked(pg.state, 5) ? 'open' : 'locked') + ' price ' + Math.round(PM.cost(5, pg.state.stalls[5].owned, 1, pg.state)) + ' row ' + (shown ? 'visible' : 'below') + ' goal ' + (pd.querySelector('#goal').textContent || '').slice(0, 80));
+          var countLine = PM.matCountdown ? PM.matCountdown(pg.state) : '';
+          minute.push(Math.round(sim) + 's cash ' + Math.round(pg.state.cash) + ' rate ' + Math.round(PM.income(pg.state)) + ' owned ' + pg.state.stalls.map(function (s) { return s.owned; }).join(',') + ' mat ' + (PM.unlocked(pg.state, 5) ? 'open' : 'locked') + ' ' + countLine + ' price ' + Math.round(PM.cost(5, pg.state.stalls[5].owned, 1, pg.state)) + ' row ' + (shown ? 'visible' : 'below'));
         }
       }
       pw.Date.now = clock;
@@ -4334,11 +4391,13 @@ document.querySelector('#run').onclick = async function () {
       var kept = (pg.state.night.flatCutKept || []).join(',');
       if (kept) space = (space ? space + ', ' : '') + 'kept flat cut on card ' + kept;
       var mins = matAt ? (matAt / 60).toFixed(1) : 'none';
-      var kindList = kinds.map(function (kind, index) { return (index + 1) + ' ' + kind; }).join(', ');
+      var who = size[0] + 'x' + size[1] + ' seed ' + size[2] + (size[3] ? ' never-incense' : '');
+      var incenseOwned = pg.state.stalls[4].owned;
+      if (size[3] && incenseOwned > 0) space = (space ? space + ', ' : '') + 'bought incense ' + incenseOwned;
       if (!(matAt > 0 && matAt <= 21 * 60) || space) {
-        phoneDawn.push(size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm ' + (space || 'no mat') + ' | ' + kindList);
+        phoneDawn.push(who + ' mat ' + mins + 'm ' + (space || 'no mat') + ' | ' + minute.join(' || '));
       } else {
-        phoneDawn.push('ok ' + size[0] + 'x' + size[1] + ' seed ' + size[2] + ' mat ' + mins + 'm gap ' + worstGap.toFixed(0) + 's [' + kindList + ']');
+        phoneDawn.push('ok ' + who + ' mat ' + mins + 'm gap ' + worstGap.toFixed(0) + 's' + (size[3] ? ' log ' + minute.join(' || ') : ''));
       }
     });
     check(phoneDawn.some(function (line) { return line.indexOf('ok ') !== 0; }) ? 'a human night misses the Story Mat: ' + phoneDawn.join(' ## ') : 'a human night buys the Story Mat by 21 minutes (' + phoneDawn.join('; ') + ')', phoneDawn.every(function (line) { return line.indexOf('ok ') === 0; }));
@@ -4391,8 +4450,13 @@ document.querySelector('#run').onclick = async function () {
     previewRange.selectNodeContents(previewLead);
     var previewText = previewRange.getBoundingClientRect();
     var previewBox = previewPick.getBoundingClientRect();
+    var charmBook = charmDoc.querySelector('#codex');
+    var charmBookText = charmBook ? charmBook.textContent : '';
     check('the charm preview at 320 shows every name inside the reserved line',
       /Wen's patience/.test(previewLead.textContent) &&
+      /Charms seen: 12 of 12/.test(charmBookText) &&
+      /Wen's patience/.test(charmBookText) &&
+      /Mei's regulars/.test(charmBookText) &&
       previewText.top >= previewBox.top - 1 && previewText.bottom <= previewBox.bottom + 1 &&
       previewText.left >= previewBox.left - 1 && previewText.right <= previewBox.right + 1);
     charmFrame.remove();

@@ -20,7 +20,10 @@
      see the reserved slot. It does not write the save. */
   var charmPreview = /(?:\?|&)charms=line(?:&|$)/.test(location.search);
   if (charmPreview && state.night) {
-    state.night.charms = M.CHARMS.map(function (c) { return c.id; });
+    var charmIds = M.CHARMS.map(function (c) { return c.id; });
+    state.night.charms = charmIds.slice();
+    if (!state.meta) state.meta = { omens: [], charms: [], nights: [], pool: charmIds.length, pairs: [] };
+    state.meta.charms = charmIds.slice();
     state.night.omen = state.night.omen || 'ferry';
     state.night.offer = null;
     state.night.kept = true;
@@ -285,7 +288,7 @@
         var openAt = M.unlockNeed(state, i + 1);
         if (st.owned < openAt) {
           needLine.textContent = M.STALLS[i + 1].vendor + ' opens at ' + openAt + '.';
-          if (i + 1 === M.STALLS.length - 1) needLine.textContent = 'Old Wen opens at ' + openAt + ' trays, or at 15:00.';
+          if (i + 1 === M.STALLS.length - 1) needLine.textContent = M.matSecondsLeft(state) > 0 ? M.matCountdown(state) : ('Old Wen opens at ' + openAt + ' trays.');
         }
       }
     }
@@ -296,7 +299,7 @@
     var need = M.unlockNeed(state, i);
     var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
     var line = stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
-    if (i === M.STALLS.length - 1) line = 'Old Wen opens the Story Mat at ' + need + ' incense trays, or at 15:00.';
+    if (i === M.STALLS.length - 1) line = M.matSecondsLeft(state) > 0 ? M.matCountdown(state) : ('Old Wen opens the Story Mat at ' + need + ' incense trays.');
     return line;
   }
 
@@ -337,6 +340,7 @@
        card are the same peek. */
     if (M.nextOfferLine) M.nextOfferLine(state);
     var nowMs = Date.now();
+    if (M.noteWall) M.noteWall(state, nowMs, document.hidden);
     var quietDt = (nowMs - lastElapse) / 1000;
     lastElapse = nowMs;
     if (quietDt > 0) M.elapse(state, Math.min(quietDt, 120));

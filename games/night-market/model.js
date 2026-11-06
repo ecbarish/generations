@@ -344,6 +344,11 @@
       weakPriceAt: [0],
       flatCutKept: [],
       lastSpoken: [],
+      round: 0,
+      lastFlatRound: 0,
+      flatShown: [],
+      wallMs: 0,
+      wallStamp: -1,
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -355,6 +360,9 @@
       var row = omenById(id);
       return row ? row.line : id;
     });
+    /* The opening omen is choice round 1, whether or not it is a flat cut. */
+    night.round = 1;
+    night.flatShown = [0, 0];
     return night;
   }
   function patches(state) {
@@ -591,20 +599,38 @@
     return stallField(state, stall.id, 'serves', stall.serves);
   }
 
-  /* Fifteen minutes of the night's own clock. This is wall time, including the
-     moments a choice card is open. The pacing buyer never advances it. */
+  /* Fifteen minutes of visible play. Choice cards and setup count. A hidden
+     tab does not. The pacing buyer never calls noteWall, so its clock stays put. */
   var MAT_CLOCK = 900;
-  function laneHasOneOfEach(state) {
-    var i;
-    if (!state || !state.stalls) return false;
-    for (i = 0; i < STALLS.length - 1; i++) {
-      if (!state.stalls[i] || !(state.stalls[i].owned >= 1)) return false;
+  function noteWall(state, now, hidden) {
+    if (!state || !state.night || !(now >= 0)) return 0;
+    var night = state.night;
+    if (!(night.wallStamp >= 0)) {
+      night.wallStamp = now;
+      night.wallMs = night.wallMs || 0;
+      return night.wallMs;
     }
-    return true;
+    if (!hidden && now > night.wallStamp) {
+      var delta = now - night.wallStamp;
+      if (delta > 30000) delta = 30000;
+      night.wallMs = (night.wallMs || 0) + delta;
+    }
+    night.wallStamp = now;
+    return night.wallMs || 0;
+  }
+  function matSecondsLeft(state) {
+    if (!state || !state.night) return MAT_CLOCK;
+    var left = MAT_CLOCK - (state.night.wallMs || 0) / 1000;
+    return left > 0 ? left : 0;
+  }
+  function matCountdown(state) {
+    var left = Math.ceil(matSecondsLeft(state));
+    var mins = Math.floor(left / 60);
+    var secs = left % 60;
+    return 'Old Wen opens the Story Mat in ' + mins + ':' + (secs < 10 ? '0' : '') + secs + '.';
   }
   function matByClock(state) {
-    if (!(state && state.night && state.night.age >= MAT_CLOCK && laneHasOneOfEach(state))) return false;
-    return state.bulk === 1 || state.bulk === '1';
+    return !!(state && state.night && (state.night.wallMs || 0) >= MAT_CLOCK * 1000);
   }
   function unlocked(state, i) {
     if (!spec(i)) return false;
@@ -794,14 +820,14 @@
     }
     /* A lower-prices choice never touches the Story Mat. */
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
-    /* At fifteen minutes the first mat, if it is still unbought, costs about
-       eight seconds of what the lane earns then. A night that reached ten
-       incense trays earlier still pays the catalogue price. The pacing buyer
-       does not advance the night clock, so this price never applies there. */
-    if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state) && (state.bulk === 1 || state.bulk === '1')) {
+    /* At fifteen minutes of visible play the first mat costs about twelve
+       seconds of what the lane earns then, and never outside eight to twenty.
+       A night that reached ten incense trays earlier still pays the catalogue
+       price. The pacing buyer does not advance this clock. */
+    if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state)) {
       if (!(state.night.matOffer > 0)) {
         var laneRate = income(state);
-        state.night.matOffer = Math.min(total, Math.max(12000, laneRate > 0 ? laneRate * 8 : 12000));
+        if (laneRate > 0) state.night.matOffer = Math.min(total, laneRate * 12);
       }
       if (state.night.matOffer > 0 && state.night.matOffer < total) total = state.night.matOffer;
     }
@@ -1019,7 +1045,7 @@
       bonus = nextBonus(state, i, need);
       var nxt = spec(i + 1);
       var follow = nxt ? (' ' + nxt.vendor + ' opens the ' + nxt.name + ' at ' + need + '.') : '';
-      if (i + 1 === STALLS.length - 1 && state.night && state.night.age < MAT_CLOCK) follow += ' It also opens at 15:00.';
+      if (i + 1 === STALLS.length - 1 && matSecondsLeft(state) > 0 && !matByClock(state)) follow += ' ' + matCountdown(state);
       return withBonus((left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '.' + follow, bonus);
     }
     var matI = STALLS.length - 1;
@@ -1367,6 +1393,7 @@
 
   function advanceOffer(state) {
     state.night.offer = state.night.queue.length ? state.night.queue.shift() : null;
+    if (state.night.offer) noteShown(state, state.night.offer);
     touchQuiet(state);
   }
   function touchQuiet(state) {
@@ -1383,15 +1410,34 @@
   function offeredHas(state, id) {
     return state.night.offered.indexOf(id) >= 0;
   }
-  /* A flat "all prices -5%" cut is crowded when the card before it was one,
-     or when either of the previous two cards was one. That is a second cut
-     inside some three-card window. */
+  /* A flat cut is forbidden when the last one shown was this round's
+     predecessor or the round before that. The opening omen is round 1.
+     Rerolling stays on the same round. */
+  function flatCutBlocked(state) {
+    var last = state.night && state.night.lastFlatRound || 0;
+    if (!last) return false;
+    return ((state.night.round || 0) + 1) - last <= 2;
+  }
+  function flatCutBlockedNow(state) {
+    var last = state.night && state.night.lastFlatRound || 0;
+    var round = state.night && state.night.round || 0;
+    if (!last || last === round) return false;
+    return round - last <= 2;
+  }
+  function noteShown(state, offer) {
+    if (!state || !state.night || !offer || offer._roundNoted) return;
+    offer._roundNoted = true;
+    state.night.round = (state.night.round || 0) + 1;
+    state.night.flatShown = state.night.flatShown || [];
+    if (offerHasWeakPrice(offer)) {
+      state.night.flatShown[state.night.round] = 1;
+      state.night.lastFlatRound = state.night.round;
+    } else if (!state.night.flatShown[state.night.round]) {
+      state.night.flatShown[state.night.round] = 0;
+    }
+  }
   function flatCutTight(state) {
-    var recent = (state.night && state.night.weakPriceAt) || [];
-    var n = recent.length;
-    if (n && recent[n - 1]) return true;
-    if (n >= 2 && recent[n - 2]) return true;
-    return false;
+    return flatCutBlocked(state);
   }
   function lineNamesBlocked(state, line) {
     var spoken = (state.night && state.night.lastSpoken) || [];
@@ -1459,6 +1505,7 @@
       if (!pairPasses) return false;
       if (state.night.lastExact && exactKey([left, right]) === state.night.lastExact) return false;
       if (offerHasWeakPrice({ kind: 'pick', options: [left, right] })) return false;
+      if (axisCrowded(state, axisPairKey('pick', left, right))) return false;
       return true;
     }
     function search(allowSeen) {
@@ -1478,6 +1525,61 @@
     }
     return search(false) || search(true);
   }
+  /* A pair that is not a flat cut. Used when the round rule forbids one and
+     the stricter substitute found nothing. Seen pairs are allowed. */
+  function sparePair(state) {
+    var pool = replacementPool(state);
+    var i, j, payId, payToken;
+    function ok(left, right, clearStalls) {
+      var stalls, repeat, pass;
+      if (!left || !right || left === right) return false;
+      if (offerHasWeakPrice({ kind: 'pick', options: [left, right] })) return false;
+      if (!offerGate(state, 'pick', left, false) || !offerGate(state, 'pick', right, false)) return false;
+      if (lineNamesBlocked(state, choiceLine(state, 'pick', left)) || lineNamesBlocked(state, choiceLine(state, 'pick', right))) return false;
+      if (axisCrowded(state, axisPairKey('pick', left, right))) return false;
+      stalls = state.night.lastStalls;
+      repeat = !!state.night.allowRepeat;
+      if (clearStalls) state.night.lastStalls = [];
+      state.night.allowRepeat = false;
+      pass = pairOk(state, 'pick', left, right);
+      state.night.lastStalls = stalls;
+      state.night.allowRepeat = repeat;
+      return pass;
+    }
+    function search(clearStalls) {
+      var payToken, payId;
+      for (i = 0; i < pool.length; i++) {
+        for (j = i + 1; j < pool.length; j++) {
+          if (ok(pool[i], pool[j], clearStalls)) return [pool[i], pool[j]];
+        }
+      }
+      if (income(state) > 0) {
+        payToken = 'pay@' + laneSerial(state, 'pay') + '@2';
+        payId = 'lane:' + payToken;
+        if (offerGate(state, 'lane', payToken, false)) {
+          for (i = 0; i < pool.length; i++) if (ok(payId, pool[i], clearStalls)) return [payId, pool[i]];
+        }
+      }
+      return null;
+    }
+    return search(false) || search(true) || searchSeen();
+    function searchSeen() {
+      var repeat = !!state.night.allowRepeat;
+      var found = null;
+      state.night.allowRepeat = true;
+      for (i = 0; i < pool.length && !found; i++) {
+        for (j = i + 1; j < pool.length; j++) {
+          if (!offerGate(state, 'pick', pool[i], false) || !offerGate(state, 'pick', pool[j], false)) continue;
+          if (lineNamesBlocked(state, choiceLine(state, 'pick', pool[i])) || lineNamesBlocked(state, choiceLine(state, 'pick', pool[j]))) continue;
+          if (axisCrowded(state, axisPairKey('pick', pool[i], pool[j]))) continue;
+          if (offerHasWeakPrice({ kind: 'pick', options: [pool[i], pool[j]] })) continue;
+          if (pairOk(state, 'pick', pool[i], pool[j])) { found = [pool[i], pool[j]]; break; }
+        }
+      }
+      state.night.allowRepeat = repeat;
+      return found;
+    }
+  }
   function placeOffer(state, offer) {
     peekCached = null;
     if (offer && offer.generated) {
@@ -1486,12 +1588,12 @@
       offer.options = kept.slice(0, 2);
       if (!pairOk(state, offer.kind, offer.options[0], offer.options[1])) return false;
       if (state.night.lastExact && exactKey(offer.options) === state.night.lastExact) return false;
-      if (offer.kind === 'pick' && offerHasWeakPrice(offer) && flatCutTight(state)) {
-        var swapped = substituteFlatCut(state, offer);
+      if (offer.kind === 'pick' && offerHasWeakPrice(offer) && flatCutBlocked(state)) {
+        var swapped = substituteFlatCut(state, offer) || sparePair(state);
         if (swapped) offer.options = swapped;
         else {
           state.night.flatCutKept = state.night.flatCutKept || [];
-          state.night.flatCutKept.push((state.night.weakPriceAt || []).length + 1);
+          state.night.flatCutKept.push((state.night.round || 0) + 1);
         }
       }
       var key = pairKey(offer.kind, offer.options);
@@ -1538,8 +1640,10 @@
     state.night.weakPriceAt.push(offerHasWeakPrice(offer) ? 1 : 0);
     touchQuiet(state);
     rememberCards(state, offer);
-    if (!state.night.offer) state.night.offer = offer;
-    else state.night.queue.push(offer);
+    if (!state.night.offer) {
+      state.night.offer = offer;
+      noteShown(state, offer);
+    } else state.night.queue.push(offer);
     return true;
   }
   function liveIds(state) {
@@ -2141,7 +2245,7 @@
     var payToken = 'pay@' + paySerial + '@' + paySteps;
     if (offerGate(state, 'lane', payToken, false)) buckets.lane.push('lane:' + payToken);
     var priceToken = 'price@' + laneSerial(state, 'price');
-    if (offerGate(state, 'lane', priceToken, false)) buckets.lane.push('lane:' + priceToken);
+    if (!flatCutBlocked(state) && offerGate(state, 'lane', priceToken, false)) buckets.lane.push('lane:' + priceToken);
     var pool = [], n = 0, more = true;
     while (more) {
       more = false;
@@ -2158,6 +2262,7 @@
     for (i = 0; i < pool.length; i++) {
       for (j = i + 1; j < pool.length; j++) {
         if (!pairOk(state, 'pick', pool[i], pool[j])) continue;
+        if (axisCrowded(state, axisPairKey('pick', pool[i], pool[j]))) continue;
         key = pairKey('pick', [pool[i], pool[j]]);
         used = ((state.meta && state.meta.pairs) || []).indexOf(key) >= 0 || (state.night.pairs || []).indexOf(key) >= 0;
         var overlapped = pairOverlaps(state, 'pick', pool[i], pool[j]);
@@ -2213,7 +2318,7 @@
     var payId = 'lane:pay@' + laneSerial(state, 'pay');
     var priceId = 'lane:price@' + laneSerial(state, 'price');
     var payOk = offerGate(state, 'lane', 'pay@' + laneSerial(state, 'pay'), false);
-    var priceOk = offerGate(state, 'lane', 'price@' + laneSerial(state, 'price'), false);
+    var priceOk = !flatCutBlocked(state) && offerGate(state, 'lane', 'price@' + laneSerial(state, 'price'), false);
     var options = null, ai, aj;
     if (free.length >= 2) {
       for (ai = 0; ai < free.length && !options; ai++) {
@@ -2222,10 +2327,14 @@
         }
       }
     }
-    if (!options && free.length === 1 && payOk && pairOk(state, 'pick', free[0], payId)) options = [free[0], payId];
-    else if (!options && free.length >= 1 && priceOk) {
+    if (!options && payOk) {
       for (ai = 0; ai < free.length && !options; ai++) {
-        if (pairOk(state, 'pick', free[ai], priceId)) options = [free[ai], priceId];
+        if (pairOk(state, 'pick', free[ai], payId) && !axisCrowded(state, axisPairKey('pick', free[ai], payId))) options = [free[ai], payId];
+      }
+    }
+    if (!options && priceOk) {
+      for (ai = 0; ai < free.length && !options; ai++) {
+        if (pairOk(state, 'pick', free[ai], priceId) && !axisCrowded(state, axisPairKey('pick', free[ai], priceId))) options = [free[ai], priceId];
       }
     }
     if (!options && payOk && priceOk && pairOk(state, 'pick', payId, priceId)) options = [payId, priceId];
@@ -2312,7 +2421,8 @@
       (night.sustain || []).length, (night.offered || []).length, (night.pairs || []).length,
       (night.early || []).length, (night.boosts || []).length, (night.twists || []).length,
       (night.priced || []).length, (night.half || []).length, (night.lates || []).length,
-      (night.recent || []).length, night.lanePay || 0, night.priceEase || 0, night.costCuts || 0, own
+      (night.recent || []).length, night.lanePay || 0, night.priceEase || 0, night.costCuts || 0,
+      night.round || 0, night.lastFlatRound || 0, own
     ].join('|');
   }
   function peekGap(state) {
@@ -2487,6 +2597,13 @@
   function axisPairKey(kind, a, b) {
     return [optionAxis(kind, a), optionAxis(kind, b)].sort().join('+');
   }
+  function axisCrowded(state, axis) {
+    var log = (state.night && state.night.axisLog) || [];
+    if (!axis || log.length < 4) return false;
+    var count = 0, i;
+    for (i = 0; i < log.length; i++) if (log[i] === axis) count++;
+    return (count + 1) / (log.length + 1) > 0.4;
+  }
   function axisOverused(state, pair) {
     var log = (state.night && state.night.axisLog) || [];
     if (!pair || !log.length) return false;
@@ -2642,6 +2759,10 @@
     if (state.night.lastExact && state.night.lastExact.indexOf('lane:pay@' + serial + '@' + steps) >= 0) steps += 1;
     var payId = 'lane:pay@' + serial + '@' + steps;
     var priceId = 'lane:price@' + priceSerial;
+    if (flatCutBlocked(state)) {
+      var blockedSpare = sparePair(state);
+      if (blockedSpare) return { mark: 'pick-' + blockedSpare[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: blockedSpare, generated: true } };
+    }
     var lanePack = { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
     if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + priceSerial, false) && pairOk(state, 'pick', payId, priceId) && !repeatExact(state, lanePack.offer) && !lastWasWeakPrice(state) && !(steps <= 1 && tinyPayHeavy(state))) {
       if (!axisOverused(state, offerAxisKey(lanePack.offer))) return lanePack;
@@ -2669,6 +2790,10 @@
     }
     state.night.lastStalls = heldStalls;
     state.night.allowRepeat = savedRepeat;
+    if (!found && flatCutBlocked(state)) {
+      var lateSpare = sparePair(state);
+      if (lateSpare) found = { mark: 'pick-' + lateSpare[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: lateSpare, generated: true } };
+    }
     return found;
   }
   function pushGap(state) {
@@ -3108,6 +3233,11 @@
         next = rowOpts;
       }
     }
+    if (next && offerHasWeakPrice({ kind: nextKind, options: next }) && flatCutBlockedNow(state)) {
+      var spared = sparePair(state);
+      if (spared) { nextKind = 'pick'; next = spared; }
+      else next = null;
+    }
     if (!next || next.length < 2 || (nextKind === beforeKind && sameSet(next, before))) return false;
     if (nextKind === 'omen') {
       if (omenLowers(state, next[0]) || omenLowers(state, next[1])) return false;
@@ -3139,6 +3269,14 @@
     state.night.lastKind = offer.kind;
     rememberLines(state, offer);
     rememberCards(state, offer);
+    if (offerHasWeakPrice(offer)) {
+      state.night.flatShown = state.night.flatShown || [];
+      state.night.flatShown[state.night.round] = 1;
+      state.night.lastFlatRound = state.night.round;
+    }
+    state.night.lastSpoken = (offer.options || []).map(function (id) {
+      return choiceLine(state, offer.kind, id) || '';
+    });
     return true;
   }
   var CHARM_OFFER_CAP = 4;
@@ -3153,8 +3291,10 @@
   function pushOffer(state, offer) {
     if (!offer.options || offer.options.length < 2) return false;
     rememberCards(state, offer);
-    if (!state.night.offer) state.night.offer = offer;
-    else state.night.queue.push(offer);
+    if (!state.night.offer) {
+      state.night.offer = offer;
+      noteShown(state, offer);
+    } else state.night.queue.push(offer);
     return true;
   }
   function syncOffers(state) {
@@ -3171,8 +3311,10 @@
       state.night.offered.push('kept-lane');
       var offer = { kind: 'charm', stall: 'stories', options: charmOptions(state, 'stories', false) };
       if (offer.options.length) {
-        if (!state.night.offer) state.night.offer = offer;
-        else state.night.queue.push(offer);
+        if (!state.night.offer) {
+          state.night.offer = offer;
+          noteShown(state, offer);
+        } else state.night.queue.push(offer);
         added = true;
       }
     }
@@ -3197,9 +3339,9 @@
     var i;
     if (!mat || !(mat.owned >= 1) || !state.night || state.night.kept) return false;
     if (!unlocked(state, STALLS.length - 1)) return false;
-    for (i = 0; i < STALLS.length - 1; i++) {
-      if (!state.stalls[i] || !(state.stalls[i].owned >= 1)) return false;
-    }
+    /* The first mat ends the night once the lane has started. A mat placed on
+       a lane that has not opened a stall is not dawn. */
+    if (!state.stalls[0] || !(state.stalls[0].owned >= 1)) return false;
     return true;
   }
   function noteDawn(state) {
@@ -3343,6 +3485,10 @@
     servesNeed: servesNeed,
     choose: choose,
     prepareMat: prepareMat,
+    noteWall: noteWall,
+    matCountdown: matCountdown,
+    matSecondsLeft: matSecondsLeft,
+    matByClock: matByClock,
     charmUseful: charmUseful,
     charmOptions: charmOptions,
     offerLine: offerLine,
