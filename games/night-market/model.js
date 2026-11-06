@@ -339,6 +339,7 @@
       lastStalls: [],
       subjectPairs: [],
       axisLog: ['rate-trade+rate-trade'],
+      lastExact: omenOptions.slice().sort().join('|'),
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -1220,6 +1221,7 @@
         shown: (night.shown || []).slice(),
         lastStalls: (night.lastStalls || []).slice(),
         axisLog: (night.axisLog || []).slice(),
+        lastExact: typeof night.lastExact === 'string' ? night.lastExact : '',
         lanePay: night.lanePay > 0 ? Math.floor(night.lanePay) : 0,
         priceEase: night.priceEase > 0 ? Math.floor(night.priceEase) : 0,
         fillerOpen: night.fillerOpen || 0,
@@ -1274,6 +1276,7 @@
     state.night.shown = keepIds(o.night.shown, function (id) { return id.indexOf(':') > 0; });
     state.night.lastStalls = keepIds(o.night.lastStalls, function (id) { return stallIndex(id) >= 0 || id === 'lane' || id === 'prices'; });
     state.night.axisLog = keepIds(o.night.axisLog, function (id) { return /^[a-z+-]+$/.test(id); });
+    state.night.lastExact = typeof o.night.lastExact === 'string' ? o.night.lastExact : '';
     state.night.lanePay = o.night.lanePay > 0 ? Math.floor(o.night.lanePay) : 0;
     state.night.priceEase = o.night.priceEase > 0 ? Math.floor(o.night.priceEase) : 0;
     state.night.fillerOpen = o.night.fillerOpen > 0 ? Math.floor(o.night.fillerOpen) : 0;
@@ -1346,6 +1349,7 @@
       if (kept.length < 2) return false;
       offer.options = kept.slice(0, 2);
       if (!pairOk(state, offer.kind, offer.options[0], offer.options[1])) return false;
+      if (state.night.lastExact && exactKey(offer.options) === state.night.lastExact) return false;
       var key = pairKey(offer.kind, offer.options);
       state.night.pairs = state.night.pairs || [];
       state.meta.pairs = state.meta.pairs || [];
@@ -1370,6 +1374,7 @@
       state.night.lastKind = offer.kind;
       state.night.axisLog = state.night.axisLog || [];
       if (offer.options.length >= 2) state.night.axisLog.push(axisPairKey(offer.kind, offer.options[0], offer.options[1]));
+      state.night.lastExact = exactKey(offer.options);
       rememberLines(state, offer);
       if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
       if (offer.kind === 'pick') {
@@ -2335,12 +2340,18 @@
   }
   function axisOverused(state, pair) {
     var log = (state.night && state.night.axisLog) || [];
-    if (!pair) return false;
-    if (log.length && log[log.length - 1] === pair) return true;
-    if (log.length < 4) return false;
+    if (!pair || !log.length) return false;
+    if (log[log.length - 1] === pair) return true;
     var count = 0, i;
     for (i = 0; i < log.length; i++) if (log[i] === pair) count++;
     return (count + 1) / (log.length + 1) > 0.4;
+  }
+  function exactKey(options) {
+    return (options || []).slice().sort().join('|');
+  }
+  function repeatExact(state, offer) {
+    if (!offer || !offer.options || !state.night || !state.night.lastExact) return false;
+    return exactKey(offer.options) === state.night.lastExact;
   }
   function offerAxisKey(offer) {
     if (!offer || !offer.options || offer.options.length < 2) return '';
@@ -2419,13 +2430,20 @@
   }
   /* A card that still passes. The stalls just shown stay blocked until nothing
      else will, so a quiet night does not put the same stall on two cards. */
+  function offerUsable(state, pack) {
+    return !!(pack && pack.offer && !repeatExact(state, pack.offer) && !axisOverused(state, offerAxisKey(pack.offer)));
+  }
   function forceOffer(state) {
     var found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
-    if (found && axisOverused(state, offerAxisKey(found.offer))) {
+    if (!offerUsable(state, found)) {
       var alt = variedFallback(state);
-      if (alt) found = alt;
+      if (offerUsable(state, alt)) found = alt;
+      else if (found && repeatExact(state, found.offer)) found = null;
     }
-    if (!found) found = variedFallback(state);
+    if (!found) {
+      var varied = variedFallback(state);
+      if (offerUsable(state, varied)) found = varied;
+    }
     if (found) return found;
     var steps = 1, before = income(state), text = moneyText(before), n;
     if (before > 0) {
@@ -2437,10 +2455,13 @@
       }
     }
     var serial = laneSerial(state, 'pay');
+    var priceSerial = laneSerial(state, 'price');
+    if (state.night.lastExact && state.night.lastExact.indexOf('lane:pay@' + serial + '@' + steps) >= 0) steps += 1;
     var payId = 'lane:pay@' + serial + '@' + steps;
-    var priceId = 'lane:price@' + laneSerial(state, 'price');
-    if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + laneSerial(state, 'price'), false) && pairOk(state, 'pick', payId, priceId)) {
-      return { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
+    var priceId = 'lane:price@' + priceSerial;
+    var lanePack = { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
+    if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + priceSerial, false) && pairOk(state, 'pick', payId, priceId) && !repeatExact(state, lanePack.offer)) {
+      if (!axisOverused(state, offerAxisKey(lanePack.offer))) return lanePack;
     }
     /* No stall from the card just shown is free. A lane card names no stall,
        so the night still gets a choice without putting that stall on two cards. */
@@ -2459,7 +2480,8 @@
         if (payLine.indexOf(STALLS[ni].name) >= 0 || priceLine.indexOf(STALLS[ni].name) >= 0) namesStall = true;
       }
       if (!namesStall && !nearOutcome(payLine, priceLine)) {
-        found = { mark: 'pick-lane:' + openPay, kind: 'pick', offer: { kind: 'pick', stall: null, options: ['lane:' + openPay, 'lane:' + openPrice], generated: true } };
+        var laneAgain = { mark: 'pick-lane:' + openPay, kind: 'pick', offer: { kind: 'pick', stall: null, options: ['lane:' + openPay, 'lane:' + openPrice], generated: true } };
+        if (!repeatExact(state, laneAgain.offer)) found = laneAgain;
       }
     }
     state.night.lastStalls = heldStalls;

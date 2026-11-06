@@ -170,6 +170,26 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   /* The longest omen is about seven lines. Every option is that tall, so Skip does not jump and the words are not cut off. */
   .pick button { min-height: 7.2rem; height: auto; overflow: visible; }
 }
+/* A landscape phone is only about 390px tall. Full-height options push Skip past the window. */
+@media (max-height: 420px) {
+  .pick:not(.quiet) .pick-panel {
+    top: 0.2rem;
+    padding: 0.25rem 0.45rem 0.2rem;
+    max-height: calc(100vh - 0.35rem);
+    overflow: visible;
+  }
+  .pick:not(.quiet) .pick-panel p { margin: 0 0 0.15rem; font-size: 0.92rem; line-height: 1.15; }
+  .pick:not(.quiet) .choices,
+  .pick:not(.quiet) .choices + .choices { gap: 0.2rem; margin-top: 0.2rem; }
+  .pick:not(.quiet) button {
+    min-height: 2.5rem;
+    height: auto;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.92rem;
+    line-height: 1.15;
+    overflow: visible;
+  }
+}
 #rate.flash { background: var(--amber-wash); }
 .pick .choices + .choices { margin-top: 0.35rem; }
 .codex { margin-top: 0.4rem; color: var(--mute); }
@@ -326,7 +346,11 @@ button[aria-pressed="true"], button.ask, button.best {
 .save .arc-save-msg { color: var(--good); }
 .pour { display: block; width: 100%; height: 10px; margin: 0.35rem 0 0; accent-color: var(--amber); }
 .count { margin: 0.15rem 0 0; color: var(--mute); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
-.actions [data-act="serve"] { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.actions [data-act="serve"],
+.actions [data-act="buy"],
+.actions [data-act="hire"],
+.pick button,
+.bulk [data-bulk] { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .save summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }
 .save > summary::before { content: "▸"; display: inline-block; width: 1.1em; }
 .save[open] > summary::before { content: "▾"; }

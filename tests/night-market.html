@@ -4012,6 +4012,8 @@ document.querySelector('#run').onclick = async function () {
       var prevBoxes = rowBoxes();
       var midGaps = [];
       var cardMiss = [];
+      var sameCard = 0;
+      var prevExact = '';
       function inView(el) {
         if (!el || el.hidden) return false;
         var box = el.getBoundingClientRect();
@@ -4056,8 +4058,11 @@ document.querySelector('#run').onclick = async function () {
               var skipEl = pd.querySelector('#pick [data-act="skip"]');
               var againEl = pd.querySelector('#pick [data-act="reroll"]');
               if (skipEl && !skipEl.hidden && !inView(skipEl)) cardMiss.push('skip');
-              if (againEl && !againEl.hidden && !inView(againEl)) cardMiss.push('reroll');
-            }
+            if (againEl && !againEl.hidden && !inView(againEl)) cardMiss.push('reroll');
+            var exact = texts.slice().sort().join('|');
+            if (exact && exact === prevExact) sameCard++;
+            prevExact = exact;
+          }
           }
           /* The offer guard ignores a click in the first 300ms. Step the clock
              past that, then press the button the player would press. */
@@ -4134,7 +4139,7 @@ document.querySelector('#run').onclick = async function () {
       midGaps.sort(function (a, b) { return a - b; });
       var mid = midGaps.length ? midGaps[Math.floor(midGaps.length / 2)] : worst;
       var axisLog = (pg.state.night.axisLog || []).slice();
-      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, shift: shift, overflow: overflow, mid: mid, offers: offers, cardMiss: cardMiss.length, axisLog: axisLog, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
+      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, shift: shift, overflow: overflow, mid: mid, offers: offers, cardMiss: cardMiss.length, sameCard: sameCard, axisLog: axisLog, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
     }
     var freshOff = [];
     [[1280, 800], [390, 844], [320, 568]].forEach(function (size) {
@@ -4167,6 +4172,125 @@ document.querySelector('#run').onclick = async function () {
       if (freshBad.length) freshOff.push(size.join('x') + ' ' + freshBad.join(','));
     });
     check(freshOff.length ? 'the opening omen is off screen: ' + freshOff.join(' | ') : 'the opening omen is in view at 1280, 390 and 320 without scrolling', freshOff.length === 0);
+    [[1280, 800], [1280, 640]].forEach(function (size) {
+      playFrame.style.width = size[0] + 'px';
+      playFrame.style.height = size[1] + 'px';
+      armPlayed(4);
+      pg.state.cash = 80000;
+      pg.state.stalls[0].hired = true;
+      pg.state.stalls[0].owned = 30;
+      pg.state.night.offer = { kind: 'pick', stall: null, options: ['lane:pay@1@1', 'lane:price@1'] };
+      pg.state.night.rerollUsed = false;
+      var pinPanel = pd.querySelector('#pick-panel');
+      if (pinPanel) delete pinPanel.dataset.revealed;
+      pg.render();
+      pw.scrollTo(0, 900);
+      pg.render();
+      var pinEl = pd.querySelector('#coin-pin');
+      var pinBox = pinEl.getBoundingClientRect();
+      var choose = pd.querySelector('#pick-lead');
+      var chooseRange = pd.createRange();
+      chooseRange.selectNodeContents(choose);
+      var chooseBox = chooseRange.getBoundingClientRect();
+      var pausedBox = pd.querySelector('#pick-paused').getBoundingClientRect();
+      var deskH = pd.documentElement.clientHeight;
+      var deskButtons = Array.prototype.every.call(pd.querySelectorAll('#pick button'), function (b) {
+        if (b.hidden) return true;
+        var bBox = b.getBoundingClientRect();
+        return bBox.top >= -1 && bBox.bottom <= deskH + 1 && bBox.height > 20;
+      });
+      freshOff.push(size.join('x') + ' pin ' + pinBox.bottom.toFixed(0) + ' choose ' + chooseBox.top.toFixed(0));
+      if (pinEl.hidden || !(pinBox.height > 20) || chooseBox.top < pinBox.bottom - 1 || chooseBox.bottom > deskH || pausedBox.top < pinBox.bottom - 1 || !/Pick one/.test(choose.textContent) || !deskButtons) {
+        freshOff[freshOff.length - 1] += ' CLIP';
+      }
+    });
+    check(freshOff.some(function (line) { return /CLIP/.test(line); }) ? 'the desktop choose line is under the coin pin: ' + freshOff.join(' | ') : 'the desktop choose line sits under the coin pin at 1280 by 800 and 1280 by 640', freshOff.every(function (line) { return !/CLIP/.test(line); }));
+    var touchBuy = pw.getComputedStyle(pd.querySelector('#stalls [data-act="buy"]')).touchAction;
+    var touchPick = pw.getComputedStyle(pd.querySelector('#pick button')).touchAction;
+    check('holding buy or a choice does not scroll the page', touchBuy === 'none' && touchPick === 'none');
+    playFrame.style.width = '844px';
+    playFrame.style.height = '390px';
+    armPlayed(3);
+    pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
+    pg.state.night.rerollUsed = false;
+    var landPanel = pd.querySelector('#pick-panel');
+    if (landPanel) delete landPanel.dataset.revealed;
+    pw.scrollTo(0, 0);
+    pg.render();
+    var landH = pd.documentElement.clientHeight;
+    function landBox(el) {
+      if (!el || el.hidden) return null;
+      var b = el.getBoundingClientRect();
+      var range = pd.createRange();
+      range.selectNodeContents(el);
+      var text = range.getBoundingClientRect();
+      return b.height > 8 && b.top >= -1 && b.bottom <= landH + 1 && text.top >= b.top - 1 && text.bottom <= b.bottom + 1.5;
+    }
+    var landBits = [];
+    if (!landBox(pd.querySelector('#pick-lead'))) landBits.push('choose');
+    if (!landBox(pd.querySelector('#pick-paused'))) landBits.push('paused');
+    Array.prototype.forEach.call(pd.querySelectorAll('#pick-choices button'), function (b, i) {
+      if (!landBox(b)) landBits.push('option ' + i + ' ' + Math.round(b.getBoundingClientRect().bottom));
+    });
+    var landSkip = pd.querySelector('#pick [data-act="skip"]');
+    var landAgain = pd.querySelector('#pick [data-act="reroll"]');
+    if (landAgain && !landAgain.hidden && !landBox(landAgain)) landBits.push('reroll ' + Math.round(landAgain.getBoundingClientRect().bottom));
+    pg.state.night.offer = { kind: 'pick', stall: null, options: ['lane:pay@1@1', 'lane:price@1'] };
+    pg.state.night.rerollUsed = false;
+    if (landPanel) delete landPanel.dataset.revealed;
+    pg.render();
+    if (landSkip) landSkip = pd.querySelector('#pick [data-act="skip"]');
+    if (!landBox(pd.querySelector('#pick-lead'))) landBits.push('pick choose');
+    if (landSkip && !landSkip.hidden && !landBox(landSkip)) landBits.push('skip ' + Math.round(landSkip.getBoundingClientRect().bottom));
+    if (!landBox(pd.querySelector('#pick [data-act="reroll"]'))) landBits.push('pick reroll');
+    check(landBits.length ? 'the landscape card is below the fold: ' + landBits.join(', ') : 'at 844 by 390 the choose line, Skip, Reroll and the omen options are in view', landBits.length === 0);
+    var gateState = PM.fresh();
+    var gateFound = 0, gateTry;
+    for (gateTry = 2; gateTry < 80 && !gateFound; gateTry++) {
+      PM.armNight(gateState, 1, gateTry);
+      if (PM.unlockNeed(gateState, 3) === 12) gateFound = gateTry;
+    }
+    PM.armNight(gateState, 1, gateFound || 2);
+    gateState.stalls[2].hired = true;
+    gateState.stalls[2].owned = 10;
+    gateState.stalls[0].hired = true;
+    gateState.stalls[0].owned = 12;
+    gateState.stalls[1].hired = true;
+    gateState.stalls[1].owned = 12;
+    pg.state.night = gateState.night;
+    pg.state.stalls = gateState.stalls;
+    pg.state.cash = 1e6;
+    playFrame.style.width = '390px';
+    playFrame.style.height = '844px';
+    pg.render();
+    var lanternNeed = pd.querySelector('#stalls [data-i="2"] .need').textContent;
+    var moonOpen = PM.unlocked(pg.state, 3);
+    check('ten lanterns say when the Mooncake Table opens (' + lanternNeed + ', seed ' + (gateFound || 2) + ')',
+      (!gateFound || /Qiao opens at 12/.test(lanternNeed)) && (gateFound ? !moonOpen : true));
+    var charmFrame = document.createElement('iframe');
+    charmFrame.style.width = '320px';
+    charmFrame.style.height = '568px';
+    charmFrame.src = '../games/night-market/index.html?charms=line';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('charm preview timed out')); }, 20000);
+      charmFrame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(charmFrame);
+    });
+    await new Promise(function (r) { setTimeout(r, 80); });
+    var charmDoc = charmFrame.contentDocument;
+    var charmWin = charmFrame.contentWindow;
+    charmWin.scrollTo(0, 0);
+    var previewLead = charmDoc.querySelector('#pick-lead');
+    var previewPick = charmDoc.querySelector('#pick');
+    var previewRange = charmDoc.createRange();
+    previewRange.selectNodeContents(previewLead);
+    var previewText = previewRange.getBoundingClientRect();
+    var previewBox = previewPick.getBoundingClientRect();
+    check('the charm preview at 320 shows every name inside the reserved line',
+      /Wen's patience/.test(previewLead.textContent) &&
+      previewText.top >= previewBox.top - 1 && previewText.bottom <= previewBox.bottom + 1 &&
+      previewText.left >= previewBox.left - 1 && previewText.right <= previewBox.right + 1);
+    charmFrame.remove();
     var browserSeeds = [1, 2, 5, 16, 99, 2024, 437724497, 4111981860];
     var browserStats = {};
     var browserSizes = [[1280, 800], [1024, 768], [844, 390], [820, 1180], [390, 844], [375, 812], [360, 780], [320, 568]];
@@ -4199,6 +4323,7 @@ document.querySelector('#run').onclick = async function () {
           box.overflow += night.overflow;
           if (night.mid > box.mid) box.mid = night.mid;
           box.cardMiss += night.cardMiss || 0;
+          box.sameCard = (box.sameCard || 0) + (night.sameCard || 0);
           if (sizeKey === '1280x800' && mode === 'max' && browserSeeds[bSeed] === 99) varietyLog = night.axisLog || [];
           browserSample = night;
         });
@@ -4213,7 +4338,7 @@ document.querySelector('#run').onclick = async function () {
     Object.keys(browserStats).forEach(function (sizeKey) {
       ['max', 'hand'].forEach(function (label) {
         var box = browserStats[sizeKey][label];
-        if (box.dup || box.back || box.down || box.cardMiss || box.worst > 120 || box.mid > 95 || box.shift >= 2 || box.overflow || !(box.dawn > 0) || (label === 'hand' && (sizeKey === '390x844' || sizeKey === '360x780') && box.dawn > 1500) || box.dawn > 1700) browserOk = false;
+        if (box.dup || box.back || box.down || box.cardMiss || box.sameCard || box.worst > 120 || box.mid > 95 || box.shift >= 2 || box.overflow || !(box.dawn > 0) || (label === 'hand' && (sizeKey === '390x844' || sizeKey === '360x780') && box.dawn > 1500) || box.dawn > 1700) browserOk = false;
       });
     });
     check('played nights in the browser stay within 120s with no stall shift, clipped goal, duplicate text, repeated stall, or lower income (' + browserProof.trim() + ')', browserOk);
@@ -4231,6 +4356,7 @@ document.querySelector('#run').onclick = async function () {
       var varietyShare = varietyTop / varietyLog.length;
       varietyDetail = varietyName + ' ' + Math.round(varietyShare * 100) + '% of ' + varietyLog.length + ', axes ' + Object.keys(varietyAxes).length + ', lane repeats ' + varietyBack;
       varietyOk = varietyShare <= 0.4 && Object.keys(varietyAxes).length >= 3 && varietyBack === 0;
+      varietyDetail += ' [' + Object.keys(varietyCounts).map(function (k) { return k + ' ' + varietyCounts[k]; }).join('; ') + ']';
     }
     check('a Max night mixes the choices (' + varietyDetail + ')', varietyOk);
 

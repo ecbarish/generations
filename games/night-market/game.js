@@ -16,10 +16,19 @@
   var loaded = raw && M.valid(raw);
   var state = loaded ? M.restore(raw) : M.fresh();
   if (!loaded) M.armNight(state, 1, M.newSeed());
+  /* ?charms=line shows every charm in the quiet line so a 320-wide check can
+     see the reserved slot. It does not write the save. */
+  var charmPreview = /(?:\?|&)charms=line(?:&|$)/.test(location.search);
+  if (charmPreview && state.night) {
+    state.night.charms = M.CHARMS.map(function (c) { return c.id; });
+    state.night.omen = state.night.omen || 'ferry';
+    state.night.offer = null;
+    state.night.kept = true;
+  }
   var awayOn = false;
 
   function persist(obj) {
-    if (protect || Arcade.held[KEY]) return false;
+    if (charmPreview || protect || Arcade.held[KEY]) return false;
     if (!obj) {
       state.seen = Date.now();
       obj = M.serialize(state, state.seen);
@@ -272,6 +281,10 @@
       var gap = Math.ceil(livePrice - state.cash - 1e-9);
       if (!(gap > 0)) gap = 0;
       needLine.textContent = shortfall ? ('Need ' + money(gap) + ' more.') : '';
+      if (!shortfall && i < M.STALLS.length - 1 && !M.unlocked(state, i + 1)) {
+        var openAt = M.unlockNeed(state, i + 1);
+        if (st.owned < openAt) needLine.textContent = M.STALLS[i + 1].vendor + ' opens at ' + openAt + '.';
+      }
     }
   }
   function shutterLine(i) {
@@ -483,6 +496,7 @@
       var coinsFinal = coins ? coins.getBoundingClientRect().bottom : 1;
       coinPin.hidden = !(laneFinal <= 0 && coinsFinal <= 0);
     }
+    if (state.night && state.night.offer) placeOfferPanel();
   }
 
   function settleHash() {
@@ -514,6 +528,21 @@
     panel.style.right = '';
     panel.style.width = '';
     panel.style.maxHeight = '';
+    var pick = $('#pick');
+    if (!pick || pick.classList.contains('quiet')) return;
+    /* The coin pin and the goal pin sit on the top of the window. The choose
+       line starts under whichever one is showing, so the words are not covered. */
+    var pin = document.querySelector('#coin-pin:not([hidden]), #goal-pin:not([hidden])');
+    var pinBottom = 0;
+    if (pin) {
+      var pinBox = pin.getBoundingClientRect();
+      if (pinBox.height > 1 && pinBox.bottom > 0) pinBottom = pinBox.bottom;
+    }
+    if (pinBottom > 8) {
+      var top = Math.ceil(pinBottom + 8);
+      panel.style.top = top + 'px';
+      panel.style.maxHeight = Math.max(180, window.innerHeight - top - 8) + 'px';
+    }
   }
   function renderPick() {
     var box = $('#pick');
@@ -836,6 +865,11 @@
     if (doRender) render();
   }
   function stopHold() { settleHold(true); }
+  document.addEventListener('touchmove', function (e) {
+    var target = e.target && e.target.closest && e.target.closest('button');
+    if (!target) return;
+    if (target.dataset.act === 'buy' || target.dataset.act === 'serve' || target.dataset.act === 'hire' || target.closest('#pick') || target.dataset.bulk) e.preventDefault();
+  }, { passive: false });
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('[data-act="serve"]');
     if (!b || b.disabled || e.button > 0) return;
