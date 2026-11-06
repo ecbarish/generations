@@ -714,6 +714,8 @@
   }
 
   function laneMult(state) {
+    /* This multiplies every open stall, including the Story Mat. After the first
+       mat, a lane-wide raise is mostly the mat's income. That is a later night. */
     var low = lowestOwned(state), mult = LANE_FACTORS[0], k;
     for (k = 0; k < LANE_MILESTONES.length; k++) if (low >= LANE_MILESTONES[k]) mult = LANE_FACTORS[k + 1];
     var pay = state && state.night && state.night.lanePay > 0 ? Math.pow(1.05, state.night.lanePay) : 1;
@@ -1330,6 +1332,7 @@
         lastExact: typeof night.lastExact === 'string' ? night.lastExact : '',
         matOffer: night.matOffer > 0 ? night.matOffer : 0,
         matShown: night.matShown > 0 ? night.matShown : 0,
+        earlyQuote: night.earlyQuote > 0 ? night.earlyQuote : 0,
         wallMs: night.wallMs > 0 ? night.wallMs : 0,
         deals: (night.deals || []).map(function (row) {
           return { id: row.id, stall: row.stall, rate: row.rate || 0, base: row.base || 0 };
@@ -1393,6 +1396,7 @@
     state.night.lastExact = typeof o.night.lastExact === 'string' ? o.night.lastExact : '';
     state.night.matOffer = o.night.matOffer > 0 ? o.night.matOffer : 0;
     state.night.matShown = o.night.matShown > 0 ? o.night.matShown : 0;
+    state.night.earlyQuote = o.night.earlyQuote > 0 ? o.night.earlyQuote : 0;
     state.night.wallMs = o.night.wallMs > 0 ? o.night.wallMs : 0;
     state.night.wallStamp = -1;
     state.night.deals = Array.isArray(o.night.deals) ? o.night.deals.filter(function (row) {
@@ -2381,13 +2385,20 @@
     if (moneyText(priceNow) === moneyText(priceNext) || moneyText(before) === moneyText(rateNext)) return '';
     return 'The lane earns less: ' + moneyText(rateNext) + ' a second, was ' + moneyText(before) + '. Prices are lower now: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
   }
-  function leadStallId(state) {
-    var lead = 0, i, owned;
-    for (i = 0; i < STALLS.length - 1; i++) {
-      owned = state.stalls[i] ? state.stalls[i].owned : 0;
-      if (owned > (state.stalls[lead] ? state.stalls[lead].owned : 0)) lead = i;
+  /* The stall the next purchase is actually for. A price change on a stall
+     the player is not buying does not belong on the same card as the same raise. */
+  function buyStallId(state) {
+    var i = easeStall(state);
+    var stall = spec(i);
+    if (stall && stall.id !== 'stories') return stall.id;
+    var n;
+    for (n = 0; n < STALLS.length - 1; n++) {
+      if (state.stalls[n] && state.stalls[n].hired && state.stalls[n].owned >= 1) return STALLS[n].id;
     }
-    return spec(lead) ? spec(lead).id : 'tea';
+    return 'tea';
+  }
+  function leadStallId(state) {
+    return buyStallId(state);
   }
   /* Cheaper copies now, and the lane earns less. No stall name, so it can follow a card that named every open stall. */
   function bankPlan(state) {
@@ -3350,11 +3361,11 @@
     }
     return false;
   }
-  /* Coins this choice is worth over the next minute, after the price it changes. */
-  function optionEV(state, id) {
-    if (!state || !state.night) return 0;
+  /* What this choice does to income and to the stall the player is about to buy.
+     The price is the one applyPickEffect actually writes, not a different stall. */
+  function choiceCashflow(state, id) {
     var kind = String(id).split(':')[0];
-    var stall = kind === 'focus' || kind === 'tempo' || kind === 'scale' ? String(id).split(':')[1].split('@')[0] : leadStallId(state);
+    var stall = kind === 'focus' || kind === 'tempo' || kind === 'scale' ? String(id).split(':')[1].split('@')[0] : buyStallId(state);
     if (stallIndex(stall) < 0) stall = '';
     var beforeI = income(state);
     var beforeP = stall ? oneCost(state, stall, null) : 0;
@@ -3367,10 +3378,33 @@
     state.night.deals = deals;
     state.night.lanePay = lanePay;
     state.night.priceEase = priceEase;
-    if (!applied) return 0;
+    return {
+      ok: !!applied,
+      stall: stall,
+      inc: afterI - beforeI,
+      price: afterP - beforeP,
+      incText: moneyText(afterI),
+      priceText: moneyText(afterP)
+    };
+  }
+  function sameShownGain(a, b) {
+    return !!(a && b && a.ok && b.ok && a.incText === b.incText && a.priceText === b.priceText);
+  }
+  /* At least as much income, and a strictly smaller bill on the stall being bought. */
+  function strictlyDominates(better, worse) {
+    if (!better || !worse || !better.ok || !worse.ok) return false;
+    if (!(better.inc + 0.001 >= worse.inc)) return false;
+    return better.price < worse.price - 0.001;
+  }
+  /* Coins this choice is worth over the next minute, after the price it changes. */
+  function optionEV(state, id) {
+    var flow = choiceCashflow(state, id);
+    if (!flow.ok) return 0;
+    var beforeI = income(state);
+    var beforeP = flow.stall ? oneCost(state, flow.stall, null) : 0;
     var buys = 0;
-    if (stall && beforeP > 0 && beforeI > 0) buys = Math.max(0, Math.min(6, Math.round(beforeI * 60 / beforeP)));
-    return (afterI - beforeI) * 60 - (afterP - beforeP) * buys;
+    if (flow.stall && beforeP > 0 && beforeI > 0) buys = Math.max(0, Math.min(6, Math.round(beforeI * 60 / beforeP)));
+    return flow.inc * 60 - flow.price * buys;
   }
   /* Three offers, three directions. A stall card names that stall. The lane,
      the prices, a discount, a spend-ahead, and a stack payoff do not, so the
@@ -3409,6 +3443,22 @@
     var evOf = {};
     candidates.forEach(function (opt) { evOf[opt] = optionEV(state, opt); });
     candidates = candidates.filter(function (opt) { return evOf[opt] > 0; });
+    var flows = {};
+    function laneRaise(opt) {
+      var kind = String(opt).split(':')[0];
+      return kind === 'commit' || kind === 'hurry' || kind === 'stack';
+    }
+    candidates.forEach(function (opt) { if (laneRaise(opt)) flows[opt] = choiceCashflow(state, opt); });
+    candidates = candidates.filter(function (opt) {
+      if (!flows[opt]) return true;
+      var other, flow = flows[opt];
+      for (other in flows) {
+        if (other === opt) continue;
+        if (strictlyDominates(flows[other], flow)) return false;
+        if (sameShownGain(flows[other], flow) && flows[other].priceText === flow.priceText && other < opt) return false;
+      }
+      return true;
+    });
     if (candidates.length < 3) return null;
     var best = null, bestScore = 1e9, loose = null, looseScore = 1e9;
     var a, b, c, ids, kinds, subs, subList, key, axis, score, pi, pj, ok, kind, subject;
@@ -4127,7 +4177,13 @@
     var mat = state.stalls[STALLS.length - 1];
     if (mat && mat.owned >= 1) return 0;
     var t = (state.night.wallMs || 0) / 1000;
-    var shown = state.night.lateShown || [];
+    var shown = state.night.lateShown = state.night.lateShown || [];
+    /* Leaving the early-open bar alone is a wait. It must not sit on 8:00 and hide every later crowd. */
+    if (t >= LATE_MARKS[1] && shown.indexOf(LATE_MARKS[0]) < 0) {
+      shown.push(LATE_MARKS[0]);
+      state.night.lateLog = state.night.lateLog || [];
+      state.night.lateLog.push({ at: Math.round(t), kind: 'early-mat', choice: 'wait' });
+    }
     var i;
     for (i = 0; i < LATE_MARKS.length; i++) {
       if (t >= LATE_MARKS[i] && shown.indexOf(LATE_MARKS[i]) < 0) return LATE_MARKS[i];
@@ -4137,14 +4193,28 @@
   function lateView(state) {
     var mark = nextLateMark(state);
     if (!mark) return null;
-    if (mark === LATE_MARKS[0]) return { mark: mark, kind: 'early-mat', lead: 'Open the Story Mat now at a higher price, or wait for 15:00.' };
+    if (mark === LATE_MARKS[0]) {
+      if (!(state.night.earlyQuote > 0)) {
+        var quoted = income(state) * 20;
+        if (quoted > 0) state.night.earlyQuote = quoted;
+      }
+      var quote = state.night.earlyQuote > 0 ? state.night.earlyQuote : 0;
+      return {
+        mark: mark,
+        kind: 'early-mat',
+        quote: quote,
+        lead: 'Open the Story Mat row now. This does not end the night. Unroll will cost ' + (quote > 0 ? moneyText(quote) : 'the price on this button') + '.'
+      };
+    }
+    var spot = surgeSpotlight(state);
     var stalls = [], i;
     for (i = 0; i < STALLS.length - 1; i++) {
+      if (STALLS[i].id !== spot) continue;
       if (state.stalls[i] && state.stalls[i].hired && state.stalls[i].owned >= 1) stalls.push({ id: STALLS[i].id, name: STALLS[i].name });
     }
     if (!stalls.length) return null;
     stalls.forEach(function (row) { row.bonus = surgeBonusPerSec(state, row.id); });
-    return { mark: mark, kind: 'surge', lead: 'The crowd picks one stall for 30 seconds.', stalls: stalls };
+    return { mark: mark, kind: 'surge', lead: 'The crowd pays ' + stalls[0].name + ' for 30 seconds.', stalls: stalls };
   }
   function surgeMilestone(owned) {
     var marks = [10, 25, 50, 100, 150, 200, 300, 400], i;
@@ -4202,10 +4272,11 @@
     state.night.lateLog = state.night.lateLog || [];
     state.night.lateLog.push({ at: Math.round((state.night.wallMs || 0) / 1000), kind: view.kind, choice: choice || 'wait' });
     if (view.kind === 'early-mat' && choice === 'now') {
-      var premium = income(state) * 20;
-      if (premium > 0) {
-        state.night.matShown = premium;
-        state.night.matOffer = premium;
+      var quote = state.night.earlyQuote > 0 ? state.night.earlyQuote : view.quote;
+      if (quote > 0) {
+        state.night.earlyQuote = quote;
+        state.night.matShown = quote;
+        state.night.matOffer = quote;
       }
       state.night.wallMs = Math.max(state.night.wallMs || 0, MAT_CLOCK * 1000);
     }
@@ -4423,6 +4494,7 @@
     unlockNeed: unlockNeed,
     income: income,
     optionEV: optionEV,
+    choiceCashflow: choiceCashflow,
     surgeEV: surgeEV,
     surgeBonusPerSec: surgeBonusPerSec,
     production: production,

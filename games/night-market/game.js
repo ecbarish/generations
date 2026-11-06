@@ -832,8 +832,9 @@
       var nowBtn = document.createElement('button');
       nowBtn.type = 'button';
       nowBtn.dataset.act = 'mat-now';
-      var premium = M.matLivePrice(state) > 0 ? M.matLivePrice(state) * (20 / 12) : 0;
-      nowBtn.textContent = premium > 0 ? ('Open now · ' + money(premium) + ' coins') : 'Open now';
+      var quote = view.quote > 0 ? view.quote : 0;
+      nowBtn.dataset.quote = quote > 0 ? String(quote) : '';
+      nowBtn.textContent = quote > 0 ? ('Open the row · Unroll ' + money(quote)) : 'Open the row';
       var waitBtn = document.createElement('button');
       waitBtn.type = 'button';
       waitBtn.dataset.act = 'mat-wait';

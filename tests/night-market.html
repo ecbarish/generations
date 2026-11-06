@@ -3497,8 +3497,108 @@ document.querySelector('#run').onclick = async function () {
     }
     check('a night does not repeat a line, or a pair while two stalls can carry it (' + seenPairs.join(',') + ')', !repeatedCard && seenPairs.length >= 4);
 
+    (function () {
+      var taxed = M.fresh();
+      M.armNight(taxed, 1, 1);
+      M.choose(taxed, 0);
+      taxed.stalls[0].hired = true;
+      taxed.stalls[0].owned = 14;
+      taxed.stalls[1].hired = true;
+      taxed.stalls[1].owned = 20;
+      taxed.stalls[2].hired = true;
+      taxed.stalls[2].owned = 4;
+      taxed.cash = 1e9;
+      taxed.night.offer = null;
+      taxed.night.quiet = 90;
+      taxed.night.predictOn = false;
+      taxed.night.pendingFallback = null;
+      M.elapse(taxed, 1);
+      if (!taxed.night.offer) M.elapse(taxed, 1);
+      var offer = taxed.night.offer;
+      var flows = {};
+      var dominated = '';
+      if (offer && offer.options) {
+        offer.options.forEach(function (id) { flows[id] = M.choiceCashflow(taxed, id); });
+        function laneRaise(id) {
+          var kind = String(id).split(':')[0];
+          return kind === 'commit' || kind === 'hurry' || kind === 'stack';
+        }
+        offer.options.forEach(function (left) {
+          if (!laneRaise(left)) return;
+          offer.options.forEach(function (right) {
+            if (left === right || !laneRaise(right)) return;
+            var a = flows[left], b = flows[right];
+            if (a && b && a.ok && b.ok && a.inc + 0.001 >= b.inc && a.price < b.price - 0.001) dominated = left + ' beats ' + right;
+          });
+        });
+      }
+      var commitFlow = M.choiceCashflow(taxed, 'commit:lane@9');
+      var stackFlow = M.choiceCashflow(taxed, 'stack:stack@9');
+      check('a lane raise taxes the stall being bought, and a card does not keep a strictly worse copy (' + dominated + ')',
+        commitFlow.ok && commitFlow.stall === 'lantern' && stackFlow.ok && stackFlow.stall === 'lantern' &&
+        offer && offer.options && offer.options.length >= 3 && !dominated);
+      var early = M.fresh();
+      M.armNight(early, 1, 2);
+      early.stalls[0].hired = true;
+      early.stalls[0].owned = 8;
+      early.cash = 1e7;
+      early.night.wallMs = 480000;
+      early.night.lateShown = [];
+      var first = M.lateView(early);
+      var doubled = M.income(early);
+      early.stalls[0].owned = 16;
+      if (!(M.income(early) >= doubled * 2)) early.stalls[0].owned = 40;
+      var grown = M.income(early);
+      var again = M.lateView(early);
+      var cashBefore = early.cash;
+      M.takeLate(early, 'now');
+      var quoted = first && first.quote;
+      var cashAfterOpen = early.cash;
+      M.prepareMat(early);
+      var unroll = M.cost(5, 0, 1, early);
+      var paid = M.buyExact(early, 5, 1);
+      check('the early-open quote stays put while income grows, and Unroll charges that quote once (' + (quoted && Math.round(quoted)) + ' then ' + Math.round(unroll) + ', income ' + Math.round(doubled) + ' to ' + Math.round(grown) + ')',
+        first && first.kind === 'early-mat' && quoted > 0 && again.quote === quoted &&
+        grown >= doubled * 2 && cashAfterOpen === cashBefore && unroll === quoted && paid.ok && paid.cost === quoted &&
+        Math.abs(early.cash - (cashBefore - quoted)) < 0.001 && early.stalls[5].owned === 1);
+      var waited = M.fresh();
+      M.armNight(waited, 1, 3);
+      waited.stalls[0].hired = true;
+      waited.stalls[0].owned = 6;
+      waited.stalls[1].hired = true;
+      waited.stalls[1].owned = 4;
+      waited.night.wallMs = 480000;
+      waited.night.lateShown = [];
+      var atEight = M.lateView(waited);
+      waited.night.wallMs = 560000;
+      var atSurge = M.lateView(waited);
+      waited.night.wallMs = 900000;
+      var offerBefore = waited.night.matOffer || 0;
+      var matPrice = M.cost(5, 0, 1, waited);
+      check('ignoring the early row still reaches the later crowd and the mat at 15:00 (' + (atSurge && atSurge.kind) + ', marks ' + (waited.night.lateShown || []).join(',') + ')',
+        atEight && atEight.kind === 'early-mat' && atSurge && atSurge.kind === 'surge' && atSurge.stalls && atSurge.stalls.length === 1 &&
+        waited.night.lateShown.indexOf(480) >= 0 && waited.night.lateLog.some(function (row) { return row.kind === 'early-mat' && row.choice === 'wait'; }) &&
+        !(offerBefore > 0) && waited.stalls[5].owned === 0 && matPrice > 0 && matPrice < M.STALLS[5].base);
+    })();
     var playFrame = await openLane('../games/night-market/index.html', 390, 844);
     var pw = playFrame.contentWindow, pd = pw.document, pg = pw.__nightMarket, PM = pw.NightMarket;
+    (function () {
+      playFrame.style.width = '320px';
+      playFrame.style.height = '568px';
+      PM.armNight(pg.state, 1, 1);
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [480];
+      pg.state.night.wallMs = 560000;
+      pg.state.night.wallStamp = -1;
+      pg.state.night.quiet = 0;
+      pg.state.cash = 1e9;
+      pg.state.stalls.forEach(function (st, i) { st.owned = i === 5 ? 0 : 24; st.hired = true; st.serves = 40; });
+      pg.render();
+      var bar = pd.querySelector('#crowd');
+      var view = PM.lateView(pg.state);
+      check('the crowd bar is on screen before the long nights (' + (bar ? bar.offsetHeight : 'none') + ' hidden ' + (bar && bar.hidden) + ' view ' + (view && view.kind) + ' offer ' + (pg.state.night.offer && pg.state.night.offer.kind) + ')',
+        bar && !bar.hidden && bar.offsetHeight > 40 && view && view.kind === 'surge');
+    })();
     pw.NightLane.setReduce(true);
     function armPlayed(seed) {
       PM.armNight(pg.state, 1, seed);
@@ -4569,6 +4669,72 @@ document.querySelector('#run').onclick = async function () {
       check('a new choice waits until the tap is finished and ignores the first moment (' + [held, soon, !!card, ignored, taken].join(',') + ')', held && soon && !!card && ignored && taken);
     })();
     (function () {
+      playFrame.style.width = '390px';
+      playFrame.style.height = '844px';
+      PM.armNight(pg.state, 1, 4);
+      pg.state.stalls.forEach(function (st, i) { st.hired = i === 0; st.owned = i === 0 ? 8 : 0; st.serves = 0; });
+      pg.state.cash = 1e7;
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [];
+      pg.state.night.wallMs = 480000;
+      pg.state.night.wallStamp = -1;
+      pg.state.night.earlyQuote = 0;
+      var clock = pw.Date.now;
+      var now = clock.call(pw.Date) + 20000;
+      pw.Date.now = function () { return now; };
+      pg.render();
+      var openBtn = pd.querySelector('#crowd [data-act="mat-now"]');
+      var shown = openBtn ? openBtn.textContent : '';
+      var lead = (pd.querySelector('#crowd-lead') || {}).textContent || '';
+      pg.state.stalls[0].owned = 40;
+      now += 500;
+      pg.render();
+      var still = pd.querySelector('#crowd [data-act="mat-now"]');
+      var sameText = still && still.textContent === shown;
+      now += 500;
+      if (still) still.click();
+      var buy = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+      var buyText = buy ? buy.textContent : '';
+      var quote = pg.state.night.earlyQuote;
+      var cash = pg.state.cash;
+      if (buy && !buy.disabled) buy.click();
+      var paid = cash - pg.state.cash;
+      pw.Date.now = clock;
+      check('the open-row quote on the bar is the Unroll price, and it does not move when income grows (' + shown + ' / ' + buyText + ')',
+        /does not end the night/.test(lead) && /Unroll/.test(shown) && sameText &&
+        quote > 0 && Math.abs(paid - quote) < 0.001 && pg.state.stalls[5].owned === 1 && buyText.indexOf(pw.Arcade.fmt(quote)) >= 0);
+      PM.armNight(pg.state, 1, 4);
+      pg.state.stalls.forEach(function (st, i) { st.hired = i < 2; st.owned = i < 2 ? 8 : 0; st.serves = 0; });
+      pg.state.cash = 1e6;
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [480];
+      pg.state.night.wallMs = 560000;
+      pg.state.night.wallStamp = -1;
+      pg.state.night.rush = null;
+      var crowdChoices = pd.querySelector('#crowd-choices');
+      if (crowdChoices) crowdChoices.dataset.sig = '';
+      now = clock.call(pw.Date) + 40000;
+      pw.Date.now = function () { return now; };
+      pg.render();
+      var surgeBtns = pd.querySelectorAll('#crowd [data-act="rush"]');
+      var surgeText = surgeBtns.length ? surgeBtns[0].textContent : '';
+      var trace = [surgeText];
+      pg.state.stalls[0].owned = 20;
+      now += 200;
+      pg.render();
+      trace.push((pd.querySelector('#crowd [data-act="rush"]') || {}).textContent || '');
+      var earlyTap = pd.querySelector('#crowd [data-act="rush"]');
+      if (earlyTap) earlyTap.click();
+      var heldRush = pg.state.night.rush;
+      now += 500;
+      var lateTap = pd.querySelector('#crowd [data-act="rush"]');
+      if (lateTap) lateTap.click();
+      var took = pg.state.night.rush && pg.state.night.rush.stall;
+      pw.Date.now = clock;
+      check('a surge is one stall, its label stays put, and a tap resolves only after it appears (' + trace.join(' -> ') + ', early ' + !!heldRush + ', took ' + took + ')',
+        surgeBtns.length === 1 && trace[0] && trace[0] === trace[1] && !heldRush && !!took);
+    })();
+    (function () {
       var crowdMiss = [];
       [[320, 568], [375, 812], [390, 844], [844, 390]].forEach(function (size) {
         playFrame.style.width = size[0] + 'px';
@@ -4605,11 +4771,30 @@ document.querySelector('#run').onclick = async function () {
             st.serves = 99;
             st.hired = mode !== 'hire';
           });
+          pg.state.night.quiet = 0;
+          pg.state.night.pendingFallback = null;
+          pg.state.night.predictOn = false;
+          pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0 }));
+          pd.dispatchEvent(new pw.PointerEvent('pointercancel', { bubbles: true }));
+          var holdClock = pw.Date.now;
+          var holdBase = holdClock.call(pw.Date);
+          pw.Date.now = function () { return holdBase + 500; };
           pw.scrollTo(0, 0);
           pg.render();
+          pw.Date.now = holdClock;
+          if (pg.state.night.offer) {
+            PM.skipOffer(pg.state);
+            pg.state.night.quiet = 0;
+            pg.state.night.pendingFallback = null;
+            pg.render();
+          }
           var bar = pd.querySelector('#crowd');
           var pad = pw.getComputedStyle(pd.querySelector('.window')).paddingBottom;
-          if (!bar || bar.hidden || !(bar.offsetHeight > 40)) crowdMiss.push(label + ' ' + mode + ' bar ' + (bar ? bar.offsetHeight : 0));
+          if (!bar || bar.hidden || !(bar.offsetHeight > 40)) {
+            var viewNow = PM.lateView(pg.state);
+            var pickNow = pd.querySelector('#pick');
+            crowdMiss.push(label + ' ' + mode + ' bar ' + (bar ? bar.offsetHeight : 0) + ' hidden=' + (bar && bar.hidden) + ' view=' + (viewNow && viewNow.kind) + ' offer=' + (pg.state.night.offer && pg.state.night.offer.kind) + ' pick=' + (pickNow && pickNow.className) + ' hold=' + pg.state.night.holdOffer);
+          }
           else if (parseFloat(pad) + 1 < bar.offsetHeight) crowdMiss.push(label + ' ' + mode + ' pad ' + pad + ' under bar ' + bar.offsetHeight);
           for (var i = 0; i < 6; i++) {
             ['serve', 'hire', 'buy'].forEach(function (act) {
