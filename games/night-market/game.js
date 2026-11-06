@@ -629,16 +629,17 @@
     var key = (state.night.offer.options || []).join('|');
     if (panel.dataset.revealed === key) return;
     panel.dataset.revealed = key;
+    /* The card is fixed in the window. The opening omen is the one moment a
+       wide screen still needs the stall list nudged so the first pour is in
+       that window. Later cards do not move the rows. */
+    if (!state.night.offer || state.night.offer.kind !== 'omen') return;
+    var serve = document.querySelector('#stalls [data-i="0"] [data-act="serve"]');
     var scroller = document.querySelector('.stalls');
-    if (!scroller) return;
-    if (!(scroller && scroller.scrollHeight > scroller.clientHeight + 2)) return;
-    var box = panel.getBoundingClientRect();
-    var sBox = scroller.getBoundingClientRect();
-    if (scroller.scrollTop < 24) {
-      if (box.bottom > sBox.bottom + 4 && box.top < sBox.bottom) scroller.scrollTop += Math.min(box.bottom - sBox.bottom + 8, 72);
-      return;
-    }
-    if (box.top < sBox.top - 4 || box.bottom > sBox.bottom + 4) scroller.scrollTop += box.top - sBox.top;
+    if (!serve || !scroller || !(scroller.scrollHeight > scroller.clientHeight + 2)) return;
+    if (scroller.scrollTop >= 24) return;
+    var viewH = document.documentElement.clientHeight;
+    var box = serve.getBoundingClientRect();
+    if (box.bottom > viewH - 4) scroller.scrollTop += Math.min(box.bottom - viewH + 12, 80);
   }
   function trapTab(panel, e) {
     if (!panel || e.key !== 'Tab') return false;

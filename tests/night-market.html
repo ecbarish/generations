@@ -3582,6 +3582,18 @@ document.querySelector('#run').onclick = async function () {
       charmLeadBox.right <= charmPickBox.right + 1 &&
       /Wen's patience/.test(charmLead.textContent) &&
       /next choice/.test(charmLead.textContent));
+    playFrame.style.width = '375px';
+    playFrame.style.height = '812px';
+    pg.render();
+    var wideRange = pd.createRange();
+    wideRange.selectNodeContents(pd.querySelector('#pick-lead'));
+    var wideLead = wideRange.getBoundingClientRect();
+    var widePick = pd.querySelector('#pick').getBoundingClientRect();
+    check('at 375 the charm line is fully visible',
+      wideLead.height > 40 &&
+      wideLead.top >= widePick.top - 1 && wideLead.bottom <= widePick.bottom + 1 &&
+      wideLead.left >= widePick.left - 1 && wideLead.right <= widePick.right + 1 &&
+      /Wen's patience/.test(pd.querySelector('#pick-lead').textContent));
     playFrame.style.width = '360px';
     playFrame.style.height = '780px';
     armPlayed(2);
@@ -3611,12 +3623,18 @@ document.querySelector('#run').onclick = async function () {
     pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry'] };
     pg.state.night.rerollUsed = false;
     pg.render();
-    var pickOpenTop = pd.querySelector('#pick-panel').getBoundingClientRect().top;
+    var pickOpen = pd.querySelector('#pick-panel').getBoundingClientRect();
     var stallBelowOpen = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    var openViewH = pd.documentElement.clientHeight;
+    var openViewW = pd.documentElement.clientWidth;
+    var openChoice = pd.querySelector('#pick-choices button').getBoundingClientRect();
     pg.state.night.offer = null;
     pg.render();
     var stallBelowShut = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
-    check('the choice card stays on its slot when it opens', Math.abs(pickOpenTop - pickSlot) < 2 && Math.abs(stallBelowOpen - stallBelow) < 2 && Math.abs(stallBelowShut - stallBelow) < 2);
+    check('opening a choice card keeps the next stall still and shows the card',
+      Math.abs(stallBelowOpen - stallBelow) < 2 && Math.abs(stallBelowShut - stallBelow) < 2 &&
+      pickOpen.top >= -1 && pickOpen.bottom <= openViewH + 1 && pickOpen.left >= -1 && pickOpen.right <= openViewW + 1 &&
+      openChoice.top >= -1 && openChoice.bottom <= openViewH + 1 && openChoice.height > 20);
     playFrame.style.width = '390px';
     playFrame.style.height = '844px';
     pg.state.stalls[5].owned = 0;
@@ -3662,8 +3680,13 @@ document.querySelector('#run').onclick = async function () {
     if (revealed) delete revealed.dataset.revealed;
     pg.render();
     var cardBox = pd.querySelector('#pick-panel').getBoundingClientRect();
-    var listBox = stallScroll.getBoundingClientRect();
-    check('the choice card scrolls into the stall list when it opens', cardBox.height > 40 && cardBox.top >= listBox.top - 4 && cardBox.top < listBox.bottom);
+    var cardViewH = pd.documentElement.clientHeight;
+    var cardViewW = pd.documentElement.clientWidth;
+    var cardLead = pd.querySelector('#pick-lead').getBoundingClientRect();
+    var cardBtn = pd.querySelector('#pick-choices button').getBoundingClientRect();
+    check('a choice card opens in view even when the stall list is scrolled away',
+      cardBox.height > 40 && cardBox.top >= -1 && cardBox.bottom <= cardViewH + 1 && cardBox.left >= -1 && cardBox.right <= cardViewW + 1 &&
+      cardLead.top >= -1 && cardLead.bottom <= cardViewH + 1 && cardBtn.top >= -1 && cardBtn.bottom <= cardViewH + 1);
     pg.state.night.offer = null;
     if (stallScroll) stallScroll.scrollTop = 0;
     [360, 390].forEach(function (phoneW) {
@@ -3988,6 +4011,14 @@ document.querySelector('#run').onclick = async function () {
       }
       var prevBoxes = rowBoxes();
       var midGaps = [];
+      var cardMiss = [];
+      function inView(el) {
+        if (!el || el.hidden) return false;
+        var box = el.getBoundingClientRect();
+        var viewH = pd.documentElement.clientHeight;
+        var viewW = pd.documentElement.clientWidth;
+        return box.height > 8 && box.top >= -1 && box.bottom <= viewH + 1 && box.left >= -1 && box.right <= viewW + 1;
+      }
       while (sim < 1700 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
         var pick = pd.querySelector('#pick');
         var showing = pick && !pick.classList.contains('quiet');
@@ -4015,6 +4046,18 @@ document.querySelector('#run').onclick = async function () {
             if (sim >= 540 && sim <= 660) midGaps.push(gap);
             prevNamed = named.slice();
             last = sim;
+            var pausedEl = pd.querySelector('#pick-paused');
+            var leadEl = pd.querySelector('#pick-lead');
+            if (!inView(leadEl)) cardMiss.push('lead');
+            if (pausedEl && !pausedEl.hidden && !inView(pausedEl)) cardMiss.push('paused');
+            if (!buttons.length || !inView(buttons[0])) cardMiss.push('choice');
+            if (pd.documentElement.clientHeight >= 568) {
+              buttons.forEach(function (b) { if (!inView(b)) cardMiss.push('choice'); });
+              var skipEl = pd.querySelector('#pick [data-act="skip"]');
+              var againEl = pd.querySelector('#pick [data-act="reroll"]');
+              if (skipEl && !skipEl.hidden && !inView(skipEl)) cardMiss.push('skip');
+              if (againEl && !againEl.hidden && !inView(againEl)) cardMiss.push('reroll');
+            }
           }
           /* The offer guard ignores a click in the first 300ms. Step the clock
              past that, then press the button the player would press. */
@@ -4090,16 +4133,49 @@ document.querySelector('#run').onclick = async function () {
       if (tail > worst) worst = tail;
       midGaps.sort(function (a, b) { return a - b; });
       var mid = midGaps.length ? midGaps[Math.floor(midGaps.length / 2)] : worst;
-      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, shift: shift, overflow: overflow, mid: mid, offers: offers, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
+      var axisLog = (pg.state.night.axisLog || []).slice();
+      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, shift: shift, overflow: overflow, mid: mid, offers: offers, cardMiss: cardMiss.length, axisLog: axisLog, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
     }
+    var freshOff = [];
+    [[1280, 800], [390, 844], [320, 568]].forEach(function (size) {
+      playFrame.style.width = size[0] + 'px';
+      playFrame.style.height = size[1] + 'px';
+      armPlayed(99);
+      pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
+      pg.state.night.rerollUsed = false;
+      var freshPanel = pd.querySelector('#pick-panel');
+      if (freshPanel) delete freshPanel.dataset.revealed;
+      pw.scrollTo(0, 0);
+      var freshList = pd.querySelector('.stalls');
+      if (freshList) freshList.scrollTop = 0;
+      pg.render();
+      var freshH = pd.documentElement.clientHeight;
+      var freshW = pd.documentElement.clientWidth;
+      function freshSeen(el) {
+        if (!el || el.hidden) return false;
+        var b = el.getBoundingClientRect();
+        return b.height > 8 && b.top >= -1 && b.bottom <= freshH + 1 && b.left >= -1 && b.right <= freshW + 1;
+      }
+      var freshBad = [];
+      if (!freshSeen(pd.querySelector('#pick-panel'))) freshBad.push('card');
+      if (!freshSeen(pd.querySelector('#pick-lead'))) freshBad.push('lead');
+      if (!freshSeen(pd.querySelector('#pick-paused'))) freshBad.push('paused');
+      Array.prototype.forEach.call(pd.querySelectorAll('#pick-choices button'), function (b, i) { if (!freshSeen(b)) freshBad.push('b' + i); });
+      var freshAgain = pd.querySelector('#pick [data-act="reroll"]');
+      if (freshAgain && !freshAgain.hidden && !freshSeen(freshAgain)) freshBad.push('reroll');
+      if (pw.scrollY > 2) freshBad.push('scrolled');
+      if (freshBad.length) freshOff.push(size.join('x') + ' ' + freshBad.join(','));
+    });
+    check(freshOff.length ? 'the opening omen is off screen: ' + freshOff.join(' | ') : 'the opening omen is in view at 1280, 390 and 320 without scrolling', freshOff.length === 0);
     var browserSeeds = [1, 2, 5, 16, 99, 2024, 437724497, 4111981860];
     var browserStats = {};
     var browserSizes = [[1280, 800], [1024, 768], [844, 390], [820, 1180], [390, 844], [375, 812], [360, 780], [320, 568]];
     var browserProof = '';
     var browserSample = null;
+    var varietyLog = null;
     for (var bSize = 0; bSize < browserSizes.length; bSize++) {
       var sizeKey = browserSizes[bSize][0] + 'x' + browserSizes[bSize][1];
-      browserStats[sizeKey] = { max: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 }, hand: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 } };
+      browserStats[sizeKey] = { max: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0, cardMiss: 0 }, hand: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0, cardMiss: 0 } };
       playFrame.style.width = browserSizes[bSize][0] + 'px';
       playFrame.style.height = browserSizes[bSize][1] + 'px';
       if (browserSizes[bSize][0] === 320 && !pd.getElementById('scrollbar-gutter-proof')) {
@@ -4122,12 +4198,14 @@ document.querySelector('#run').onclick = async function () {
           if (night.shift > box.shift) box.shift = night.shift;
           box.overflow += night.overflow;
           if (night.mid > box.mid) box.mid = night.mid;
+          box.cardMiss += night.cardMiss || 0;
+          if (sizeKey === '1280x800' && mode === 'max' && browserSeeds[bSeed] === 99) varietyLog = night.axisLog || [];
           browserSample = night;
         });
       }
       ['max', 'hand'].forEach(function (label) {
         var box = browserStats[sizeKey][label];
-        browserProof += sizeKey + ' ' + (label === 'hand' ? 'buy-1' : 'Max') + ' shift ' + box.shift.toFixed(1) + ' overflow ' + box.overflow + ' gap ' + Math.round(box.worst) + ' mid ' + Math.round(box.mid) + ' dawn ' + Math.round(box.dawn) + ' dup ' + box.dup + ' back ' + box.back + ' down ' + box.down + '; ';
+        browserProof += sizeKey + ' ' + (label === 'hand' ? 'buy-1' : 'Max') + ' shift ' + box.shift.toFixed(1) + ' overflow ' + box.overflow + ' gap ' + Math.round(box.worst) + ' mid ' + Math.round(box.mid) + ' dawn ' + Math.round(box.dawn) + ' dup ' + box.dup + ' back ' + box.back + ' down ' + box.down + ' cards ' + box.cardMiss + '; ';
       });
     }
     playFrame.remove();
@@ -4135,10 +4213,26 @@ document.querySelector('#run').onclick = async function () {
     Object.keys(browserStats).forEach(function (sizeKey) {
       ['max', 'hand'].forEach(function (label) {
         var box = browserStats[sizeKey][label];
-        if (box.dup || box.back || box.down || box.worst > 120 || box.mid > 95 || box.shift >= 2 || box.overflow || !(box.dawn > 0) || (label === 'hand' && (sizeKey === '390x844' || sizeKey === '360x780') && box.dawn > 1500) || box.dawn > 1700) browserOk = false;
+        if (box.dup || box.back || box.down || box.cardMiss || box.worst > 120 || box.mid > 95 || box.shift >= 2 || box.overflow || !(box.dawn > 0) || (label === 'hand' && (sizeKey === '390x844' || sizeKey === '360x780') && box.dawn > 1500) || box.dawn > 1700) browserOk = false;
       });
     });
     check('played nights in the browser stay within 120s with no stall shift, clipped goal, duplicate text, repeated stall, or lower income (' + browserProof.trim() + ')', browserOk);
+    var varietyDetail = 'missing';
+    var varietyOk = false;
+    if (varietyLog && varietyLog.length >= 8) {
+      var varietyCounts = {}, varietyTop = 0, varietyName = '', varietyAxes = {}, varietyBack = 0, varietyI;
+      for (varietyI = 0; varietyI < varietyLog.length; varietyI++) {
+        var varietyPair = varietyLog[varietyI];
+        varietyCounts[varietyPair] = (varietyCounts[varietyPair] || 0) + 1;
+        if (varietyCounts[varietyPair] > varietyTop) { varietyTop = varietyCounts[varietyPair]; varietyName = varietyPair; }
+        String(varietyPair).split('+').forEach(function (axis) { if (axis) varietyAxes[axis] = true; });
+        if (varietyI && varietyPair === 'lane-raise+price-cut' && varietyLog[varietyI - 1] === varietyPair) varietyBack++;
+      }
+      var varietyShare = varietyTop / varietyLog.length;
+      varietyDetail = varietyName + ' ' + Math.round(varietyShare * 100) + '% of ' + varietyLog.length + ', axes ' + Object.keys(varietyAxes).length + ', lane repeats ' + varietyBack;
+      varietyOk = varietyShare <= 0.4 && Object.keys(varietyAxes).length >= 3 && varietyBack === 0;
+    }
+    check('a Max night mixes the choices (' + varietyDetail + ')', varietyOk);
 
     var saveFrame = await openLane('../games/night-market/index.html', 390, 844);
     var swin = saveFrame.contentWindow, sdoc = swin.document, sm = swin.__nightMarket;

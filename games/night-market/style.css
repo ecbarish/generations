@@ -141,19 +141,26 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 }
 .pick.quiet .pick-panel { height: 100%; overflow: hidden; }
 .pick:not(.quiet) .pick-panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  width: auto;
-  max-width: none;
+  /* The slot stays in the list. The card itself sits in the window, so the
+     choose line and the buttons are on screen without a scroll. */
+  position: fixed;
+  top: 0.35rem;
+  left: 50%;
+  right: auto;
+  width: min(40rem, calc(100vw - 1.2rem));
+  max-width: calc(100vw - 1.2rem);
+  transform: translateX(-50%);
   margin: 0;
-  max-height: 18rem;
-  z-index: 30;
+  max-height: calc(100vh - 0.55rem);
+  z-index: 40;
   overflow: auto;
   border: 1px solid var(--amber);
   box-shadow: 0 12px 28px rgba(22, 19, 38, 0.28);
-  padding: 0.7rem 0.7rem 0.6rem;
+  padding: 0.45rem 0.6rem 0.35rem;
+}
+@media (max-width: 420px) and (max-height: 640px) {
+  .pick:not(.quiet) .pick-panel { top: 0.2rem; padding: 0.3rem 0.45rem 0.25rem; max-height: calc(100vh - 0.3rem); }
+  .pick:not(.quiet) .pick-panel .choices { gap: 0.25rem; }
 }
 .pick p { margin: 0 0 0.35rem; }
 .pick .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -400,6 +407,13 @@ button[aria-pressed="true"], button.ask, button.best {
   .pick.quiet #pick-lead { font-size: 14px; line-height: 1.2; margin-bottom: 0; }
   .pick.quiet .pick-panel { height: 100%; overflow: hidden; padding-top: 0.2rem; padding-bottom: 0; }
   #bulk-help { min-height: 1.3rem; margin: 0; font-size: 0.8rem; }
+}
+/* 375 by 812 is taller than the short-screen rule above, and the charm line
+   still has to fit. The same reserve covers every narrow phone. */
+@media (max-width: 420px) {
+  .pick { height: 8.75rem; min-height: 8.75rem; max-height: 8.75rem; }
+  .pick.quiet #pick-lead { font-size: 14px; line-height: 1.2; margin-bottom: 0; }
+  .pick.quiet .pick-panel { height: 100%; overflow: hidden; padding-top: 0.2rem; padding-bottom: 0; }
 }
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.
    The decorative strip keeps its full-page pixel scale, above the two columns. */

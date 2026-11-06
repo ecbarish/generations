@@ -338,6 +338,7 @@
       recent: [],
       lastStalls: [],
       subjectPairs: [],
+      axisLog: ['rate-trade+rate-trade'],
       lastKind: '',
       lanePay: 0,
       priceEase: 0,
@@ -1218,6 +1219,7 @@
         sustain: (night.sustain || []).slice(),
         shown: (night.shown || []).slice(),
         lastStalls: (night.lastStalls || []).slice(),
+        axisLog: (night.axisLog || []).slice(),
         lanePay: night.lanePay > 0 ? Math.floor(night.lanePay) : 0,
         priceEase: night.priceEase > 0 ? Math.floor(night.priceEase) : 0,
         fillerOpen: night.fillerOpen || 0,
@@ -1271,6 +1273,7 @@
     state.night.sustain = keepIds(o.night.sustain, function (id) { return stallIndex(id) >= 0; });
     state.night.shown = keepIds(o.night.shown, function (id) { return id.indexOf(':') > 0; });
     state.night.lastStalls = keepIds(o.night.lastStalls, function (id) { return stallIndex(id) >= 0 || id === 'lane' || id === 'prices'; });
+    state.night.axisLog = keepIds(o.night.axisLog, function (id) { return /^[a-z+-]+$/.test(id); });
     state.night.lanePay = o.night.lanePay > 0 ? Math.floor(o.night.lanePay) : 0;
     state.night.priceEase = o.night.priceEase > 0 ? Math.floor(o.night.priceEase) : 0;
     state.night.fillerOpen = o.night.fillerOpen > 0 ? Math.floor(o.night.fillerOpen) : 0;
@@ -1365,6 +1368,8 @@
       state.night.subjectPairs = state.night.subjectPairs || [];
       if (pairName && state.night.subjectPairs.indexOf(pairName) < 0) state.night.subjectPairs.push(pairName);
       state.night.lastKind = offer.kind;
+      state.night.axisLog = state.night.axisLog || [];
+      if (offer.options.length >= 2) state.night.axisLog.push(axisPairKey(offer.kind, offer.options[0], offer.options[1]));
       rememberLines(state, offer);
       if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
       if (offer.kind === 'pick') {
@@ -2303,10 +2308,124 @@
     else if (fallback.mark && state.night.offered.indexOf(fallback.mark) < 0) state.night.offered.push(fallback.mark);
     return !!placed;
   }
+  /* What kind of change a button is. Two cards that only differ by a percent
+     on the same two kinds are the same mechanical pair. */
+  function optionAxis(kind, id) {
+    var realKind = optionKind(kind, id);
+    var realId = optionId(kind, id);
+    if (realKind === 'lane') return String(realId).indexOf('pay') === 0 ? 'lane-raise' : 'price-cut';
+    if (realKind === 'again' || realKind === 'sustain' || realKind === 'boost') return 'stall-raise';
+    if (realKind === 'early') return 'doubling';
+    if (realKind === 'priced' || realKind === 'half') return 'price-cut';
+    if (realKind === 'twist' || realKind === 'omen') return 'rate-trade';
+    if (realKind === 'charm' || realKind === 'late') {
+      if (String(realId).indexOf('omen-') === 0) return 'rate-trade';
+      var charm = charmById(realId);
+      var patch = charm && charm.set && charm.set[charm.stall];
+      if (patch && patch.milestones) return 'doubling';
+      if (patch && patch.base != null) return 'price-cut';
+      if (patch && patch.unlockAt != null) return 'threshold';
+      if (patch && patch.rate != null) return 'stall-raise';
+      return 'charm';
+    }
+    return realKind || 'other';
+  }
+  function axisPairKey(kind, a, b) {
+    return [optionAxis(kind, a), optionAxis(kind, b)].sort().join('+');
+  }
+  function axisOverused(state, pair) {
+    var log = (state.night && state.night.axisLog) || [];
+    if (!pair) return false;
+    if (log.length && log[log.length - 1] === pair) return true;
+    if (log.length < 4) return false;
+    var count = 0, i;
+    for (i = 0; i < log.length; i++) if (log[i] === pair) count++;
+    return (count + 1) / (log.length + 1) > 0.4;
+  }
+  function offerAxisKey(offer) {
+    if (!offer || !offer.options || offer.options.length < 2) return '';
+    return axisPairKey(offer.kind, offer.options[0], offer.options[1]);
+  }
+  /* The lane card blocks its own subjects, so the next search cannot see a
+     stall raise sitting beside one side of it. Lift only that block, and keep
+     a pair the night just showed from coming straight back. */
+  /* A stall the last card did not name, beside one side of the lane. Used when
+     the lane-raise and price-cut pair would otherwise come straight back. */
+  function sideBesideLane(state) {
+    var before = income(state), text = moneyText(before), steps = 1, n, after;
+    if (before > 0) {
+      for (n = 1; n <= 6; n++) {
+        state.night.lanePay = (state.night.lanePay || 0) + n;
+        after = income(state);
+        state.night.lanePay -= n;
+        if (moneyText(after) !== text && meetsFloor((after - before) / (before || 1))) { steps = n; break; }
+      }
+    }
+    var payBare = 'pay@' + laneSerial(state, 'pay') + '@' + steps;
+    var priceBare = 'price@' + laneSerial(state, 'price');
+    var payOk = offerGate(state, 'lane', payBare, false);
+    var priceOk = offerGate(state, 'lane', priceBare, false);
+    var sides = [], i, stallId, serial, raised, maxSerial, shownList, sk, num;
+    for (i = 0; i < STALLS.length; i++) {
+      if (STALLS[i].id === 'stories') continue;
+      stallId = STALLS[i].id;
+      if ((state.night.lastStalls || []).indexOf(stallId) >= 0) continue;
+      if (!state.stalls[i].hired || state.stalls[i].owned < 1) continue;
+      maxSerial = 0;
+      shownList = state.night.shown || [];
+      for (sk = 0; sk < shownList.length; sk++) {
+        if (shownList[sk].indexOf('again:' + stallId + '@') !== 0) continue;
+        num = parseInt(shownList[sk].split('@')[1], 10);
+        if (num > maxSerial) maxSerial = num;
+      }
+      serial = maxSerial + 1;
+      raised = againCount(state, stallId);
+      if (raised && offerGate(state, 'again', stallId + '@' + serial + '@' + raised, false)) sides.push('again:' + stallId + '@' + serial + '@' + raised);
+    }
+    var options = null, ai;
+    function take(a, b) {
+      if (options || !pairOk(state, 'pick', a, b)) return;
+      if (axisOverused(state, axisPairKey('pick', a, b))) return;
+      options = [a, b];
+    }
+    for (ai = 0; ai < sides.length; ai++) {
+      if (priceOk) take(sides[ai], 'lane:' + priceBare);
+      if (payOk) take(sides[ai], 'lane:' + payBare);
+    }
+    if (!options) return null;
+    return { mark: 'pick-' + options[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: options, generated: true } };
+  }
+  function variedFallback(state) {
+    var held = (state.night.lastStalls || []).slice();
+    var saved = !!state.night.allowRepeat;
+    state.night.lastStalls = held.filter(function (name) { return name !== 'lane' && name !== 'prices'; });
+    var mixed = mixedOffer(state);
+    var filler = fillerOffer(state);
+    if (mixed && !axisOverused(state, offerAxisKey(mixed.offer))) {
+      state.night.lastStalls = held;
+      state.night.allowRepeat = saved;
+      return mixed;
+    }
+    if (filler && !axisOverused(state, offerAxisKey(filler.offer))) {
+      state.night.lastStalls = held;
+      state.night.allowRepeat = saved;
+      return filler;
+    }
+    state.night.allowRepeat = true;
+    var side = sideBesideLane(state);
+    state.night.lastStalls = held;
+    state.night.allowRepeat = saved;
+    return side;
+  }
   /* A card that still passes. The stalls just shown stay blocked until nothing
      else will, so a quiet night does not put the same stall on two cards. */
   function forceOffer(state) {
     var found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
+    if (found && axisOverused(state, offerAxisKey(found.offer))) {
+      var alt = variedFallback(state);
+      if (alt) found = alt;
+    }
+    if (!found) found = variedFallback(state);
     if (found) return found;
     var steps = 1, before = income(state), text = moneyText(before), n;
     if (before > 0) {
