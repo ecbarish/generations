@@ -343,6 +343,10 @@
     if (openKey !== seenOpen) seenOpen = openKey;
     /* Name the next offer before this frame can place it, so the line and the
        card are the same peek. */
+    if (state.night) {
+      var sinceUp = lastPointerUp ? Date.now() - lastPointerUp : 999;
+      state.night.holdOffer = !!(pointerDown || (sinceUp >= 0 && sinceUp < 300));
+    }
     if (M.nextOfferLine) M.nextOfferLine(state);
     var nowMs = Date.now();
     if (M.noteWall) {
@@ -798,20 +802,31 @@
       box.appendChild(line);
     });
   }
+  function syncCrowdPad() {
+    var box = $('#crowd');
+    var pad = box && !box.hidden ? box.offsetHeight : 0;
+    document.documentElement.style.setProperty('--crowd-pad', pad + 'px');
+  }
   function renderCrowd() {
     var box = $('#crowd');
     if (!box || !M.lateView) return;
     var pick = $('#pick');
     var modal = pick && !pick.classList.contains('quiet');
     var view = modal ? null : M.lateView(state);
-    if (!view) { box.hidden = true; return; }
+    if (!view) { box.hidden = true; syncCrowdPad(); return; }
     box.hidden = false;
     var lead = $('#crowd-lead');
     if (lead) lead.textContent = view.lead;
     var choices = $('#crowd-choices');
     var sig = view.kind + '|' + view.mark;
-    if (choices.dataset.sig === sig) return;
+    if (state.night && state.night.holdOffer && choices.dataset.sig !== sig) {
+      if (!choices.dataset.sig) { box.hidden = true; syncCrowdPad(); return; }
+      syncCrowdPad();
+      return;
+    }
+    if (choices.dataset.sig === sig) { syncCrowdPad(); return; }
     choices.dataset.sig = sig;
+    crowdOpenedAt = Date.now();
     choices.replaceChildren();
     if (view.kind === 'early-mat') {
       var nowBtn = document.createElement('button');
@@ -825,16 +840,19 @@
       waitBtn.textContent = 'Wait for 15:00';
       choices.appendChild(nowBtn);
       choices.appendChild(waitBtn);
-      return;
-    }
-    (view.stalls || []).forEach(function (row) {
+    } else (view.stalls || []).forEach(function (row) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.dataset.act = 'rush';
       btn.dataset.stall = row.id;
-      btn.textContent = row.name;
+      btn.textContent = row.bonus > 0 ? (row.name + ' · +' + money(row.bonus) + '/s') : row.name;
       choices.appendChild(btn);
     });
+    syncCrowdPad();
+  }
+  if (window.ResizeObserver && $('#crowd')) {
+    var crowdObserver = new ResizeObserver(syncCrowdPad);
+    crowdObserver.observe($('#crowd'));
   }
 
   // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
@@ -847,6 +865,9 @@
   var lastElapse = Date.now();
   var seenOpen = '';
   var offerModalSig = '', offerReturn = null, offerPaused = false, offerOpenedAt = 0;
+  var crowdOpenedAt = 0;
+  var lastPointerUp = 0;
+  var INPUT_ARM = 400;
   var laneSig = '';
   var nightFrozen = false;
   function setBehindInert(on) {
@@ -963,8 +984,8 @@
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
   var pointerDown = false;
   document.addEventListener('pointerdown', function () { pointerDown = true; }, true);
-  document.addEventListener('pointerup', function () { pointerDown = false; }, true);
-  document.addEventListener('pointercancel', function () { pointerDown = false; }, true);
+  document.addEventListener('pointerup', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
+  document.addEventListener('pointercancel', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
   window.addEventListener('blur', function () { pointerDown = false; });
   var pressedBuy = null;
   var buyDown = null;
@@ -1025,7 +1046,7 @@
       return;
     }
     if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late' || b.dataset.act === 'sustain' || b.dataset.act === 'pick') {
-      if (Date.now() - offerOpenedAt < 300) return;
+      if (Date.now() - offerOpenedAt < INPUT_ARM) return;
       var pickedId = M.choose(state, +b.dataset.choice);
       if (pickedId) {
         var pickedRow = b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId);
@@ -1038,7 +1059,7 @@
       return;
     }
     if (b.dataset.act === 'skip' || b.dataset.act === 'reroll') {
-      if (Date.now() - offerOpenedAt < 300) return;
+      if (Date.now() - offerOpenedAt < INPUT_ARM) return;
     }
     if (b.dataset.act === 'skip') {
       if (M.skipOffer(state)) {
@@ -1053,6 +1074,7 @@
       return;
     }
     if (b.dataset.act === 'mat-now' || b.dataset.act === 'mat-wait' || b.dataset.act === 'rush') {
+      if (Date.now() - crowdOpenedAt < INPUT_ARM) return;
       if (M.takeLate) M.takeLate(state, b.dataset.act === 'rush' ? b.dataset.stall : (b.dataset.act === 'mat-now' ? 'now' : 'wait'));
       var crowdChoices = $('#crowd-choices');
       if (crowdChoices) crowdChoices.dataset.sig = '';

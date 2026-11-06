@@ -737,7 +737,7 @@
     if (!st || !st.hired || !(st.owned > 0)) return 0;
     var rate = stallField(state, spec(i).id, 'rate', spec(i).rate);
     var rush = state.night && state.night.rush;
-    if (rush && rush.stall === spec(i).id && (state.night.wallMs || 0) < rush.until) rate = rate * 1.5;
+    if (rush && rush.stall === spec(i).id && (state.night.wallMs || 0) < rush.until && rush.rate > 0) rate = rush.rate;
     return rate * st.owned * stallMultOwned(state, i, st.owned) * laneMult(state) * sustainMult(state, spec(i).id);
   }
 
@@ -1665,15 +1665,19 @@
       offer.options = kept.slice(0, dealCount >= 3 ? 3 : 2);
       var dealTrio = distinctDealOffer(offer);
       var savedRepeat = !!(state.night && state.night.allowRepeat);
-      if (dealTrio) state.night.allowRepeat = true;
+      var savedStalls = state.night.lastStalls;
+      if (dealTrio) {
+        state.night.allowRepeat = true;
+        state.night.lastStalls = [];
+      }
       if (!pairOk(state, offer.kind, offer.options[0], offer.options[1])) {
-        if (dealTrio) state.night.allowRepeat = savedRepeat;
+        if (dealTrio) { state.night.allowRepeat = savedRepeat; state.night.lastStalls = savedStalls; }
         return false;
       }
       if (offer.options.length >= 3 && (!pairOk(state, offer.kind, offer.options[0], offer.options[2]) || !pairOk(state, offer.kind, offer.options[1], offer.options[2]))) {
         offer.options = offer.options.slice(0, 2);
       }
-      if (dealTrio) state.night.allowRepeat = savedRepeat;
+      if (dealTrio) { state.night.allowRepeat = savedRepeat; state.night.lastStalls = savedStalls; }
       if (state.night.lastExact && exactKey(offer.options) === state.night.lastExact) return false;
       if (offer.kind === 'pick' && offerHasWeakPrice(offer) && flatCutBlocked(state)) {
         var swapped = substituteFlatCut(state, offer) || sparePair(state);
@@ -2105,10 +2109,17 @@
   function rememberLines(state, offer) {
     if (!state.night || !offer) return;
     state.night.shownLines = state.night.shownLines || [];
+    var spokenLines = [];
     (offer.options || []).forEach(function (id) {
       var spoken = choiceLine(state, offer.kind, id);
       if (spoken && state.night.shownLines.indexOf(spoken) < 0) state.night.shownLines.push(spoken);
+      if (spoken) spokenLines.push(spoken);
     });
+    state.night.shownJoins = state.night.shownJoins || [];
+    if (spokenLines.length) {
+      var join = spokenLines.slice().sort().join('|');
+      if (state.night.shownJoins.indexOf(join) < 0) state.night.shownJoins.push(join);
+    }
   }
   function pairOverlaps(state, kind, a, b) {
     var blocked = (state.night && state.night.lastStalls) || [];
@@ -2156,10 +2167,73 @@
     var base = stallField(state, stallId, 'base', stall.base);
     var owned = state.stalls[i].owned;
     if (!(rate > 0) || !(base > 0)) return null;
-    if (kind === 'focus') return { stall: stallId, rate: rate * 1.28, base: base * 1.12 };
-    if (kind === 'tempo') return { stall: stallId, rate: rate * 0.88, base: base * 0.82 };
-    if (kind === 'scale') return { stall: stallId, rate: rate * (1 + Math.min(owned, 30) * 0.025), base: base * 1.1 };
+    if (kind === 'focus') {
+      var aimed = aimedStallRate(state, stallId, 0.45);
+      if (!aimed) return null;
+      return { stall: stallId, rate: aimed, base: base * 1.12 };
+    }
+    if (kind === 'tempo') {
+      var cut = tempoPlan(state, stallId);
+      if (!cut) return null;
+      return { stall: stallId, rate: rate * cut.rate, base: base * cut.base };
+    }
+    if (kind === 'scale') {
+      var scaled = aimedStallRate(state, stallId, Math.min(0.8, 0.15 + Math.min(owned, 30) * 0.02));
+      if (!scaled) return null;
+      return { stall: stallId, rate: scaled, base: base * 1.1 };
+    }
     return null;
+  }
+  /* A stall raise is about a tenth of the lane, including a stall that is behind.
+     The fraction only separates a focus from a scale, so the two sentences differ. */
+  function aimedStallRate(state, stallId, maxStallFraction) {
+    var i = stallIndex(stallId);
+    var stall = spec(i);
+    if (!stall || !(state.stalls[i] && state.stalls[i].owned >= 1)) return 0;
+    var field = stallField(state, stallId, 'rate', stall.rate);
+    var prod = production(state, i);
+    var total = income(state);
+    if (!(field > 0) || !(prod > 0) || !(total > 0)) return 0;
+    var tilt = 0.85 + Math.max(0, Math.min(0.8, maxStallFraction)) * 0.2;
+    var extra = total * 0.1 * tilt;
+    return field * (prod + extra) / prod;
+  }
+  function minuteValue(state) {
+    var before = income(state);
+    return before > 0 ? before * 6 : 0;
+  }
+  function pricedBuys(state, stallId) {
+    var price = oneCost(state, stallId, null);
+    var before = income(state);
+    if (!(price > 0) || !(before > 0)) return 0;
+    return Math.max(0, Math.min(6, Math.round(before * 60 / price)));
+  }
+  /* A cheaper stall has to be worth about as much, over the next minute, as a raise.
+     The rate cut scales that stall's coins, and the base cut scales its price. */
+  function tempoPlan(state, stallId) {
+    var i = stallIndex(stallId);
+    var stall = spec(i);
+    if (!stall || !state.stalls[i] || !(state.stalls[i].owned >= 1)) return null;
+    var before = income(state);
+    var priceNow = oneCost(state, stallId, null);
+    var prod = production(state, i);
+    if (!(before > 0) || !(priceNow > 0) || !(prod > 0)) return null;
+    var target = minuteValue(state);
+    var buys = pricedBuys(state, stallId);
+    var rateCuts = [0.97, 0.94, 0.9, 0.84, 0.76];
+    var baseCuts = [0.92, 0.84, 0.72, 0.6, 0.48];
+    var best = null, bestDiff = Infinity, r, b, afterI, afterP, ev;
+    for (r = 0; r < rateCuts.length; r++) {
+      for (b = 0; b < baseCuts.length; b++) {
+        afterI = before + prod * (rateCuts[r] - 1);
+        afterP = priceNow * baseCuts[b];
+        if (moneyText(afterI) === moneyText(before) || moneyText(afterP) === moneyText(priceNow)) continue;
+        ev = (afterI - before) * 60 - (afterP - priceNow) * buys;
+        if (!(ev > 0)) continue;
+        if (Math.abs(ev - target) < bestDiff) { bestDiff = Math.abs(ev - target); best = { rate: rateCuts[r], base: baseCuts[b] }; }
+      }
+    }
+    return best;
   }
   function dealLine(state, kind, stallId) {
     var i = stallIndex(stallId);
@@ -2175,6 +2249,7 @@
     var rateNext = stallField(state, stallId, 'rate', stall.rate);
     var baseNext = oneCost(state, stallId, null);
     state.night.deals.pop();
+    if (moneyText(rateNext) === moneyText(rateNow) || moneyText(baseNext) === moneyText(baseNow)) return '';
     if (kind === 'focus') return name + ' earns more: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '. New ones cost more: ' + moneyText(baseNext) + ', was ' + moneyText(baseNow) + '.';
     if (kind === 'tempo') return name + ' is cheaper now: ' + moneyText(baseNext) + ', was ' + moneyText(baseNow) + '. It earns less: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '.';
     return 'The ' + owned + ' you own earn more: ' + name + ' ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '. New ones cost more: ' + moneyText(baseNext) + ', was ' + moneyText(baseNow) + '.';
@@ -2205,17 +2280,29 @@
     return result;
   }
   function stackSteps(state) {
-    var owned = ownedOf(state, leadStallId(state));
-    var base = Math.max(1, Math.min(4, Math.floor(owned / 3) || 1));
-    var before = moneyText(income(state));
-    var steps = base, n, after;
-    for (n = base; n <= base + 8; n++) {
+    var before = income(state);
+    var want = before * 0.1;
+    var best = 1, bestDiff = Infinity, n, extra;
+    if (!(before > 0)) return 1;
+    for (n = 1; n <= 4; n++) {
       state.night.lanePay = (state.night.lanePay || 0) + n;
-      after = moneyText(income(state));
+      extra = income(state) - before;
       state.night.lanePay -= n;
-      if (after !== before) { steps = n; break; }
+      if (extra > 0 && Math.abs(extra - want) < bestDiff) { bestDiff = Math.abs(extra - want); best = n; }
     }
-    return steps;
+    return best;
+  }
+  function hurryFactor(state) {
+    var before = income(state);
+    var want = before * 0.1;
+    var factors = [1.08, 1.12, 1.18, 1.28, 1.45];
+    var best = factors[0], bestDiff = Infinity, i, extra;
+    if (!(before > 0)) return 1.12;
+    for (i = 0; i < factors.length; i++) {
+      extra = withDeals(state, rateRows(state, factors[i]), function () { return income(state); }) - before;
+      if (extra > 0 && Math.abs(extra - want) < bestDiff) { bestDiff = Math.abs(extra - want); best = factors[i]; }
+    }
+    return best;
   }
   function rateFactor(state, direction) {
     var before = moneyText(income(state));
@@ -2234,34 +2321,65 @@
     state.night.lanePay = (state.night.lanePay || 0) + steps;
     var after = income(state);
     state.night.lanePay -= steps;
+    var priced = commitPrice(state);
+    if (!priced || moneyText(before) === moneyText(after) || moneyText(priced.now) === moneyText(priced.next)) return '';
+    var priceNow = priced.now, priceNext = priced.next;
+    return 'The lane earns more now: ' + moneyText(after) + ' a second, was ' + moneyText(before) + '. New copies cost more: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
+  }
+  function commitPrice(state) {
     var easeAt = easeStall(state);
     var easeId = easeAt >= 0 ? spec(easeAt).id : 'tea';
-    var priceNow = oneCost(state, easeId, null);
-    var bump = dealSpec(state, 'focus', easeId);
-    var priceNext = priceNow;
-    if (bump) {
+    var stall = spec(stallIndex(easeId));
+    if (!stall) return null;
+    var now = oneCost(state, easeId, null);
+    var baseNow = stallField(state, easeId, 'base', stall.base);
+    var factor, trial, next = now;
+    for (factor = 1.12; factor <= 1.6 && moneyText(now) === moneyText(next); factor += 0.08) {
+      trial = baseNow * factor;
       state.night.deals = state.night.deals || [];
-      state.night.deals.push({ stall: easeId, rate: 0, base: bump.base });
-      priceNext = oneCost(state, easeId, null);
+      state.night.deals.push({ stall: easeId, rate: 0, base: trial });
+      next = oneCost(state, easeId, null);
       state.night.deals.pop();
     }
-    if (moneyText(before) === moneyText(after) || moneyText(priceNow) === moneyText(priceNext)) return '';
-    return 'The lane earns more now: ' + moneyText(after) + ' a second, was ' + moneyText(before) + '. New copies cost more: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
+    return { stall: easeId, now: now, next: next, base: trial || baseNow * 1.12 };
+  }
+  function easePlan(state) {
+    var before = income(state);
+    if (!(before > 0)) return null;
+    var easeAt = easeStall(state);
+    if (easeAt < 0) return null;
+    var easeId = spec(easeAt).id;
+    var priceNow = oneCost(state, easeId, null);
+    var target = minuteValue(state);
+    var buys = pricedBuys(state, easeId);
+    var factors = [0.98, 0.96, 0.94, 0.92, 0.9];
+    var best = null, bestDiff = Infinity, f, steps, rateNext, priceNext, ev;
+    for (f = 0; f < factors.length; f++) {
+      for (steps = 1; steps <= 8; steps++) {
+        rateNext = before * factors[f];
+        priceNext = priceNow * Math.pow(0.95, steps);
+        if (moneyText(priceNow) === moneyText(priceNext) || moneyText(before) === moneyText(rateNext)) continue;
+        ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
+        if (!(ev > 0)) continue;
+        if (Math.abs(ev - target) < bestDiff) { bestDiff = Math.abs(ev - target); best = { factor: factors[f], steps: steps }; }
+      }
+    }
+    return best;
   }
   function easeLine(state) {
     var before = income(state);
     if (!(before > 0)) return '';
+    var plan = easePlan(state);
     var easeAt = easeStall(state);
-    if (easeAt < 0) return '';
+    if (!plan || easeAt < 0) return '';
     var easeId = spec(easeAt).id;
     var priceNow = oneCost(state, easeId, null);
-    state.night.priceEase = (state.night.priceEase || 0) + 1;
-    var priceNext = oneCost(state, easeId, null);
-    state.night.priceEase -= 1;
-    var rateNow = income(state);
-    var rateNext = withDeals(state, rateRows(state, rateFactor(state, 'down')), function () { return income(state); });
-    if (moneyText(priceNow) === moneyText(priceNext) || moneyText(rateNow) === moneyText(rateNext)) return '';
-    return 'The lane earns less: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '. Prices are lower now: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
+    state.night.priceEase = (state.night.priceEase || 0) + plan.steps;
+    var priceNext = withDeals(state, rateRows(state, plan.factor), function () { return oneCost(state, easeId, null); });
+    var rateNext = withDeals(state, rateRows(state, plan.factor), function () { return income(state); });
+    state.night.priceEase -= plan.steps;
+    if (moneyText(priceNow) === moneyText(priceNext) || moneyText(before) === moneyText(rateNext)) return '';
+    return 'The lane earns less: ' + moneyText(rateNext) + ' a second, was ' + moneyText(before) + '. Prices are lower now: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
   }
   function leadStallId(state) {
     var lead = 0, i, owned;
@@ -2272,45 +2390,131 @@
     return spec(lead) ? spec(lead).id : 'tea';
   }
   /* Cheaper copies now, and the lane earns less. No stall name, so it can follow a card that named every open stall. */
+  function bankPlan(state) {
+    var id = leadStallId(state);
+    var stall = spec(stallIndex(id));
+    if (!stall || ownedOf(state, id) < 1) return null;
+    var before = income(state);
+    var priceNow = oneCost(state, id, null);
+    if (!(before > 0) || !(priceNow > 0)) return null;
+    var target = minuteValue(state);
+    var buys = pricedBuys(state, id);
+    var factors = [0.99, 0.97, 0.95, 0.93];
+    var cuts = [0.92, 0.84, 0.76, 0.68];
+    var best = null, bestDiff = Infinity, f, c, rateNext, priceNext, ev;
+    for (f = 0; f < factors.length; f++) {
+      for (c = 0; c < cuts.length; c++) {
+        rateNext = before * factors[f];
+        priceNext = priceNow * cuts[c];
+        if (moneyText(before) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) continue;
+        ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
+        if (!(ev > 0)) continue;
+        if (Math.abs(ev - target) < bestDiff) { bestDiff = Math.abs(ev - target); best = { factor: factors[f], cut: cuts[c] }; }
+      }
+    }
+    return best;
+  }
+  function bankRows(state, plan) {
+    var id = leadStallId(state);
+    var stall = spec(stallIndex(id));
+    var rows = rateRows(state, plan.factor);
+    rows.push({ stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * plan.cut });
+    return rows;
+  }
   function bankLine(state) {
     var id = leadStallId(state);
     var stall = spec(stallIndex(id));
-    if (!stall || ownedOf(state, id) < 1) return '';
+    var plan = bankPlan(state);
+    if (!stall || !plan || ownedOf(state, id) < 1) return '';
     var rateNow = income(state);
     var priceNow = oneCost(state, id, null);
-    var rows = rateRows(state, rateFactor(state, 'down'));
-    rows.push({ stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * 0.75 });
+    var rows = bankRows(state, plan);
     var rateNext = withDeals(state, rows, function () { return income(state); });
     var priceNext = withDeals(state, rows, function () { return oneCost(state, id, null); });
     if (moneyText(rateNow) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) return '';
     return 'The next copy is cheaper now: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '. The lane earns less: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '.';
   }
+  function payingPlan(state, factors, bumps) {
+    var id = leadStallId(state);
+    var stall = spec(stallIndex(id));
+    if (!stall || ownedOf(state, id) < 1) return null;
+    var before = income(state);
+    var priceNow = oneCost(state, id, null);
+    if (!(before > 0) || !(priceNow > 0)) return null;
+    var target = minuteValue(state);
+    var buys = pricedBuys(state, id);
+    var best = null, bestDiff = Infinity, f, b, rateNext, priceNext, ev;
+    for (f = 0; f < factors.length; f++) {
+      for (b = 0; b < bumps.length; b++) {
+        rateNext = before * factors[f];
+        priceNext = priceNow * bumps[b];
+        if (moneyText(before) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) continue;
+        ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
+        if (!(ev > 0)) continue;
+        if (Math.abs(ev - target) < bestDiff) { bestDiff = Math.abs(ev - target); best = { factor: factors[f], bump: bumps[b] }; }
+      }
+    }
+    return best;
+  }
+  function hurryPlan(state) {
+    return payingPlan(state, [1.04, 1.08, 1.12, 1.16, 1.22, 1.3], [1.02, 1.05, 1.08, 1.12, 1.2, 1.3]);
+  }
+  function hurryRows(state, plan) {
+    var id = leadStallId(state);
+    var stall = spec(stallIndex(id));
+    var rows = rateRows(state, plan.factor);
+    rows.push({ stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * plan.bump });
+    return rows;
+  }
   /* Pay more for the next copy, and what you already own earns more. The reverse of taking a discount. */
   function hurryLine(state) {
     var id = leadStallId(state);
     var stall = spec(stallIndex(id));
-    if (!stall || ownedOf(state, id) < 1) return '';
+    var plan = hurryPlan(state);
+    if (!stall || !plan || ownedOf(state, id) < 1) return '';
     var rateNow = income(state);
     var priceNow = oneCost(state, id, null);
-    var rows = rateRows(state, rateFactor(state, 'up'));
-    rows.push({ stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * 1.3 });
+    var rows = hurryRows(state, plan);
     var rateNext = withDeals(state, rows, function () { return income(state); });
     var priceNext = withDeals(state, rows, function () { return oneCost(state, id, null); });
     if (moneyText(rateNow) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) return '';
     return 'Later copies cost more: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '. What you own earns more: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '.';
   }
+  function stackPlan(state) {
+    var id = leadStallId(state);
+    var stall = spec(stallIndex(id));
+    if (!stall || ownedOf(state, id) < 1) return null;
+    var before = income(state);
+    var priceNow = oneCost(state, id, null);
+    if (!(before > 0) || !(priceNow > 0)) return null;
+    var target = minuteValue(state);
+    var buys = pricedBuys(state, id);
+    var bumps = [1.02, 1.05, 1.08, 1.12, 1.2, 1.3];
+    var best = null, bestDiff = Infinity, steps, b, rateNext, priceNext, ev;
+    for (steps = 1; steps <= 4; steps++) {
+      for (b = 0; b < bumps.length; b++) {
+        rateNext = before * Math.pow(1.05, steps);
+        priceNext = priceNow * bumps[b];
+        if (moneyText(before) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) continue;
+        ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
+        if (!(ev > 0)) continue;
+        if (Math.abs(ev - target) < bestDiff) { bestDiff = Math.abs(ev - target); best = { steps: steps, bump: bumps[b] }; }
+      }
+    }
+    return best;
+  }
   /* Payoff for the stall you have stacked, without naming it, so the next card can still name something else. */
   function stackLine(state) {
     var id = leadStallId(state);
     var stall = spec(stallIndex(id));
-    if (!stall || ownedOf(state, id) < 1) return '';
-    var steps = stackSteps(state);
+    var plan = stackPlan(state);
+    if (!stall || !plan || ownedOf(state, id) < 1) return '';
     var rateNow = income(state);
-    state.night.lanePay = (state.night.lanePay || 0) + steps;
+    state.night.lanePay = (state.night.lanePay || 0) + plan.steps;
     var rateNext = income(state);
-    state.night.lanePay -= steps;
+    state.night.lanePay -= plan.steps;
     var priceNow = oneCost(state, id, null);
-    var priceRow = { stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * (1 + steps * 0.06) };
+    var priceRow = { stall: id, rate: 0, base: stallField(state, id, 'base', stall.base) * plan.bump };
     var priceNext = withDeals(state, [priceRow], function () { return oneCost(state, id, null); });
     if (moneyText(rateNow) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) return '';
     return 'The copies you own earn more: ' + moneyText(rateNext) + ' a second, was ' + moneyText(rateNow) + '. New ones cost more: ' + moneyText(priceNext) + ', was ' + moneyText(priceNow) + '.';
@@ -2728,7 +2932,7 @@
     if (!atDawn) {
       var leadTrio = decisionTrio(state);
       var nowMark = '';
-      if (leadTrio && offerRoom(state)) {
+      if (offerRoom(state)) {
         var planNow = charmPlan(state.night.seed), ng, nid, ni;
         for (ng = 0; ng < planNow.length && !nowMark; ng++) {
           nid = planNow[ng];
@@ -2742,6 +2946,15 @@
         var matNow = STALLS.length - 1;
         if (!nowMark && moonNow >= 0 && state.stalls[moonNow].owned >= midAt(state.night.seed) && state.stalls[moonNow].owned < unlockNeed(state, incenseNow) && !offeredHas(state, 'mid-mooncake')) nowMark = 'mid-mooncake';
         if (!nowMark && unlocked(state, matNow) && state.stalls[matNow].owned === 0 && !state.night.kept && !offeredHas(state, 'mat-wait') && oneCost(state, 'stories', null) > state.cash) nowMark = 'mat-wait';
+      }
+      if (!leadTrio) {
+        var heldStalls = (state.night.lastStalls || []).slice();
+        var savedRepeat = !!state.night.allowRepeat;
+        state.night.lastStalls = [];
+        state.night.allowRepeat = true;
+        leadTrio = decisionTrio(state);
+        state.night.lastStalls = heldStalls;
+        state.night.allowRepeat = savedRepeat;
       }
       if (leadTrio && nowMark) {
         leadTrio.mark = nowMark;
@@ -3072,9 +3285,97 @@
     }
     return Object.keys(kinds).length >= 3;
   }
+  function applyPickEffect(state, id) {
+    var pickBits = String(id).split(':');
+    var pickKind = pickBits[0];
+    var pickId = pickBits.slice(1).join(':');
+    if (pickKind === 'focus' || pickKind === 'tempo' || pickKind === 'scale') {
+      var dealt = dealSpec(state, pickKind, String(pickId).split('@')[0]);
+      if (!dealt) return false;
+      dealt.id = pickKind + ':' + pickId;
+      state.night.deals = state.night.deals || [];
+      state.night.deals.push(dealt);
+      return true;
+    }
+    if (pickKind === 'commit') {
+      state.night.lanePay = (state.night.lanePay || 0) + 2;
+      var priced = commitPrice(state);
+      state.night.deals = state.night.deals || [];
+      if (priced) state.night.deals.push({ id: 'commit:' + pickId, stall: priced.stall, rate: 0, base: priced.base });
+      return true;
+    }
+    if (pickKind === 'ease') {
+      var ease = easePlan(state);
+      if (!ease) return false;
+      state.night.priceEase = (state.night.priceEase || 0) + ease.steps;
+      state.night.deals = state.night.deals || [];
+      rateRows(state, ease.factor).forEach(function (row) {
+        row.id = 'ease:' + pickId;
+        state.night.deals.push(row);
+      });
+      return true;
+    }
+    if (pickKind === 'bank') {
+      var bankId = leadStallId(state);
+      var bankStall = spec(stallIndex(bankId));
+      var banked = bankPlan(state);
+      if (!bankStall || !banked) return false;
+      state.night.deals = state.night.deals || [];
+      bankRows(state, banked).forEach(function (row) {
+        row.id = 'bank:' + pickId;
+        state.night.deals.push(row);
+      });
+      return true;
+    }
+    if (pickKind === 'hurry') {
+      var hurryId = leadStallId(state);
+      var hurried = hurryPlan(state);
+      if (!hurried) return false;
+      state.night.deals = state.night.deals || [];
+      hurryRows(state, hurried).forEach(function (row) {
+        row.id = 'hurry:' + pickId;
+        state.night.deals.push(row);
+      });
+      return true;
+    }
+    if (pickKind === 'stack') {
+      var stackId = leadStallId(state);
+      var stacked = stackPlan(state);
+      if (!stacked) return false;
+      state.night.lanePay = (state.night.lanePay || 0) + stacked.steps;
+      state.night.deals = state.night.deals || [];
+      var stackBase = stallField(state, stackId, 'base', spec(stallIndex(stackId)).base);
+      state.night.deals.push({ id: 'stack:' + pickId, stall: stackId, rate: 0, base: stackBase * stacked.bump });
+      return true;
+    }
+    return false;
+  }
+  /* Coins this choice is worth over the next minute, after the price it changes. */
+  function optionEV(state, id) {
+    if (!state || !state.night) return 0;
+    var kind = String(id).split(':')[0];
+    var stall = kind === 'focus' || kind === 'tempo' || kind === 'scale' ? String(id).split(':')[1].split('@')[0] : leadStallId(state);
+    if (stallIndex(stall) < 0) stall = '';
+    var beforeI = income(state);
+    var beforeP = stall ? oneCost(state, stall, null) : 0;
+    var deals = (state.night.deals || []).slice();
+    var lanePay = state.night.lanePay || 0;
+    var priceEase = state.night.priceEase || 0;
+    var applied = applyPickEffect(state, id);
+    var afterI = income(state);
+    var afterP = stall ? oneCost(state, stall, null) : beforeP;
+    state.night.deals = deals;
+    state.night.lanePay = lanePay;
+    state.night.priceEase = priceEase;
+    if (!applied) return 0;
+    var buys = 0;
+    if (stall && beforeP > 0 && beforeI > 0) buys = Math.max(0, Math.min(6, Math.round(beforeI * 60 / beforeP)));
+    return (afterI - beforeI) * 60 - (afterP - beforeP) * buys;
+  }
   /* Three offers, three directions. A stall card names that stall. The lane,
      the prices, a discount, a spend-ahead, and a stack payoff do not, so the
-     next card still has somewhere to go. */
+     next card still has somewhere to go. Dead options, and a best pick more
+     than about one and a half times the next, are not dealt. */
   function decisionTrio(state) {
     if (!state || !state.night || !(income(state) > 0)) return null;
     var blocked = state.night.lastStalls || [];
@@ -3105,8 +3406,11 @@
     add('bank', 'bank');
     add('hurry', 'hurry');
     add('stack', 'stack');
+    var evOf = {};
+    candidates.forEach(function (opt) { evOf[opt] = optionEV(state, opt); });
+    candidates = candidates.filter(function (opt) { return evOf[opt] > 0; });
     if (candidates.length < 3) return null;
-    var best = null, bestScore = 1e9;
+    var best = null, bestScore = 1e9, loose = null, looseScore = 1e9;
     var a, b, c, ids, kinds, subs, subList, key, axis, score, pi, pj, ok, kind, subject;
     for (a = 0; a < candidates.length; a++) {
       for (b = a + 1; b < candidates.length; b++) {
@@ -3140,19 +3444,46 @@
             else if (/cost more/.test(spoken) && /earn/.test(spoken)) shapes.up = true;
             else shapes.mix = true;
           }
+          var vals = ids.map(function (opt) { return evOf[opt] || 0; }).sort(function (p, q) { return q - p; });
+          if (!(vals[2] > 0)) continue;
+          if (state.night.lastExact && exactKey(ids) === state.night.lastExact) continue;
+          var join = ids.map(function (opt) { return lines[opt]; }).sort().join('|');
+          if ((state.night.shownJoins || []).indexOf(join) >= 0) continue;
+          var spread = vals[1] > 0 ? vals[0] / vals[1] : 99;
+          var wide = vals[0] > vals[2] * 2;
           score = Object.keys(shapes).length < 2 ? 12 : 0;
+          if (spread > 1.5 || wide) {
+            var loosePenalty = score + spread;
+            if (!wide && spread <= 1.8 && loosePenalty < looseScore) { looseScore = loosePenalty; loose = ids.slice(); }
+            continue;
+          }
+          score += spread;
           for (pi = 0; pi < log.length; pi++) if (log[pi] === axis) score++;
           if (log.length && log[log.length - 1] === axis) score += 8;
-          if (seen.indexOf(key) >= 0) score += 40;
+          if (seen.indexOf(key) >= 0) score += 200;
+          var moonOwned = ownedOf(state, 'mooncake');
+          if (moonOwned >= 1 && moonOwned < 25 && ids.some(function (opt) { return String(opt).indexOf('mooncake') >= 0; })) {
+            score -= (surgeMilestone(moonOwned) - moonOwned) <= 3 ? 40 : 5;
+          }
           if (score < bestScore) { bestScore = score; best = ids.slice(); }
         }
       }
     }
+    if (!best) best = loose;
     if (!best) return null;
     return { mark: 'pick-' + best[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: best, generated: true } };
   }
   function forceOffer(state) {
     var trio = decisionTrio(state);
+    if (!trio && state.night) {
+      var held = (state.night.lastStalls || []).slice();
+      var savedRepeat = !!state.night.allowRepeat;
+      state.night.lastStalls = [];
+      state.night.allowRepeat = true;
+      trio = decisionTrio(state);
+      state.night.lastStalls = held;
+      state.night.allowRepeat = savedRepeat;
+    }
     if (trio) return trio;
     var found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
     if (!offerUsable(state, found)) {
@@ -3233,6 +3564,11 @@
   function elapse(state, dt) {
     if (!state || !state.night || !(dt > 0)) return false;
     state.night.age = (state.night.age || 0) + dt;
+    /* A tap in progress, or one that just landed, waits. The card appears after. */
+    if (state.night.holdOffer && !state.night.offer && !dawnDue(state)) {
+      state.night.quiet = (state.night.quiet || 0) + dt;
+      return false;
+    }
     if (state.night.offer || dawnDue(state)) {
       /* The opening omen is the choice at the start. Have the next one ready
          while it is up, so dismissing it does not begin another full wait. */
@@ -3325,72 +3661,7 @@
         state.night.lanePay = (state.night.lanePay || 0) + laneSteps(pickId);
       } else if (pickKind === 'lane' && String(pickId).indexOf('price') === 0) {
         state.night.priceEase = (state.night.priceEase || 0) + 1;
-      } else if (pickKind === 'focus' || pickKind === 'tempo' || pickKind === 'scale') {
-        var dealt = dealSpec(state, pickKind, String(pickId).split('@')[0]);
-        if (!dealt) return null;
-        dealt.id = pickKind + ':' + pickId;
-        state.night.deals = state.night.deals || [];
-        state.night.deals.push(dealt);
-      } else if (pickKind === 'commit') {
-        state.night.lanePay = (state.night.lanePay || 0) + 2;
-        var commitStall = easeStall(state);
-        var commitId = commitStall >= 0 ? spec(commitStall).id : 'tea';
-        var commitDeal = dealSpec(state, 'focus', commitId);
-        if (commitDeal) {
-          state.night.deals = state.night.deals || [];
-          state.night.deals.push({ id: 'commit:' + pickId, stall: commitId, rate: 0, base: commitDeal.base });
-        }
-      } else if (pickKind === 'ease') {
-        state.night.priceEase = (state.night.priceEase || 0) + 1;
-        state.night.deals = state.night.deals || [];
-        rateRows(state, rateFactor(state, 'down')).forEach(function (row) {
-          row.id = 'ease:' + pickId;
-          state.night.deals.push(row);
-        });
-      } else if (pickKind === 'bank') {
-        var bankId = leadStallId(state);
-        var bankStall = spec(stallIndex(bankId));
-        if (!bankStall) return null;
-        state.night.deals = state.night.deals || [];
-        rateRows(state, rateFactor(state, 'down')).forEach(function (row) {
-          row.id = 'bank:' + pickId;
-          state.night.deals.push(row);
-        });
-        state.night.deals.push({
-          id: 'bank:' + pickId,
-          stall: bankId,
-          rate: 0,
-          base: stallField(state, bankId, 'base', bankStall.base) * 0.75
-        });
-      } else if (pickKind === 'hurry') {
-        var hurryId = leadStallId(state);
-        var hurryStall = spec(stallIndex(hurryId));
-        if (!hurryStall) return null;
-        state.night.deals = state.night.deals || [];
-        rateRows(state, rateFactor(state, 'up')).forEach(function (row) {
-          row.id = 'hurry:' + pickId;
-          state.night.deals.push(row);
-        });
-        state.night.deals.push({
-          id: 'hurry:' + pickId,
-          stall: hurryId,
-          rate: 0,
-          base: stallField(state, hurryId, 'base', hurryStall.base) * 1.3
-        });
-      } else if (pickKind === 'stack') {
-        var stackId = leadStallId(state);
-        var stackStall = spec(stallIndex(stackId));
-        if (!stackStall) return null;
-        var steps = stackSteps(state);
-        state.night.lanePay = (state.night.lanePay || 0) + steps;
-        state.night.deals = state.night.deals || [];
-        state.night.deals.push({
-          id: 'stack:' + pickId,
-          stall: stackId,
-          rate: 0,
-          base: stallField(state, stackId, 'base', stackStall.base) * (1 + steps * 0.06)
-        });
-      } else return null;
+      } else if (!applyPickEffect(state, id)) return null;
     } else if (offer.kind === 'sustain') {
       var sustainId = String(id).split('@')[0];
       if (stallIndex(sustainId) < 0) return null;
@@ -3818,7 +4089,7 @@
     if (pruneOffer(state)) { /* a dead card left the table */ }
     var added = false;
     /* The same peek the next-choice line reads. A quiet filler still waits for elapse. */
-    if (!state.night.offer) {
+    if (!state.night.offer && !state.night.holdOffer) {
       var peek = peekGap(state);
       if (peek.fire && peek.why === 'now') added = pushGap(state);
     }
@@ -3872,7 +4143,56 @@
       if (state.stalls[i] && state.stalls[i].hired && state.stalls[i].owned >= 1) stalls.push({ id: STALLS[i].id, name: STALLS[i].name });
     }
     if (!stalls.length) return null;
+    stalls.forEach(function (row) { row.bonus = surgeBonusPerSec(state, row.id); });
     return { mark: mark, kind: 'surge', lead: 'The crowd picks one stall for 30 seconds.', stalls: stalls };
+  }
+  function surgeMilestone(owned) {
+    var marks = [10, 25, 50, 100, 150, 200, 300, 400], i;
+    for (i = 0; i < marks.length; i++) if (owned < marks[i]) return marks[i];
+    return owned + 25;
+  }
+  /* The crowd walks the stalls in order. It does not follow whichever stall
+     already earns the most. A stall that just had the crowd waits its turn. */
+  function surgeSpotlight(state) {
+    var ids = [], i, last, at;
+    last = state.night && state.night.lastSurge || '';
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i] || !state.stalls[i].hired || !(state.stalls[i].owned >= 1)) continue;
+      if (!(production(state, i) > 0)) continue;
+      ids.push(STALLS[i].id);
+    }
+    if (!ids.length) return '';
+    at = ids.indexOf(last);
+    return ids[(at + 1) % ids.length];
+  }
+  function surgeFurthest(state, stallId) {
+    var dist = surgeMilestone(ownedOf(state, stallId)) - ownedOf(state, stallId);
+    var i, other;
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (STALLS[i].id === stallId || !(production(state, i) > 0)) continue;
+      other = surgeMilestone(state.stalls[i].owned) - state.stalls[i].owned;
+      if (other > dist) return false;
+    }
+    return true;
+  }
+  function surgeBonusPerSec(state, stallId) {
+    var total = income(state);
+    if (!(total > 0) || !(production(state, stallIndex(stallId)) > 0)) return 0;
+    var on = stallId === surgeSpotlight(state);
+    var far = surgeFurthest(state, stallId);
+    return total * (on ? (far ? 0.12 : 0.105) : (far ? 0.09 : 0.08));
+  }
+  function surgeEV(state, stallId) {
+    return surgeBonusPerSec(state, stallId) * 30;
+  }
+  function rushFieldRate(state, stallId) {
+    var i = stallIndex(stallId);
+    var stall = spec(i);
+    if (!stall) return 0;
+    var field = stallField(state, stallId, 'rate', stall.rate);
+    var prod = production(state, i);
+    if (!(field > 0) || !(prod > 0)) return field;
+    return field * (prod + surgeBonusPerSec(state, stallId)) / prod;
   }
   function takeLate(state, choice) {
     var view = lateView(state);
@@ -3890,9 +4210,9 @@
       state.night.wallMs = Math.max(state.night.wallMs || 0, MAT_CLOCK * 1000);
     }
     if (view.kind === 'surge' && choice && stallIndex(choice) >= 0) {
-      var stall = spec(stallIndex(choice));
-      var rate = stall ? stallField(state, choice, 'rate', stall.rate) : 0;
-      if (rate > 0) state.night.rush = { stall: choice, rate: rate * 1.5, until: (state.night.wallMs || 0) + 30000 };
+      var rushRate = rushFieldRate(state, choice);
+      if (rushRate > 0) state.night.rush = { stall: choice, rate: rushRate, until: (state.night.wallMs || 0) + 30000 };
+      state.night.lastSurge = choice;
     }
     return true;
   }
@@ -4102,6 +4422,9 @@
     unlocked: unlocked,
     unlockNeed: unlockNeed,
     income: income,
+    optionEV: optionEV,
+    surgeEV: surgeEV,
+    surgeBonusPerSec: surgeBonusPerSec,
     production: production,
     addCash: addCash,
     handSell: handSell,

@@ -12,6 +12,9 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; overflow-anchor: none; }
+/* The late-night bar is fixed. This inset is its measured height, so a scroll
+   lands the stall controls above it. Zero while the bar is hidden. */
+html { scroll-padding-bottom: calc(var(--crowd-pad, 0px) + env(safe-area-inset-bottom)); }
 /* The buy-mode row stays on screen while the stalls scroll. It sits under the
    goal pin (the pin is the control a tap there reaches). */
 .bulk {
@@ -31,7 +34,7 @@ button, summary { font: inherit; }
   margin: 0 auto;
   min-height: 100vh;
   background: var(--paper);
-  padding: 1.1rem 1.1rem 2.2rem;
+  padding: 1.1rem 1.1rem max(2.2rem, calc(var(--crowd-pad, 0px) + env(safe-area-inset-bottom)));
   overflow-wrap: break-word;
 }
 a { color: var(--amber); }
@@ -203,6 +206,7 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 }
 #rate.flash { background: var(--amber-wash); }
 .crowd { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; background: var(--paper); color: var(--ink); padding: 0.35rem 0.6rem calc(0.35rem + env(safe-area-inset-bottom)); box-shadow: 0 -1px 0 var(--rule); }
+.actions button { scroll-margin-bottom: calc(var(--crowd-pad, 0px) + env(safe-area-inset-bottom)); }
 .crowd[hidden] { display: none !important; }
 .crowd p { margin: 0 0 0.3rem; }
 .crowd .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -384,7 +388,7 @@ button[aria-pressed="true"], button.ask, button.best {
     padding-top: max(0.6rem, env(safe-area-inset-top));
     padding-left: max(0.8rem, env(safe-area-inset-left));
     padding-right: max(0.8rem, env(safe-area-inset-right));
-    padding-bottom: max(2.2rem, env(safe-area-inset-bottom));
+    padding-bottom: max(2.2rem, calc(var(--crowd-pad, 0px) + env(safe-area-inset-bottom)));
   }
   header { display: flex; flex-wrap: wrap; column-gap: 0.6rem; align-items: center; }
   header > * { flex-basis: 100%; }

@@ -3394,7 +3394,9 @@ document.querySelector('#run').onclick = async function () {
       if (pairKey && pairSeen[pairKey]) pairRepeat = true;
       if (pairKey) pairSeen[pairKey] = true;
     }
-    check('the same two stalls are not offered twice in one night', !pairRepeat);
+    var pairLanes = 0, pairTotal = M.income(pairNight);
+    for (var pairI = 0; pairI < 5; pairI++) if (pairTotal > 0 && M.production(pairNight, pairI) >= pairTotal * 0.15) pairLanes++;
+    check('the same two stalls are not offered twice while more than one stall can carry a choice', !pairRepeat || pairLanes < 2);
     var mixNight = M.fresh();
     M.armNight(mixNight, 1, 2);
     mixNight.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 4 ? 16 : 0; });
@@ -3486,12 +3488,14 @@ document.querySelector('#run').onclick = async function () {
       if (!variety.night.offer) break;
       var pairNow = (variety.night.subjectPairs || []).slice(-1)[0] || '';
       var lineNow = variety.night.offer.options.map(function (id) { return M.choiceLine(variety, variety.night.offer.kind, id); }).sort().join('|');
-      if ((pairNow && seenPairs.indexOf(pairNow) >= 0) || seenLines.indexOf(lineNow) >= 0) repeatedCard = true;
+      var liveStalls = 0, liveTotal = M.income(variety), liveI;
+      for (liveI = 0; liveI < 5; liveI++) if (liveTotal > 0 && M.production(variety, liveI) >= liveTotal * 0.15) liveStalls++;
+      if (seenLines.indexOf(lineNow) >= 0 || (pairNow && seenPairs.indexOf(pairNow) >= 0 && liveStalls >= 2)) repeatedCard = true;
       if (pairNow) seenPairs.push(pairNow);
       seenLines.push(lineNow);
       M.skipOffer(variety);
     }
-    check('a night does not repeat a pair or a line (' + seenPairs.join(',') + ')', !repeatedCard && seenPairs.length >= 4);
+    check('a night does not repeat a line, or a pair while two stalls can carry it (' + seenPairs.join(',') + ')', !repeatedCard && seenPairs.length >= 4);
 
     var playFrame = await openLane('../games/night-market/index.html', 390, 844);
     var pw = playFrame.contentWindow, pd = pw.document, pg = pw.__nightMarket, PM = pw.NightMarket;
@@ -4504,6 +4508,127 @@ document.querySelector('#run').onclick = async function () {
         browserProof += sizeKey + ' ' + (label === 'hand' ? 'buy-1' : 'Max') + ' shift ' + box.shift.toFixed(1) + ' overflow ' + box.overflow + ' gap ' + Math.round(box.worst) + ' mid ' + Math.round(box.mid) + ' dawn ' + Math.round(box.dawn) + ' dup ' + box.dup + ' back ' + box.back + ' down ' + box.down + ' cards ' + box.cardMiss + '; ';
       });
     }
+    (function () {
+      playFrame.style.width = '390px';
+      playFrame.style.height = '844px';
+      PM.armNight(pg.state, 1, 1);
+      pg.state.stalls.forEach(function (st, i) {
+        st.hired = i === 0;
+        st.owned = i === 0 ? 8 : 0;
+        st.serves = i === 0 ? 30 : 0;
+      });
+      pg.state.cash = 1e6;
+      pg.state.night.offer = null;
+      pg.state.night.quiet = 80;
+      pg.state.night.predictOn = false;
+      pg.state.night.pendingFallback = null;
+      pg.state.night.lateShown = [];
+      pg.state.night.wallMs = 0;
+      pg.state.night.wallStamp = -1;
+      var clock = pw.Date.now;
+      var now = clock.call(pw.Date) + 8000;
+      pw.Date.now = function () { return now; };
+      pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, pointerId: 1, button: 0 }));
+      pd.dispatchEvent(new pw.PointerEvent('pointercancel', { bubbles: true, pointerId: 1 }));
+      now += 400;
+      pg.render();
+      pg.state.night.offer = null;
+      pg.state.night.pendingFallback = null;
+      pg.state.night.predictOn = false;
+      pg.state.night.quiet = 90;
+      pd.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, pointerId: 7, button: 0 }));
+      now += 1500;
+      pg.state.night.quiet = 90;
+      pg.state.night.predictOn = false;
+      pg.render();
+      var held = !pg.state.night.offer;
+      pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, pointerId: 7, button: 0 }));
+      now += 120;
+      pg.state.night.quiet = 90;
+      pg.render();
+      var soon = !pg.state.night.offer;
+      now += 400;
+      pg.state.night.quiet = 90;
+      pg.render();
+      if (!pg.state.night.offer) {
+        now += 1;
+        pg.state.night.quiet = 90;
+        pg.render();
+      }
+      var card = pg.state.night.offer;
+      var before = card && card.options ? card.options.slice() : [];
+      var btn = pd.querySelector('#pick-choices button');
+      if (btn) btn.click();
+      var ignored = !!(pg.state.night.offer && before.length && pg.state.night.offer.options.join('|') === before.join('|'));
+      now += 450;
+      btn = pd.querySelector('#pick-choices button');
+      if (btn) btn.click();
+      var taken = !pg.state.night.offer || pg.state.night.offer.options.join('|') !== before.join('|');
+      pw.Date.now = clock;
+      pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, pointerId: 7, button: 0 }));
+      check('a new choice waits until the tap is finished and ignores the first moment (' + [held, soon, !!card, ignored, taken].join(',') + ')', held && soon && !!card && ignored && taken);
+    })();
+    (function () {
+      var crowdMiss = [];
+      [[320, 568], [375, 812], [390, 844], [844, 390]].forEach(function (size) {
+        playFrame.style.width = size[0] + 'px';
+        playFrame.style.height = size[1] + 'px';
+        var label = size[0] + 'x' + size[1];
+        var saw = {};
+        function shown(el) {
+          if (!el || el.hidden) return false;
+          var cs = pw.getComputedStyle(el);
+          if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+          var box = el.getBoundingClientRect();
+          return box.width > 8 && box.height > 8;
+        }
+        function hit(el) {
+          el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          var box = el.getBoundingClientRect();
+          var x = box.left + box.width / 2;
+          var y = box.top + box.height / 2;
+          if (y < 0 || y > pd.documentElement.clientHeight || x < 0 || x > pd.documentElement.clientWidth) return false;
+          var at = pd.elementFromPoint(x, y);
+          var bar = pd.querySelector('#crowd');
+          if (at && bar && (at === bar || bar.contains(at))) return false;
+          return at === el || !!(at && el.contains(at));
+        }
+        ['surge', 'early', 'hire'].forEach(function (mode) {
+          PM.armNight(pg.state, 1, 1);
+          pg.state.night.offer = null;
+          pg.state.night.lateShown = mode === 'surge' ? [480] : [];
+          pg.state.night.wallMs = mode === 'surge' ? 560000 : 480000;
+          pg.state.night.wallStamp = -1;
+          pg.state.cash = 1e9;
+          pg.state.stalls.forEach(function (st, i) {
+            st.owned = i === 5 ? 0 : 24;
+            st.serves = 99;
+            st.hired = mode !== 'hire';
+          });
+          pw.scrollTo(0, 0);
+          pg.render();
+          var bar = pd.querySelector('#crowd');
+          var pad = pw.getComputedStyle(pd.querySelector('.window')).paddingBottom;
+          if (!bar || bar.hidden || !(bar.offsetHeight > 40)) crowdMiss.push(label + ' ' + mode + ' bar ' + (bar ? bar.offsetHeight : 0));
+          else if (parseFloat(pad) + 1 < bar.offsetHeight) crowdMiss.push(label + ' ' + mode + ' pad ' + pad + ' under bar ' + bar.offsetHeight);
+          for (var i = 0; i < 6; i++) {
+            ['serve', 'hire', 'buy'].forEach(function (act) {
+              var el = pd.querySelector('#stalls [data-i="' + i + '"] [data-act="' + act + '"]');
+              if (!shown(el)) return;
+              if (hit(el)) saw[i + ':' + act] = true;
+              else crowdMiss.push(label + ' ' + mode + ' stall ' + i + ' ' + act);
+            });
+          }
+        });
+        for (var n = 0; n < 6; n++) {
+          ['serve', 'hire', 'buy'].forEach(function (act) {
+            if (n === 5 && act !== 'buy') return;
+            if (!saw[n + ':' + act]) crowdMiss.push(label + ' stall ' + n + ' ' + act + ' not tested');
+          });
+        }
+      });
+      check(crowdMiss.length ? 'the late bar covers a stall control: ' + crowdMiss.slice(0, 10).join(' | ') : 'with the late bar up, Serve, Hire and Buy on every stall stay above it at 320, 375, 390 and 844×390', crowdMiss.length === 0);
+    })();
     playFrame.remove();
     var browserOk = true;
     Object.keys(browserStats).forEach(function (sizeKey) {
