@@ -218,6 +218,32 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 .codex[open] > summary::before { content: "▾"; }
 .codex p { margin: 0.25rem 0; }
 #goal { margin: 0 0 0.1rem; min-height: 4.8rem; }
+#goal .goal-unroll {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  text-align: left;
+  font: inherit;
+  line-height: 1.25;
+  color: var(--good);
+  background: #fffdf8;
+  border: 1px solid var(--amber);
+  border-radius: 2px;
+  cursor: pointer;
+}
+#goal .goal-unroll:disabled { cursor: default; opacity: 0.72; }
+#goal .goal-unroll.stuck {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  width: auto;
+  box-shadow: 0 1px 0 var(--rule);
+}
 #lane-goal { display: block; min-height: 1.45rem; }
 #omen-now { color: var(--amber); min-height: 2.6rem; display: block; margin: 0.05rem 0 0.1rem; line-height: 1.25; font-size: 0.95rem; }
 #pick-backdrop { position: fixed; inset: 0; background: rgba(22, 19, 38, 0.5); z-index: 1; }
@@ -466,7 +492,7 @@ button[aria-pressed="true"], button.ask, button.best {
   header { grid-column: 1; grid-row: 6; min-width: 0; }
   .market-work { grid-column: 2; grid-row: 6; }
   .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0; margin-bottom: 0; }
-  #goal { grid-column: 1 / -1; grid-row: 2; margin: 0; line-height: 1.15; min-height: 2.7rem; }
+  #goal { grid-column: 1 / -1; grid-row: 2; margin: 0; line-height: 1.15; min-height: 44px; }
   #lane-goal { min-height: 1.2rem; margin: 0; }
   /* GAD: the lane-bonus line, the ending card, and the note each have a row.
      Empty rows collapse, so a night that has not ended still starts with the stalls.

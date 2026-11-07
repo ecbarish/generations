@@ -1978,8 +1978,16 @@
     if (stallIndex(id) >= 0) return id;
     return '';
   }
+  /* The first Story Mat is the purchase once it can be unrolled. Later copies
+     of an earlier stall are not on the way to that ending. After the night
+     continues, the climb is the purchase again. */
+  function terminalUnroll(state) {
+    var mat = STALLS.length - 1;
+    return !!(state && state.stalls && state.stalls[mat] && unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept));
+  }
   function goalBuy(state) {
     var i, mat = STALLS.length - 1;
+    if (terminalUnroll(state)) return mat;
     for (i = 0; i < mat; i++) {
       if (!state.stalls[i]) continue;
       /* The next stall is open and still has no copy. That first purchase is the
@@ -1991,13 +1999,14 @@
     if (unlocked(state, mat) && state.stalls[mat] && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) return mat;
     return -1;
   }
-  /* Future copies of a stall the unlock path has already finished are not bought
-     on the way to the next vendor. A raise whose bill lands only there is free. */
+  /* Future copies of a stall the next purchase does not use are not bought.
+     A raise or a discount whose bill lands only there does not change that purchase. */
   function copyTaxIsFree(state, stallId) {
     var i = stallIndex(stallId);
     if (i < 0 || i >= STALLS.length - 1) return false;
     if (!(state.stalls[i] && state.stalls[i].owned >= 1)) return false;
     if (goalBuy(state) === i) return false;
+    if (terminalUnroll(state)) return true;
     return state.stalls[i].owned >= unlockNeed(state, i + 1);
   }
   function timeToGoal(state) {
@@ -2175,6 +2184,9 @@
   function easeStall(state) {
     var i = goalBuy(state);
     if (i >= 0 && spec(i) && spec(i).id !== 'stories') return i;
+    /* The first mat is the purchase, and its price is not a stall copy. Do not
+       aim the bill at an earlier stall. */
+    if (terminalUnroll(state)) return -1;
     for (i = 0; i < STALLS.length - 1; i++) if (state.stalls[i] && state.stalls[i].hired) return i;
     return 0;
   }
@@ -2360,7 +2372,8 @@
   }
   function commitPrice(state) {
     var easeAt = easeStall(state);
-    var easeId = easeAt >= 0 ? spec(easeAt).id : 'tea';
+    if (!(easeAt >= 0)) return null;
+    var easeId = spec(easeAt).id;
     var stall = spec(stallIndex(easeId));
     if (!stall) return null;
     var now = oneCost(state, easeId, null);
@@ -2419,6 +2432,7 @@
     var i = easeStall(state);
     var stall = spec(i);
     if (stall && stall.id !== 'stories') return stall.id;
+    if (terminalUnroll(state)) return '';
     var n;
     for (n = 0; n < STALLS.length - 1; n++) {
       if (state.stalls[n] && state.stalls[n].hired && state.stalls[n].owned >= 1) return STALLS[n].id;
@@ -2566,6 +2580,7 @@
     if (kind === 'focus' || kind === 'tempo' || kind === 'scale') {
       var dealtStall = String(id).split('@')[0];
       if ((kind === 'focus' || kind === 'scale') && copyTaxIsFree(state, dealtStall)) return false;
+      if (kind === 'tempo' && terminalUnroll(state) && copyTaxIsFree(state, dealtStall)) return false;
       return dealMoves(dealLine(state, kind, dealtStall));
     }
     if (kind === 'commit') return dealMoves(commitLine(state));
@@ -2624,6 +2639,7 @@
       }
       return false;
     }
+    if (kind === 'early' && terminalUnroll(state)) return false;
     if (kind === 'early' && ownedOf(state, id) >= 20) return false;
     if (kind === 'charm') {
       var charm = charmById(id);
@@ -2641,6 +2657,7 @@
         return moneyText(plainMile) !== moneyText(withMile);
       }
     }
+    if ((kind === 'priced' || kind === 'half') && terminalUnroll(state) && stallId !== 'stories') return false;
     if ((kind === 'priced' || kind === 'half') && id === 'stories' && ownedOf(state, 'stories') < 1) return false;
     if ((kind === 'priced' || kind === 'half') && (state.night.costCuts || 0) >= 1 && !onTable && !waitingHire) return false;
     if (waitingHire) {
@@ -2973,6 +2990,20 @@
   }
   function peekGapUncached(state) {
     if (!state.night) return { why: 'none', fire: null };
+    /* The first mat is the purchase. A card about another stall's copies is not
+       a choice, and it is not replaced with a filler card. */
+    if (terminalUnroll(state)) {
+      var storyOpts = gatedCharms(state, 'stories');
+      if (storyOpts.length >= 2 && !stallTaken(state, 'stories')) {
+        if (offerRoom(state) && !offeredHas(state, 'mat-wait') && oneCost(state, 'stories', null) > state.cash) {
+          return { why: 'now', fire: { mark: 'mat-wait', kind: 'charm', offer: { kind: 'charm', stall: 'stories', options: storyOpts, generated: true } } };
+        }
+        if (!offeredHas(state, 'late-stories')) {
+          return { why: 'now', fire: { mark: 'late-stories', kind: 'stories', offer: { kind: 'charm', stall: 'stories', options: storyOpts, generated: true } } };
+        }
+      }
+      return { why: 'none', fire: null };
+    }
     var atDawn = dawnDue(state);
     if (!atDawn) {
       var leadTrio = decisionTrio(state);
@@ -3434,11 +3465,15 @@
   function optionEV(state, id) {
     var flow = choiceCashflow(state, id);
     if (!flow.ok) return 0;
+    var priced = flow.stall;
+    /* A bill on a stall the next purchase skips is not part of what the choice is worth. */
+    if (priced && (copyTaxIsFree(state, priced) || (terminalUnroll(state) && priced !== 'stories'))) priced = '';
     var beforeI = income(state);
-    var beforeP = flow.stall ? oneCost(state, flow.stall, null) : 0;
+    var beforeP = priced ? oneCost(state, priced, null) : 0;
     var buys = 0;
-    if (flow.stall && beforeP > 0 && beforeI > 0) buys = Math.max(0, Math.min(6, Math.round(beforeI * 60 / beforeP)));
-    return flow.inc * 60 - flow.price * buys;
+    if (priced && beforeP > 0 && beforeI > 0) buys = Math.max(0, Math.min(6, Math.round(beforeI * 60 / beforeP)));
+    var price = priced ? flow.price : 0;
+    return flow.inc * 60 - price * buys;
   }
   /* Three offers, three directions. A stall card names that stall. The lane,
      the prices, a discount, a spend-ahead, and a stack payoff do not, so the
@@ -3558,6 +3593,7 @@
     return { mark: 'pick-' + best[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: best, generated: true } };
   }
   function forceOffer(state) {
+    if (terminalUnroll(state)) return null;
     var trio = decisionTrio(state);
     if (!trio && state.night) {
       var held = (state.night.lastStalls || []).slice();
@@ -4550,6 +4586,7 @@
     paybackLabel: paybackLabel,
     awayRule: awayRule,
     goal: goal,
+    terminalUnroll: terminalUnroll,
     dawnGoal: dawnGoal,
     lookLine: lookLine,
     gossipLine: gossipLine,

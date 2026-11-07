@@ -683,7 +683,9 @@ document.querySelector('#run').onclick = async function () {
         s.bulk = bulkMode;
         if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
         var t = 0, last = 0, worst = 0, from = 0, mismatches = [], blanks = 0, pendingBlank = false, zero = 0, repeats = 0, seenCard = {};
+        var saveForMat = -1;
         while (t < 2200 && !M.dawnDue(s)) {
+          if (saveForMat < 0 && M.terminalUnroll(s)) saveForMat = t;
           if (s.night.offer) {
             if (s.night.offer.kind === 'omen') M.choose(s, 0);
             else M.skipOffer(s);
@@ -703,7 +705,7 @@ document.querySelector('#run').onclick = async function () {
           if (s.night.offer && s.night.offer !== before) {
             var at = t + 1;
             var gap = at - last;
-            if (gap > worst) { worst = gap; from = last; }
+            if (!(saveForMat >= 0 && at > saveForMat) && gap > worst) { worst = gap; from = last; }
             if (pendingBlank) blanks++;
             if (!offerMatchesLine(line, s.night.offer)) mismatches.push(at + 's "' + line + '" -> ' + s.night.offer.kind);
             s.night.offer.options.forEach(function (id) {
@@ -719,7 +721,9 @@ document.querySelector('#run').onclick = async function () {
           }
           t += 1;
         }
-        var tail = t - last;
+        /* Once Unroll is the only purchase, a card about another stall's copies is not a choice.
+           The wait to afford it is not filled in. */
+        var tail = (saveForMat >= 0 ? saveForMat : t) - last;
         if (tail > worst) { worst = tail; from = last; }
         return { worst: worst, from: from, mismatches: mismatches, blanks: blanks, zero: zero, repeats: repeats };
       }
@@ -824,8 +828,8 @@ document.querySelector('#run').onclick = async function () {
     waiting.cash = 0;
     waiting.night.offer = null;
     M.syncOffers(waiting);
-    check('saving for the Story Mat offers a choice',
-      waiting.night.offer && waiting.night.offer.options.length >= 2);
+    check('saving for Unroll does not offer a bill on another stall',
+      M.terminalUnroll(waiting) && !waiting.night.offer);
     var bo = M.fresh();
     bo.night.charms = ['bo-queue'];
     bo.stalls[1].hired = true;
@@ -3348,7 +3352,8 @@ document.querySelector('#run').onclick = async function () {
     quietNight.night.lastStalls = ['tea', 'dumpling', 'lantern', 'mooncake', 'incense', 'lane', 'prices'];
     M.elapse(quietNight, 1);
     if (!quietNight.night.offer) M.elapse(quietNight, 1);
-    check('a quiet stretch of 100 seconds still places an offer', !!(quietNight.night.offer && quietNight.night.offer.options && quietNight.night.offer.options.length >= 2) && quietNight.night.quiet < 120);
+    check('while Unroll is the purchase, a quiet stretch does not invent a bill on another stall',
+      M.terminalUnroll(quietNight) && !quietNight.night.offer);
     var ownedTen = M.fresh();
     ownedTen.stalls[3].hired = true;
     ownedTen.stalls[3].owned = 10;
@@ -3603,6 +3608,70 @@ document.querySelector('#run').onclick = async function () {
         !M.offerGate(passed, 'boost', 'dumpling', false) &&
         M.offerGate(passed, 'tempo', 'mooncake@1', false) &&
         plainClimb.left > 1 && cartClimb.spent === plainClimb.spent && cartClimb.income > plainClimb.income);
+      function playedDesk(wall, ended) {
+        var row = M.fresh();
+        M.armNight(row, 1, 1);
+        row.stalls.forEach(function (st, i) {
+          st.hired = i < 4;
+          st.owned = [10, 12, 10, 4, 0, 0][i];
+          st.serves = 30;
+        });
+        row.cash = 1e9;
+        row.night.wallMs = wall;
+        row.night.wallStamp = 1;
+        row.night.kept = !!ended;
+        row.night.offer = null;
+        if (ended) {
+          row.stalls[5].hired = true;
+          row.stalls[5].owned = 1;
+        }
+        return row;
+      }
+      function moonPath(row, apply) {
+        var copy = M.restore(M.serialize(row));
+        if (apply) {
+          copy.night.offer = { kind: 'pick', options: [apply], generated: true };
+          M.choose(copy, 0);
+        }
+        var left = M.unlockNeed(copy, 4) - copy.stalls[3].owned;
+        var spent = 0, n, price;
+        for (n = 0; n < left; n++) {
+          price = M.cost(3, copy.stalls[3].owned, 1, copy);
+          spent += price;
+          copy.stalls[3].owned += 1;
+        }
+        return { spent: spent, left: left, unroll: M.cost(5, 0, 1, copy) };
+      }
+      var beforeMat = playedDesk(0, false);
+      var beforePlain = moonPath(beforeMat, null);
+      var beforeScale = moonPath(beforeMat, 'scale:mooncake@1');
+      check('before the Story Mat opens, the Mooncake copies being bought take the raise (' + Math.round(beforePlain.spent) + ' vs ' + Math.round(beforeScale.spent) + ')',
+        !M.terminalUnroll(beforeMat) && M.choiceCashflow(beforeMat, 'commit:lane@1').stall === 'mooncake' &&
+        M.offerGate(beforeMat, 'scale', 'mooncake@1', false) && M.offerGate(beforeMat, 'tempo', 'mooncake@1', false) &&
+        M.offerGate(beforeMat, 'ease', 'prices@1', false) && beforePlain.left > 1 && beforeScale.spent > beforePlain.spent);
+      var matOpen = playedDesk(900000, false);
+      M.prepareMat(matOpen);
+      var openPlain = M.cost(5, 0, 1, matOpen);
+      var openMoon = M.cost(3, matOpen.stalls[3].owned, 1, matOpen);
+      var openApplied = M.restore(M.serialize(matOpen));
+      openApplied.night.offer = { kind: 'pick', options: ['scale:mooncake@1'], generated: true };
+      M.choose(openApplied, 0);
+      check('once Unroll is the purchase, a Mooncake raise does not change it and is not dealt (' + Math.round(openPlain) + ' stays, mooncake ' + Math.round(openMoon) + ' to ' + Math.round(M.cost(3, openApplied.stalls[3].owned, 1, openApplied)) + ')',
+        M.terminalUnroll(matOpen) && M.goal(matOpen).indexOf('Unroll the Story Mat. That ends the night. It costs ') === 0 &&
+        M.choiceCashflow(matOpen, 'commit:lane@1').stall === '' &&
+        !M.offerGate(matOpen, 'scale', 'mooncake@1', false) && !M.offerGate(matOpen, 'focus', 'mooncake@1', false) &&
+        !M.offerGate(matOpen, 'tempo', 'mooncake@1', false) && !M.offerGate(matOpen, 'again', 'mooncake@1@4', false) &&
+        !M.offerGate(matOpen, 'boost', 'mooncake', false) && !M.offerGate(matOpen, 'priced', 'mooncake', false) &&
+        !M.offerGate(matOpen, 'half', 'mooncake', false) && !M.offerGate(matOpen, 'commit', 'lane@1', false) &&
+        !M.offerGate(matOpen, 'ease', 'prices@1', false) && !M.offerGate(matOpen, 'early', 'mooncake', false) &&
+        M.cost(5, 0, 1, openApplied) === openPlain && M.cost(3, openApplied.stalls[3].owned, 1, openApplied) > openMoon);
+      var afterNight = playedDesk(900000, true);
+      var afterPlain = moonPath(afterNight, null);
+      var afterScale = moonPath(afterNight, 'scale:mooncake@1');
+      check('after the night continues, Mooncake copies are the purchase again (' + Math.round(afterPlain.spent) + ' vs ' + Math.round(afterScale.spent) + ')',
+        !M.terminalUnroll(afterNight) && M.choiceCashflow(afterNight, 'commit:lane@1').stall === 'mooncake' &&
+        M.offerGate(afterNight, 'scale', 'mooncake@1', false) && M.offerGate(afterNight, 'tempo', 'mooncake@1', false) &&
+        afterScale.spent > afterPlain.spent);
       var early = M.fresh();
       M.armNight(early, 1, 2);
       early.stalls[0].hired = true;
@@ -3696,32 +3765,75 @@ document.querySelector('#run').onclick = async function () {
         pg.render();
         pw.Date.now = clock;
         var goalEl = pd.querySelector('#goal');
-        var goal = (goalEl || {}).textContent || '';
-        var goalBox = goalEl ? goalEl.getBoundingClientRect() : null;
-        var buy = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
-        var box = buy ? buy.getBoundingClientRect() : null;
-        var nested = scroller && scroller.scrollHeight > scroller.clientHeight + 2;
+        var unroll = goalEl && goalEl.querySelector('[data-act="unroll"]');
+        var goal = (unroll || goalEl || {}).textContent || '';
+        var box = unroll ? unroll.getBoundingClientRect() : null;
+        var coins = pd.querySelector('.coins');
+        var coinBox = coins ? coins.getBoundingClientRect() : null;
         var after = scroller ? scroller.scrollTop : 0;
         var win = pw.scrollY || 0;
         var bar = pd.querySelector('#crowd');
         var barTop = bar && !bar.hidden ? bar.getBoundingClientRect().top : pd.documentElement.clientHeight;
+        var viewH = pd.documentElement.clientHeight;
         pg.render();
         var again = scroller ? scroller.scrollTop : 0;
         var winAgain = pw.scrollY || 0;
         if (!/Unroll the Story Mat/.test(goal) || !/It costs /.test(goal)) missed.push(label + ' goal ' + goal);
-        if (!(goalBox && goalBox.height > 8 && goalBox.top >= -2 && goalBox.bottom <= pd.documentElement.clientHeight + 2)) missed.push(label + ' heading off screen');
+        if (!(box && box.height >= 44 && box.top >= -1 && box.bottom <= Math.min(viewH, barTop) - 1)) missed.push(label + ' unroll ' + (box ? Math.round(box.top) + '-' + Math.round(box.bottom) + ' h' + Math.round(box.height) : 'missing'));
+        if (!(coinBox && coinBox.bottom > 0 && coinBox.top < viewH)) missed.push(label + ' coins off screen');
         if (Math.abs(heldTop - beforeTop) > 1) missed.push(label + ' scrolled while the pointer was down');
-        if (!buy || !/Unroll the Story Mat/.test(buy.textContent || '')) missed.push(label + ' unroll action missing');
-        if (Math.abs(win) > 1 || Math.abs(winAgain) > 1) missed.push(label + ' page jumped');
-        if (nested) {
-          var sBox = scroller.getBoundingClientRect();
-          var limit = Math.min(sBox.bottom, barTop);
-          if (!(box && box.height > 8 && box.top >= sBox.top - 2 && box.bottom <= limit + 2)) missed.push(label + ' buy not in the scroller');
-        }
-        if (pd.activeElement === buy) missed.push(label + ' focus stolen');
+        if (Math.abs(win) > 1 || Math.abs(winAgain) > 1 || Math.abs(after - beforeTop) > 1) missed.push(label + ' page jumped');
+        if (pd.activeElement === unroll) missed.push(label + ' focus stolen');
         if (Math.abs(again - after) > 1) missed.push(label + ' scrolled again');
+        if (size[0] === 320) {
+          pg.state.stalls.forEach(function (st, i) { st.owned = [12, 10, 1, 0, 0, 0][i]; st.hired = i < 3; });
+          pg.state.night.matOffer = 0;
+          pg.state.night.wallMs = 900000;
+          pg.render();
+          pw.scrollTo(0, 900);
+          var placed = pw.scrollY || 0;
+          pg.render();
+          var stuck = goalEl.querySelector('[data-act="unroll"]');
+          var stuckBox = stuck ? stuck.getBoundingClientRect() : null;
+          var phoneBar = pd.querySelector('#crowd');
+          var phoneLimit = phoneBar && !phoneBar.hidden ? phoneBar.getBoundingClientRect().top : pd.documentElement.clientHeight;
+          if (!(stuck && stuck.classList.contains('stuck') && stuckBox && stuckBox.height >= 44 && stuckBox.top >= -1 && stuckBox.bottom <= phoneLimit - 1)) {
+            missed.push('320 scrolled unroll ' + (stuckBox ? Math.round(stuckBox.top) + '-' + Math.round(stuckBox.bottom) + ' y' + placed : 'missing'));
+          }
+          if (Math.abs((pw.scrollY || 0) - placed) > 2) missed.push('320 scroll was moved');
+          pw.scrollTo(0, 0);
+        }
       });
-      check(missed.length ? 'the Story Mat row is not discoverable: ' + missed.join(' | ') : 'the Story Mat price is on the heading, and its row is brought into view once', missed.length === 0);
+      check(missed.length ? 'Unroll is not reachable: ' + missed.join(' | ') : 'Unroll is on the heading at desktop, 320, 390 and landscape, and stays put while scrolling', missed.length === 0);
+      (function () {
+        playFrame.style.width = '390px';
+        playFrame.style.height = '844px';
+        PM.armNight(pg.state, 1, 1);
+        pg.state.night.offer = null;
+        pg.state.night.wallMs = 900000;
+        pg.state.night.wallStamp = -1;
+        pg.state.stalls.forEach(function (st, i) { st.owned = [10, 12, 10, 4, 0, 0][i]; st.hired = i < 4; st.serves = 30; });
+        pg.state.cash = 1;
+        pg.render();
+        var poor = pd.querySelector('#goal [data-act="unroll"]');
+        var poorCash = pg.state.cash;
+        if (poor) poor.click();
+        var poorHeld = pg.state.cash === poorCash && pg.state.stalls[5].owned === 0 && poor && poor.disabled;
+        pg.state.cash = 1e9;
+        pg.state.night.matOffer = 0;
+        pg.render();
+        var btn = pd.querySelector('#goal [data-act="unroll"]');
+        var price = PM.cost(5, 0, 1, pg.state);
+        var cash = pg.state.cash;
+        if (btn) btn.click();
+        var once = pg.state.stalls[5].owned === 1 && Math.abs(pg.state.cash - (cash - price)) < 0.001;
+        var row = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+        var again = pd.querySelector('[data-act="unroll"]');
+        if (row) row.click();
+        if (again) again.click();
+        check('the heading Unroll charges the same price once (' + Math.round(price) + ')',
+          poorHeld && once && pg.state.stalls[5].owned === 1 && Math.abs(pg.state.cash - (cash - price)) < 0.001);
+      })();
     })();
     pw.NightLane.setReduce(true);
     function armPlayed(seed) {
@@ -4238,7 +4350,7 @@ document.querySelector('#run').onclick = async function () {
       var sim = 0;
       pw.Date.now = function () { return origin + sim * 1000; };
       pg.render();
-      var last = 0, worst = 0, dup = 0, back = 0, down = 0, prevNamed = [], dawn = 0, seenSig = '', offers = 0, shift = 0, overflow = 0;
+      var last = 0, worst = 0, dup = 0, back = 0, down = 0, prevNamed = [], dawn = 0, seenSig = '', offers = 0, shift = 0, overflow = 0, saveForMat = -1;
       var stallNames = PM.STALLS.map(function (st) { return st.name; });
       function moneyNum(token) {
         if (/M$/.test(token)) return parseFloat(token) * 1000000;
@@ -4267,6 +4379,7 @@ document.querySelector('#run').onclick = async function () {
         return box.height > 8 && box.top >= -1 && box.bottom <= viewH + 1 && box.left >= -1 && box.right <= viewW + 1;
       }
       while (sim < 1700 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
+        if (saveForMat < 0 && PM.terminalUnroll(pg.state)) saveForMat = sim;
         var pick = pd.querySelector('#pick');
         var showing = pick && !pick.classList.contains('quiet');
         if (showing) {
@@ -4289,7 +4402,8 @@ document.querySelector('#run').onclick = async function () {
               if (found && moneyNum(found[2]) < moneyNum(found[1])) down++;
             });
             var gap = sim - last;
-            if (gap > worst) worst = gap;
+            if (saveForMat < 0 && PM.terminalUnroll(pg.state)) saveForMat = sim;
+            if (!(saveForMat >= 0 && sim > saveForMat) && gap > worst) worst = gap;
             if (sim >= 540 && sim <= 660) midGaps.push(gap);
             prevNamed = named.slice();
             last = sim;
@@ -4385,7 +4499,7 @@ document.querySelector('#run').onclick = async function () {
         if (goalNow && goalNow.scrollHeight > goalNow.clientHeight + 1) overflow++;
       }
       pw.Date.now = clock;
-      var tail = sim - last;
+      var tail = (saveForMat >= 0 ? saveForMat : sim) - last;
       if (!dawn) dawn = sim;
       if (tail > worst) worst = tail;
       midGaps.sort(function (a, b) { return a - b; });

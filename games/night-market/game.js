@@ -361,8 +361,27 @@
     var dawn = M.dawnDue(state);
     var goalText = dawn && !(state.night && state.night.kept) ? M.dawnGoal() : M.goal(state);
     var goalEl = $('#goal');
-    goalEl.textContent = goalText;
     goalEl.hidden = false;
+    var matI = M.STALLS.length - 1;
+    var unrollNow = !dawn && M.terminalUnroll(state);
+    if (unrollNow) {
+      var matQuote = M.quote(state, matI, 1);
+      var unrollBtn = goalEl.querySelector('[data-act="unroll"]');
+      if (!unrollBtn) {
+        goalEl.replaceChildren();
+        unrollBtn = document.createElement('button');
+        unrollBtn.type = 'button';
+        unrollBtn.dataset.act = 'unroll';
+        unrollBtn.className = 'goal-unroll';
+        goalEl.appendChild(unrollBtn);
+      }
+      unrollBtn.textContent = goalText;
+      unrollBtn.dataset.count = String(matQuote.count || 0);
+      unrollBtn.disabled = !(matQuote.count > 0);
+      unrollBtn.title = matQuote.count > 0 ? '' : 'Unroll costs ' + money(matQuote.cost) + ' coins.';
+    } else {
+      goalEl.textContent = goalText;
+    }
     var laneGoal = $('#lane-goal');
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
@@ -449,35 +468,30 @@
       }
     }
     syncPins();
-    revealMatRow();
+    placeUnroll();
   }
-  /* The heading already names the price. On a desktop the stalls sit in their own
-     scroller, so the Unroll row is brought into that scroller once. A phone scrolls
-     the page itself; moving it would shift every other stall, so the page stays put.
-     A held pointer, or the moment it lifts, does not scroll or focus anything. */
-  function revealMatRow() {
-    if (!state.night || state.night.matRevealSeen || pointerDown) return;
-    if (lastPointerUp && Date.now() - lastPointerUp < 300) return;
-    var i = M.STALLS.length - 1;
-    if (!M.unlocked(state, i) || state.stalls[i].owned >= 1) return;
-    var row = document.querySelector('#stalls [data-i="' + i + '"]');
-    var buy = row && row.querySelector('[data-act="buy"]');
-    if (!row || !buy) return;
-    var scroller = document.querySelector('.stalls');
-    var nested = !!(scroller && scroller.scrollHeight > scroller.clientHeight + 2);
-    if (!nested) {
-      state.night.matRevealSeen = true;
+  /* The heading is the Unroll button. When that heading has scrolled away, the
+     same button stays at the top of the window. Nothing is scrolled or focused. */
+  function placeUnroll() {
+    var goal = $('#goal');
+    var btn = goal && goal.querySelector('[data-act="unroll"]');
+    if (!btn) return;
+    var y = window.scrollY || 0;
+    if (btn._unrollY === y) return;
+    btn._unrollY = y;
+    var goalBox = goal.getBoundingClientRect();
+    var laneEl = document.getElementById('lane');
+    var laneBox = laneEl ? laneEl.getBoundingClientRect() : null;
+    var laneGone = !laneBox || laneBox.bottom <= 0.5;
+    var stuck = goalBox.bottom <= 0 && laneGone;
+    btn.classList.toggle('stuck', stuck);
+    if (!stuck) {
+      btn.style.top = '';
       return;
     }
-    var tBox = buy.getBoundingClientRect();
-    if (!(tBox.height > 0)) return;
-    state.night.matRevealSeen = true;
-    var sBox = scroller.getBoundingClientRect();
-    var bar = document.querySelector('#crowd');
-    var barH = bar && !bar.hidden ? bar.offsetHeight : 0;
-    var limit = Math.min(sBox.bottom, window.innerHeight - barH);
-    if (tBox.bottom > limit - 4) scroller.scrollTop += tBox.bottom - limit + 12;
-    else if (tBox.top < sBox.top + 4) scroller.scrollTop -= sBox.top - tBox.top + 8;
+    var pin = $('#goal-pin');
+    var top = pin && !pin.hidden ? pin.getBoundingClientRect().bottom : 0;
+    btn.style.top = Math.max(0, Math.round(top)) + 'px';
   }
 
   /* On a phone the green line sits under the lane, and its pin returns the moment that line
@@ -1058,7 +1072,7 @@
       if (book && book.scrollIntoView) book.scrollIntoView({ block: 'start', behavior: 'auto' });
       return;
     }
-    if (e.target.closest && e.target.closest('#goal-pin')) {
+    if (e.target.closest && e.target.closest('#goal-pin') && !(e.target.closest('[data-act="unroll"]'))) {
       var goal = $('#goal');
       if (goal) goal.scrollIntoView({ block: 'start' });
       return;
@@ -1134,7 +1148,19 @@
       render();
       return;
     }
-    if ((b.dataset.act === 'buy' || b.dataset.act === 'serve' || b.dataset.act === 'hire') && M.dawnDue(state) && !(state.night && state.night.kept)) return;
+    if ((b.dataset.act === 'buy' || b.dataset.act === 'serve' || b.dataset.act === 'hire' || b.dataset.act === 'unroll') && M.dawnDue(state) && !(state.night && state.night.kept)) return;
+    if (b.dataset.act === 'unroll') {
+      var matAt = M.STALLS.length - 1;
+      var matCount = parseInt(b.dataset.count, 10);
+      var matHad = state.stalls[matAt].owned;
+      if (M.buyExact(state, matAt, matCount).ok) {
+        lane('buy', matAt, matHad, state.stalls[matAt].owned);
+        if (matHad < 1 && state.stalls[matAt].owned >= 1) revealFinale();
+      }
+      persist();
+      render();
+      return;
+    }
     if (b.dataset.act === 'finale') {
       M.keepLane(state);
       finaleDismissed = true;
