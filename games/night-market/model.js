@@ -1121,10 +1121,14 @@
   function goal(state) {
     var body = goalBody(state);
     var mat = STALLS.length - 1;
-    if (state && unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) {
-      if (!body || !/Story Mat/i.test(body)) return 'Unroll the Story Mat. That ends the night.';
+    var matReady = !!(state && unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept));
+    var line = body || 'The Story Mat is what the lane is working toward.';
+    if (matReady && (!body || !/Story Mat/i.test(body))) line = 'Unroll the Story Mat. That ends the night.';
+    if (matReady && !/It costs /.test(line)) {
+      var matPrice = cost(mat, 0, 1, state);
+      if (matPrice > 0) line += ' It costs ' + moneyText(matPrice) + '.';
     }
-    return body || 'The Story Mat is what the lane is working toward.';
+    return line;
   }
   function dawnGoal() {
     return 'The Story Mat is unrolled. That ends the night.';
@@ -1550,6 +1554,21 @@
       twist = twists[i].id;
       if (offerGate(state, 'twist', twist, false)) pool.push('twist:' + twist);
     }
+    /* A finished stall's free raise is not a stand-in for a flat cut.
+       A raise or a discount that still moves the purchase can be. */
+    var dealKinds = ['focus', 'tempo', 'scale'];
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i] || !state.stalls[i].hired || !(state.stalls[i].owned >= 1)) continue;
+      id = STALLS[i].id;
+      dealKinds.forEach(function (kind) {
+        var opt = kind + ':' + id + '@' + dealSerial(state, kind, id);
+        if (offerGate(state, 'pick', opt, false)) pool.push(opt);
+      });
+    }
+    [['commit', 'lane'], ['ease', 'prices'], ['bank', 'bank'], ['hurry', 'hurry'], ['stack', 'stack']].forEach(function (row) {
+      var opt = row[0] + ':' + row[1] + '@' + dealSerial(state, row[0], row[1]);
+      if (offerGate(state, 'pick', opt, false)) pool.push(opt);
+    });
     return pool;
   }
   /* Swap a crowded flat cut for a doubling, a stall raise, a single-stall
@@ -1686,10 +1705,7 @@
       if (offer.kind === 'pick' && offerHasWeakPrice(offer) && flatCutBlocked(state)) {
         var swapped = substituteFlatCut(state, offer) || sparePair(state);
         if (swapped) offer.options = swapped;
-        else {
-          state.night.flatCutKept = state.night.flatCutKept || [];
-          state.night.flatCutKept.push((state.night.round || 0) + 1);
-        }
+        else return false;
       }
       var key = pairKey(offer.kind, offer.options);
       state.night.pairs = state.night.pairs || [];
@@ -1963,14 +1979,26 @@
     return '';
   }
   function goalBuy(state) {
-    var i, need, mat = STALLS.length - 1;
+    var i, mat = STALLS.length - 1;
     for (i = 0; i < mat; i++) {
+      if (!state.stalls[i]) continue;
+      /* The next stall is open and still has no copy. That first purchase is the
+         goal, including while the player is still pouring to hire it. */
+      if (unlocked(state, i) && !(state.stalls[i].owned >= 1)) return i;
       if (!state.stalls[i].hired) continue;
-      need = unlockNeed(state, i + 1);
-      if (state.stalls[i].owned < need) return i;
+      if (state.stalls[i].owned < unlockNeed(state, i + 1)) return i;
     }
-    if (unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) return mat;
+    if (unlocked(state, mat) && state.stalls[mat] && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) return mat;
     return -1;
+  }
+  /* Future copies of a stall the unlock path has already finished are not bought
+     on the way to the next vendor. A raise whose bill lands only there is free. */
+  function copyTaxIsFree(state, stallId) {
+    var i = stallIndex(stallId);
+    if (i < 0 || i >= STALLS.length - 1) return false;
+    if (!(state.stalls[i] && state.stalls[i].owned >= 1)) return false;
+    if (goalBuy(state) === i) return false;
+    return state.stalls[i].owned >= unlockNeed(state, i + 1);
   }
   function timeToGoal(state) {
     var i = goalBuy(state);
@@ -2535,7 +2563,11 @@
       var pickBits = String(id).split(':');
       return offerGate(state, pickBits[0], pickBits.slice(1).join(':'), onTable);
     }
-    if (kind === 'focus' || kind === 'tempo' || kind === 'scale') return dealMoves(dealLine(state, kind, String(id).split('@')[0]));
+    if (kind === 'focus' || kind === 'tempo' || kind === 'scale') {
+      var dealtStall = String(id).split('@')[0];
+      if ((kind === 'focus' || kind === 'scale') && copyTaxIsFree(state, dealtStall)) return false;
+      return dealMoves(dealLine(state, kind, dealtStall));
+    }
     if (kind === 'commit') return dealMoves(commitLine(state));
     if (kind === 'ease') return dealMoves(easeLine(state));
     if (kind === 'bank') return dealMoves(bankLine(state));
@@ -2560,6 +2592,7 @@
     }
     if (kind === 'again') {
       var againStall = String(id).split('@')[0];
+      if (copyTaxIsFree(state, againStall)) return false;
       if (ownedOf(state, againStall) < 1) return false;
       var againNeed = parseInt(String(id).split('@')[2], 10);
       if (!(againNeed > 0) || againNeed > AGAIN_CAP) return false;
@@ -2628,6 +2661,7 @@
       if (plainAt > 0 && moneyText(plainAt) !== moneyText(doubledAt)) return true;
       return false;
     }
+    if (kind === 'boost' && copyTaxIsFree(state, id)) return false;
     var before = income(state);
     var timeBefore = timeToGoal(state);
     var after = withCard(state, kind, id, function () { return income(state); });

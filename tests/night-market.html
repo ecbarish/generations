@@ -814,8 +814,10 @@ document.querySelector('#run').onclick = async function () {
     var unroll = M.fresh();
     unroll.stalls.forEach(function (s, i) { s.hired = true; s.owned = 12; });
     unroll.stalls[5].owned = 0;
-    check('the goal says the first mat ends the night',
-      M.goal(unroll) === 'Unroll the Story Mat. That ends the night.' && M.nextGoalLine(unroll, 5) === 'Unrolling the Story Mat ends the night.');
+    var unrollGoal = M.goal(unroll);
+    check('the goal says the first mat ends the night and what it costs',
+      unrollGoal.indexOf('Unroll the Story Mat. That ends the night.') === 0 && /It costs [\d.]+[KMBT]?/.test(unrollGoal) &&
+      M.nextGoalLine(unroll, 5) === 'Unrolling the Story Mat ends the night.');
     var waiting = M.fresh();
     waiting.stalls.forEach(function (s, i) { s.hired = true; s.owned = 12; });
     waiting.stalls[5].owned = 0;
@@ -3399,7 +3401,7 @@ document.querySelector('#run').onclick = async function () {
     check('the same two stalls are not offered twice while more than one stall can carry a choice', !pairRepeat || pairLanes < 2);
     var mixNight = M.fresh();
     M.armNight(mixNight, 1, 2);
-    mixNight.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 4 ? 16 : 0; });
+    mixNight.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 3 ? 16 : (i === 3 ? 8 : 0); });
     mixNight.cash = 5e5;
     mixNight.night.offer = null;
     var mixCats = {}, mixGuard = 0;
@@ -3475,7 +3477,7 @@ document.querySelector('#run').onclick = async function () {
     })());
     var variety = M.fresh();
     M.armNight(variety, 1, 99);
-    variety.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 5 ? 12 : 0; });
+    variety.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 3 ? 12 : (i === 3 ? 8 : 0); });
     variety.cash = 1e9;
     variety.night.offer = null;
     var seenPairs = [], seenLines = [], repeatedCard = false, varietyGuard = 0;
@@ -3537,6 +3539,70 @@ document.querySelector('#run').onclick = async function () {
       check('a lane raise taxes the stall being bought, and a card does not keep a strictly worse copy (' + dominated + ')',
         commitFlow.ok && commitFlow.stall === 'lantern' && stackFlow.ok && stackFlow.stall === 'lantern' &&
         offer && offer.options && offer.options.length >= 3 && !dominated);
+      var firstCart = M.fresh();
+      M.armNight(firstCart, 1, 2);
+      firstCart.stalls[0].hired = true;
+      firstCart.stalls[0].owned = M.unlockNeed(firstCart, 1);
+      check('the first Dumpling Cart is the purchase, not another Tea Stall',
+        M.unlocked(firstCart, 1) && firstCart.stalls[1].owned === 0 && M.choiceCashflow(firstCart, 'commit:lane@1').stall === 'dumpling');
+      var firstTable = M.fresh();
+      M.armNight(firstTable, 1, 2);
+      firstTable.stalls[0].hired = true;
+      firstTable.stalls[0].owned = M.unlockNeed(firstTable, 1);
+      firstTable.stalls[1].hired = true;
+      firstTable.stalls[1].owned = M.unlockNeed(firstTable, 2);
+      firstTable.stalls[2].hired = true;
+      firstTable.stalls[2].owned = M.unlockNeed(firstTable, 3);
+      check('the first Mooncake Table is the purchase once the stands are lit',
+        M.unlocked(firstTable, 3) && firstTable.stalls[3].owned === 0 && M.choiceCashflow(firstTable, 'commit:lane@1').stall === 'mooncake');
+      var climbing = M.fresh();
+      M.armNight(climbing, 1, 2);
+      climbing.stalls[0].hired = true;
+      climbing.stalls[0].owned = 4;
+      var teaGoal = M.choiceCashflow(climbing, 'commit:lane@1').stall === 'tea';
+      climbing.stalls[0].owned = M.unlockNeed(climbing, 1);
+      climbing.stalls[1].hired = true;
+      climbing.stalls[1].owned = M.unlockNeed(climbing, 2);
+      climbing.stalls[2].hired = true;
+      climbing.stalls[2].owned = 4;
+      check('hired stalls still aim the purchase at the row that opens the next vendor',
+        teaGoal && M.choiceCashflow(climbing, 'commit:lane@1').stall === 'lantern');
+      var passed = M.fresh();
+      M.armNight(passed, 1, 2);
+      passed.stalls[0].hired = true;
+      passed.stalls[0].owned = M.unlockNeed(passed, 1);
+      passed.stalls[1].hired = true;
+      passed.stalls[1].owned = 10;
+      passed.stalls[2].hired = true;
+      passed.stalls[2].owned = M.unlockNeed(passed, 3);
+      passed.stalls[3].hired = true;
+      passed.stalls[3].owned = 2;
+      passed.cash = 0;
+      function climbTables(applyId) {
+        var copy = M.restore(M.serialize(passed));
+        if (applyId) {
+          copy.night.offer = { kind: 'pick', options: [applyId], generated: true };
+          M.choose(copy, 0);
+        }
+        var left = M.unlockNeed(copy, 4) - copy.stalls[3].owned;
+        var spent = 0, n, price;
+        for (n = 0; n < left; n++) {
+          price = M.cost(3, copy.stalls[3].owned, 1, copy);
+          spent += price;
+          copy.stalls[3].owned += 1;
+        }
+        return { spent: spent, income: M.income(copy), left: left };
+      }
+      var plainClimb = climbTables(null);
+      var cartClimb = climbTables('scale:dumpling@1');
+      check('a finished Dumpling Cart is not raised while Mooncake Tables are the next purchase (' + Math.round(cartClimb.spent) + ' vs ' + Math.round(plainClimb.spent) + ')',
+        M.choiceCashflow(passed, 'commit:lane@1').stall === 'mooncake' &&
+        !M.offerGate(passed, 'scale', 'dumpling@1', false) &&
+        !M.offerGate(passed, 'focus', 'dumpling@1', false) &&
+        !M.offerGate(passed, 'again', 'dumpling@1@6', false) &&
+        !M.offerGate(passed, 'boost', 'dumpling', false) &&
+        M.offerGate(passed, 'tempo', 'mooncake@1', false) &&
+        plainClimb.left > 1 && cartClimb.spent === plainClimb.spent && cartClimb.income > plainClimb.income);
       var early = M.fresh();
       M.armNight(early, 1, 2);
       early.stalls[0].hired = true;
@@ -3549,6 +3615,7 @@ document.querySelector('#run').onclick = async function () {
       early.stalls[0].owned = 16;
       if (!(M.income(early) >= doubled * 2)) early.stalls[0].owned = 40;
       var grown = M.income(early);
+      early.night.wallMs = 520000;
       var again = M.lateView(early);
       var cashBefore = early.cash;
       M.takeLate(early, 'now');
@@ -3557,8 +3624,8 @@ document.querySelector('#run').onclick = async function () {
       M.prepareMat(early);
       var unroll = M.cost(5, 0, 1, early);
       var paid = M.buyExact(early, 5, 1);
-      check('the early-open quote stays put while income grows, and Unroll charges that quote once (' + (quoted && Math.round(quoted)) + ' then ' + Math.round(unroll) + ', income ' + Math.round(doubled) + ' to ' + Math.round(grown) + ')',
-        first && first.kind === 'early-mat' && quoted > 0 && again.quote === quoted &&
+      check('model only: inside the 75-second window the quote survives a doubled income and Unroll charges it once (' + (quoted && Math.round(quoted)) + ' then ' + Math.round(unroll) + ', income ' + Math.round(doubled) + ' to ' + Math.round(grown) + ')',
+        first && first.kind === 'early-mat' && early.night.wallMs === 900000 && quoted > 0 && again.quote === quoted &&
         grown >= doubled * 2 && cashAfterOpen === cashBefore && unroll === quoted && paid.ok && paid.cost === quoted &&
         Math.abs(early.cash - (cashBefore - quoted)) < 0.001 && early.stalls[5].owned === 1);
       var waited = M.fresh();
@@ -3575,7 +3642,7 @@ document.querySelector('#run').onclick = async function () {
       waited.night.wallMs = 900000;
       var offerBefore = waited.night.matOffer || 0;
       var matPrice = M.cost(5, 0, 1, waited);
-      check('ignoring the early row still reaches the later crowd and the mat at 15:00 (' + (atSurge && atSurge.kind) + ', marks ' + (waited.night.lateShown || []).join(',') + ')',
+      check('model only: after 75 seconds an ignored early quote expires as a wait and the crowd follows (' + (atSurge && atSurge.kind) + ', marks ' + (waited.night.lateShown || []).join(',') + ')',
         atEight && atEight.kind === 'early-mat' && atSurge && atSurge.kind === 'surge' && atSurge.stalls && atSurge.stalls.length === 1 &&
         waited.night.lateShown.indexOf(480) >= 0 && waited.night.lateLog.some(function (row) { return row.kind === 'early-mat' && row.choice === 'wait'; }) &&
         !(offerBefore > 0) && waited.stalls[5].owned === 0 && matPrice > 0 && matPrice < M.STALLS[5].base);
@@ -3592,12 +3659,69 @@ document.querySelector('#run').onclick = async function () {
       pg.state.night.wallStamp = -1;
       pg.state.night.quiet = 0;
       pg.state.cash = 1e9;
-      pg.state.stalls.forEach(function (st, i) { st.owned = i === 5 ? 0 : 24; st.hired = true; st.serves = 40; });
+      pg.state.stalls.forEach(function (st, i) { st.owned = i < 4 ? 8 : 0; st.hired = i < 4; st.serves = 40; });
       pg.render();
       var bar = pd.querySelector('#crowd');
       var view = PM.lateView(pg.state);
       check('the crowd bar is on screen before the long nights (' + (bar ? bar.offsetHeight : 'none') + ' hidden ' + (bar && bar.hidden) + ' view ' + (view && view.kind) + ' offer ' + (pg.state.night.offer && pg.state.night.offer.kind) + ')',
         bar && !bar.hidden && bar.offsetHeight > 40 && view && view.kind === 'surge');
+    })();
+    (function () {
+      var sizes = [[1280, 800], [320, 568], [390, 844], [844, 390]];
+      var missed = [];
+      sizes.forEach(function (size) {
+        playFrame.style.width = size[0] + 'px';
+        playFrame.style.height = size[1] + 'px';
+        var label = size[0] + 'x' + size[1];
+        PM.armNight(pg.state, 1, 1);
+        pg.state.night.offer = null;
+        pg.state.night.lateShown = [480];
+        pg.state.night.wallMs = 0;
+        pg.state.night.wallStamp = -1;
+        pg.state.cash = 1e9;
+        pg.state.stalls.forEach(function (st, i) { st.owned = i < 4 ? 8 : 0; st.hired = i < 4; st.serves = 40; });
+        pg.render();
+        var scroller = pd.querySelector('.stalls');
+        if (scroller) scroller.scrollTop = 0;
+        pw.scrollTo(0, 0);
+        var beforeTop = scroller ? scroller.scrollTop : pw.scrollY;
+        pd.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 4 }));
+        pg.state.night.wallMs = 900000;
+        pg.render();
+        var heldTop = scroller ? scroller.scrollTop : pw.scrollY;
+        pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0, pointerId: 4 }));
+        var clock = pw.Date.now;
+        var base = clock.call(pw.Date);
+        pw.Date.now = function () { return base + 500; };
+        pg.render();
+        pw.Date.now = clock;
+        var goalEl = pd.querySelector('#goal');
+        var goal = (goalEl || {}).textContent || '';
+        var goalBox = goalEl ? goalEl.getBoundingClientRect() : null;
+        var buy = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+        var box = buy ? buy.getBoundingClientRect() : null;
+        var nested = scroller && scroller.scrollHeight > scroller.clientHeight + 2;
+        var after = scroller ? scroller.scrollTop : 0;
+        var win = pw.scrollY || 0;
+        var bar = pd.querySelector('#crowd');
+        var barTop = bar && !bar.hidden ? bar.getBoundingClientRect().top : pd.documentElement.clientHeight;
+        pg.render();
+        var again = scroller ? scroller.scrollTop : 0;
+        var winAgain = pw.scrollY || 0;
+        if (!/Unroll the Story Mat/.test(goal) || !/It costs /.test(goal)) missed.push(label + ' goal ' + goal);
+        if (!(goalBox && goalBox.height > 8 && goalBox.top >= -2 && goalBox.bottom <= pd.documentElement.clientHeight + 2)) missed.push(label + ' heading off screen');
+        if (Math.abs(heldTop - beforeTop) > 1) missed.push(label + ' scrolled while the pointer was down');
+        if (!buy || !/Unroll the Story Mat/.test(buy.textContent || '')) missed.push(label + ' unroll action missing');
+        if (Math.abs(win) > 1 || Math.abs(winAgain) > 1) missed.push(label + ' page jumped');
+        if (nested) {
+          var sBox = scroller.getBoundingClientRect();
+          var limit = Math.min(sBox.bottom, barTop);
+          if (!(box && box.height > 8 && box.top >= sBox.top - 2 && box.bottom <= limit + 2)) missed.push(label + ' buy not in the scroller');
+        }
+        if (pd.activeElement === buy) missed.push(label + ' focus stolen');
+        if (Math.abs(again - after) > 1) missed.push(label + ' scrolled again');
+      });
+      check(missed.length ? 'the Story Mat row is not discoverable: ' + missed.join(' | ') : 'the Story Mat price is on the heading, and its row is brought into view once', missed.length === 0);
     })();
     pw.NightLane.setReduce(true);
     function armPlayed(seed) {
@@ -3835,6 +3959,21 @@ document.querySelector('#run').onclick = async function () {
       });
       return tops;
     }
+    /* The save block sits in the same stall scroller as the mat. Bringing the mat
+       into that scroller moves both. A reflow would move the save by a different amount. */
+    function reflowBelow(before, after) {
+      var rows = pd.querySelectorAll('#stalls > [data-i], .save');
+      var matAt = -1, si;
+      for (si = 0; si < rows.length; si++) if (rows[si].getAttribute('data-i') === '5') matAt = si;
+      if (matAt < 0) return 999;
+      var matDelta = after[matAt] - before[matAt];
+      var worst = 0;
+      for (si = 0; si < before.length; si++) {
+        if (si === matAt || before[si] + 0.5 < before[matAt]) continue;
+        worst = Math.max(worst, Math.abs((after[si] - before[si]) - matDelta));
+      }
+      return worst;
+    }
     function playedMatShift(seed) {
       armPlayed(seed);
       pg.state.bulk = 'max';
@@ -3873,28 +4012,14 @@ document.querySelector('#run').onclick = async function () {
         if (gained > 0) { pg.state.cash += gained; pg.state.lifetime += gained; }
         if (!was && PM.unlocked(pg.state, 5)) {
           opened = true;
-          var after = rowTops();
-          var matTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
-          for (si = 0; si < before.length; si++) {
-            var el = pd.querySelectorAll('#stalls > [data-i], .save')[si];
-            if (el.getBoundingClientRect().top + 0.5 < matTop) continue;
-            var delta = Math.abs(after[si] - before[si]);
-            if (delta > shift) shift = delta;
-          }
+          shift = reflowBelow(before, rowTops());
           break;
         }
         sim += 1;
         pg.render();
         if (!was && PM.unlocked(pg.state, 5)) {
           opened = true;
-          var afterClock = rowTops();
-          var clockTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
-          for (si = 0; si < before.length; si++) {
-            var clockEl = pd.querySelectorAll('#stalls > [data-i], .save')[si];
-            if (clockEl.getBoundingClientRect().top + 0.5 < clockTop) continue;
-            var clockDelta = Math.abs(afterClock[si] - before[si]);
-            if (clockDelta > shift) shift = clockDelta;
-          }
+          shift = reflowBelow(before, rowTops());
           break;
         }
       }
@@ -3902,7 +4027,7 @@ document.querySelector('#run').onclick = async function () {
       return { opened: opened, shift: shift };
     }
     var matShift = playedMatShift(99);
-    check('a played night does not move the rows below the Story Mat (' + matShift.shift.toFixed(1) + 'px)', matShift.opened && matShift.shift < 2);
+    check('a played night does not reflow the rows below the Story Mat (' + matShift.shift.toFixed(1) + 'px)', matShift.opened && matShift.shift < 2);
     function rowBoxes() {
       var boxes = [];
       pd.querySelectorAll('#stalls > [data-i]').forEach(function (el) {
@@ -4128,6 +4253,8 @@ document.querySelector('#run').onclick = async function () {
         return boxes;
       }
       var prevBoxes = rowBoxes();
+      var stallScroller = pd.querySelector('.stalls');
+      var prevScroll = stallScroller ? stallScroller.scrollTop : 0;
       var midGaps = [];
       var cardMiss = [];
       var sameCard = 0;
@@ -4240,15 +4367,20 @@ document.querySelector('#run').onclick = async function () {
         sim += 2;
         pg.render();
         var nowBoxes = rowBoxes();
+        var nowScroll = stallScroller ? stallScroller.scrollTop : 0;
+        var scrollDelta = nowScroll - prevScroll;
         if (sim > 4 && nowBoxes.length === prevBoxes.length) {
           for (si = 0; si < nowBoxes.length; si++) {
             var dH = Math.abs(nowBoxes[si].h - prevBoxes[si].h);
-            var dT = Math.abs(nowBoxes[si].top - prevBoxes[si].top);
+            /* A shared trip inside the stall scroller is the mat row being brought
+               into view. A row that moves by a different amount, or grows, is a jump. */
+            var dT = Math.abs((nowBoxes[si].top - prevBoxes[si].top) + scrollDelta);
             if (dH > shift) shift = dH;
             if (dT > shift) shift = dT;
           }
         }
         prevBoxes = nowBoxes;
+        prevScroll = nowScroll;
         var goalNow = pd.querySelector('#goal');
         if (goalNow && goalNow.scrollHeight > goalNow.clientHeight + 1) overflow++;
       }

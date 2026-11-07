@@ -449,6 +449,35 @@
       }
     }
     syncPins();
+    revealMatRow();
+  }
+  /* The heading already names the price. On a desktop the stalls sit in their own
+     scroller, so the Unroll row is brought into that scroller once. A phone scrolls
+     the page itself; moving it would shift every other stall, so the page stays put.
+     A held pointer, or the moment it lifts, does not scroll or focus anything. */
+  function revealMatRow() {
+    if (!state.night || state.night.matRevealSeen || pointerDown) return;
+    if (lastPointerUp && Date.now() - lastPointerUp < 300) return;
+    var i = M.STALLS.length - 1;
+    if (!M.unlocked(state, i) || state.stalls[i].owned >= 1) return;
+    var row = document.querySelector('#stalls [data-i="' + i + '"]');
+    var buy = row && row.querySelector('[data-act="buy"]');
+    if (!row || !buy) return;
+    var scroller = document.querySelector('.stalls');
+    var nested = !!(scroller && scroller.scrollHeight > scroller.clientHeight + 2);
+    if (!nested) {
+      state.night.matRevealSeen = true;
+      return;
+    }
+    var tBox = buy.getBoundingClientRect();
+    if (!(tBox.height > 0)) return;
+    state.night.matRevealSeen = true;
+    var sBox = scroller.getBoundingClientRect();
+    var bar = document.querySelector('#crowd');
+    var barH = bar && !bar.hidden ? bar.offsetHeight : 0;
+    var limit = Math.min(sBox.bottom, window.innerHeight - barH);
+    if (tBox.bottom > limit - 4) scroller.scrollTop += tBox.bottom - limit + 12;
+    else if (tBox.top < sBox.top + 4) scroller.scrollTop -= sBox.top - tBox.top + 8;
   }
 
   /* On a phone the green line sits under the lane, and its pin returns the moment that line
@@ -489,7 +518,9 @@
        on one line, instead of cutting off the words "Next bonus". */
     if (pinLineCount(pin) > 1) {
       var bonusAt = goal.textContent.indexOf('Next bonus:');
+      var costAt = goal.textContent.indexOf('It costs ');
       if (bonusAt > 0) pin.textContent = goal.textContent.slice(bonusAt);
+      else if (costAt > 0) pin.textContent = 'Unroll the Story Mat. ' + goal.textContent.slice(costAt);
     }
     var coinPin = $('#coin-pin');
     var coins = document.querySelector('.coins');
