@@ -10,8 +10,8 @@ function setScene(b, n) { bg = b || 'between'; night = !!n; }
 function size() { const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); cx.imageSmoothingEnabled = false; }
 addEventListener('resize', size); size();
 const R = (x, y, w, h, c) => { cx.fillStyle = c; cx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-/* A traveller at the house people size: 16 by 24 pixels, the same chunky stance as the market people,
-   ink outline and light from the upper left. Drawn 1:1, never stretched. */
+/* A traveller at the house people size, the same chunky stance as the market people,
+   with an ink outline and light from the upper left. */
 const HERO_INK = '#1e1a22';
 const HERO_ROWS = [
   '................',
@@ -82,10 +82,12 @@ function heroSheet() {
 function drawHero(x, y, t, where) {
   heroMarks[where] = (heroMarks[where] || 0) + 1;
   const bob = reduce ? 0 : Math.round(Math.sin(t || 0));
-  const dx = Math.round(x), dy = Math.round(y) + bob;
+  const drawScale = 2, foot = 24 * (drawScale - 1);
+  const dw = 16 * drawScale, dh = 24 * drawScale;
+  const dx = Math.round(x), dy = Math.round(y) + bob - foot;
   cx.imageSmoothingEnabled = false;
-  cx.drawImage(heroSheet(), dx, dy);
-  heroBlit = { w: 16, h: 24, x: dx, y: dy };
+  cx.drawImage(heroSheet(), dx, dy, dw, dh);
+  heroBlit = { w: dw, h: dh, x: dx, y: dy };
 }
 const px = () => Math.max(3, Math.round(Math.min(W / 220, H / 130)));
 

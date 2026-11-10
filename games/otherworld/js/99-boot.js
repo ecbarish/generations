@@ -9,6 +9,10 @@ D = Dialogue.create({
   onEnd: () => save()
 });
 D.el.querySelector('.dlg-continue').textContent = 'Go on';
+const faceSlot = D.el.querySelector('.dlg-face');
+const holdFaceSlot = () => { if (faceSlot.hidden) faceSlot.hidden = false; };
+new MutationObserver(holdFaceSlot).observe(faceSlot, { attributes: true, attributeFilter: ['hidden'] });
+holdFaceSlot();
 const skipSpeech = document.createElement('button');
 skipSpeech.type = 'button'; skipSpeech.className = 'dlg-skip'; skipSpeech.textContent = 'Skip';
 skipSpeech.setAttribute('aria-label', 'Skip the rest of this speech');

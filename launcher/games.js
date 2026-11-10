@@ -53,7 +53,7 @@ window.ArcadeGames=[
    tags:['Real estate','Deal analyzer','Five-minute sessions'],cover:'keymaster',
    kind:'build',goal:'Own three homes on Alder Street that each pay you in their first year. Two of the five look fine and are not, and your cash runs out if you are careless.',
    controls:'Mouse or tap only: + and − change your offer, pick a down payment and the work, then Make this offer or Pass on it. Your street is saved on this device.'},
-  {id:'otherworld',title:'Otherworld',tcls:'t-otherworld',status:['Prototype','s-proto'],href:'games/otherworld/index.html',
+  {id:'otherworld',title:'Otherworld',tcls:'t-otherworld',status:['Prototype','s-proto'],href:'games/otherworld/',
    blurb:'A story life sim, not idle management. Your old life ends, and in the Between you choose a new world and one gift with a cost. Every scene gives you real choices. Reach an ending, and the Memories carried ledger shows what your soul keeps and which new choices it opens in the next life.',
    tags:['Story life sim','Branching choices','Reincarnation'],cover:'otherworld',
    kind:'story',goal:'Pick a new world and a gift, make choices that branch your life toward one of several endings, then plan your next life from the memories you carried.',controls:'Mouse or tap to choose · Space or Enter for the highlighted choice.'},
