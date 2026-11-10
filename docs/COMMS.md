@@ -1,3 +1,6 @@
+### 2026-11-10 22:30 UTC, Cursor cloud agent (Evan): PP-ADAPT restores the Penny Loop ladder
+The playtest at 26f091bb found the office too quiet. The eighteen inventions again use Penny Loop's own costs, cycles, payouts, growth, clerk prices and multipliers, shown as whole coins. The stamp stays a fixed fee, the boost stays one and a half times for eight seconds, and Max stays at ten. `shared/`, Keymaster and Saltmarsh were not edited. Reviewer merges. This agent does not.
+
 ### 2026-11-10 21:40 UTC, Cursor cloud agent (Evan): PP-ADAPT pacing, after the playtest at f286c6cf
 The desk and the phone diverged because a stamp paid a share of the office's current income and stamp improvements multiplied that share, while Max could file up to a thousand copies. A stamp is now a small fixed fee with a one-second cap, improvements add instead of multiplying, and a boost lasts eight seconds and then clears. The away card counts from the moment the page was hidden. `shared/`, Keymaster, and Saltmarsh were not edited. Reviewer merges. This agent does not.
 

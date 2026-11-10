@@ -155,9 +155,19 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 }
 .buy { width: var(--buy-w); min-height: 48px; padding: 6px 4px; line-height: 1.15; }
 .buy small { display: block; font-size: 0.75rem; font-weight: 700; }
+.buy.short, .hire.short, .up button.short,
+.buy.short:hover, .hire.short:hover, .up button.short:hover {
+  background: #fffaf2; color: #1c2430; border: 2px solid #8e2b2b; box-shadow: none; cursor: default;
+}
+.buy.ready, .hire.ready, .up button.ready,
+.buy.ready:hover, .hire.ready:hover, .up button.ready:hover {
+  background: #6e1212; color: #fff; border: 2px solid #6e1212; box-shadow: 0 3px 0 #4a0c0c;
+}
+.buy.short small { color: #1c2430; }
+.buy.ready small { color: #fff; }
 .buy:disabled, .hire:disabled, .up button:disabled, .charter-act button:disabled,
 .buy:disabled:hover, .hire:disabled:hover {
-  background: #efe6d4; color: #1c2430; cursor: default;
+  background: #efe6d4; color: #1c2430; border: 2px solid #c4b89a; box-shadow: none; cursor: default;
 }
 .hire-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .hire-row span { flex: 1; color: var(--muted); font-size: 0.92rem; }

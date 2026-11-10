@@ -20,7 +20,10 @@
   var idleCap = 0;
 
   function $(id) { return document.getElementById(id); }
-  function money(n) { return Arcade.fmt(n); }
+  function money(n) {
+    if (!isFinite(n)) return Arcade.fmt(n);
+    return Arcade.fmt(Math.max(0, Math.round(n)));
+  }
   function now() { return Date.now(); }
   function day() { return M.localDay(new Date()); }
 
@@ -59,7 +62,8 @@
     } else {
       n.textContent = 'Goal ' + (state.goal + 1) + '/' + M.GOALS.length;
       text.textContent = goal.text;
-      pay.textContent = '+' + money(M.goalPay(state, goal, now(), day()));
+      var reward = M.goalPay(state, goal, now(), day());
+      pay.textContent = reward > 0 ? '+' + money(reward) : '';
     }
     var line = $('step-line');
     if (slipUntil > now()) {
@@ -68,7 +72,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.id = 'slip';
-        b.textContent = 'A loose filing slip';
+        b.textContent = 'A loose filing slip · +' + money(slipPay);
         b.onclick = catchSlip;
         line.appendChild(b);
       }
@@ -187,7 +191,7 @@
     var i = state.selected;
     var inv = M.INVENTIONS[i];
     if (state.owned[i] > 0 && !state.clerk[i]) {
-      sub.textContent = 'Files the ' + inv.name + ' by hand';
+      sub.textContent = money(5 * M.stampFactor(state)) + ' a stamp, on the ' + inv.name;
     } else if (state.owned[i] > 0 && state.clerk[i]) {
       if (now() < state.boostUntil && state.boostIndex === i) sub.textContent = inv.name + ' is boosted';
       else sub.textContent = 'Four quick stamps boost the ' + inv.name;
@@ -246,18 +250,29 @@
     card.bar.style.transform = 'scaleX(' + barScale(i) + ')';
     var n = M.buyCount(state, i);
     var cost = M.bulkCost(state, i, n);
-    card.buy.disabled = !(state.cash >= cost);
-    card.buy.firstChild.textContent = n > 1 ? 'File ' + n : 'File';
+    var canFile = state.cash >= cost;
+    card.buy.disabled = false;
+    card.buy.classList.toggle('ready', canFile);
+    card.buy.classList.toggle('short', !canFile);
+    card.buy.setAttribute('aria-disabled', canFile ? 'false' : 'true');
+    card.buy.firstChild.textContent = canFile ? (n > 1 ? 'File ' + n : 'File') : 'Need';
     card.cost.textContent = money(cost);
     var inv = M.INVENTIONS[i];
     if (state.clerk[i]) {
       card.hire.disabled = true;
+      card.hire.classList.remove('ready');
+      card.hire.classList.remove('short');
+      card.hire.removeAttribute('aria-disabled');
       card.hire.textContent = 'Hired';
       card.hireLabel.textContent = inv.clerk + ' is at the desk.';
     } else {
       var hc = M.clerkCost(i);
-      card.hire.disabled = count < 1 || state.cash < hc;
-      card.hire.textContent = 'Hire';
+      var canHire = count >= 1 && state.cash >= hc;
+      card.hire.disabled = false;
+      card.hire.classList.toggle('ready', canHire);
+      card.hire.classList.toggle('short', !canHire);
+      card.hire.setAttribute('aria-disabled', canHire ? 'false' : 'true');
+      card.hire.textContent = canHire ? 'Hire' : 'Need ' + money(hc);
       card.hireLabel.textContent = count < 1
         ? 'A clerk waits until you file one.'
         : 'Hire ' + inv.clerk + ' · ' + money(hc);
@@ -269,8 +284,12 @@
     var u = row.up;
     var owned = !!state.up[u.id];
     row.root.classList.toggle('filed', owned);
-    row.button.disabled = owned || state.cash < u.cost;
-    row.button.textContent = owned ? 'Filed' : money(u.cost);
+    var canUp = !owned && state.cash >= u.cost;
+    row.button.disabled = owned;
+    row.button.classList.toggle('ready', canUp);
+    row.button.classList.toggle('short', !owned && !canUp);
+    row.button.setAttribute('aria-disabled', canUp || owned ? 'false' : 'true');
+    row.button.textContent = owned ? 'Filed' : canUp ? money(u.cost) : 'Need ' + money(u.cost);
   }
 
   function render() {
@@ -415,12 +434,13 @@
 
   function catchSlip() {
     if (!(slipPay > 0) || slipUntil < now()) return;
-    M.grant(state, slipPay);
+    var caught = slipPay;
+    M.grant(state, caught);
     var found = M.checkAll(state, now(), day());
     slipUntil = 0;
     slipPay = 0;
     if (sfx) sfx.sfx('badge');
-    note('A loose filing slip. The fees are in the drawer.');
+    note('Caught. +' + money(caught) + ' fees are in the drawer.');
     speak(found);
     render();
     scheduleSlip();
@@ -642,10 +662,13 @@
 
   window.PatentView = {
     showSlip: function () {
-      slipPay = 0.16;
+      slipPay = Math.max(1, Math.round(M.slipPay(state, now(), day())));
       slipUntil = now() + 8000;
       paintNotice();
-    }
+    },
+    plan: function () { return M.nextPurchase(state, now(), day()); },
+    rate: function () { return M.managedRate(state, now(), day()); },
+    fees: function () { return state.cash; }
   };
 
   boot();

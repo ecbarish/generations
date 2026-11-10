@@ -210,7 +210,7 @@
     return {
       day: day,
       index: index,
-      factor: 1.25,
+      factor: 2 + ((h >>> 13) % 3),
       label: D.DOCKETS[h % D.DOCKETS.length],
       invention: INVENTIONS[index].name
     };
@@ -223,31 +223,42 @@
     return amount;
   }
 
+  function coins(n) {
+    var c = Math.round(n);
+    return c > 0 ? c : 1;
+  }
+
   function unitCost(state, i) {
     var v = INVENTIONS[i];
-    return v.base * Math.pow(v.growth, state.owned[i]);
+    return coins(v.base * Math.pow(v.growth, state.owned[i]));
   }
 
   function bulkCost(state, i, count) {
     var v = INVENTIONS[i];
-    return Idle.bulkCost(v.base, v.growth, state.owned[i], count);
+    var total = 0;
+    var n = count > 0 ? count : 0;
+    for (var k = 0; k < n; k++) total += coins(v.base * Math.pow(v.growth, state.owned[i] + k));
+    return total;
   }
 
   function buyCount(state, i) {
-    if (state.bulk === 10) return 10;
-    if (state.bulk === 0) {
-      var v = INVENTIONS[i];
-      var n = Idle.maxAffordable(v.base, v.growth, state.owned[i], state.cash);
-      if (!(n > 0)) return 1;
-      return Math.min(10, n);
+    var want = state.bulk === 10 || state.bulk === 0 ? 10 : 1;
+    var left = state.cash;
+    var n = 0;
+    var v = INVENTIONS[i];
+    while (n < want) {
+      var c = coins(v.base * Math.pow(v.growth, state.owned[i] + n));
+      if (left < c) break;
+      left -= c;
+      n++;
     }
-    return 1;
+    return n > 0 ? n : 1;
   }
 
   function clerkCost(i) {
     var hire = INVENTIONS[i].hire;
     if (hire > 0) return hire;
-    return INVENTIONS[i].base * 45;
+    return coins(INVENTIONS[i].base * 90);
   }
 
   function upgradeCount(state, kind) {
@@ -330,14 +341,12 @@
 
   function multiplier(state, i, now, day, withBoost) {
     var m = Idle.milestoneMult(state.owned[i]);
-    var extra = 0;
     for (var u = 0; u < UPGRADES.length; u++) {
       var up = UPGRADES[u];
       if (!state.up[up.id]) continue;
-      if (up.kind === 'g') extra += 0.12;
-      else if (up.kind === 'v' && up.invention === i) extra += 0.2;
+      if (up.kind === 'g') m *= up.factor;
+      else if (up.kind === 'v' && up.invention === i) m *= up.factor;
     }
-    m *= 1 + extra;
     var dock = docket(day || localDay(now ? new Date(now) : new Date()));
     if (dock.index === i) m *= dock.factor;
     m *= sealMultiplier(state) * achievementMultiplier(state) * streakMultiplier(state);
@@ -351,13 +360,8 @@
   }
 
   function eachRate(state, i, now, day) {
-    if (state.owned[i] <= 0) return 0;
-    var full = cycleRevenue(state, i, now, day) / INVENTIONS[i].cycle;
-    if (state.clerk[i]) return full;
-    /* The first filing does nothing until its clerk. Later inventions
-       file a quarter on their own, so buying one is felt before the hire. */
-    if (i === 0) return 0;
-    return full * 0.25;
+    if (state.owned[i] <= 0 || !state.clerk[i]) return 0;
+    return cycleRevenue(state, i, now, day) / INVENTIONS[i].cycle;
   }
 
   function potential(state, now, day) {
@@ -380,15 +384,15 @@
       sum += INVENTIONS[i].revenue * state.owned[i] * multiplier(state, i, now, day, false) / INVENTIONS[i].cycle;
     }
     if (sum > 0) return sum;
-    return 0.02;
+    return 0;
   }
 
-  /* A stamp pays a small fee. Extra taps in the same second share one cap,
-     so four taps a second earn less than twice one tap a second, and the
-     fee never grows with the office. */
+  /* A stamp pays a fixed desk fee, never a share of income. Extra taps in the
+     same second share that one fee. A stamp improvement multiplies the fee
+     itself, and the cap rises with it, so the tap rate still cannot run away. */
   function handPay(state, now) {
-    var fee = 0.05;
-    var cap = 0.075;
+    var fee = 5 * stampFactor(state);
+    var cap = fee;
     if (state.stampWindow == null || now - state.stampWindow >= 1000) {
       state.stampWindow = now;
       state.stampPaid = 0;
@@ -401,7 +405,7 @@
   }
 
   function goalPay(state, goal, now, day) {
-    return rewardRate(state, now, day) * goal.seconds;
+    return Math.round(rewardRate(state, now, day) * goal.seconds);
   }
 
   function checkGoals(state, now, day) {
@@ -539,7 +543,7 @@
   }
 
   function sealsFor(lifetime) {
-    return Math.floor(12 * Math.sqrt(Math.max(0, lifetime) / 1e6));
+    return Math.floor(12 * Math.sqrt(Math.max(0, lifetime) / 1e8));
   }
 
   function charterHint(gain) {
@@ -594,7 +598,7 @@
   }
 
   function slipPay(state, now, day) {
-    return rewardRate(state, now, day) * 8;
+    return Math.round(rewardRate(state, now, day) * 8);
   }
 
   function produce(state, seconds, now, day) {
@@ -602,24 +606,62 @@
     return grant(state, managedRate(state, now, day) * seconds);
   }
 
-  /* The next thing a steady player would buy: a missing clerk, or the first copy of a new invention. */
-  function nextPurchase(state) {
-    var best = null;
-    for (var i = 0; i < N; i++) {
-      if (state.owned[i] > 0 && !state.clerk[i]) {
-        var hireCost = clerkCost(i);
-        if (!best || hireCost < best.cost) best = { kind: 'hire', index: i, cost: hireCost };
+  function copyState(state) {
+    return restore(serialize(state));
+  }
+
+  /* What one more clerk, copy, or improvement would add per second. */
+  function addedRate(state, apply, now, day) {
+    var before = managedRate(state, now, day);
+    var copy = copyState(state);
+    apply(copy);
+    return managedRate(copy, now, day) - before;
+  }
+
+  /* The next coin a casual filer would spend: the affordable buy that adds the
+     most income per coin, or the one they are saving for when nothing is affordable. */
+  function nextPurchase(state, now, day) {
+    var options = [];
+    function consider(kind, index, id, cost, gain) {
+      if (!(cost > 0) || !isFinite(cost) || !(gain > 0)) return;
+      options.push({ kind: kind, index: index, id: id, cost: cost, gain: gain, score: gain / cost });
+    }
+    var waiting = null;
+    for (var w = 0; w < N; w++) {
+      if (state.owned[w] > 0 && !state.clerk[w]) {
+        var wc = clerkCost(w);
+        if (!waiting || wc < waiting.cost) waiting = { kind: 'hire', index: w, id: null, cost: wc, gain: 1, score: 1 };
       }
     }
-    if (best) return best;
-    for (var k = 0; k < N; k++) {
-      if (state.owned[k] > 0) continue;
-      if (!unlocked(state, k) && !(state.cash >= unitCost(state, k))) continue;
-      var cost = unitCost(state, k);
-      if (!(cost > 0) || !isFinite(cost)) continue;
-      if (!best || cost < best.cost) best = { kind: 'buy', index: k, cost: cost };
+    /* A clerk for something you already own comes before another filing. */
+    if (waiting) return waiting;
+    for (var i = 0; i < N; i++) {
+      if (state.clerk[i] && state.owned[i] > 0) {
+        consider('buy', i, null, unitCost(state, i), addedRate(state, function (s) {
+          s.owned[i] += 1;
+        }, now, day));
+      } else if (state.owned[i] === 0 && unlocked(state, i)) {
+        var open = unitCost(state, i);
+        var hire = clerkCost(i);
+        var gain = addedRate(state, function (s) {
+          s.owned[i] = 1;
+          s.clerk[i] = true;
+        }, now, day);
+        consider('buy', i, null, open, gain > 0 ? gain * open / (open + hire) : 0);
+      }
     }
-    return best;
+    for (var u = 0; u < UPGRADES.length; u++) {
+      var up = UPGRADES[u];
+      if (state.up[up.id] || up.kind === 't' || up.kind === 'o') continue;
+      if (up.kind === 'v' && state.owned[up.invention] <= 0) continue;
+      consider('upgrade', up.invention, up.id, up.cost, addedRate(state, function (s) {
+        s.up[up.id] = true;
+      }, now, day));
+    }
+    if (!options.length) return null;
+    options.sort(function (a, b) { return b.score - a.score; });
+    for (var n = 0; n < options.length; n++) if (state.cash >= options[n].cost) return options[n];
+    return options[0];
   }
 
   function awayLines(state, awaySec, now, day) {

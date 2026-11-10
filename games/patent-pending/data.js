@@ -1,5 +1,6 @@
-/* Patent Pending content. Numbers follow Penny Loop's ladder.
-   Names, blurbs and the docket are original. No page, no storage. */
+/* Patent Pending content. The ladder is Penny Loop's, one invention to one venture.
+   Costs and payouts are that ladder times 100, so the early coins read 5, 100, 1,200
+   instead of 0.05. Names, blurbs and the docket are original. No page, no storage. */
 (function () {
   'use strict';
 
@@ -49,6 +50,37 @@
       icon: svg('<rect x="6" y="4" width="12" height="6" fill="' + seal + '"/><rect x="8" y="12" width="8" height="8" fill="none" stroke="' + ink + '" stroke-width="2"/>') }
   ];
 
+  /* Penny Loop's own base, growth, payout and cycle, in order, times 100 coins. */
+  var PENNY = [
+    [0.05, 1.07, 0.01, 0.5],
+    [1, 1.15, 0.55, 3],
+    [12, 1.14, 4.5, 6],
+    [140, 1.13, 34, 12],
+    [1600, 1.12, 260, 24],
+    [1.8e4, 1.11, 1900, 48],
+    [2.2e5, 1.1, 1.5e4, 96],
+    [2.6e6, 1.09, 1.15e5, 192],
+    [3.2e7, 1.08, 9.2e5, 384],
+    [4e8, 1.07, 7.6e6, 768],
+    [5e9, 1.06, 6.6e7, 1536],
+    [6e10, 1.05, 5.6e8, 3072],
+    [7.2e11, 1.048, 2.95e9, 4096],
+    [8.6e12, 1.046, 1.47e10, 5120],
+    [1.04e14, 1.044, 7.08e10, 6144],
+    [1.24e15, 1.042, 2.83e11, 6144],
+    [1.49e16, 1.04, 1.33e12, 7200],
+    [1.79e17, 1.038, 5.31e12, 7200]
+  ];
+  INVENTIONS.forEach(function (v, i) {
+    v.base = PENNY[i][0] * 100;
+    v.growth = PENNY[i][1];
+    v.revenue = PENNY[i][2] * 100;
+    v.cycle = PENNY[i][3];
+    delete v.hire;
+  });
+  /* base × 90 would be 450. A slower stamp still meets Pip in about a minute. */
+  INVENTIONS[0].hire = 120;
+
   var TIERS = ['A small change', 'A better change', 'A lasting change'];
   var TIER_MATH = [[220, 3], [2600, 3], [26000, 4]];
   var UPGRADES = [];
@@ -60,28 +92,28 @@
         invention: i,
         factor: pair[1],
         cost: v.base * pair[0],
-        name: TIERS[k] + ' for the ' + v.name,
+        name: TIERS[k] + ' for the ' + v.name + ' ×' + pair[1],
         note: 'The ' + v.name + ' files ' + pair[1] + ' times as much.'
       });
     });
   });
   var BUREAU = ['A second inkwell', 'A clerk\'s lamp', 'A wider blotter', 'A second press', 'A quiet hour', 'A full cabinet', 'A brass date stamp', 'The grand seal'];
-  [[1, 60, 2], [2, 4200, 2], [3, 3.1e5, 2], [4, 2.4e7, 2], [5, 1.9e9, 2], [6, 1.5e11, 2], [7, 1.2e13, 2], [8, 9.5e14, 2]].forEach(function (row, n) {
+  [[1, 6000, 2], [2, 420000, 2], [3, 3.1e7, 2], [4, 2.4e9, 2], [5, 1.9e11, 2], [6, 1.5e13, 2], [7, 1.2e15, 2], [8, 9.5e16, 2]].forEach(function (row, n) {
     UPGRADES.push({
       id: 'g' + row[0], kind: 'g', factor: row[2], cost: row[1],
-      name: BUREAU[n],
+      name: BUREAU[n] + ' ×' + row[2],
       note: 'Every invention files ' + row[2] + ' times as much.'
     });
   });
   var STAMPS = ['A quicker wrist', 'A second pad', 'Ink that bites', 'A standing desk', 'Both hands', 'The rhythm'];
-  [[1, 25, 3], [2, 1800, 3], [3, 1.4e5, 4], [4, 1.1e7, 5], [5, 8e8, 5], [6, 6e10, 5]].forEach(function (row, n) {
+  [[1, 2500, 3], [2, 180000, 3], [3, 1.4e7, 4], [4, 1.1e9, 5], [5, 8e10, 5], [6, 6e12, 5]].forEach(function (row, n) {
     UPGRADES.push({
       id: 't' + row[0], kind: 't', factor: row[2], cost: row[1],
-      name: STAMPS[n],
-      note: 'Stamping by hand pays ' + row[2] + ' times as much, and a combo boost grows a little.'
+      name: STAMPS[n] + ' ×' + row[2],
+      note: 'Stamping an invention with no clerk pays ' + row[2] + ' times the desk fee. The fee stays a fixed number of coins.'
     });
   });
-  [[1, 5e4, 4, 'four more hours'], [2, 3e7, 4, 'four more hours again'], [3, 2e10, 12, 'twelve more hours']].forEach(function (row) {
+  [[1, 5e6, 4, 'four more hours'], [2, 3e9, 4, 'four more hours again'], [3, 2e12, 12, 'twelve more hours']].forEach(function (row) {
     UPGRADES.push({
       id: 'o' + row[0], kind: 'o', factor: 1, hours: row[2], cost: row[1],
       name: 'Night ledger, ' + row[3],
@@ -110,32 +142,32 @@
     { id: 'clerk1', text: 'Hire your first clerk', test: { kind: 'clerks', n: 1 }, seconds: 30, floor: 30 },
     { id: 'up1', text: 'File your first improvement', test: { kind: 'upgrades', n: 1 }, seconds: 30, floor: 60 },
     { id: 'brolly', text: 'Open the Pocket Umbrella', test: { kind: 'owned', index: 2, n: 1 }, seconds: 30, floor: 120 },
-    { id: 'life10k', text: 'File 10K in fees', test: { kind: 'lifetime', n: 1e4 }, seconds: 30, floor: 600 },
+    { id: 'life10k', text: 'File 1M in fees', test: { kind: 'lifetime', n: 1e6 }, seconds: 30, floor: 600 },
     { id: 'clerk3', text: 'Hire three clerks', test: { kind: 'clerks', n: 3 }, seconds: 35, floor: 1500 },
     { id: 'own25', text: 'Own twenty-five of one invention', test: { kind: 'ownedAny', n: 25 }, seconds: 35, floor: 5e3 },
     { id: 'up5', text: 'File five improvements', test: { kind: 'upgrades', n: 5 }, seconds: 35, floor: 2e4 },
     { id: 'ladder', text: 'Open the Folding Stepladder', test: { kind: 'owned', index: 4, n: 1 }, seconds: 35, floor: 6e4 },
     { id: 'combo', text: 'Boost an invention with a stamp combo', test: { kind: 'boosts', n: 1 }, seconds: 40, floor: 2e5 },
-    { id: 'life1m', text: 'File 1M in fees', test: { kind: 'lifetime', n: 1e6 }, seconds: 40, floor: 6e5 },
+    { id: 'life1m', text: 'File 100M in fees', test: { kind: 'lifetime', n: 1e8 }, seconds: 40, floor: 6e5 },
     { id: 'clerk6', text: 'Hire six clerks', test: { kind: 'clerks', n: 6 }, seconds: 40, floor: 3e6 },
     { id: 'glider', text: 'Open the Parcel Glider', test: { kind: 'owned', index: 6, n: 1 }, seconds: 40, floor: 2e7 },
-    { id: 'life100m', text: 'File 100M in fees', test: { kind: 'lifetime', n: 1e8 }, seconds: 45, floor: 1e8 },
+    { id: 'life100m', text: 'File 10B in fees', test: { kind: 'lifetime', n: 1e10 }, seconds: 45, floor: 1e8 },
     { id: 'charter1', text: 'File your first charter', test: { kind: 'charters', n: 1 }, seconds: 45, floor: 4e8 },
     { id: 'clerkAll', text: 'Hire a clerk for every invention', test: { kind: 'clerksAll' }, seconds: 45, floor: 2e9 },
     { id: 'signal', text: 'Open the Signal Kite', test: { kind: 'owned', index: 11, n: 1 }, seconds: 50, floor: 1e10 },
-    { id: 'life1t', text: 'File 1T in fees', test: { kind: 'lifetime', n: 1e12 }, seconds: 50, floor: 1e11 },
+    { id: 'life1t', text: 'File 100T in fees', test: { kind: 'lifetime', n: 1e14 }, seconds: 50, floor: 1e11 },
     { id: 'sky', text: 'Open the Sky-ship', test: { kind: 'owned', index: 12, n: 1 }, seconds: 50, floor: 2e12 },
-    { id: 'lifeQa', text: 'File 1Qa in fees', test: { kind: 'lifetime', n: 1e15 }, seconds: 55, floor: 1e14 }
+    { id: 'lifeQa', text: 'File 100Qa in fees', test: { kind: 'lifetime', n: 1e17 }, seconds: 55, floor: 1e14 }
   ];
 
   var ACHIEVEMENTS = [
     { id: 'first', name: 'First filing', note: 'Stamp the desk once.', test: { kind: 'stamps', n: 1 } },
     { id: 'ten', name: 'Ten stamps', note: 'Stamp the desk ten times.', test: { kind: 'stamps', n: 10 } },
     { id: 'hundred', name: 'A hundred stamps', note: 'Stamp the desk one hundred times.', test: { kind: 'stamps', n: 100 } },
-    { id: 'k', name: 'A thousand fees', note: 'File 1K in fees.', test: { kind: 'lifetime', n: 1e3 } },
-    { id: 'm', name: 'A million fees', note: 'File 1M in fees.', test: { kind: 'lifetime', n: 1e6 } },
-    { id: 'b', name: 'A billion fees', note: 'File 1B in fees.', test: { kind: 'lifetime', n: 1e9 } },
-    { id: 't', name: 'A trillion fees', note: 'File 1T in fees.', test: { kind: 'lifetime', n: 1e12 } },
+    { id: 'k', name: 'A hundred thousand fees', note: 'File 100K in fees.', test: { kind: 'lifetime', n: 1e5 } },
+    { id: 'm', name: 'A hundred million fees', note: 'File 100M in fees.', test: { kind: 'lifetime', n: 1e8 } },
+    { id: 'b', name: 'A hundred billion fees', note: 'File 100B in fees.', test: { kind: 'lifetime', n: 1e11 } },
+    { id: 't', name: 'A hundred trillion fees', note: 'File 100T in fees.', test: { kind: 'lifetime', n: 1e14 } },
     { id: 'clerk1', name: 'First clerk', note: 'Hire one clerk.', test: { kind: 'clerks', n: 1 } },
     { id: 'clerk6', name: 'Six clerks', note: 'Hire six clerks.', test: { kind: 'clerks', n: 6 } },
     { id: 'clerkAll', name: 'A full desk', note: 'Hire a clerk for every invention.', test: { kind: 'clerksAll' } },
@@ -143,7 +175,7 @@
     { id: 'v100', name: 'A wall of one idea', note: 'Own 100 of one invention.', test: { kind: 'ownedAny', n: 100 } },
     { id: 'all', name: 'Every invention open', note: 'Own at least one of all eighteen.', test: { kind: 'allOwned' } },
     { id: 'sky', name: 'The sky-ship leaves the yard', note: 'Open the Sky-ship.', test: { kind: 'owned', index: 12, n: 1 } },
-    { id: 'qa', name: 'A quadrillion fees', note: 'File 1Qa in fees.', test: { kind: 'lifetime', n: 1e15 } },
+    { id: 'qa', name: 'A hundred quadrillion fees', note: 'File 100Qa in fees.', test: { kind: 'lifetime', n: 1e17 } },
     { id: 'up10', name: 'Ten improvements', note: 'File ten improvements.', test: { kind: 'upgrades', n: 10 } },
     { id: 'up25', name: 'Twenty-five improvements', note: 'File twenty-five improvements.', test: { kind: 'upgrades', n: 25 } },
     { id: 'ch1', name: 'First charter', note: 'File one charter.', test: { kind: 'charters', n: 1 } },
