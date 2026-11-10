@@ -205,12 +205,13 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   }
 }
 #rate.flash { background: var(--amber-wash); }
-.crowd { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; background: var(--paper); color: var(--ink); padding: 0.35rem 0.6rem calc(0.35rem + env(safe-area-inset-bottom)); box-shadow: 0 -1px 0 var(--rule); }
+/* GAD: the crowd bar is the night strip, not another paper ledger line, so a boost reads as the crowd and not a second goal. */
+.crowd { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; background: var(--night); color: var(--paper); padding: 0.35rem 0.6rem calc(0.35rem + env(safe-area-inset-bottom)); border-top: 3px solid var(--amber); }
 .actions button { scroll-margin-bottom: calc(var(--crowd-pad, 0px) + env(safe-area-inset-bottom)); }
 .crowd[hidden] { display: none !important; }
 .crowd p { margin: 0 0 0.3rem; }
 .crowd .choices { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-.crowd button { min-height: 44px; min-width: 44px; flex: 1 1 8rem; }
+.crowd button { min-height: 44px; min-width: 44px; flex: 1 1 8rem; background: var(--amber-wash); color: var(--ink); border: 1px solid var(--amber); }
 .pick .choices + .choices { margin-top: 0.35rem; }
 .codex { margin-top: 0.4rem; color: var(--mute); }
 .codex summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }
@@ -590,5 +591,15 @@ button[aria-pressed="true"], button.ask, button.best {
     box-shadow: 0 1px 0 var(--rule);
     pointer-events: auto;
     cursor: pointer;
+  }
+}
+/* At a wide desk the row you are buying stays pinned in the stall list,
+   so the buy is in view without hunting the inner scroll. */
+@media (min-width: 1200px) and (min-height: 700px) {
+  .stall.is-goal .actions {
+    position: sticky;
+    top: 0.2rem;
+    z-index: 4;
+    background: var(--paper);
   }
 }

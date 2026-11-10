@@ -22,8 +22,10 @@
   var LANE_FACTORS = [1, 2, 2.5, 3.2];
   var NEXT_MARKS = [10, 25, 50, 100, 150, 200, 300, 400];
   var FINALE_AT = 10;
-  /* One pour every 120ms of the stall clock. A late timer cannot pay more than one second. */
-  var HOLD_PER_SEC = 1000 / 120;
+  /* Four pours a second. A held second is a handful of cups, not the wage.
+     Once the bought stalls pass this, holding is a top-up. A late timer
+     cannot pay more than one second. */
+  var HOLD_PER_SEC = 4;
   var HOLD_SLICE = 1;
   /* Max stops at the next doubling, and also when that buy would take longer than
      seven and a half minutes to pay for itself. A run from 25 lanterns therefore
@@ -126,8 +128,8 @@
       line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10. Mooncakes 40 to 34 a second.',
       set: { mooncake: { unlockAt: 6, rate: 34 } } },
     { id: 'alley', name: 'Quiet alley', brief: 'Quiet alley. Tea costs less. Incense opens later and costs more.',
-      line: 'Quiet alley. Trays cost 10% more, 70,000 to 77,000, and wait for 14 tables instead of 12. Tea stalls cost 6 to 5 coins.',
-      set: { incense: { unlockAt: 14, base: 77000 }, tea: { base: 5 } } },
+      line: 'Quiet alley. Tea 0.45 to 0.52 a second, and tea stalls cost 6 to 5. Trays cost 10% more and wait for 14 tables instead of 12.',
+      set: { incense: { unlockAt: 14, base: 77000 }, tea: { base: 5, rate: 0.52 } } },
     { id: 'pour', name: 'Long pour', brief: 'Long pour. Mei wants more cups. Tea earns more once she has the stall.',
       line: 'Long pour. Mei wants 30 cups instead of 25. Tea 0.45 to 0.52 a second once she has the stall.',
       set: { tea: { serves: 30, rate: 0.52 } } }
@@ -145,7 +147,7 @@
       set: { incense: { base: 59500 } } },
     { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost 15% less from now on. 2,200,000 to 1,870,000.",
       set: { stories: { base: 1870000 } } },
-    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
+    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea',       line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
       set: { tea: { rate: 0.54 } } },
     { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. Dumplings 0.9 to 1.08 a second, before bonuses.",
       set: { dumpling: { rate: 1.08 } } },
@@ -203,6 +205,7 @@
   }
   function omenShape(omen) {
     if (!omen || !omen.set) return '';
+    if (omen.set.incense && omen.set.incense.unlockAt != null) return 'incense';
     if (omen.set.tea && omen.set.tea.rate != null) return 'tea';
     if (omen.set.dumpling) return 'dumpling';
     if (omen.set.mooncake && omen.set.mooncake.unlockAt != null) return 'mooncake';
@@ -1898,6 +1901,49 @@
         if (paying.length && costing.length) offer.options = paying.concat(costing);
       }
       if (offer.kind === 'pick' && offer.generated && !tidyPick(state, offer)) return false;
+      var spokenNames = [];
+      (offer.options || []).forEach(function (id) {
+        var spoken = choiceLine(state, offer.kind, id) || '';
+        STALLS.forEach(function (stall) {
+          if (spoken.indexOf(stall.name) >= 0 && spokenNames.indexOf(stall.name) < 0) spokenNames.push(stall.name);
+        });
+      });
+      var prevNames = state.night.lastNames || [];
+      if (offer.generated && prevNames.length) {
+        var clean = (offer.options || []).filter(function (id) {
+          var line = choiceLine(state, offer.kind, id) || '';
+          return !prevNames.some(function (name) { return line.indexOf(name) >= 0; });
+        });
+        if (clean.length >= 2) {
+          offer.options = clean.slice(0, 3);
+          spokenNames = [];
+          offer.options.forEach(function (id) {
+            var line = choiceLine(state, offer.kind, id) || '';
+            STALLS.forEach(function (stall) {
+              if (line.indexOf(stall.name) >= 0 && spokenNames.indexOf(stall.name) < 0) spokenNames.push(stall.name);
+            });
+          });
+        } else if ((state.night.quiet || 0) < 90) {
+          state.night.lastExact = exactKey(offer.options || []);
+          return false;
+        } else {
+          var easeId = 'ease:prices@' + dealSerial(state, 'ease', 'prices');
+          var bankId = 'bank:bank@' + dealSerial(state, 'bank', 'bank');
+          var easeLine = choiceLine(state, 'pick', easeId) || '';
+          var bankLineNow = choiceLine(state, 'pick', bankId) || '';
+          var easeClean = offerGate(state, 'pick', easeId, false) && !prevNames.some(function (name) { return easeLine.indexOf(name) >= 0; });
+          var bankClean = offerGate(state, 'pick', bankId, false) && !prevNames.some(function (name) { return bankLineNow.indexOf(name) >= 0; });
+          if (easeClean && bankClean && easeLine !== bankLineNow) offer.options = [easeId, bankId];
+        }
+      }
+      spokenNames = [];
+      (offer.options || []).forEach(function (id) {
+        var spokenNow = choiceLine(state, offer.kind, id) || '';
+        STALLS.forEach(function (stall) {
+          if (spokenNow.indexOf(stall.name) >= 0 && spokenNames.indexOf(stall.name) < 0) spokenNames.push(stall.name);
+        });
+      });
+      state.night.lastNames = spokenNames;
       state.night.recent = offer.options.map(function (id) { return offer.kind + ':' + id; });
       var stallSeen = {}, stallList = [];
       offer.options.forEach(function (id) {
@@ -2065,8 +2111,9 @@
       if (takenCard(state, 'early', id) || seenCard(state, 'early', id)) continue;
       if (seedLead(state.night.seed) === stallIndex(id)) continue;
       if (offeredHas(state, 'early-' + id)) continue;
-      /* "Doubles at 20" after 20 copies does not change the row. */
-      if (ownedOf(state, id) >= 20) continue;
+      /* The doubling is the next few copies, not a mark the player has already left behind. */
+      var ownedNow = ownedOf(state, id);
+      if (ownedNow < 17 || ownedNow >= 20) continue;
       pool.push(id);
     }
     return pool;
@@ -2573,9 +2620,11 @@
     var factors = [0.98, 0.96, 0.94, 0.92, 0.9];
     var best = null, bestDiff = Infinity, f, steps, rateNext, priceNext, ev;
     for (f = 0; f < factors.length; f++) {
-      for (steps = 1; steps <= 8; steps++) {
+      for (steps = 1; steps <= 2; steps++) {
         rateNext = before * factors[f];
         priceNext = priceNow * Math.pow(0.95, steps);
+        /* A small income cut cannot buy a large discount. */
+        if ((1 - factors[f]) + 0.02 < (1 - Math.pow(0.95, steps)) * 0.45) continue;
         if (moneyText(priceNow) === moneyText(priceNext) || moneyText(before) === moneyText(rateNext)) continue;
         ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
         if (!(ev > 0)) continue;
@@ -2840,7 +2889,7 @@
       if (waitPrice > waitAfter && moneyText(waitPrice) !== moneyText(waitAfter) && meetsFloor((waitPrice - waitAfter) / waitPrice)) return true;
       return false;
     }
-    if (kind === 'early' && stallId && ownedOf(state, stallId) >= 1 && ownedOf(state, stallId) < 20) {
+    if (kind === 'early' && stallId && ownedOf(state, stallId) >= 17 && ownedOf(state, stallId) < 20) {
       var earlyI = stallIndex(stallId);
       if (secondsToOwn(state, earlyI, 20) > 120) return false;
       var earlyOwned = state.stalls[earlyI].owned;
@@ -3519,7 +3568,7 @@
     var soon = earlyPool(state), i, owned;
     for (i = 0; i < soon.length; i++) {
       owned = ownedOf(state, soon[i]);
-      if (owned >= 8 && owned < 20) return true;
+      if (owned >= 17 && owned < 20) return true;
     }
     return false;
   }
@@ -3633,6 +3682,18 @@
     if (!better || !worse || !better.ok || !worse.ok) return false;
     if (!(better.inc + 0.001 >= worse.inc)) return false;
     return better.price < worse.price - 0.001;
+  }
+  /* Better on both the income and the price, allowing a small margin on each. */
+  function nearDominates(better, worse) {
+    if (strictlyDominates(better, worse)) return true;
+    if (!better || !worse || !better.ok || !worse.ok) return false;
+    var incSlack = Math.max(1, Math.abs(worse.inc) * 0.08);
+    var priceSlack = Math.max(1, Math.abs(worse.price) * 0.08);
+    var incFine = better.inc + incSlack >= worse.inc;
+    var priceFine = better.price <= worse.price + priceSlack;
+    var incUp = better.inc > worse.inc + incSlack * 0.25;
+    var priceDown = better.price < worse.price - priceSlack * 0.25;
+    return incFine && priceFine && incUp && priceDown;
   }
   /* Coins this choice is worth over the next minute, after the price it changes. */
   function optionEV(state, id) {
@@ -3923,7 +3984,7 @@
       var soon = earlyPool(state), si, soonOwned;
       for (si = 0; si < soon.length; si++) {
         soonOwned = ownedOf(state, soon[si]);
-        if (soonOwned >= 8 && soonOwned < 20) { earlySoon = true; break; }
+        if (soonOwned >= 17 && soonOwned < 20) { earlySoon = true; break; }
       }
       if (!earlySoon) return false;
       var peeked = peekGap(state);
@@ -4492,7 +4553,15 @@
         mark: mark,
         kind: 'early-mat',
         quote: quote,
-        lead: 'Open the Story Mat row now. This does not end the night. Unroll will cost ' + (quote > 0 ? moneyText(quote) : 'the price on this button') + '.'
+        lead: (function () {
+          var text = 'Open the Story Mat row now. This does not end the night. Unroll will cost ' + (quote > 0 ? moneyText(quote) : 'the price on this button') + '.';
+          var per = income(state);
+          var secs = per > 0 && quote > 0 ? Math.round(quote / per) : 0;
+          if (secs === 12) text += ' About twelve seconds of the lane.';
+          else if (secs === 20) text += ' About twenty seconds of the lane.';
+          else if (secs > 0) text += ' About ' + secs + ' seconds of the lane.';
+          return text;
+        })()
       };
     }
     var picked = surgeChoiceIds(state, mark);
@@ -4643,7 +4712,8 @@
     var summary = names + '. ' + (omen ? omen.name : 'No omen') + '. ' +
       (charms.length ? charms.join(', ') : 'No charm') + '. ' +
       (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime) : String(Math.round(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime))) + ' coins earned tonight.';
-    return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open' };
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall. Pour until Mei will take it.';
+    return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {
     var offer = state.night && state.night.offer;

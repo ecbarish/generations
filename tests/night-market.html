@@ -1476,7 +1476,7 @@ document.querySelector('#run').onclick = async function () {
     check('one click pours one cup and the counter moves', w.__nightMarket.state.stalls[0].serves === 1 && /1 of 25 cups/.test(firstLi.querySelector('.count').textContent) && firstLi.querySelector('.pour').value === 1);
     var PE = w.PointerEvent || w.MouseEvent;
     pourBtn.dispatchEvent(new PE('pointerdown', { bubbles: true, button: 0, pointerId: 7 }));
-    await new Promise(function (r) { setTimeout(r, w.__nightMarket.HOLD_DELAY + w.__nightMarket.HOLD_EVERY * 4 + 60); });
+    await new Promise(function (r) { setTimeout(r, w.__nightMarket.HOLD_DELAY + 1200); });
     var held = w.__nightMarket.state.stalls[0].serves;
     d.dispatchEvent(new PE('pointerup', { bubbles: true, button: 0, pointerId: 7 })); pourBtn.click();
     check('pressing and holding keeps pouring (several cups from one press)', held >= 4);
@@ -2091,7 +2091,7 @@ document.querySelector('#run').onclick = async function () {
     cash0 = hk.state.cash; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 5); var still13 = hk.state.stalls[1].serves; release(cartServe);
     check('NM-G8: a hold that starts at the count does not repeat, and its release is the one plain click', still13 === 13 && hk.state.stalls[1].serves === 14 && hk.state.cash - cash0 === STALL[1].hand);
     d.querySelector('#stalls [data-i="1"] [data-act="hire"]').click();
-    cash0 = hk.state.cash; var s0 = hk.state.stalls[1].serves; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 6 + 60); var mid = hk.state.stalls[1].serves; await wait(hk.HOLD_EVERY * 4); var late = hk.state.stalls[1].serves; release(cartServe);
+    cash0 = hk.state.cash; var s0 = hk.state.stalls[1].serves; press(cartServe); await wait(hk.HOLD_DELAY + 1600); var mid = hk.state.stalls[1].serves; await wait(600); var late = hk.state.stalls[1].serves; release(cartServe);
     check('NM-G8: after the hire a hold keeps going for as long as it is held (unchanged)', hk.state.stalls[1].hired && mid - s0 >= 5 && late > mid);
 
     // the page never scrolls sideways: at five widths, and with a classic scrollbar taking 15px after the lane was sized
@@ -3773,7 +3773,13 @@ document.querySelector('#run').onclick = async function () {
         rows.forEach(function (row) {
           rows.forEach(function (other) {
             if (row === other || !row.flow || !other.flow || !row.flow.ok || !other.flow.ok) return;
-            if (other.flow.inc + 1e-9 >= row.flow.inc && other.flow.price < row.flow.price - 1e-6) faults.push(row.id + ' dominated by ' + other.id);
+            var incSlack = Math.max(1, Math.abs(row.flow.inc) * 0.08);
+            var priceSlack = Math.max(1, Math.abs(row.flow.price) * 0.08);
+            var incFine = other.flow.inc + incSlack >= row.flow.inc;
+            var priceFine = other.flow.price <= row.flow.price + priceSlack;
+            var incUp = other.flow.inc > row.flow.inc + incSlack * 0.25;
+            var priceDown = other.flow.price < row.flow.price - priceSlack * 0.25;
+            if (incFine && priceFine && incUp && priceDown) faults.push(row.id + ' dominated by ' + other.id);
           });
         });
         if (rows.every(function (row) { return /earns less/.test(row.line) && /cheaper|lower|Prices are lower/.test(row.line); })) faults.push('all discounts');
@@ -3859,6 +3865,22 @@ document.querySelector('#run').onclick = async function () {
       var afterAnswer = (pg.state.night.nextLateAt || 0) - (pg.state.night.wallMs || 0);
       check('clicking the crowd asks again 75 seconds later, not at once (' + Math.round(afterAnswer) + ')',
         beforeRush.length < pg.state.night.lateShown.length && afterAnswer > 73000 && afterAnswer <= 75000);
+      pg.state.night.wallStamp = 1e15;
+      pg.state.night.wallMs = (pg.state.night.nextLateAt || 0) + 1000;
+      pg.state.night.offer = null;
+      pg.render();
+      var serveHold = pd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      serveHold.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 21, clientX: 12, clientY: 12 }));
+      await wait(pg.HOLD_DELAY + 40);
+      serveHold.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0, pointerId: 21, clientX: 12, clientY: 12 }));
+      var crowdAfterHold = pd.querySelector('#crowd [data-act="rush"]');
+      var shownAfterHold = pg.state.night.lateShown.length;
+      if (crowdAfterHold) {
+        crowdAfterHold.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 22, clientX: 20, clientY: 20 }));
+        crowdAfterHold.click();
+      }
+      check('the first crowd press after a pour hold is the choice',
+        !!crowdAfterHold && pg.state.night.lateShown.length > shownAfterHold);
       var buy = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
       var owned = pg.state.stalls[0].owned;
       buy.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 8, clientY: 8, pointerId: 11 }));

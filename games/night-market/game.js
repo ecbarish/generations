@@ -137,7 +137,7 @@
     var stall = M.STALLS[i];
     var st = state.stalls[i];
     var open = M.unlocked(state, i);
-    li.className = 'stall' + (open ? '' : ' closed');
+    li.className = 'stall' + (open ? '' : ' closed') + (i === goalRow ? ' is-goal' : '');
     var tag = li.querySelector('.best-tag');
     if (tag) tag.hidden = true;
     li.querySelector('h2').textContent = open
@@ -402,7 +402,7 @@
         $('#finale-title').textContent = copy.title;
         $('#finale-lead').textContent = copy.lead;
         var summaryEl = $('#finale-summary');
-        if (summaryEl) summaryEl.textContent = copy.summary;
+        if (summaryEl) summaryEl.textContent = (copy.nextGoal ? copy.nextGoal + ' ' : '') + copy.summary;
         var nextNight = finale.querySelector('[data-act="next-night"]');
         var choice = finale.querySelector('[data-act="finale"]');
         if (nextNight) nextNight.textContent = copy.next;
@@ -444,6 +444,10 @@
       });
       var saveBox = list.querySelector('details.save');
       if (saveBox) list.appendChild(saveBox);
+    }
+    goalRow = typeof M.bestIndex === 'function' ? M.bestIndex(state) : -1;
+    if (!(goalRow >= 0)) {
+      for (var gi = 0; gi < M.STALLS.length; gi++) if (M.unlocked(state, gi)) goalRow = gi;
     }
     Array.prototype.forEach.call(list.children, function (li) { if (li.dataset.i) fillRow(li, +li.dataset.i); });
     /* A press is in progress. Rebuilding the offer would destroy the button
@@ -560,7 +564,7 @@
       var rate = M.income(state);
       var per = rate > 0 ? money(rate) + ' a second' : 'nothing earning yet';
       coinPin.textContent = money(state.cash) + ' coins · ' + per + holdSuffix();
-      coinPin.hidden = !(laneGone && coinsGone);
+      coinPin.hidden = !(coinsGone && (laneGone || awayOn));
     if (!coinPin.hidden && !wide) {
       var pinBox = pin.getBoundingClientRect();
       coinPin.style.top = (!pin.hidden ? Math.round(pinBox.bottom) : 0) + 'px';
@@ -573,7 +577,7 @@
     if (coinPin && wide) {
       var laneFinal = laneEl ? laneEl.getBoundingClientRect().bottom : 1;
       var coinsFinal = coins ? coins.getBoundingClientRect().bottom : 1;
-      coinPin.hidden = !(laneFinal <= 0 && coinsFinal <= 0);
+      coinPin.hidden = !(coinsFinal <= 0 && (laneFinal <= 0 || awayOn));
     }
     if (state.night && state.night.offer) placeOfferPanel();
   }
@@ -590,8 +594,15 @@
     var box = $('#away');
     box.hidden = false;
     awayOn = true;
-    box.innerHTML = '<h2>' + copy.title + '</h2><p>' + copy.lead + '</p><p>' + copy.box + '</p><p>' +
+    var per = M.income(state);
+    var scale = per > 0 ? ' The lane earns ' + money(per) + ' a second now. Away pay is half of that.' : '';
+    box.innerHTML = '<h2>' + copy.title + '</h2><p>' + copy.lead + scale + '</p><p>' + copy.box + '</p><p>' +
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
+    var stalls = document.querySelector('.stalls');
+    if (stalls) stalls.scrollTop = 0;
+    window.scrollTo(0, 0);
+    var button = box.querySelector('button');
+    if (button) button.focus({ preventScroll: true });
   }
 
   /* The open card stays on the slot when that slot is on screen, and slides
@@ -922,8 +933,10 @@
   var seenOpen = '';
   var offerModalSig = '', offerReturn = null, offerPaused = false, offerOpenedAt = 0;
   var crowdOpenedAt = 0;
+  var crowdPressAt = 0;
   var lastPointerUp = 0;
   var INPUT_ARM = 400;
+  var goalRow = -1;
   var laneSig = '';
   var nightFrozen = false;
   function setBehindInert(on) {
@@ -1000,8 +1013,11 @@
     if (doRender) render();
   }
   var swallowServeUntil = 0;
-  function stopHold() {
+  function stopHold(e) {
     var poured = hold && hold.n > 0;
+    if (e && e.pointerId != null && hold && hold.b && hold.b.releasePointerCapture) {
+      try { if (hold.b.hasPointerCapture && hold.b.hasPointerCapture(e.pointerId)) hold.b.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+    }
     settleHold(true);
     /* The release of a pour is not another cup. A later tap still is. */
     if (poured) swallowServeUntil = Date.now() + 400;
@@ -1045,7 +1061,11 @@
   /* A render between press and release moves the button, and the click never lands.
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
   var pointerDown = false;
-  document.addEventListener('pointerdown', function () { pointerDown = true; }, true);
+  document.addEventListener('pointerdown', function (e) {
+    pointerDown = true;
+    var crowdBtn = e.target && e.target.closest && e.target.closest('[data-act="rush"], [data-act="mat-now"], [data-act="mat-wait"]');
+    if (crowdBtn) crowdPressAt = Date.now();
+  }, true);
   document.addEventListener('pointerup', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
   document.addEventListener('pointercancel', function () { pointerDown = false; pressedBuy = null; lastPointerUp = Date.now(); }, true);
   window.addEventListener('blur', function () { pointerDown = false; });
@@ -1145,7 +1165,9 @@
       return;
     }
     if (b.dataset.act === 'mat-now' || b.dataset.act === 'mat-wait' || b.dataset.act === 'rush') {
-      if (Date.now() - crowdOpenedAt < INPUT_ARM) return;
+      /* The arm blocks a finger that was already down when the bar appeared.
+         A new press that starts on the bar is the choice, even a moment after a long hold. */
+      if (Date.now() - crowdOpenedAt < INPUT_ARM && crowdPressAt < crowdOpenedAt) return;
       if (M.takeLate) M.takeLate(state, b.dataset.act === 'rush' ? b.dataset.stall : (b.dataset.act === 'mat-now' ? 'now' : 'wait'));
       var crowdChoices = $('#crowd-choices');
       if (crowdChoices) crowdChoices.dataset.sig = '';
