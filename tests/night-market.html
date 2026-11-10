@@ -3672,6 +3672,33 @@ document.querySelector('#run').onclick = async function () {
         !M.terminalUnroll(afterNight) && M.choiceCashflow(afterNight, 'commit:lane@1').stall === 'mooncake' &&
         M.offerGate(afterNight, 'scale', 'mooncake@1', false) && M.offerGate(afterNight, 'tempo', 'mooncake@1', false) &&
         afterScale.spent > afterPlain.spent);
+      var crowdLater = playedDesk(930000, false);
+      crowdLater.night.lateShown = [480, 555, 630, 705, 780, 855];
+      crowdLater.stalls[0].owned = 10;
+      crowdLater.stalls[1].owned = 8;
+      crowdLater.stalls[1].hired = true;
+      var laterView = M.lateView(crowdLater);
+      var keptGoal = M.fresh();
+      M.armNight(keptGoal, 1, 2);
+      keptGoal.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 4 ? 10 : (i === 5 ? 1 : 0); });
+      keptGoal.night.kept = true;
+      var nightTwo = M.fresh();
+      nightTwo.meta.nights.push({ n: 1, seed: 1, omen: 'ferry', charms: [] });
+      M.armNight(nightTwo, 2, 2);
+      var matIncome = M.fresh();
+      M.armNight(matIncome, 1, 1);
+      matIncome.stalls[5].hired = true;
+      matIncome.stalls[5].owned = 1;
+      matIncome.stalls[0].hired = true;
+      matIncome.stalls[0].owned = 4;
+      var plainMat = M.production(matIncome, 5);
+      var plainTea = M.production(matIncome, 0);
+      matIncome.night.lanePay = 4;
+      check('a later crowd is a choice, the kept lane names what stayed, and a lane bump skips the mat (' + (laterView && laterView.stalls ? laterView.stalls.length : 0) + ')',
+        laterView && laterView.kind === 'surge' && laterView.stalls.length === 2 && laterView.stalls[0].bonus > 0 && laterView.stalls[1].bonus > 0 &&
+        /The lane stayed open/.test(M.goal(keptGoal)) &&
+        M.goal(nightTwo).indexOf('Night 2. Last night kept ') === 0 &&
+        M.production(matIncome, 5) === plainMat && M.production(matIncome, 0) > plainTea);
       var early = M.fresh();
       M.armNight(early, 1, 2);
       early.stalls[0].hired = true;

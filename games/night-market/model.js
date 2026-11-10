@@ -713,13 +713,22 @@
     return n === Infinity ? 0 : n;
   }
 
-  function laneMult(state) {
-    /* This multiplies every open stall, including the Story Mat. After the first
-       mat, a lane-wide raise is mostly the mat's income. That is a later night. */
+  function laneLight(state) {
     var low = lowestOwned(state), mult = LANE_FACTORS[0], k;
     for (k = 0; k < LANE_MILESTONES.length; k++) if (low >= LANE_MILESTONES[k]) mult = LANE_FACTORS[k + 1];
-    var pay = state && state.night && state.night.lanePay > 0 ? Math.pow(1.05, state.night.lanePay) : 1;
-    return mult * pay;
+    return mult;
+  }
+  function lanePayFactor(state, i) {
+    var steps = state && state.night && state.night.lanePay > 0 ? state.night.lanePay : 0;
+    if (!(steps > 0)) return 1;
+    /* After the first mat, a lane-wide bump is mostly that mat. The bump stays
+       on the stalls the player is still buying. */
+    if (i === STALLS.length - 1 && state.stalls[i] && state.stalls[i].owned >= 1) return 1;
+    return Math.pow(1.05, steps);
+  }
+  function laneMult(state) {
+    var steps = state && state.night && state.night.lanePay > 0 ? state.night.lanePay : 0;
+    return laneLight(state) * (steps > 0 ? Math.pow(1.05, steps) : 1);
   }
 
   function timesWord(owned, mult) {
@@ -740,7 +749,7 @@
     var rate = stallField(state, spec(i).id, 'rate', spec(i).rate);
     var rush = state.night && state.night.rush;
     if (rush && rush.stall === spec(i).id && (state.night.wallMs || 0) < rush.until && rush.rate > 0) rate = rush.rate;
-    return rate * st.owned * stallMultOwned(state, i, st.owned) * laneMult(state) * sustainMult(state, spec(i).id);
+    return rate * st.owned * stallMultOwned(state, i, st.owned) * laneLight(state) * lanePayFactor(state, i) * sustainMult(state, spec(i).id);
   }
 
   /* A later raise, after the named beats are used. Each one is a new card.
@@ -1127,6 +1136,14 @@
     if (matReady && !/It costs /.test(line)) {
       var matPrice = cost(mat, 0, 1, state);
       if (matPrice > 0) line += ' It costs ' + moneyText(matPrice) + '.';
+    }
+    if (state && state.night && state.night.kept && state.stalls[mat] && state.stalls[mat].owned >= 1 && line.indexOf('stayed open') < 0) {
+      line = 'The lane stayed open. ' + line;
+    }
+    if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 1 && state.stalls[0].serves < 3 && line.indexOf('Night ' + state.night.n) !== 0) {
+      var prevNight = state.meta && state.meta.nights && state.meta.nights.length ? state.meta.nights[state.meta.nights.length - 1] : null;
+      var prevOmen = prevNight && omenById(prevNight.omen);
+      line = 'Night ' + state.night.n + '. Last night kept ' + (prevOmen ? prevOmen.name : 'what you learned') + '. ' + line;
     }
     return line;
   }
@@ -3528,6 +3545,21 @@
       }
       return true;
     });
+    /* A lane-wide bump is the obvious card whenever a stall you own can carry
+       the trade instead. Leave the bump out of that trio. */
+    var hasTarget = candidates.some(function (opt) {
+      var kindName = String(opt).split(':')[0];
+      return kindName === 'focus' || kindName === 'tempo' || kindName === 'scale';
+    });
+    if (hasTarget) {
+      var withoutGlobal = candidates.filter(function (opt) { return !laneRaise(opt); });
+      var targetSubjects = {};
+      withoutGlobal.forEach(function (opt) {
+        var sub = cardSubject('pick', opt);
+        if (sub) targetSubjects[sub] = true;
+      });
+      if (Object.keys(targetSubjects).length >= 3) candidates = withoutGlobal;
+    }
     if (candidates.length < 3) return null;
     var best = null, bestScore = 1e9, loose = null, looseScore = 1e9;
     var a, b, c, ids, kinds, subs, subList, key, axis, score, pi, pj, ok, kind, subject;
@@ -3571,6 +3603,12 @@
           var spread = vals[1] > 0 ? vals[0] / vals[1] : 99;
           var wide = vals[0] > vals[2] * 2;
           score = Object.keys(shapes).length < 2 ? 12 : 0;
+          var topOpt = ids.slice().sort(function (p, q) { return (evOf[q] || 0) - (evOf[p] || 0); })[0];
+          var trioHasTarget = ids.some(function (opt) {
+            var optKind = String(opt).split(':')[0];
+            return optKind === 'focus' || optKind === 'tempo' || optKind === 'scale';
+          });
+          if (trioHasTarget && laneRaise(topOpt)) score += 40;
           if (spread > 1.5 || wide) {
             var loosePenalty = score + spread;
             if (!wide && spread <= 1.8 && loosePenalty < looseScore) { looseScore = loosePenalty; loose = ids.slice(); }
@@ -3591,6 +3629,24 @@
     if (!best) best = loose;
     if (!best) return null;
     return { mark: 'pick-' + best[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: best, generated: true } };
+  }
+  /* Focus and a discount on the stall being bought. Used when a lane-wide bump
+     would be the obvious fallback. */
+  function goalTradePair(state) {
+    var order = [], i, id, focus, tempo;
+    var goalAt = goalBuy(state);
+    if (goalAt >= 0 && spec(goalAt) && spec(goalAt).id !== 'stories') order.push(goalAt);
+    for (i = 0; i < STALLS.length - 1; i++) if (order.indexOf(i) < 0) order.push(i);
+    for (i = 0; i < order.length; i++) {
+      if (!state.stalls[order[i]] || !(state.stalls[order[i]].owned >= 1)) continue;
+      id = spec(order[i]).id;
+      focus = 'focus:' + id + '@' + dealSerial(state, 'focus', id);
+      tempo = 'tempo:' + id + '@' + dealSerial(state, 'tempo', id);
+      if (!offerGate(state, 'pick', focus, false) || !offerGate(state, 'pick', tempo, false)) continue;
+      if (!pairOk(state, 'pick', focus, tempo)) continue;
+      return [focus, tempo];
+    }
+    return null;
   }
   function forceOffer(state) {
     if (terminalUnroll(state)) return null;
@@ -3635,7 +3691,11 @@
       var blockedSpare = sparePair(state);
       if (blockedSpare) return { mark: 'pick-' + blockedSpare[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: blockedSpare, generated: true } };
     }
+    var goalPair = goalTradePair(state);
     var lanePack = { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
+    if (goalPair) {
+      return { mark: 'pick-' + goalPair[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: goalPair, generated: true } };
+    }
     if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + priceSerial, false) && pairOk(state, 'pick', payId, priceId) && !repeatExact(state, lanePack.offer) && !lastWasWeakPrice(state) && !(steps <= 1 && tinyPayHeavy(state))) {
       if (!axisOverused(state, offerAxisKey(lanePack.offer))) return lanePack;
     }
@@ -4242,21 +4302,34 @@
     return true;
   }
   var LATE_MARKS = [480, 555, 630, 705, 780, 855];
+  /* A crowd every 75 seconds until the first mat is bought, including the wait after 15:00. */
+  function lateMarks(state) {
+    var marks = LATE_MARKS.slice(), mat = state && state.stalls && state.stalls[STALLS.length - 1];
+    if (mat && mat.owned >= 1) return marks;
+    var t = state && state.night ? (state.night.wallMs || 0) / 1000 : 0;
+    var next = 930;
+    while (next <= t + 1 && next < 40 * 60) {
+      marks.push(next);
+      next += 75;
+    }
+    return marks;
+  }
   function nextLateMark(state) {
     if (!state || !state.night || !state.stalls) return 0;
     var mat = state.stalls[STALLS.length - 1];
     if (mat && mat.owned >= 1) return 0;
     var t = (state.night.wallMs || 0) / 1000;
     var shown = state.night.lateShown = state.night.lateShown || [];
+    var marks = lateMarks(state);
     /* Leaving the early-open bar alone is a wait. It must not sit on 8:00 and hide every later crowd. */
-    if (t >= LATE_MARKS[1] && shown.indexOf(LATE_MARKS[0]) < 0) {
-      shown.push(LATE_MARKS[0]);
+    if (t >= marks[1] && shown.indexOf(marks[0]) < 0) {
+      shown.push(marks[0]);
       state.night.lateLog = state.night.lateLog || [];
       state.night.lateLog.push({ at: Math.round(t), kind: 'early-mat', choice: 'wait' });
     }
     var i;
-    for (i = 0; i < LATE_MARKS.length; i++) {
-      if (t >= LATE_MARKS[i] && shown.indexOf(LATE_MARKS[i]) < 0) return LATE_MARKS[i];
+    for (i = 0; i < marks.length; i++) {
+      if (t >= marks[i] && shown.indexOf(marks[i]) < 0) return marks[i];
     }
     return 0;
   }
@@ -4276,15 +4349,49 @@
         lead: 'Open the Story Mat row now. This does not end the night. Unroll will cost ' + (quote > 0 ? moneyText(quote) : 'the price on this button') + '.'
       };
     }
-    var spot = surgeSpotlight(state);
-    var stalls = [], i;
-    for (i = 0; i < STALLS.length - 1; i++) {
-      if (STALLS[i].id !== spot) continue;
-      if (state.stalls[i] && state.stalls[i].hired && state.stalls[i].owned >= 1) stalls.push({ id: STALLS[i].id, name: STALLS[i].name });
+    var picked = surgeChoiceIds(state, mark);
+    var stalls = [], i, id;
+    for (i = 0; i < picked.length; i++) {
+      id = picked[i];
+      if (stallIndex(id) < 0) continue;
+      if (state.stalls[stallIndex(id)] && state.stalls[stallIndex(id)].hired && state.stalls[stallIndex(id)].owned >= 1) {
+        stalls.push({ id: id, name: spec(stallIndex(id)).name });
+      }
     }
     if (!stalls.length) return null;
     stalls.forEach(function (row) { row.bonus = surgeBonusPerSec(state, row.id); });
-    return { mark: mark, kind: 'surge', lead: 'The crowd pays ' + stalls[0].name + ' for 30 seconds.', stalls: stalls };
+    var lead = stalls.length > 1
+      ? 'The crowd stays 30 seconds. Choose who they pay.'
+      : 'The crowd pays ' + stalls[0].name + ' for 30 seconds.';
+    return { mark: mark, kind: 'surge', lead: lead, stalls: stalls };
+  }
+  /* From the second crowd onward, the player chooses between the stall they are
+     buying and another open stall. The first crowd stays a single name. */
+  function surgeChoiceIds(state, mark) {
+    var ids = [], i, goalAt, goalId, spot, best, bestProd;
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i] || !state.stalls[i].hired || !(state.stalls[i].owned >= 1)) continue;
+      if (!(production(state, i) > 0)) continue;
+      ids.push(STALLS[i].id);
+    }
+    if (!ids.length) return [];
+    if (!(mark >= 630) || ids.length < 2) return [surgeSpotlight(state) || ids[0]];
+    goalAt = goalBuy(state);
+    goalId = goalAt >= 0 && spec(goalAt) && spec(goalAt).id !== 'stories' ? spec(goalAt).id : '';
+    spot = surgeSpotlight(state);
+    var list = [];
+    if (goalId && ids.indexOf(goalId) >= 0) list.push(goalId);
+    if (spot && list.indexOf(spot) < 0) list.push(spot);
+    if (list.length < 2) {
+      best = '';
+      bestProd = -1;
+      for (i = 0; i < ids.length; i++) {
+        if (list.indexOf(ids[i]) >= 0) continue;
+        if (production(state, stallIndex(ids[i])) > bestProd) { bestProd = production(state, stallIndex(ids[i])); best = ids[i]; }
+      }
+      if (best) list.push(best);
+    }
+    return list.slice(0, 2);
   }
   function surgeMilestone(owned) {
     var marks = [10, 25, 50, 100, 150, 200, 300, 400], i;
