@@ -173,6 +173,16 @@ document.querySelector('#run').onclick = async function () {
     var old = M.serialize(M.fresh());
     old.v = 1;
     check('a version 2 save without the festival still loads, and a version 1 save is refused', M.valid(legacy) && (!plain.meta.festival || plain.meta.festival.met.length === 0) && !M.valid(old));
+    var clock = M.fresh();
+    F.speak(clock);
+    var clockWho = F.visitorFor(clock).id;
+    var dumped = null;
+    var idle = M.createIdle(clock, function (obj) { dumped = obj; });
+    idle.start(null);
+    window.dispatchEvent(new Event('pagehide'));
+    idle.stop();
+    var clockBack = dumped ? M.restore(dumped) : null;
+    check('the timed save keeps the visit', !!(dumped && dumped.meta.festival.met.indexOf(clockWho) >= 0 && clockBack && clockBack.meta.festival.met.indexOf(clockWho) >= 0));
 
     var frame = document.createElement('iframe');
     frame.title = 'Night Market festival';

@@ -1,6 +1,3 @@
-/* Night Market festival (NM-ROGUELITE-2).
-   Visitors, Old Wen's answer, vendor tales, twelve more signs, five bells, and the night-10 ending.
-   A sign replaces a price or a rate the night already uses. It does not add a multiplier or a coin. */
 (function () {
   'use strict';
 
@@ -286,10 +283,15 @@
     var M = market();
     return !!(M && state && state.night && state.night.n === 10 && M.dawnDue(state));
   }
+  function stamp(state, out) {
+    var fest = state && state.meta && state.meta.festival;
+    if (out && out.meta && occupied(fest)) out.meta.festival = copyFest(fest);
+    return out;
+  }
   function install() {
     var M = market();
     if (!M || M.dawnCopy && M.dawnCopy.__festival) return;
-    var dawn = M.dawnCopy, ser = M.serialize, res = M.restore;
+    var dawn = M.dawnCopy, ser = M.serialize, res = M.restore, makeIdle = M.createIdle;
     function wrappedDawn(state) {
       var copy = dawn(state);
       if (showEnding(state)) {
@@ -302,16 +304,19 @@
     wrappedDawn.__festival = true;
     M.dawnCopy = wrappedDawn;
     M.serialize = function (state, seen) {
-      var out = ser(state, seen);
-      var fest = state && state.meta && state.meta.festival;
-      if (out && out.meta && occupied(fest)) out.meta.festival = copyFest(fest);
-      return out;
+      return stamp(state, ser(state, seen));
     };
     M.restore = function (raw) {
       var fest = raw && raw.meta && raw.meta.festival;
       var state = res(raw);
       if (state && state.meta && fest && typeof fest === 'object') state.meta.festival = copyFest(fest);
       return state;
+    };
+    M.createIdle = function (state, save) {
+      return makeIdle(state, function (obj) {
+        stamp(state, obj);
+        if (typeof save === 'function') save(obj);
+      });
     };
   }
 
