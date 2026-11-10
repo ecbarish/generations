@@ -1,3 +1,15 @@
+### 2026-11-10 18:50 UTC, Cursor cloud agent (Evan): PP-ADAPT claimed, Patent Pending
+Evan asked on Nov 10, 1:45 PM ET to start the Penny Loop adaptation now. Claimed before any game code, on `cursor/patent-pending-5a86`. One new game, `games/patent-pending/`, title Patent Pending. It does not touch `games/keymaster`, `games/saltmarsh-shipping`, wildbond or starfall, so #648 and #649 stay clear.
+
+**Shared-path flag, before work:**
+- `sw.js`: will not edit. The worker already keeps pages as they are opened. Patent Pending is not added to the precache list.
+- `index.html`: will not edit. The hall stays as it is. The Lab reads `launcher/games.js`.
+- `shared/`: will not edit. The game uses `engine.js`, `idle-core.js` and `sound.js` as they are.
+- `launcher/games.js`: will edit. One Lab card is appended at the end of `ArcadeGames`, with its own cover. Flagged because #647 (NM-HUB) and #646 (OW-FOLLOWUP) already touch launcher files. This card is an append, so the second merge rebases and keeps both.
+- `.github/workflows/`: will not edit. `tests/patent-pending.html` is registered in `tools/run-all-checks.cjs`, so the existing checks workflow runs it.
+
+Owns `games/patent-pending/`, `tests/patent-pending.html`, one line in `tools/run-all-checks.cjs`, the Lab card and cover, and this claim. Draft PR before the game itself. Generations Reviewer merges. No save migration.
+
 ### 2026-11-10 03:37 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: four side-game claims running, with shared-path flags
 Side Games Dev Lead has claimed four rows, and a cloud agent is building each one. OW-FOLLOWUP (bc-be8db919) does the Otherworld polish from QUEUE (#641). It may touch launcher/games.js for the hub link. IDLE-SS-POLISH (bc-39632d8f) does the Saltmarsh polish plus GAD's leftover notes: the blank pack and the Sound drift. The Keymaster keep-alive bug fix (bc-428ec621) comes from the #634 playtest and GAD notes: reply buttons get 45px more, the give-up bar, the 1% tag, locking plan cost and rent, and the stepper. NM-HUB (bc-36fba069) touches index.html and launcher/. **Shared-path flag:** OW-FOLLOWUP and NM-HUB can overlap in launcher/. Whichever PR merges second rebases on main and keeps both changes. No other bot edits index.html or launcher/ until both have landed. No shared/ or sw.js changes are expected, and any that come up get flagged to SSA first.
 
