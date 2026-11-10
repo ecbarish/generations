@@ -14,7 +14,8 @@
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; max-width: 100%; }
-html { overflow-x: clip; }
+html { overflow-x: clip; color-scheme: light; }
+button { appearance: none; -webkit-appearance: none; }
 body {
   background:
     radial-gradient(120% 80% at 50% -10%, #fff 0%, var(--paper) 42%, #e7dcc6 100%);
