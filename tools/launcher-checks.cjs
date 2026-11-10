@@ -51,7 +51,8 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   const nmPlay=p.locator('#lab [data-game="night-market"] a.play');
   check(await nmPlay.getAttribute('href')==='games/night-market/index.html','Night Market opens the stall');
   check((await p.locator('#lab [data-game="night-market"] .ttl').innerText()).trim()==='Night Market Stalls','the Lab card names Night Market Stalls');
-  if(width===1280||width===390){const box=await nmPlay.boundingBox();check(!!box&&box.width>=44&&box.height>=44,'Night Market play target is at least 44px ('+width+'x'+height+')');}
+  if(width===1280||width===390){const box=await nmPlay.boundingBox();check(!!box&&box.width>=44&&box.height>=44,'Night Market play target is at least 44px ('+width+'x'+height+')');
+   const how=await p.locator('#lab [data-game="night-market"] summary').boundingBox();check(!!how&&how.width>=44&&how.height>=44,'Night Market how-to target is at least 44px ('+width+'x'+height+')');}
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
