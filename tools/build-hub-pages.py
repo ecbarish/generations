@@ -36,7 +36,7 @@ def foot(base,offline):
 <p>Generations is a stable of free adventure and progression games, headlined by Little Ranch. Progress is stored in this browser on this device, with automatic backups. Automation is earned in play, never sold.</p>
 <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new version of Starfall needs internet on its first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device.</p></details></div>
 <div><div class="tools"><button class="install-btn" id="installArcade" hidden>Install arcade</button><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div><span class="set-host"></span></div>
-<p class="tools" style="margin-top:.8rem"><a href="{base}lab.html">The Lab</a><a href="{base}playtest.html">What to try</a><a href="{base}credits.html">Credits</a><a href="{base}promo.html">Realmbound trailer</a><span class="version-label">v1.8.0</span></p>
+<p class="tools" style="margin-top:.8rem"><a href="{base}lab.html">The Lab</a><a href="{base}playtest.html">What to try</a><a href="{base}credits.html">Credits</a><a href="{base}promo.html">Realmbound trailer</a><span class="version-label">v1.9.0</span></p>
 <span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span></div>
 </div></footer>
 '''
@@ -69,21 +69,21 @@ idx+='<body data-base="">\n'+bar('','home')+f'''<main id="main">
 <section class="section" id="games" aria-labelledby="games-title"><span id="shelf"></span><span id="launcher"></span><span id="start-here"></span><div class="wrap">
 <div class="section-head"><h2 id="games-title">Play now</h2><p>The games being worked on right now. No sign-up, nothing for sale.</p></div>
 <div class="grid three" id="current"></div>
-<noscript><ul><li><a href="games/little-ranch/index.html">Little Ranch</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="lab.html">The Lab: test versions and prototypes</a></li></ul></noscript>
+<noscript><ul><li><a href="games/little-ranch/index.html">Little Ranch</a></li><li><a href="games/keymaster/index.html">Keymaster</a></li><li><a href="games/saltmarsh-shipping/index.html">Saltmarsh Shipping Office</a></li><li><a href="games/night-market/index.html">Night Market Stalls</a></li><li><a href="lab.html">The Lab: test versions and prototypes</a></li></ul></noscript>
 </div></section>
 <section class="section" style="padding-top:0"><div class="wrap"><div class="lab-band">
-<div><h2>The Lab</h2><p>Test versions and prototypes: arcade cabinets, a baseball club, a football night and a story life sim. They change a lot between visits.</p></div>
-<div class="lab-thumbs" aria-hidden="true"><img src="images/lab/keymaster.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/diamond-manager.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/storm-front.jpg" alt="" loading="lazy" width="960" height="540"></div>
+<div><h2>The Lab</h2><p>Test versions and prototypes: arcade cabinets, a baseball club, a frontier town and a story life sim. They change a lot between visits.</p></div>
+<div class="lab-thumbs" aria-hidden="true"><img src="images/lab/storm-front.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/diamond-manager.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/otherworld.jpg" alt="" loading="lazy" width="960" height="540"></div>
 <a class="btn" href="lab.html">Visit the Lab →</a></div></div></section>
 </main>
 '''+foot('',True)+scripts('',True,'The arcade homepage',"Hub.render(document.getElementById('current'),Hub.current(),{short:true,page:true,eager:true});Hub.redirectOldHash();addEventListener('hashchange',()=>Hub.redirectOldHash());Hub.cta(document.getElementById('heroPlay'),'little-ranch','Little Ranch');")
 open('index.html','w').write(idx)
 # ---------- lab ----------
-lab=head('','The Lab: test versions and prototypes · Generations','Early test versions and prototypes from Generations: arcade cabinets, a baseball club, a football night and a story life sim.','lab.html','images/lab/storm-front.jpg','Storm Front')
+lab=head('','The Lab: test versions and prototypes · Generations','Early test versions and prototypes from Generations: arcade cabinets, a baseball club, a frontier town and a story life sim.','lab.html','images/lab/storm-front.jpg','Storm Front')
 lab+='<body data-base="">\n'+bar('','lab')+'''<main id="main"><section class="section"><div class="wrap">
 <div class="section-head"><div><h1 class="logo" style="font-size:clamp(1.8rem,1.2rem + 2vw,3.2rem);margin:0 0 .4rem">The Lab</h1><p style="color:var(--muted);margin:0;max-width:62ch">Test versions and prototypes. They may change a lot between visits, and some are rough. Each keeps its own save on this device.</p></div><a class="btn btn-ghost btn-sm" href="index.html#games">← Current games</a></div>
 <div class="grid" id="lab"></div>
-<noscript><p>Turn on JavaScript to see the Lab, or open a game: <a href="games/diamond-manager/index.html">Diamond Manager</a>, <a href="games/keymaster/index.html">Keymaster</a>, <a href="games/otherworld/index.html">Otherworld</a>, <a href="games/storm-front/index.html">Storm Front</a>.</p></noscript>
+<noscript><p>Turn on JavaScript to see the Lab, or open a game: <a href="games/diamond-manager/index.html">Diamond Manager</a>, <a href="play/starfall/">Starfall Guild</a>, <a href="games/realmbound/index.html">Realmbound</a>, <a href="games/otherworld/index.html">Otherworld</a>, <a href="games/storm-front/index.html">Storm Front</a>.</p></noscript>
 </div></section></main>
 '''+foot('',True)+scripts('',True,'The Lab',"Hub.render(document.getElementById('lab'),Hub.lab(),{how:true,kindAnchors:true});Hub.jump();")
 open('lab.html','w').write(lab)

@@ -2,7 +2,8 @@
    phone-to-ultrawide widths, and saved-progress isolation. All contexts are fresh; no player data touched. */
 const {chromium}=require('playwright');
 const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0;function check(ok,label){if(!ok)throw Error(label);count++;}
-const SHELVED=['starfall-guild','diamond-career','primordial'];
+const SHELVED=['starfall-guild','diamond-career','primordial','lantern-bowl'];
+const FOCUS=['little-ranch','keymaster','saltmarsh-shipping','night-market'];
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME_PATH||(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':undefined),headless:true});try{
  const WIDTHS=process.env.LAUNCHER_WIDTHS?process.env.LAUNCHER_WIDTHS.split(',').map(w=>w.split('x').map(Number)):[[360,780],[390,844],[768,1024],[1280,800],[1920,1080],[2560,1080],[3440,1440],[5120,1440]];
  const seed=()=>{const index={'starfall-guild':{summary:'Classic winter guild',detail:'Season 4',last:1},realmbound:{summary:'Level 12 hero',detail:'Thornvale',last:1},'starfall-preview':{summary:'Wrong shared progress',detail:'Must never be shown',last:1}};localStorage.setItem('arcade-index-v1',JSON.stringify(index));localStorage.setItem('starfall-guild-save-v1','classic-starfall-sentinel');localStorage.setItem('realmbound-save-v1','realmbound-sentinel');localStorage.setItem('little-ranch-settings-v1','little-ranch-sentinel');localStorage.setItem('unrelated-sentinel','keep');};
@@ -21,15 +22,22 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   check(new Set(games.map(g=>g.id)).size===games.length,'catalogue IDs are distinct');
   check(games.every(g=>g.goal&&g.controls),'every catalogue game has a goal and controls');
   const cta=p.locator('#heroPlay');check(await cta.isVisible()&&await cta.getAttribute('href')==='games/little-ranch/index.html','one big Play Little Ranch button');
+  check(await p.locator('.hero-actions a').count()===1,'hero has one Play button');
   const box=await cta.boundingBox();check(box.y+box.height<=height,'Play button is on the first screen ('+width+'x'+height+')');check(box.height>=44,'Play button is a big touch target');
   check((await p.locator('h1').innerText()).trim().toLowerCase()==='little ranch','Little Ranch is the headline');
   check(await p.locator('.hero .shot img').first().evaluate(i=>i.complete&&i.naturalWidth>0),'hero screenshot loads');
-  const ids=await p.locator('#current .cab').evaluateAll(els=>els.map(e=>e.dataset.game));check(JSON.stringify(ids)==='["little-ranch","starfall-preview","realmbound"]','Play now row leads with Little Ranch');
-  for(const [id,target]of [['little-ranch','games/little-ranch/index.html'],['starfall-preview','play/starfall/'],['realmbound','games/realmbound/index.html']])check(await p.locator(`#current [data-game="${id}"] a.play`).getAttribute('href')===target,'play link '+id);
-  check(!(await p.locator('[data-game="starfall-preview"]').innerText()).includes('Wrong shared progress'),'preview ignores arbitrary shared index starfall-preview');
-  check((await p.locator('[data-game="realmbound"] .prog').innerText()).includes('Level 12 hero'),'saved progress shown');check((await p.locator('[data-game="realmbound"] a.play').innerText())==='Continue','Continue when a save exists');
+  const ids=await p.locator('#current .cab').evaluateAll(els=>els.map(e=>e.dataset.game));
+  const present=FOCUS.filter(id=>games.some(g=>g.id===id));
+  check(JSON.stringify(ids)===JSON.stringify(present),'Play now is Little Ranch, Keymaster, Saltmarsh, and Night Market when that card is in the catalogue');
+  check(present.includes('little-ranch')&&present.includes('keymaster')&&present.includes('saltmarsh-shipping'),'Little Ranch, Keymaster and Saltmarsh are playable catalogue games');
+  const playTargets={ 'little-ranch':'games/little-ranch/index.html', keymaster:'games/keymaster/index.html', 'saltmarsh-shipping':'games/saltmarsh-shipping/index.html', 'night-market':'games/night-market/index.html' };
+  for(const id of present)check(await p.locator(`#current [data-game="${id}"] a.play`).getAttribute('href')===playTargets[id],'play link '+id);
+  if(present.includes('night-market')){
+    check((await p.locator('#current [data-game="night-market"] .ttl').innerText()).trim()==='Night Market Stalls','the card names Night Market Stalls');
+    const nmBox=await p.locator('#current [data-game="night-market"] a.play').boundingBox();check(!!nmBox&&nmBox.width>=44&&nmBox.height>=44,'Night Market play target is at least 44px ('+width+'x'+height+')');
+  }
   check(await p.locator('#heroPlay').innerText().then(t=>t.includes('Play')),'hero offers Play for Little Ranch');
-  check(!/Classic edition|Wildbond Classic|Starfall Guild Classic|Primordial|Diamond Career/.test(await p.locator('main').innerText()),'no Classic or shelved game on the hub');
+  check(!/Classic edition|Wildbond|Lantern Bowl|Starfall Guild Classic|Primordial|Diamond Career/.test(await p.locator('main').innerText()),'no Wildbond, Lantern Bowl, Classic or shelved game on the hub');
   for(const id of SHELVED)check(await p.locator(`[data-game="${id}"]`).count()===0,'no card for '+id);
   check(await p.locator('a[href="lab.html"]').count()>0,'hub links to the Lab');
   const hubBare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#current .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
@@ -41,16 +49,29 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   const shot=await p.locator('.hero .shot').boundingBox();check(Math.abs(shot.width/shot.height-16/9)<0.03,'hero screenshot keeps 16:9 (not stretched)');
   if(width<=760){check(await p.locator('.foot').evaluate(e=>getComputedStyle(e).display)!=='none','footer on phones');}
   if(width===WIDTHS[0][0]){await shareOk(p,'hub');await linksOk(p,'hub');
-   await p.locator('[data-game="realmbound"] [data-reset]').click();await p.locator('[data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');}
+   const html=await p.content();
+   check(html.includes('games/night-market/index.html')&&!/wildbond/i.test(html)&&!html.includes('lantern-bowl'),'noscript and share markup name Night Market and not Wildbond or Lantern Bowl');
+   const og=await p.locator('meta[property="og:description"]').getAttribute('content');check(!/wildbond/i.test(og),'hub share text does not name Wildbond');
+   const manifest=await (await p.request.get(origin+'/manifest.webmanifest')).json();
+   check(!(manifest.shortcuts||[]).some(s=>/wildbond/i.test(s.name+' '+s.url)),'home-screen shortcuts do not open Wildbond');
+   for(const s of manifest.shortcuts||[]){const r=await p.request.get(new URL(s.url,origin+'/').href);check(r.ok(),'shortcut opens: '+s.url);} }
   // --- lab ---
   await p.goto(origin+'/lab.html');await p.waitForFunction(()=>document.querySelector('#lab .cab'));
-  const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));const expectLab=games.filter(g=>!['little-ranch','starfall-preview','realmbound'].includes(g.id)).map(g=>g.id);
-  check(JSON.stringify(lab)===JSON.stringify(expectLab),'Lab holds every other catalogue game');check(!lab.includes('little-ranch'),'Little Ranch is on the hub, not in the Lab');
+  const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));const expectLab=games.filter(g=>!present.includes(g.id)).map(g=>g.id);
+  check(JSON.stringify(lab)===JSON.stringify(expectLab),'Lab holds every catalogue game that is not in Play now');
+  for(const id of present)check(!lab.includes(id),id+' is on the hub, not in the Lab');
+  check(lab.includes('starfall-preview')&&lab.includes('realmbound'),'Starfall and Realmbound stay in the Lab');
+  check(!(await p.locator('#lab [data-game="starfall-preview"]').innerText()).includes('Wrong shared progress'),'preview ignores arbitrary shared index starfall-preview');
+  check((await p.locator('#lab [data-game="realmbound"] .prog').innerText()).includes('Level 12 hero'),'saved progress shown');check((await p.locator('#lab [data-game="realmbound"] a.play').innerText())==='Continue','Continue when a save exists');
+  check(!/Wildbond|Lantern Bowl|football night/.test(await p.locator('main').innerText()),'the Lab does not promote Wildbond or Lantern Bowl');
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
   check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow (lab '+width+')');
-  if(width===WIDTHS[0][0]){await shareOk(p,'lab');await linksOk(p,'lab');for(const g of games.filter(g=>g.href)){const r=await p.request.get(origin+'/'+g.href);check(r.ok(),'play target exists: '+g.id);}}
+  if(width===WIDTHS[0][0]){await shareOk(p,'lab');await linksOk(p,'lab');
+   await p.locator('#lab [data-game="realmbound"] [data-reset]').click();await p.locator('#lab [data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');
+   for(const g of games.filter(g=>g.href)){const r=await p.request.get(origin+'/'+g.href);check(r.ok(),'play target exists: '+g.id);}
+   const nm=await p.request.get(origin+'/games/night-market/index.html');check(nm.ok(),'Night Market still opens by its own address');}
   // --- game pages ---
   for(const [slug,target]of [['starfall','../play/starfall/'],['realmbound','../games/realmbound/index.html']]){
    await p.goto(origin+'/game/'+slug+'.html');await p.waitForFunction(()=>window.Hub);
@@ -68,8 +89,8 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
  const settle=async(p,re)=>{for(let i=0;i<50&&!re.test(p.url());i++)await p.waitForTimeout(100);await p.waitForLoadState('load');};
  // old hub links (v1.7 sections and the canvas hall) still land somewhere sensible
  {const c=await b.newContext({serviceWorkers:'block'}),p=await c.newPage();
-  for(const h of ['shelf','launcher','start-here','kind-adventure','kind-build','kind-kids']){await p.goto(origin+'/index.html#'+h);await p.waitForFunction(()=>document.querySelector('#current .cab'));check(new URL(p.url()).pathname.endsWith('/index.html')&&await p.locator('#games').count()===1,'old anchor stays on the hub: '+h);}
-  for(const h of ['kind-sports','kind-story','kind-different']){await p.goto(origin+'/index.html#'+h);await settle(p,/lab\.html/);await p.waitForSelector('#lab .cab',{state:'attached'});check(p.url().endsWith('lab.html#'+h),'kept the section: '+h);check(await p.locator('#'+h).count()===1,'old anchor moves to the Lab: '+h);}
+  for(const h of ['shelf','launcher','start-here','kind-build','kind-kids']){await p.goto(origin+'/index.html#'+h);await p.waitForFunction(()=>document.querySelector('#current .cab'));check(new URL(p.url()).pathname.endsWith('/index.html')&&await p.locator('#games').count()===1,'old anchor stays on the hub: '+h);}
+  for(const h of ['kind-adventure','kind-sports','kind-story','kind-different']){await p.goto(origin+'/index.html#'+h);await settle(p,/lab\.html/);await p.waitForSelector('#lab .cab',{state:'attached'});check(p.url().endsWith('lab.html#'+h),'kept the section: '+h);check(await p.locator('#'+h).count()===1,'old anchor moves to the Lab: '+h);}
   await p.goto(origin+'/index.html#more-games');await settle(p,/lab\.html/);check(/lab\.html$/.test(p.url()),'More games url');check(true,'More games goes to the Lab');
   await c.close();}
  // missing screenshots don't break the card, and keyboard Enter on the hero reaches the game

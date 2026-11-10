@@ -1,4 +1,4 @@
-/* Hub, Lab and game pages (HUB-REDESIGN, 2026-10-14). Game-first: one hero, one clear Play button, three current games.
+/* Hub, Lab and game pages (HUB-REDESIGN, 2026-10-14; focus row 2026-11-10). One hero, one Play button, the focus games.
    Sizes are rem-based so the arcade's Text size setting (--arc-text) scales everything. */
 :root{
   --bg:#100e17;--bg2:#17141f;--card:#1d1928;--line:#2f2940;--fg:#f3eff9;--muted:#b4abc7;
@@ -94,7 +94,7 @@ main{flex:1}
 .card .prog{font-size:.85rem;color:var(--muted)}.card .prog b{color:var(--fg)}
 .card-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:.4rem}
 .card-actions .btn{flex:1 1 auto}
-.card details{font-size:.9rem;color:var(--muted)}.card summary{cursor:pointer;min-height:36px;display:flex;align-items:center}
+.card details{font-size:.9rem;color:var(--muted)}.card summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
 .reset .warn{color:#ffb4a8;margin:.4rem 0}.reset .row{display:flex;gap:8px;flex-wrap:wrap}
 .linkbtn{font:inherit;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:6px 0;min-height:36px}
 .lab-band{background:linear-gradient(90deg,#1a1630,#231a33);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(18px,2.5vw,36px);
