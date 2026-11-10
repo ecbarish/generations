@@ -38,8 +38,21 @@
   $('#addr').textContent=L.address+', Millbrook';$('#kind').textContent=L.kind;$('#ask').textContent=money(L.ask);
   $('#blurb').textContent=L.blurb;$('#units').innerHTML=L.units.map(u=>'<li>'+u+'</li>').join('');
   $('#house').innerHTML=house(L.picture);$('#rehabLabel').textContent=L.planLabel;$('#rentLabel').textContent=L.rentLabel;
-  $('.rehab').innerHTML=Object.entries(L.plans).map(([k,r])=>'<button type="button" role="radio" data-rehab="'+k+'">'+r.name+
-   '<small>'+money(r.cost)+' · then '+money((L.baseRent||0)+r.rent)+' a month in rent</small></button>').join('');
+  $('.rehab').innerHTML=Object.entries(L.plans).map(([k,r])=>'<button type="button" role="radio" data-rehab="'+k+'"><span class="face">'+planFace(r.name)+'</span><span class="plan-full">'+r.name+'</span>'+
+   '<small>'+money(r.cost)+' · then '+money((L.baseRent||0)+r.rent)+' a month in rent</small></button>').join('')+'<p class="plan-live"><span class="note-hold" id="planHold"></span><span id="planLive"></span></p>';
+  const longest=Object.values(L.plans).map(r=>r.name+' · '+money(r.cost)+', then '+money((L.baseRent||0)+r.rent)+' a month.').sort((a,b)=>b.length-a.length)[0];
+  const hold=$('#planHold'); if(hold) hold.textContent=longest;
+ }
+ // A short face for a narrow phone. The full name stays in the button for the line under it.
+ function planFace(name){
+  if(/basement/i.test(name)) return 'The basement';
+  if(/full renovation/i.test(name)) return 'Full work';
+  if(/clean|as it is|let it/i.test(name)) return 'As it is';
+  if(/patch the roof/i.test(name)) return 'Patch the roof';
+  if(/small touches/i.test(name)) return 'Small touches';
+  if(/refresh all/i.test(name)) return 'Refresh all';
+  const head=name.split(':')[0].trim();
+  return head.length<=12?head:head.split(/\s+/).slice(0,2).join(' ');
  }
 
  // The cash note stays inside the reserved lines. A shorter win sentence picks up one true clause
@@ -63,7 +76,7 @@
  function street(){
   const done=M.paying(R), b=M.streetBudget(R);
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
-  $('#goal').textContent='Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  $('#goal').textContent='Own '+M.GOAL+' homes on '+M.placeOf(R.order)+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
   $('#budget').hidden=false;
   if(M.finished(R)) fitBudget(M.won(R)?'You have the '+done+' homes that pay.':'You can\'t reach '+M.GOAL+' homes that pay from here.');
   else $('#budget').textContent=!b.need?'You have the homes that pay.':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.':
@@ -126,6 +139,8 @@
   $('#offer').textContent=money(choice.price);$('#ofAsk').textContent=ofAsk(choice.price);
   document.querySelectorAll('[data-down]').forEach(b=>b.setAttribute('aria-checked',String(+b.dataset.down===S.down)));
   document.querySelectorAll('[data-rehab]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.rehab===S.rehab)));
+  const picked=L.plans[S.rehab], livePlan=$('#planLive');
+  if(livePlan&&picked) livePlan.textContent=picked.name+' · '+money(picked.cost)+', then '+money((L.baseRent||0)+picked.rent)+' a month.';
   $('#rent').textContent=money(a.rent);$('#aside').textContent='−'+money(a.setAside);$('#fixed').textContent='−'+money(a.fixed);
   $('#loanLabel').textContent='Mortgage ('+pct(1-S.down,0)+' borrowed at '+pct(L.rate,0)+', '+L.years+' years)';
   $('#mortgage').textContent='−'+money(a.mortgage);
@@ -248,8 +263,9 @@
   const owned=R.homes.filter(h=>h.bought&&h.onCash>=0);
   const earn=owned.reduce((n,h)=>n+(h.cashFlow||0),0);
   const left=M.GOAL-owned.length;
-  const next=left<=0?'That finishes the street.':'Next: '+left+' more '+(left===1?'home':'homes')+' that pay.';
-  show(nextButton()+'<h2>'+line+' You own '+L.address+'.</h2><p>You own '+owned.length+' '+(owned.length===1?'home':'homes')+' that pay, earning '+money(earn)+' a month. '+next+'</p><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
+  const next=left<=0?'That finishes the street.':'Next: '+left+' more '+(left===1?'home that pays.':'homes that pay.');
+  const ownWord=owned.length===1?'home that pays':'homes that pay';
+  show(nextButton()+'<h2>'+line+' You own '+L.address+'.</h2><p>You own '+owned.length+' '+ownWord+', earning '+money(earn)+' a month. '+next+'</p><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
    '<ul class="months" aria-label="Its first year, month by month">'+months+'</ul>'+
    '<p><small>A quiet month pays more than the worksheet\'s '+money(y.analysis.cashFlow)+': the '+money(y.analysis.setAside)+' set aside stays yours until something breaks or a unit sits empty.</small></p>'+
    '<table class="year"><tr><th>Cash in hand over the year</th><td>'+money(y.cash)+'</td></tr>'+
@@ -287,13 +303,16 @@
    return '<li class="'+(got.onCash>=0?'pays':'lost')+'"><b>'+h.address+'</b><span>'+v.word+'</span><small>Bought for '+money(got.choice.price)+
     ', '+money(got.cashFlow)+' a month on the worksheet. '+h.lesson+'</small></li>';}).join('');
   const payingHomes=R.homes.filter(h=>h.bought&&h.onCash>=0).length;
+  const ownWord=payingHomes===1?'home that pays':'homes that pay';
+  const where=M.placeOf(M.orderOf(R).map(h=>h.id));
   const nextBlock=M.won(R)?'Next: a harder block, still from $200,000. Own 3 homes that pay you.':'Next: another block. Own 3 homes that pay you.';
   const html='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
    '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
-   '<p>'+(M.won(R)?M.paying(R)+' homes on Alder Street pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
+   '<p class="earn">Your homes earn '+money(flow)+' a month.</p>'+
+   '<p>'+(M.won(R)?M.paying(R)+' homes on '+where+' pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
    'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. '+
-   'Together they bring in '+money(flow)+' a month on the worksheet, and you still have '+money(R.cash)+' of your savings.</p>'+
-   '<p>You own '+payingHomes+' '+(payingHomes===1?'home':'homes')+' that pay, earning '+money(flow)+' a month. '+nextBlock+'</p>'+
+   'You still have '+money(R.cash)+' of your savings.</p>'+
+   '<p>You own '+payingHomes+' '+ownWord+'. '+nextBlock+'</p>'+
    '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>';
   show(html);
   const fin=$('#finale');fin.innerHTML=html;fin.hidden=false;

@@ -527,10 +527,8 @@ document.querySelector('#run').onclick=async()=>{
   check('reply rows and doors stay put ('+replyMoves.join(', ')+'; '+doorShift.join(', ')+')',replyMoves.length===5&&doorShift.length===5);
   frame.style.width='320px';frame.style.height='568px';await wait(80);
   H.begin();await wait(30);
-  const planInk=el=>{const st=w.getComputedStyle(el),r=el.getBoundingClientRect(),btn=el.closest('button').getBoundingClientRect();
-   return st.display!=='none'&&st.visibility!=='hidden'&&+st.opacity>0&&parseFloat(st.fontSize)>=10.5&&r.width>8&&r.height>=10&&r.top>=btn.top-1&&r.bottom<=btn.bottom+2&&r.left>=btn.left-1&&/then/.test(el.textContent)&&/\$/.test(el.textContent);};
-  const smalls=[...d.querySelectorAll('.rehab button small')];
-  check('at 320 the plan cost and rent are visible at about 11px ('+smalls.map(el=>w.getComputedStyle(el).fontSize).join(', ')+')',smalls.length>=3&&smalls.every(planInk));
+  const costLine=d.querySelector('#planLive'), costStyle=w.getComputedStyle(costLine), costBox=costLine.getBoundingClientRect();
+  check('at 320 the plan cost and rent are visible at about 11px ('+costStyle.fontSize+')',parseFloat(costStyle.fontSize)>=11&&/then/.test(costLine.textContent)&&/\$/.test(costLine.textContent)&&costBox.height>=11&&costBox.width>40&&costBox.left>=-1&&costBox.right<=w.innerWidth+1&&costStyle.visibility!=='hidden');
   frame.style.width='390px';frame.style.height='600px';await wait(60);
   H.begin();await wait(20);w.scrollTo(0,0);
   const cue=d.querySelector('#countCue').getBoundingClientRect(), offerBox=d.querySelector('#offerBtn').getBoundingClientRect();
@@ -546,7 +544,11 @@ document.querySelector('#run').onclick=async()=>{
   click('[data-offer="-2000"]');
   check('a single tap still moves $2,000',moneyOf(text('#offer'))===held-2000);
   check('replays draw homes the first street does not sell',M.POOL.length>5&&M.dealFor(0,0).some(id=>!M.STREET.some(h=>h.id===id))&&M.POOL.every(h=>h.lowest/h.ask>0.925&&h.mood));
-  check('a win opens a harder block that is not Alder Street in the old order',M.dealFor(0,1).join('|')!==M.STREET.map(h=>h.id).join('|'));
+  const hardIds=M.dealFor(0,1), firstSeen=new Set(M.STREET.map(h=>h.id));
+  const hardOpener=M.POOL.find(h=>h.id===hardIds[0]);
+  const hardCash=hardIds.map(id=>M.cheapestPaying(M.POOL.find(h=>h.id===id))).filter(Boolean).map(p=>p.cashIn).sort((a,b)=>a-b).slice(0,3).reduce((a,b)=>a+b,0);
+  const firstCash=M.STREET.map(h=>M.cheapestPaying(h)).filter(Boolean).map(p=>p.cashIn).sort((a,b)=>a-b).slice(0,3).reduce((a,b)=>a+b,0);
+  check('a win opens a harder block of homes you have not seen, and it does not start as a free yes',hardIds.every(id=>!firstSeen.has(id))&&hardIds.join('|')!==M.STREET.map(h=>h.id).join('|')&&!M.yearOutlook({price:hardOpener.ask,down:0.25,rehab:'refresh'},hardOpener).counts&&hardCash>firstCash+8000&&hardCash<=200000&&M.placeOf(hardIds)==='Birch Street');
   const sensible=ids=>{const run=M.newRun();run.order=ids.slice();run.at=0;run.homes=[];run.cash=M.START_CASH;run.offers=0;
    while(!M.finished(run)){const home=M.current(run),take=M.lowestOf(home);let best=null;
     for(const down of [0.25,0.2])for(const rehab of ['refresh','asis','full']){const choice={price:take,down,rehab};
@@ -560,13 +562,46 @@ document.querySelector('#run').onclick=async()=>{
   H.begin();await wait(20);
   H.S.price=232000;H.S.down=0.2;H.S.rehab='refresh';H.S.sure=true;H.S.phase='run';H.render();
   click('#offerBtn');await wait(30);
-  check('the first yes names the home you own and the next one',/You own 1 home/.test(text('#answer'))&&/Next: 2 more/.test(text('#answer'))&&/a month/.test(text('#answer'))&&/1 of 3/.test(text('#goal')));
+  check('the first yes names the home you own and the next one',/You own 1 home that pays/.test(text('#answer'))&&!/1 home that pay[^s]/.test(text('#answer'))&&/Next: 2 more homes that pay/.test(text('#answer'))&&/a month/.test(text('#answer'))&&/1 of 3/.test(text('#goal')));
   M.passHome(H.run());M.buyHome(H.run(),{price:247000,down:0.2,rehab:'refresh'});M.passHome(H.run());M.buyHome(H.run(),{price:146000,down:0.2,rehab:'refresh'});
   H.next();await wait(30);
-  check('a win sums up what you earn and names the harder block',/You own 3 homes/.test(text('#finale'))&&/a month/.test(text('#finale'))&&/harder block/.test(text('#finale'))&&/Own 3 homes/.test(text('#goal'))&&d.querySelector('#goal').offsetParent);
+  check('a win sums up what you earn and names the harder block',/Your homes earn \$[\d,]+ a month/.test(text('#finale'))&&/You own 3 homes that pay/.test(text('#finale'))&&/harder block/.test(text('#finale'))&&/Alder Street/.test(text('#goal'))&&d.querySelector('#goal').offsetParent);
+  click('#finale [data-act="again"]');await wait(40);
+  check('the next block is Birch Street and the goal says so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/costly buy/i.test(text('#outlook')));
   H.begin();await wait(20);
   const prior=M.serialize(M.newRun());delete prior.tier;
   check('an older save with no block number still loads and is not migrated',M.SAVE_VERSION===1&&!M.migrates&&M.valid(prior)&&M.restore(prior).tier===0&&M.restore(prior).order.join('|')===prior.order.join('|'));
+  const fits=()=>d.documentElement.scrollWidth<=w.innerWidth+1;
+  for(const [width,height] of [[320,844],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(60);
+   H.begin();await wait(40);w.scrollTo(0,0);
+   check(width+'×'+height+' does not pan on load ('+d.documentElement.scrollWidth+')',fits());
+   H.S.price=232000;H.S.down=0.2;H.S.rehab='refresh';H.S.sure=true;H.S.phase='run';H.render();
+   click('#offerBtn');await wait(30);
+   check(width+'×'+height+' does not pan after a yes ('+d.documentElement.scrollWidth+')',/You own/.test(text('#answer'))&&fits());
+   H.begin();await wait(20);
+   H.run().at=3;H.run().homes=[{id:'alder14',bought:false},{id:'alder3',bought:false},{id:'alder22',bought:false}];
+   H.next();await wait(30);
+   check(width+'×'+height+' does not pan on a costly listing ('+d.documentElement.scrollWidth+')',/^9 Alder/.test(text('#addr'))&&/costly buy/i.test(text('#outlook'))&&fits());
+   H.begin();await wait(20);
+   M.buyHome(H.run(),{price:232000,down:0.2,rehab:'refresh'});M.passHome(H.run());
+   M.buyHome(H.run(),{price:247000,down:0.2,rehab:'refresh'});M.passHome(H.run());
+   M.buyHome(H.run(),{price:146000,down:0.2,rehab:'refresh'});
+   H.next();await wait(30);
+   const walk=d.querySelector('#finale [data-act="again"]');
+   const walkBox=walk.getBoundingClientRect();
+   check(width+'×'+height+' does not pan on the win, and Walk is a full tap ('+d.documentElement.scrollWidth+')',/Your homes earn/.test(text('#finale'))&&fits()&&walkBox.height>=44&&walkBox.left>=-1&&walkBox.right<=w.innerWidth+1);
+  }
+  frame.style.width='320px';frame.style.height='568px';await wait(40);
+  H.begin();await wait(30);w.scrollTo(0,0);
+  const downA=d.querySelector('[data-down="0.2"]').getBoundingClientRect(), downB=d.querySelector('[data-down="0.25"]').getBoundingClientRect();
+  const planLine=d.querySelector('#planLive');
+  check('at 320×568 the down payment sits in one row and the work line is whole',Math.abs(downA.top-downB.top)<=2&&downA.height>=44&&downB.height>=44&&/floors, fixtures/.test(planLine.textContent)&&planLine.scrollWidth<=planLine.clientWidth+2);
+  d.querySelector('#offerBtn').scrollIntoView({block:'center'});await wait(20);
+  const goalBox=d.querySelector('#goal').getBoundingClientRect(), offerHit=d.querySelector('#offerBtn'), offerNow=offerHit.getBoundingClientRect();
+  const hitGoal=d.elementFromPoint(offerNow.left+offerNow.width/2, offerNow.top+Math.min(offerNow.height/2,12));
+  check('the goal stays on screen and does not cover Make this offer',goalBox.top<=4&&goalBox.bottom>8&&goalBox.height<=56&&(hitGoal===offerHit||offerHit.contains(hitGoal)));
+  H.begin();await wait(20);
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);

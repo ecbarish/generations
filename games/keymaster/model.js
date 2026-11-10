@@ -119,6 +119,51 @@
           full:{name:'Full renovation: kitchen and bath',cost:10000,rent:1250}},
    events:[{m:2,cost:400,note:'A window sticks shut and the repair is $400'}],
    lesson:'A small eager sale can finish the block.'},
+  {id:'birch12', address:'12 Birch Street', kind:'Duplex, built 1958', picture:'duplex', mood:'hurried',
+   ask:250000, lowest:238000, counterAt:0.84, taxes:4200, insurance:1900, baseRent:1100,
+   blurb:'The owners leave for a new job next month. They want a simple sale, and they will not give the duplex away.',
+   units:['Unit A: $1,100 a month. Let: the Hale family, 3 years','Unit B: empty, needs paint and a lock'],
+   planLabel:'Unit B before you let it', rentLabel:'Rent, both units',
+   plans:{asis:{name:'Clean it and let it as it is',cost:2500,rent:950},refresh:{name:'Refresh: paint, floors, fixtures',cost:9000,rent:1200},
+          full:{name:'Full renovation: kitchen and bath',cost:22000,rent:1350}},
+   events:[{m:4,cost:1600,note:'The boiler fails: $1,600'}],
+   lesson:'A hurried seller still has a price.'},
+  {id:'birch21', address:'21 Birch Street', kind:'Triplex, built 1928', picture:'triplex', mood:'tired',
+   ask:285000, lowest:271000, counterAt:0.85, taxes:6000, insurance:2600, baseRent:0,
+   blurb:'The owner is tired of three flights of stairs and wants the building gone before winter. The flats have been let cheaply for years.',
+   units:['Three flats, each let for $800 a month','Each could let for about $1,000 refreshed'],
+   planLabel:'The three flats before you let them', rentLabel:'Rent, all three flats',
+   plans:{asis:{name:'Patch the roof and leave the flats',cost:4000,rent:2400},refresh:{name:'Refresh all three flats',cost:16000,rent:2800},
+          full:{name:'Full renovation, all three flats',cost:40000,rent:3600}},
+   events:[{m:5,cost:2000,note:'The roof leaks again: $2,000'}],
+   lesson:'The work you choose is the deal.'},
+  {id:'birch40', address:'40 Birch Street', kind:'Cottage, built 1942', picture:'cottage', mood:'eager',
+   ask:170000, lowest:158000, counterAt:0.84, taxes:3400, insurance:1300, baseRent:0,
+   blurb:'The last owner has already moved in with family and is eager to hand over the keys. The cottage is small, and the price is not a gift.',
+   units:['Empty: two bedrooms, one bath','Homes like it nearby let for about $1,600 a month'],
+   planLabel:'Before you let it', rentLabel:'Rent, once let',
+   plans:{asis:{name:'Clean it and let it as it is',cost:2000,rent:1450},refresh:{name:'Refresh: paint, floors, fixtures',cost:5500,rent:1600},
+          full:{name:'Full renovation: kitchen and bath',cost:14000,rent:1700}},
+   events:[{m:7,cost:700,note:'A storm takes part of the fence: $700'}],
+   lesson:'A small sale can still be a tight one.'},
+  {id:'birch5', address:'5 Birch Street', kind:'Single-family home, built 2001, renovated', picture:'pretty', mood:'proud',
+   ask:320000, lowest:306000, counterAt:0.91, taxes:6000, insurance:2100, baseRent:0,
+   blurb:'The owners are proud of the new kitchen and are in no hurry. They would rather wait than take a low offer.',
+   units:['Empty and ready: four bedrooms, two baths','Homes like it nearby let for about $1,900 a month'],
+   planLabel:'Before you let it', rentLabel:'Rent, once let',
+   plans:{asis:{name:'Let it as it is',cost:0,rent:1900},refresh:{name:'Small touches: blinds, a new lock, paint the deck',cost:6000,rent:1980},
+          full:{name:'Finish the attic as a bedroom',cost:24000,rent:2100}},
+   events:[{m:3,cost:900,note:'The dishwasher fails: $900'}],
+   lesson:'A proud price is not a good rent.'},
+  {id:'birch33', address:'33 Birch Street', kind:'Single-family home on the corner, built 1951', picture:'corner', mood:'firm',
+   ask:176000, lowest:168000, counterAt:0.86, taxes:8600, insurance:1500, baseRent:0,
+   blurb:'The seller is firm. The rent looks strong on a quick screen, and the corner lot is taxed hard.',
+   units:['Empty: three bedrooms, one bath','Homes like it nearby let for about $1,800 a month'],
+   planLabel:'Before you let it', rentLabel:'Rent, once let',
+   plans:{asis:{name:'Clean it and let it as it is',cost:1500,rent:1800},refresh:{name:'Refresh: paint, floors, fixtures',cost:5500,rent:1880},
+          full:{name:'Full renovation: kitchen and bath',cost:15000,rent:1960}},
+   events:[{m:8,cost:800,note:'The gutter fails: $800'}],
+   lesson:'A firm price and a high tax bill can fool a quick screen.'},
  ].map(h=>Object.assign({},TERMS,h));
  const CLASSIC=['alder14','alder3','alder22','alder9','alder31'];
  const POOL=LISTINGS, byId=Object.fromEntries(POOL.map(h=>[h.id,h]));
@@ -132,13 +177,25 @@
   ['alder14','birch16','cedar4','dock27','elm2'],
   ['birch8','alder3','alder22','dock27','elm2'],
  ];
+ // After a win the next block is Birch Street only: homes the first street did not show,
+ // tighter cash, and the opener is not a yes at the asking price.
  const HARDER=[
-  ['alder14','birch16','alder22','dock27','cedar4'],
-  ['birch8','alder3','cedar4','alder9','alder22'],
+  ['birch12','birch5','birch21','birch33','birch40'],
  ];
  function dealFor(seed,tier){
   const table=tier>0?HARDER:REPLAYS;
   return table[Math.abs(seed|0)%table.length].slice();
+ }
+ function placeOf(ids){
+  const names=[];
+  for(const id of ids||[]){
+   const home=byId[id]; if(!home) continue;
+   const street=home.address.replace(/^\d+\s+/,'');
+   if(!names.includes(street)) names.push(street);
+  }
+  if(!names.length) return 'Alder Street';
+  if(names.length===1) return names[0];
+  return names.slice(0,-1).join(', ')+' and '+names[names.length-1];
  }
 
  const round=(n,step=1)=>Math.round(n/step)*step;
@@ -353,6 +410,6 @@
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
 
  const api={TERMS,LISTING,REHABS,STREET,POOL,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,yearOutlook,affordHint,cheapestPaying,streetBudget,dooms,passed,
-  newRun,dealFor,current,orderOf,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
+  newRun,dealFor,placeOf,current,orderOf,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.KeymasterModel=api;
 })(typeof window!=='undefined'?window:globalThis);
