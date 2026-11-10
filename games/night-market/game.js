@@ -458,6 +458,7 @@
       if (window.scrollY !== stayedForDawn) window.scrollTo(0, stayedForDawn);
     }
     renderCodex();
+    if (window.NightFestival && NightFestival.paint) NightFestival.paint(state, function () { persist(); rebindIdle(); render(); });
     renderCrowd();
     var laneNow = window.NightLane;
     if (laneNow && laneNow.signature && laneNow.refresh) {

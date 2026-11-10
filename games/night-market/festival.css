@@ -1,0 +1,7 @@
+#festival p { margin: 0.35rem 0; }
+#festival button {
+  font: inherit;
+  min-height: 44px;
+  margin: 0 0.35rem 0.35rem 0;
+  padding: 10px 14px;
+}

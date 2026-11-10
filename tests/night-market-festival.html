@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Night Market festival checks</title>
+<style>
+  body{font:16px system-ui,sans-serif;background:#161326;color:#f4efe6;max-width:900px;margin:32px auto;padding:0 20px}
+  button{font:inherit;padding:10px 18px;cursor:pointer}
+  li{padding:5px 0;overflow-wrap:anywhere}
+  .pass{color:#9ee7ba}.fail{color:#ff9a9a}#summary{font-weight:bold}
+</style>
+<h1>Night Market festival checks</h1>
+<p>Visitors, Old Wen, vendor tales, twelve signs, five bells, and the night-10 ending.</p>
+<button id="run">Run checks</button>
+<p id="summary">Ready.</p>
+<ol id="results"></ol>
+<div id="game"></div>
+<script src="../shared/engine.js"></script>
+<script src="../shared/idle-core.js"></script>
+<script src="../games/night-market/model.js"></script>
+<script src="../games/night-market/festival.js"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = async function () {
+  var sum = document.querySelector('#summary');
+  var list = document.querySelector('#results');
+  var button = document.querySelector('#run');
+  var n = 0;
+  button.disabled = true;
+  list.replaceChildren();
+  sum.textContent = 'Running…';
+  var M = window.NightMarket;
+  var F = window.NightFestival;
+  function check(name, ok) {
+    n++;
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
+    list.appendChild(li);
+    if (!ok) throw Error(name);
+  }
+  function openMat(state) {
+    state.stalls.forEach(function (st, i) {
+      st.hired = true;
+      st.serves = 30;
+      st.owned = i < 5 ? 12 : 1;
+    });
+    state.night.kept = false;
+  }
+  try {
+    await F.ready;
+    check('the first pull still has six omens, twelve charms, and save version 2', M.OMENS.length === 6 && M.CHARMS.length === 12 && M.SAVE_VERSION === 2 && M.SAVE_KEY === 'night-market-save-v1');
+    var signs = F.cards();
+    var omenSigns = signs.filter(function (card) { return card.kind === 'omen'; });
+    var charmSigns = signs.filter(function (card) { return card.kind === 'charm'; });
+    check('twelve further signs are six omens and six charms', signs.length === 12 && omenSigns.length === 6 && charmSigns.length === 6);
+    var seen = {}, nightNo, seedNo, sample;
+    for (nightNo = 1; nightNo <= 8; nightNo++) {
+      for (seedNo = 1; seedNo <= 40; seedNo++) {
+        sample = M.fresh();
+        M.armNight(sample, nightNo, seedNo);
+        F.cardOffer(sample).forEach(function (id) { seen[id] = true; });
+      }
+    }
+    check('every further sign can be offered', Object.keys(seen).length === 12);
+    var offered = M.fresh();
+    var firstOffer = F.cardOffer(offered).join(',');
+    check('the same night offers the same three signs', firstOffer === F.cardOffer(offered).join(',') && F.cardOffer(offered).length === 3);
+    check('leaving the signs spends tonight', F.declineCards(offered) && F.cardOffer(offered).length === 0 && F.takeCard(offered, 'spare-cups') === false);
+    M.nextNight(offered);
+    check('the next night can offer signs again', F.cardOffer(offered).length === 3);
+
+    signs.forEach(function (card) {
+      var state = M.fresh();
+      state.stalls.forEach(function (st) { st.hired = true; st.owned = 1; });
+      var beforeIncome = M.income(state);
+      var beforeCost = M.STALLS.map(function (stall, i) { return M.cost(i, 0, 1, state); });
+      var lane = M.laneMult(state);
+      var pay = state.night.lanePay || 0;
+      var cash = state.cash;
+      var took = F.takeCard(state, card.id);
+      var costMoved = false, i;
+      for (i = 0; i < beforeCost.length; i++) {
+        if (Math.abs(M.cost(i, 0, 1, state) - beforeCost[i]) > 1e-6) costMoved = true;
+      }
+      check(card.name + ' changes a price or a rate and adds no multiplier or coins',
+        took &&
+        (costMoved || Math.abs(M.income(state) - beforeIncome) > 1e-9) &&
+        M.laneMult(state) === lane &&
+        (state.night.lanePay || 0) === pay &&
+        state.cash === cash &&
+        F.takeCard(state, card.id) === false);
+    });
+    var cups = M.fresh();
+    F.takeCard(cups, 'spare-cups');
+    check("Mei's spare cups set the first tea stall to 5", M.cost(0, 0, 1, cups) === 5);
+    var fold = M.fresh();
+    fold.stalls[1].hired = true;
+    fold.stalls[1].owned = 1;
+    F.takeCard(fold, 'first-fold');
+    check("Bo's first fold sets one dumpling cart to 1 a second", M.production(fold, 1) === 1);
+    M.nextNight(fold);
+    fold.stalls[1].hired = true;
+    fold.stalls[1].owned = 1;
+    check('a sign does not carry into the next night', M.production(fold, 1) === 0.9);
+
+    var meet = M.fresh();
+    var person = F.visitorFor(meet);
+    var again = M.fresh();
+    check('the same seed meets the same visitor', person.id === F.visitorFor(again).id && person.name);
+    var otherVisitor = false;
+    [2, 3, 4, 5, 6, 7, 8, 9].forEach(function (seed) {
+      var alt = M.fresh();
+      M.armNight(alt, 1, seed);
+      if (F.visitorFor(alt).id !== person.id) otherVisitor = true;
+    });
+    check('another seed can meet someone else', otherVisitor);
+    check('Old Wen does not name a visitor before they speak', F.wenLine(meet).indexOf(person.name) < 0 && F.wenLine(meet).indexOf('Last night') < 0);
+    var spoken = F.speak(meet);
+    check('a visitor can be met and spoken to', spoken.indexOf(person.name) >= 0 && F.speak(meet) === spoken && meet.meta.festival.met.length === 1);
+    check("Old Wen's line answers the visitor", F.wenLine(meet).indexOf(person.name) >= 0);
+    meet.night.omen = 'rain';
+    meet.night.charms = ['mei-regulars'];
+    var tonight = F.wenLine(meet);
+    check("Old Wen's line answers tonight's omen and charm", tonight.indexOf('Rain') >= 0 && tonight.indexOf("Mei's regulars") >= 0);
+    M.nextNight(meet);
+    var remembered = F.wenLine(meet);
+    check("Old Wen's line answers last night", remembered.indexOf('Last night') >= 0 && remembered.indexOf('Rain') >= 0);
+
+    var gate = M.fresh();
+    check('the warden is not at the gate on the first bell', F.tier(gate) === 1 && !F.wardenAvailable(gate) && F.speakWarden(gate) === '');
+    check('the opening bell is the first of five', F.hearBell(gate, 1).indexOf('first of five') >= 0 && F.hearBell(gate, 5) === '' && F.pendingBells(gate).indexOf(1) < 0);
+    M.armNight(gate, 3, 1);
+    check('night 3 is the second bell', F.tier(gate) === 2 && F.hearBell(gate, 2).indexOf('second of five') >= 0);
+    M.armNight(gate, 5, 1);
+    var wardenLine = F.speakWarden(gate);
+    check('the warden can be met from the third bell', F.tier(gate) === 3 && F.wardenAvailable(gate) && F.hearBell(gate, 3).indexOf('third of five') >= 0 && wardenLine.indexOf('Warden Hui') >= 0 && F.wenLine(gate).indexOf('Warden Hui') >= 0);
+    M.armNight(gate, 7, 1);
+    check('night 7 is the fourth bell', F.tier(gate) === 4 && F.hearBell(gate, 4).indexOf('fourth of five') >= 0);
+    M.armNight(gate, 9, 1);
+    check('night 9 reaches the fifth bell', F.tier(gate) === 5 && F.hearBell(gate, 5).indexOf('fifth of five') >= 0 && F.pendingBells(gate).length === 0);
+    M.armNight(gate, 10, 1);
+    check('night 10 stays on the fifth bell', F.tier(gate) === 5);
+
+    var tales = await fetch('../games/night-market/vendor-tales.json').then(function (res) { return res.json(); });
+    var tea = M.fresh();
+    check('a shuttered stall has no tale yet', !F.taleReady(tea).some(function (tale) { return tale.id === 'tea:hired'; }) && F.hearTale(tea, 'tea:hired') === '');
+    tea.stalls[0].hired = true;
+    check('hiring Mei makes her tale hearable', F.hearTale(tea, 'tea:hired') === tales.tales.tea[0].text && F.hearTale(tea, 'tea:25') === '');
+    tea.stalls[0].owned = 25;
+    check('twenty-five tea stalls tell the next tale', F.hearTale(tea, 'tea:25') === tales.tales.tea[1].text);
+    tea.stalls[0].owned = 100;
+    check('one hundred tea stalls tell the last of her four tales', F.taleReady(tea).filter(function (tale) { return tale.stall === 'tea'; }).length === 4);
+
+    var dawn = M.fresh();
+    openMat(dawn);
+    check('the first Story Mat still ends night 1 with tonight\'s chapter', M.dawnDue(dawn) && dawn.stalls[5].owned === 1 && M.dawnCopy(dawn).title === 'The tortoise takes the lantern');
+    M.armNight(dawn, 10, 1);
+    openMat(dawn);
+    var ending = M.dawnCopy(dawn);
+    check('the night-10 ending arrives at the first Story Mat', M.dawnDue(dawn) && dawn.stalls[5].owned === 1 && ending.title === F.ending.title && ending.lead.indexOf('Ten nights') >= 0 && dawn.meta.festival.ending === true);
+    dawn.stalls[5].owned = 0;
+    check('night 10 does not end before the Story Mat', !M.dawnDue(dawn) && !F.showEnding(dawn));
+
+    var kept = M.fresh();
+    F.speak(kept);
+    var who = F.visitorFor(kept).id;
+    var raw = M.serialize(kept);
+    var back = M.restore(raw);
+    check('a spoken visit is stored in the version 2 save', raw.v === 2 && raw.meta.festival.met.indexOf(who) >= 0 && back.meta.festival.met.indexOf(who) >= 0 && M.valid(raw));
+    var legacy = M.serialize(M.fresh());
+    delete legacy.meta.festival;
+    var plain = M.restore(legacy);
+    var old = M.serialize(M.fresh());
+    old.v = 1;
+    check('a version 2 save without the festival still loads, and a version 1 save is refused', M.valid(legacy) && (!plain.meta.festival || plain.meta.festival.met.length === 0) && !M.valid(old));
+
+    var frame = document.createElement('iframe');
+    frame.title = 'Night Market festival';
+    frame.style.width = '390px';
+    frame.style.height = '844px';
+    frame.src = '../games/night-market/index.html';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('festival page timed out')); }, 20000);
+      frame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    var win = frame.contentWindow;
+    var doc = frame.contentDocument;
+    await win.NightFestival.ready;
+    check('the game keeps the original charm count', win.NightMarket.CHARMS.length === 12 && win.NightMarket.OMENS.length === 6);
+    doc.querySelector('#open-book').click();
+    var speakButton = doc.querySelector('[data-act="fest-speak"]');
+    var guest = win.NightFestival.visitorFor(win.__nightMarket.state);
+    check('the Lantern Book shows the visitor', !!(speakButton && speakButton.textContent.indexOf(guest.name) >= 0));
+    speakButton.click();
+    check('speaking in the book answers with their line', doc.querySelector('#festival').textContent.indexOf(guest.line) >= 0);
+    openMat(win.__nightMarket.state);
+    win.__nightMarket.render();
+    check('the lane still names tonight\'s chapter at the first mat', doc.querySelector('#finale-title').textContent === 'The tortoise takes the lantern');
+    win.NightMarket.armNight(win.__nightMarket.state, 10, 1);
+    openMat(win.__nightMarket.state);
+    win.__nightMarket.render();
+    check('the lane shows the night-10 ending on the dawn card', doc.querySelector('#finale-title').textContent === 'The lantern on the hill' && doc.querySelector('#finale-lead').textContent.indexOf('Ten nights') >= 0);
+    frame.remove();
+
+    sum.textContent = 'PASS ' + n + ' checks';
+  } catch (err) {
+    sum.textContent = 'FAIL ' + (err && err.message ? err.message : 'festival checks');
+  }
+};
+</script>
+</html>
