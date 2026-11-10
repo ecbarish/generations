@@ -1,3 +1,6 @@
+### 2026-11-10 23:55 UTC, Cursor cloud agent (Evan): PP-ADAPT art review on the passed office
+The playtest at 8996ce67 stands. This commit only settles the art review: a short window keeps the stamp and a scrollable list, the boost badge and the hire row no longer move File, and the arcade link is 44px in darker brass. The ladder is unchanged. Reviewer merges. This agent does not.
+
 ### 2026-11-10 22:30 UTC, Cursor cloud agent (Evan): PP-ADAPT restores the Penny Loop ladder
 The playtest at 26f091bb found the office too quiet. The eighteen inventions again use Penny Loop's own costs, cycles, payouts, growth, clerk prices and multipliers, shown as whole coins. The stamp stays a fixed fee, the boost stays one and a half times for eight seconds, and Max stays at ten. `shared/`, Keymaster and Saltmarsh were not edited. Reviewer merges. This agent does not.
 

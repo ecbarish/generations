@@ -43,8 +43,11 @@ button, a { font: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
-.home { color: var(--brass); text-decoration: none; font-size: 0.92rem; }
-.home:hover { text-decoration: underline; }
+.home, .credits a {
+  color: #6b4e1f; text-decoration: none; font-size: 0.92rem;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px;
+}
+.home:hover, .credits a:hover { text-decoration: underline; }
 h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 #sound {
   min-width: 44px; min-height: 44px; padding: 0 10px;
@@ -79,7 +82,7 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
   display: inline-block; min-width: 4.5rem;
   color: var(--seal); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase;
 }
-#goal-pay { color: var(--brass); }
+#goal-pay { color: #6b4e1f; }
 .step-line { color: var(--muted); font-size: 0.92rem; height: 64px; min-height: 64px; max-height: 64px; overflow: hidden; display: flex; align-items: flex-start; }
 .step-line button {
   min-height: 44px; width: 100%; padding: 4px 10px;
@@ -113,6 +116,26 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
   font-weight: 750; font-size: 0.85rem; line-height: 1.2;
   color: #fff; opacity: 1; overflow: hidden;
 }
+/* A short phone has to keep the stamp and a scrollable list on screen. */
+@media (max-height: 520px) {
+  .desk-head { padding: 2px 10px 4px; }
+  h1 { font-size: 1.05rem; line-height: 1.15; }
+  .fees { font-size: 1.15rem; margin: 0; line-height: 1.1; }
+  .rate, .docket { font-size: 0.78rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .notice {
+    height: 64px; min-height: 64px; max-height: 64px; flex: 0 0 64px; margin-top: 4px; padding: 3px 8px;
+  }
+  .goal-line { font-size: 0.8rem; line-height: 1.2; }
+  .step-line { height: 32px; min-height: 32px; max-height: 32px; font-size: 0.75rem; }
+  .tabs { height: 40px; flex: 0 0 40px; margin-top: 4px; }
+  .tabs button { min-height: 36px; padding: 2px 0; font-size: 0.78rem; }
+  .stamp, .stamp:hover, .stamp:focus, .stamp:active {
+    height: 48px; min-height: 48px; max-height: 48px; flex: 0 0 48px; margin-top: 4px; font-size: 0.95rem; padding: 2px 8px;
+  }
+  .stamp small { height: 1.15em; font-size: 0.72rem; }
+  .page { padding: 6px 10px 12px; }
+  .bulk { margin-bottom: 4px; }
+}
 .coach-mark { outline: none; box-shadow: inset 0 0 0 3px #f2c14e; }
 .pages { flex: 1 1 auto; min-height: 0; min-width: 0; position: relative; }
 .page { display: none; height: 100%; overflow-x: clip; overflow-y: auto; padding: 10px 12px 24px; min-width: 0; max-width: 100%; }
@@ -143,9 +166,10 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
   padding: 0; cursor: pointer;
 }
 .mark { cursor: default; }
-.name { font-weight: 750; }
+.name { font-weight: 750; line-height: 1.25; min-height: 2.5em; }
 .blurb, .sub, .lead, .credits, .count { color: var(--muted); font-size: 0.92rem; }
 .blurb, .sub { margin: 1px 0 0; }
+.sub { height: 2.8em; min-height: 2.8em; max-height: 2.8em; overflow: hidden; }
 .bar { height: 6px; margin-top: 6px; border-radius: 4px; background: #efe6d4; overflow: hidden; }
 .bar i { display: block; height: 100%; width: 100%; background: var(--brass); transform: scaleX(0); transform-origin: left center; }
 .buy, .hire, .up button, .charter-act button, #open-office, #welcome-collect,
@@ -169,8 +193,11 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 .buy:disabled:hover, .hire:disabled:hover {
   background: #efe6d4; color: #1c2430; border: 2px solid #c4b89a; box-shadow: none; cursor: default;
 }
-.hire-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; min-height: 44px; }
-.hire-row span { flex: 1; color: var(--muted); font-size: 0.92rem; }
+.hire-row {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 8px;
+  height: 52px; min-height: 52px; max-height: 52px; overflow: hidden;
+}
+.hire-row span { flex: 1; min-width: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.2; max-height: 2.4em; overflow: hidden; }
 .hire { padding: 8px 12px; }
 .up.filed { background: #f7f3ea; }
 .up.filed .name { color: var(--muted); }
@@ -181,8 +208,12 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 .kv span { min-width: 0; overflow-wrap: anywhere; }
 .kv b { font-weight: 700; }
 .card.boosted { background: #fff; box-shadow: 0 0 0 2px var(--seal), 0 0 18px rgba(142, 43, 43, 0.45); }
-.boost-badge { display: none; margin-left: 6px; padding: 1px 6px; border-radius: 8px; background: var(--seal); color: #fff; font-size: 0.75rem; font-weight: 800; }
-.boost-badge.on { display: inline-block; }
+.boost-badge {
+  display: inline-block; min-width: 4.8rem; height: 1.15em; margin-left: 6px; padding: 1px 6px;
+  border-radius: 8px; background: transparent; color: transparent;
+  font-size: 0.75rem; font-weight: 800; line-height: 1.15em; vertical-align: baseline; box-sizing: border-box;
+}
+.boost-badge.on { background: var(--seal); color: #fff; }
 .hint { margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
 .lists { display: grid; gap: 8px; }
 @media (min-width: 800px) {

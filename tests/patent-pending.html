@@ -286,6 +286,9 @@ document.querySelector('#run').onclick = function () {
     widths.forEach(function (width) {
       chain = chain.then(function () { return oneWidth(width); });
     });
+    [[844, 390], [667, 375], [740, 360], [320, 480]].forEach(function (pair) {
+      chain = chain.then(function () { return shortDesk(pair[0], pair[1]); });
+    });
     return chain;
   }
 
@@ -294,6 +297,7 @@ document.querySelector('#run').onclick = function () {
       var frame = document.createElement('iframe');
       frame.setAttribute('title', 'Patent Pending at ' + width);
       frame.style.cssText = 'width:' + width + 'px;height:800px;border:0;display:block';
+      try { localStorage.removeItem('patent-pending-save-v1'); } catch (e) { /* a fresh office */ }
       frame.src = '../games/patent-pending/index.html?width=' + width;
       var timer = null;
       frame.onload = function () {
@@ -313,7 +317,8 @@ document.querySelector('#run').onclick = function () {
           }
           open.click();
           var contrastProblems = readable(doc, win);
-          var shiftProblems = width === 390 ? heldStill(doc, win) : [];
+          var shiftProblems = (width === 390 || width === 320) ? heldStill(doc, win) : [];
+          if (width === 390 || width === 320) shiftProblems = shiftProblems.concat(boostStill(doc, win));
           for (var i = 0; i < 8; i++) stamp.click();
           var problems = hit(doc, win).concat(contrastProblems).concat(shiftProblems);
           if (width === 320) problems = problems.concat(fits(doc));
@@ -380,17 +385,105 @@ document.querySelector('#run').onclick = function () {
     }
     var hire = doc.querySelector('[data-hire="0"]');
     var guard = 0;
+    var realNow = win.Date.now;
+    var clock = realNow();
+    win.Date.now = function () { return clock; };
     while (hire.classList.contains('short') && guard < 40) {
+      clock += 1100;
       doc.getElementById('stamp').click();
       guard++;
     }
+    win.Date.now = realNow;
+    function fileTops() {
+      var list = [];
+      doc.querySelectorAll('[data-buy]').forEach(function (b) {
+        var card = b.closest('.card');
+        if (!card || card.hidden) return;
+        list.push(b.getBoundingClientRect().top);
+      });
+      return list;
+    }
     var hiredAt = tops();
+    var filesBefore = fileTops();
     if (hire.classList.contains('ready')) hire.click();
     var after = tops();
     if (Math.abs(after.tabs - hiredAt.tabs) > 2 || Math.abs(after.stamp - hiredAt.stamp) > 2) {
       problems.push('clerk moved tabs ' + (after.tabs - hiredAt.tabs).toFixed(1) + ' stamp ' + (after.stamp - hiredAt.stamp).toFixed(1));
     }
+    var filesAfter = fileTops();
+    filesBefore.forEach(function (top, i) {
+      if (filesAfter[i] == null) return;
+      var d = Math.abs(filesAfter[i] - top);
+      if (d > 2) problems.push('clerk moved file ' + i + ' by ' + d.toFixed(1));
+    });
     return problems;
+  }
+
+  function boostStill(doc, win) {
+    var problems = [];
+    function fileTops() {
+      var list = [];
+      doc.querySelectorAll('[data-buy]').forEach(function (b) {
+        var card = b.closest('.card');
+        if (!card || card.hidden) return;
+        list.push(b.getBoundingClientRect().top);
+      });
+      return list;
+    }
+    var before = fileTops();
+    var stamp = doc.getElementById('stamp');
+    var real = win.Date.now;
+    var t = real();
+    win.Date.now = function () { return t; };
+    var i;
+    for (i = 0; i < 4; i++) { t += 180; stamp.click(); }
+    var started = fileTops();
+    t += 9000;
+    stamp.click();
+    win.Date.now = real;
+    var ended = fileTops();
+    before.forEach(function (top, n) {
+      if (started[n] == null) return;
+      var up = Math.abs(started[n] - top);
+      var down = Math.abs(ended[n] - top);
+      if (up > 2) problems.push('boost start moved file ' + n + ' by ' + up.toFixed(1));
+      if (down > 2) problems.push('boost end moved file ' + n + ' by ' + down.toFixed(1));
+    });
+    return problems;
+  }
+
+  function shortDesk(width, height) {
+    return new Promise(function (resolve, reject) {
+      var frame = document.createElement('iframe');
+      frame.setAttribute('title', 'Patent Pending at ' + width + 'x' + height);
+      frame.style.cssText = 'width:' + width + 'px;height:' + height + 'px;border:0;display:block';
+      try { localStorage.removeItem('patent-pending-save-v1'); } catch (e) { /* a fresh office */ }
+      frame.src = '../games/patent-pending/index.html?short=' + width + 'x' + height;
+      var timer = null;
+      frame.onload = function () {
+        var doc = frame.contentDocument;
+        var tries = 0;
+        timer = setInterval(function () {
+          tries++;
+          var open = doc.getElementById('open-office');
+          if (!open && tries < 50) return;
+          clearInterval(timer);
+          if (!open) { frame.remove(); reject(Error('short office did not open')); return; }
+          open.click();
+          var stamp = doc.getElementById('stamp').getBoundingClientRect();
+          var pages = doc.querySelector('.pages').getBoundingClientRect();
+          var problems = [];
+          if (pages.height < 24) problems.push('list is ' + Math.round(pages.height) + 'px');
+          if (stamp.top < -1 || stamp.bottom > height + 1) problems.push('stamp ' + Math.round(stamp.top) + '..' + Math.round(stamp.bottom));
+          frame.remove();
+          try {
+            check(width + 'x' + height + ' keeps the stamp on screen and the list scrollable' + (problems.length ? ' (' + problems.join('; ') + ')' : ''), problems.length === 0);
+            resolve();
+          } catch (err) { reject(err); }
+        }, 40);
+      };
+      document.body.appendChild(frame);
+    });
   }
 
   function fits(doc) {
@@ -402,7 +495,11 @@ document.querySelector('#run').onclick = function () {
     doc.querySelectorAll('#charter .kv span').forEach(function (span) {
       if (span.scrollWidth > span.clientWidth + 1) problems.push('charter row spills: ' + span.textContent);
     });
+    var licence = doc.querySelector('.credits a');
+    if (licence && licence.getBoundingClientRect().height < 44) problems.push('licence link is under 44px');
     doc.getElementById('tab-inventions').click();
+    var home = doc.querySelector('.home');
+    if (home && home.getBoundingClientRect().height < 44) problems.push('arcade link is under 44px');
     return problems;
   }
 
