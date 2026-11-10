@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patent Pending</title>
+<link rel="icon" href="../../icons/arcade.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="office">
+  <header class="desk-head">
+    <div class="top">
+      <a class="home" href="../../index.html">Back to the arcade</a>
+      <button type="button" id="sound" aria-pressed="true">Sound</button>
+    </div>
+    <h1>Patent Pending</h1>
+    <p class="fees"><span id="fees">0.01</span> <span class="unit">fees</span></p>
+    <p class="rate" id="rate">Clerks file 0/s</p>
+    <p class="docket" id="docket"></p>
+    <div class="notice" id="notice" role="status" aria-live="polite">
+      <p class="goal-line"><span id="goal-n">Goal</span> <span id="goal-text"></span> <b id="goal-pay"></b></p>
+      <p class="step-line" id="step-line"></p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Office">
+      <button type="button" id="tab-inventions" role="tab" aria-selected="true" aria-controls="page-inventions">Inventions</button>
+      <button type="button" id="tab-improvements" role="tab" aria-selected="false" aria-controls="page-improvements">Improvements</button>
+      <button type="button" id="tab-charter" role="tab" aria-selected="false" aria-controls="page-charter">Charter</button>
+    </div>
+    <button type="button" id="stamp" class="stamp">Stamp the desk<small id="stamp-sub">Files the open invention</small></button>
+  </header>
+  <div class="pages">
+    <section class="page on" id="page-inventions" role="tabpanel" aria-labelledby="tab-inventions">
+      <div class="bulk" role="group" aria-label="How many to file at once">
+        <span>Filing</span>
+        <button type="button" data-bulk="1" aria-pressed="true">1</button>
+        <button type="button" data-bulk="10" aria-pressed="false">10</button>
+        <button type="button" data-bulk="0" aria-pressed="false">Max</button>
+      </div>
+      <ol class="rows" id="rows"></ol>
+    </section>
+    <section class="page" id="page-improvements" role="tabpanel" aria-labelledby="tab-improvements" hidden>
+      <p class="lead">Each improvement lasts for this charter. You keep none of them when you file a new charter, so file the cheap ones early.</p>
+      <p class="count" id="up-count"></p>
+      <ol class="ups" id="ups"></ol>
+    </section>
+    <section class="page" id="page-charter" role="tabpanel" aria-labelledby="tab-charter" hidden>
+      <div id="charter"></div>
+      <details class="save">
+        <summary>Your save</summary>
+        <div id="tools"></div>
+      </details>
+      <p class="credits">Adapted from <cite>Penny Loop</cite> by PENNY (@pennyloopHQ). The original is MIT licensed. This office uses that ladder and none of its online extras. <a href="LICENSE-penny-loop.txt">Read the licence</a>.</p>
+    </section>
+  </div>
+</main>
+<div class="intro" id="welcome" hidden>
+  <div class="intro-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <h2 id="welcome-title">Welcome back</h2>
+    <p id="welcome-time"></p>
+    <ul class="welcome-lines" id="welcome-lines"></ul>
+    <p id="welcome-total"></p>
+    <button type="button" id="welcome-collect">Collect</button>
+  </div>
+</div>
+<div class="intro" id="intro" hidden>
+  <div class="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <h2 id="intro-title">One doodle</h2>
+    <p>That is the whole office. Stamp the desk to file it. File an invention to earn more. Hire a clerk and it keeps filing while you are away.</p>
+    <p>When the bonus is worth it, file a new charter. The seals stay. The office starts again from the Better Paperclip.</p>
+    <button type="button" id="open-office">Open the office</button>
+  </div>
+</div>
+<script src="../../shared/engine.js"></script>
+<script src="../../shared/idle-core.js"></script>
+<script src="../../shared/sound.js"></script>
+<script src="data.js"></script>
+<script src="model.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Patent Pending checks</title>
+<style>
+  body{font:16px system-ui,sans-serif;background:#131820;color:#e8edf5;max-width:900px;margin:32px auto;padding:0 20px}
+  button{font:inherit;padding:10px 18px;cursor:pointer}
+  li{padding:5px 0;overflow-wrap:anywhere}
+  .pass{color:#96eba4}.fail{color:#ff9a9a}#summary{font-weight:bold}
+</style>
+<h1>Patent Pending checks</h1>
+<p>The office rules, then the real screen at four widths. A fresh page, so other saves stay put.</p>
+<p><a href="../">Back to arcade</a></p>
+<button id="run">Run checks</button>
+<p id="summary">Ready.</p>
+<ol id="results"></ol>
+<script src="../shared/engine.js"></script>
+<script src="../shared/idle-core.js"></script>
+<script src="../games/patent-pending/data.js"></script>
+<script src="../games/patent-pending/model.js"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = function () {
+  var sum = document.querySelector('#summary');
+  var list = document.querySelector('#results');
+  var button = document.querySelector('#run');
+  button.disabled = true;
+  list.replaceChildren();
+  sum.textContent = 'Running…';
+  var n = 0;
+  function check(name, ok) {
+    n++;
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
+    list.appendChild(li);
+    if (!ok) throw Error(name);
+  }
+  function close(a, b) {
+    var d = Math.abs(a - b);
+    return d <= 1e-6 || d <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  function wholeCost(base, growth, owned, count) {
+    var total = 0;
+    for (var i = 0; i < count; i++) total += Math.max(1, Math.round(base * Math.pow(growth, owned + i)));
+    return total;
+  }
+  function brute(base, growth, owned, count) {
+    var total = 0;
+    for (var i = 0; i < count; i++) total += base * Math.pow(growth, owned + i);
+    return total;
+  }
+  function lifetimeFor(seals) {
+    return Math.pow(seals / 12, 2) * 1e8;
+  }
+  var DAY = '1999-06-15';
+  var realNow = Date.now;
+  var realSet = window.setInterval;
+  var realClear = window.clearInterval;
+  try {
+    var P = window.Patent;
+    check('eighteen inventions, twenty-two goals, twenty achievements', P.INVENTIONS.length === 18 && P.GOALS.length === 22 && P.ACHIEVEMENTS.length === 20);
+    check('the upstream file builds 71 improvements', P.UPGRADES.length === 71);
+    check('the first invention is the Better Paperclip and the twelfth climb is the Sky-ship', P.INVENTIONS[0].name === 'Better Paperclip' && P.INVENTIONS[12].name === 'Sky-ship');
+
+    var order = P.UPGRADES.map(function (u) { return u.id; }).join('|');
+    var rich = P.fresh();
+    rich.cash = 1e20;
+    var bought = P.buyUpgrade(rich, P.UPGRADES[0].id, 1000, DAY);
+    check('buying an improvement leaves the list order alone', bought.ok && P.UPGRADES.map(function (u) { return u.id; }).join('|') === order && rich.up[P.UPGRADES[0].id]);
+
+    var spoon = P.fresh();
+    var spoonDef = P.INVENTIONS[1];
+    check('five spoons cost the same whole coins as a counted ladder', P.bulkCost(spoon, 1, 5) === Math.round(brute(spoonDef.base, spoonDef.growth, 0, 5)) || P.bulkCost(spoon, 1, 5) === wholeCost(spoonDef.base, spoonDef.growth, 0, 5));
+    check('Clerk Pip costs 120 coins and the spoon clerk is the upstream price', P.clerkCost(0) === 120 && P.clerkCost(1) === Math.round(spoonDef.base * 90));
+    check('milestones double at 25, 50 and 100', P.milestone(0) === 1 && P.milestone(24) === 1 && P.milestone(25) === 2 && P.milestone(50) === 4 && P.milestone(100) === 8);
+
+    var hand = P.fresh();
+    var first = P.stamp(hand, 5000, DAY);
+    check('a new office starts with an empty drawer', P.fresh().cash === 0 && P.fresh().lifetime === 0);
+    check('a stamp pays a fixed five coins and does not grow with income', first.pay === 5 && !hand.clerk[0] && hand.stamps === 1);
+    var paying = P.fresh();
+    paying.clerk[0] = true;
+    paying.streak = 0;
+    var goal = P.GOALS[6];
+    var goalPay = P.goalPay(paying, goal, 1000, DAY);
+    check('a goal pays seconds of clerk income', goalPay === Math.round(P.rewardRate(paying, 1000, DAY) * goal.seconds) && goalPay > 0);
+    var slipOffice = P.fresh();
+    slipOffice.clerk[0] = true;
+    slipOffice.streak = 0;
+    var slip = P.slipPay(slipOffice, 1000, DAY);
+    check('a filing slip is eight seconds of clerk income', slip === Math.round(P.managedRate(slipOffice, 1000, DAY) * 8));
+    for (var s = 0; s < 4; s++) P.stamp(hand, 6000 + s * 1000, DAY);
+    check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash === 25);
+
+    var combo = P.fresh();
+    combo.clerk[0] = true;
+    var quiet = P.managedRate(combo, 10000, DAY);
+    var c1 = P.stamp(combo, 10000, DAY);
+    P.stamp(combo, 10200, DAY);
+    P.stamp(combo, 10400, DAY);
+    var c4 = P.stamp(combo, 10600, DAY);
+    var loud = P.managedRate(combo, 10600, DAY);
+    var held = combo.boostUntil;
+    P.stamp(combo, 10800, DAY);
+    var cooled = P.managedRate(combo, held + 1, DAY);
+    check('after a clerk, four quick stamps boost once and a fifth does not extend it', c1.pay === 0 && c4.boosted && held === 10600 + P.BOOST_MS && combo.boostUntil === held && loud > cooled && cooled < loud);
+    var gap = P.fresh();
+    gap.clerk[0] = true;
+    P.stamp(gap, 1000, DAY);
+    P.stamp(gap, 3000, DAY);
+    check('a slow second stamp starts the combo over', gap.combo === 1 && gap.boosts === 0);
+
+    var office = P.fresh();
+    office.clerk[0] = true;
+    office.streak = 0;
+    var rate = P.managedRate(office, Date.parse(DAY + 'T12:00:00'), DAY);
+    var shortAway = P.awayPay(office, 250, Date.parse(DAY + 'T12:00:00'), DAY);
+    var cap = P.offlineCap(office);
+    check('a fresh office banks four hours', cap === 4 * 3600);
+    check('two hundred and fifty seconds away is uncapped and matches the clerk rate', shortAway.credited === 250 && shortAway.capped === false && close(shortAway.gained, rate * 250));
+    var longAway = P.awayPay(office, cap + 500, Date.parse(DAY + 'T12:00:00'), DAY);
+    check('away time past the cap is cut to the cap', longAway.capped && longAway.credited === cap && close(longAway.gained, rate * cap));
+    office.up.o1 = true;
+    office.up.o2 = true;
+    office.up.o3 = true;
+    check('the three night ledgers reach twenty-four hours', P.offlineCap(office) === 24 * 3600);
+
+    var wall = Date.parse('1999-06-15T15:00:00Z');
+    Date.now = function () { return wall; };
+    window.setInterval = function () { return 1; };
+    window.clearInterval = function () {};
+    var live = P.fresh();
+    live.clerk[0] = true;
+    live.streak = 0;
+    var expect = P.awayPay(P.restore(P.serialize(live)), 120, wall);
+    var idle = P.createIdle(live, function () {});
+    var summary = idle.start(wall - 120 * 1000);
+    check('the idle catch-up matches the preview of the same away time', summary && summary.credited === 120 && close(summary.gained, expect.gained) && close(live.cash, expect.gained));
+    idle.stop();
+    Date.now = realNow;
+    window.setInterval = realSet;
+    window.clearInterval = realClear;
+
+    var saved = P.fresh();
+    saved.cash = 12.5;
+    saved.lifetime = 40;
+    saved.owned[1] = 3;
+    saved.clerk[0] = true;
+    saved.up.g1 = true;
+    saved.seals = 4;
+    saved.goal = 2;
+    var back = P.restore(P.serialize(saved));
+    check('a save round-trip keeps fees, inventions, the clerk, the improvement and the seals', back.cash === 12.5 && back.owned[1] === 3 && back.clerk[0] === true && back.up.g1 === true && back.seals === 4 && back.goal === 2);
+    check('a different game is not this save', P.valid(P.serialize(saved)) && !P.valid({ game: 'night-market', v: 1, cash: 1, owned: [], clerk: [] }));
+
+    var poor = P.fresh();
+    var poorView = P.charterPreview(poor);
+    check('a new office is told to keep filing', poorView.gain === 0 && poorView.canFile === false && poorView.hint.indexOf('no seals') >= 0);
+    var early = P.fresh();
+    early.lifetime = lifetimeFor(3);
+    var earlyView = P.charterPreview(early);
+    check('fewer than five seals is a wait', earlyView.gain > 0 && earlyView.gain < 5 && earlyView.hint.indexOf('five seals') >= 0);
+    var ready = P.fresh();
+    ready.lifetime = lifetimeFor(12);
+    ready.ach.first = true;
+    ready.cash = 80;
+    ready.owned[2] = 4;
+    ready.clerk[1] = true;
+    ready.up.t1 = true;
+    ready.goal = 6;
+    ready.streak = 2;
+    ready.day = DAY;
+    ready.sound = 2;
+    var view = P.charterPreview(ready);
+    var filed = P.fileCharter(ready);
+    check('the charter preview is the result you get', filed.ok && filed.gain === view.gain && ready.seals === view.nextSeals && close(P.permanentMultiplier(ready), view.nextMultiplier));
+    check('a charter keeps seals, achievements, the goal, the streak and the sound', ready.ach.first === true && ready.goal === 6 && ready.streak === 2 && ready.sound === 2 && ready.day === DAY);
+    check('a charter clears the drawer, the inventions, the clerks and the improvements', ready.cash === 0 && ready.owned[0] === 1 && ready.owned[2] === 0 && ready.clerk[1] === false && !ready.up.t1);
+    check('filing again immediately adds no further seal', P.charterPreview(ready).gain === 0);
+    check('the preview names what you keep and what you lose', view.keep.length === 6 && view.lose.length === 5 && view.hint.indexOf('good time') >= 0);
+
+    var tripled = P.fresh();
+    tripled.clerk[0] = true;
+    tripled.streak = 0;
+    P.checkAll(tripled, 1000, DAY);
+    var beforeRow = P.eachRate(tripled, 0, 1000, DAY);
+    var times3 = null;
+    for (var ui = 0; ui < P.UPGRADES.length; ui++) {
+      var up = P.UPGRADES[ui];
+      if (up.kind === 'v' && up.invention === 0 && up.factor === 3) { times3 = up; break; }
+    }
+    tripled.cash = times3.cost;
+    check('an x3 improvement is bought', P.buyUpgrade(tripled, times3.id, 1000, DAY).ok);
+    check('an x3 shows as x3 and triples its row', times3.name.indexOf('×3') >= 0 && close(P.eachRate(tripled, 0, 1000, DAY), beforeRow * 3));
+    var doubled = P.fresh();
+    doubled.clerk[0] = true;
+    doubled.streak = 0;
+    P.checkAll(doubled, 1000, DAY);
+    var beforeAll = P.managedRate(doubled, 1000, DAY);
+    var times2 = null;
+    for (var gi = 0; gi < P.UPGRADES.length; gi++) if (P.UPGRADES[gi].id === 'g1') times2 = P.UPGRADES[gi];
+    doubled.cash = times2.cost;
+    P.buyUpgrade(doubled, times2.id, 1000, DAY);
+    check('an early improvement doubles the office', times2.factor === 2 && times2.name.indexOf('×2') >= 0 && close(P.managedRate(doubled, 1000, DAY), beforeAll * 2));
+
+    var dock = P.docket(DAY);
+    check('the same local day always picks the same docket', dock.index === P.docket(DAY).index && dock.factor >= 2 && dock.factor <= 4 && dock.label.length > 0);
+    runPolicies();
+
+    layout().then(function () {
+      sum.textContent = 'PASS — ' + n + ' checks';
+    }).catch(function (e) {
+      if (!sum.textContent.startsWith('FAIL')) sum.textContent = 'FAIL — ' + (e && e.message ? e.message : e);
+    });
+  } catch (e) {
+    Date.now = realNow;
+    window.setInterval = realSet;
+    window.clearInterval = realClear;
+    sum.textContent = 'FAIL — ' + (e && e.message ? e.message : e);
+  }
+
+  function runPolicies() {
+    var specs = [
+      { name: 'every 2.5 seconds', stampEvery: 2.5, buyEvery: 2.5, stampAfter: true, focus: true },
+      { name: 'every 5 seconds', stampEvery: 5, buyEvery: 2.5, stampAfter: true, focus: false },
+      { name: 'four taps a second', stampEvery: 0.25, buyEvery: 2.5, stampAfter: true, focus: false },
+      { name: 'buys when it can', stampEvery: 2.5, buyEvery: 2.5, stampAfter: false, focus: false }
+    ];
+    var ends = [];
+    specs.forEach(function (spec) {
+      var s = P.fresh();
+      var step = 0.25;
+      var t = 0;
+      var first = null;
+      var atHire = 0;
+      var at120 = null;
+      var at180 = null;
+      var sinceS = spec.stampEvery;
+      var sinceB = spec.buyEvery;
+      function take(next) {
+        if (next.kind === 'hire') P.hire(s, next.index, t * 1000, DAY);
+        else if (next.kind === 'upgrade') P.buyUpgrade(s, next.id, t * 1000, DAY);
+        else P.buy(s, next.index, t * 1000, DAY);
+      }
+      while (t < 600) {
+        P.produce(s, step, t * 1000, DAY);
+        sinceS += step;
+        sinceB += step;
+        if (sinceB >= spec.buyEvery - 1e-9) {
+          var next = P.nextPurchase(s, t * 1000, DAY);
+          if (next && s.cash >= next.cost) { take(next); sinceB = 0; }
+        }
+        if (sinceS >= spec.stampEvery - 1e-9 && (spec.stampAfter || !s.clerk[0])) {
+          P.stamp(s, Math.round(t * 1000), DAY);
+          sinceS = 0;
+          if (!s.clerk[0]) {
+            var hired = P.nextPurchase(s, t * 1000, DAY);
+            if (hired && hired.kind === 'hire' && s.cash >= hired.cost) { take(hired); sinceB = 0; }
+          }
+        }
+        if (!first && s.clerk[0]) { first = t + step; atHire = P.managedRate(s, t * 1000, DAY); }
+        if (at120 == null && t + step >= 120) at120 = P.managedRate(s, 120000, DAY);
+        if (at180 == null && t + step >= 180) at180 = P.managedRate(s, 180000, DAY);
+        t += step;
+      }
+      var end = P.managedRate(s, 600000, DAY);
+      ends.push(end);
+      if (spec.focus) {
+        check(spec.name + ' hires the first clerk in about a minute (saw ' + first.toFixed(0) + ')', first >= 45 && first <= 75);
+        check(spec.name + ' earns at least 1 a second the moment Pip is hired (saw ' + atHire.toFixed(1) + ')', atHire >= 1);
+        check(spec.name + ' has the clerks ahead of the stamp by two minutes (saw ' + at120.toFixed(0) + ')', at120 > 2);
+        check(spec.name + ' earns at least 10 a second by three minutes (saw ' + at180.toFixed(0) + ')', at180 >= 10);
+        check(spec.name + ' earns hundreds a second by ten minutes (saw ' + end.toFixed(0) + ')', end >= 100);
+      }
+      if (spec.stampEvery === 5) check(spec.name + ' hires the first clerk by 120 seconds (saw ' + first.toFixed(0) + ')', first <= 120);
+    });
+    var hi = Math.max.apply(null, ends);
+    var lo = Math.min.apply(null, ends);
+    check('the four ten-minute incomes sit within five times of each other (' + Math.round(lo) + ' to ' + Math.round(hi) + ')', lo > 0 && hi / lo <= 5);
+  }
+
+  function layout() {
+    var widths = [320, 360, 390, 1280];
+    var chain = Promise.resolve();
+    widths.forEach(function (width) {
+      chain = chain.then(function () { return oneWidth(width); });
+    });
+    return chain;
+  }
+
+  function oneWidth(width) {
+    return new Promise(function (resolve, reject) {
+      var frame = document.createElement('iframe');
+      frame.setAttribute('title', 'Patent Pending at ' + width);
+      frame.style.cssText = 'width:' + width + 'px;height:800px;border:0;display:block';
+      frame.src = '../games/patent-pending/index.html?width=' + width;
+      var timer = null;
+      frame.onload = function () {
+        var doc = frame.contentDocument;
+        var win = frame.contentWindow;
+        var tries = 0;
+        timer = setInterval(function () {
+          tries++;
+          var open = doc.getElementById('open-office');
+          var stamp = doc.getElementById('stamp');
+          if ((!open || !stamp) && tries < 50) return;
+          clearInterval(timer);
+          if (!open || !stamp) {
+            frame.remove();
+            reject(Error('the office did not open at ' + width));
+            return;
+          }
+          open.click();
+          var contrastProblems = readable(doc, win);
+          var shiftProblems = width === 390 ? heldStill(doc, win) : [];
+          for (var i = 0; i < 8; i++) stamp.click();
+          var problems = hit(doc, win).concat(contrastProblems).concat(shiftProblems);
+          if (width === 320) problems = problems.concat(fits(doc));
+          if (width === 320 || width === 390) problems = problems.concat(rapid(doc, win));
+          if (width === 320) problems = problems.concat(slipFeedback(doc, win));
+          var shift = moved(doc);
+          if (width === 390) problems = problems.concat(tabs(doc));
+          frame.remove();
+          try {
+            check(width + 'px: every visible File button is at least 44px and its centre hits the button' + (problems.length ? ' (' + problems.join('; ') + ')' : ''), problems.length === 0);
+            check(width + 'px: filing does not move a File button more than 2px' + (shift ? ' (' + shift + ')' : ''), !shift);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        }, 40);
+      };
+      document.body.appendChild(frame);
+    });
+  }
+
+  function lum(color) {
+    var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(color);
+    if (!m) return 0;
+    function chan(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+    return 0.2126 * chan(+m[1]) + 0.7152 * chan(+m[2]) + 0.0722 * chan(+m[3]);
+  }
+  function contrast(win, el) {
+    var style = win.getComputedStyle(el);
+    var a = lum(style.color);
+    var b = lum(style.backgroundColor);
+    var hi = Math.max(a, b);
+    var lo = Math.min(a, b);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+  function readable(doc, win) {
+    var problems = [];
+    var stamp = doc.getElementById('stamp');
+    var hire = doc.querySelector('[data-hire="0"]');
+    var stampContrast = contrast(win, stamp);
+    var hireContrast = contrast(win, hire);
+    if (stampContrast < 4.5) problems.push('stamp contrast ' + stampContrast.toFixed(2));
+    if (hireContrast < 4.5) problems.push('hire contrast ' + hireContrast.toFixed(2));
+    if (!stamp.textContent || !hire.textContent) problems.push('blank button');
+    if (hire.textContent.indexOf('Need') < 0) problems.push('hire does not say what it costs');
+    var file = doc.querySelector('[data-buy="0"]');
+    if (!file || file.textContent.indexOf('Need') < 0) problems.push('file does not say what it costs');
+    if (file && contrast(win, file) < 4.5) problems.push('file contrast ' + contrast(win, file).toFixed(2));
+    return problems;
+  }
+  function heldStill(doc, win) {
+    var problems = [];
+    function tops() {
+      return {
+        tabs: doc.getElementById('tab-inventions').getBoundingClientRect().top,
+        stamp: doc.getElementById('stamp').getBoundingClientRect().top
+      };
+    }
+    var before = tops();
+    if (win.PatentView) win.PatentView.showSlip();
+    var slipped = tops();
+    if (Math.abs(slipped.tabs - before.tabs) > 2 || Math.abs(slipped.stamp - before.stamp) > 2) {
+      problems.push('slip moved tabs ' + (slipped.tabs - before.tabs).toFixed(1) + ' stamp ' + (slipped.stamp - before.stamp).toFixed(1));
+    }
+    var hire = doc.querySelector('[data-hire="0"]');
+    var guard = 0;
+    while (hire.classList.contains('short') && guard < 40) {
+      doc.getElementById('stamp').click();
+      guard++;
+    }
+    var hiredAt = tops();
+    if (hire.classList.contains('ready')) hire.click();
+    var after = tops();
+    if (Math.abs(after.tabs - hiredAt.tabs) > 2 || Math.abs(after.stamp - hiredAt.stamp) > 2) {
+      problems.push('clerk moved tabs ' + (after.tabs - hiredAt.tabs).toFixed(1) + ' stamp ' + (after.stamp - hiredAt.stamp).toFixed(1));
+    }
+    return problems;
+  }
+
+  function fits(doc) {
+    var problems = [];
+    var step = doc.querySelector('.step-line');
+    step.textContent = 'Step 2 of 4. Hire Clerk Pip for the Better Paperclip. Pip keeps filing while you are away.';
+    if (step.scrollHeight > step.clientHeight + 1) problems.push('the coaching line is clipped');
+    doc.getElementById('tab-charter').click();
+    doc.querySelectorAll('#charter .kv span').forEach(function (span) {
+      if (span.scrollWidth > span.clientWidth + 1) problems.push('charter row spills: ' + span.textContent);
+    });
+    doc.getElementById('tab-inventions').click();
+    return problems;
+  }
+
+  function slipFeedback(doc, win) {
+    var problems = [];
+    var before = doc.getElementById('fees').textContent;
+    win.PatentView.showSlip();
+    var slip = doc.getElementById('slip');
+    if (!slip || slip.textContent.indexOf('+') < 0) return ['the slip does not show its fee'];
+    slip.click();
+    var line = doc.querySelector('.step-line').textContent;
+    if (line.indexOf('Caught') < 0) problems.push('the slip gave no message');
+    if (doc.getElementById('fees').textContent === before) problems.push('the slip did not change the drawer');
+    return problems;
+  }
+
+  function rapid(doc, win) {
+    var stamp = doc.getElementById('stamp');
+    var problems = [];
+    for (var i = 0; i < 20; i++) stamp.click();
+    var scroller = doc.querySelector('.page.on');
+    if (scroller) scroller.scrollTop = 0;
+    if (win.scrollX !== 0) problems.push('scrollX ' + win.scrollX);
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('scrollWidth ' + doc.documentElement.scrollWidth);
+    var bad = [];
+    doc.querySelectorAll('body *').forEach(function (el) {
+      if (el.closest('[hidden]')) return;
+      var style = win.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return;
+      var r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return;
+      if (r.left < -1 || r.right > win.innerWidth + 1) bad.push((el.id || el.className || el.tagName) + ' ' + Math.round(r.left) + '..' + Math.round(r.right));
+    });
+    if (bad.length) problems.push('past the edge ' + bad.slice(0, 3).join(', '));
+    var seen = 0;
+    var pages = doc.querySelector('.pages').getBoundingClientRect();
+    doc.querySelectorAll('[data-buy]').forEach(function (b) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      var r = b.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      if (cy < pages.top + 1 || cy > pages.bottom - 1 || cx < 1 || cx > win.innerWidth - 1) return;
+      seen++;
+      var el = doc.elementFromPoint(cx, cy);
+      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy + ' hit ' + (el ? el.tagName + '.' + (el.id || el.className) : 'none') + ' at ' + Math.round(cx) + ',' + Math.round(cy));
+    });
+    if (!seen) problems.push('no File button after the taps');
+    if (problems.length) problems.unshift('after 20 stamps');
+    return problems;
+  }
+
+  function hit(doc, win) {
+    var problems = [];
+    var seen = 0;
+    doc.querySelectorAll('[data-buy]').forEach(function (b) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      b.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var r = b.getBoundingClientRect();
+      if (r.width < 44 || r.height < 44) problems.push('small ' + b.dataset.buy + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      if (cy < 1 || cx < 1 || cy > win.innerHeight - 1 || cx > win.innerWidth - 1) {
+        problems.push('offscreen ' + b.dataset.buy);
+        return;
+      }
+      seen++;
+      var el = doc.elementFromPoint(cx, cy);
+      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy + ' ' + (el ? el.tagName + '.' + el.className : 'none'));
+    });
+    if (!seen) problems.push('no visible File button');
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) {
+      var wide = null;
+      doc.querySelectorAll('body *').forEach(function (el) {
+        var w = el.getBoundingClientRect().width;
+        if (w > win.innerWidth + 1 && (!wide || w > wide.w)) wide = { w: Math.round(w), t: el.tagName + '.' + (el.className || el.id) };
+      });
+      problems.push('horizontal overflow ' + doc.documentElement.scrollWidth + (wide ? ' ' + wide.t + ' ' + wide.w : ''));
+    }
+    return problems;
+  }
+
+  function moved(doc) {
+    var buttons = Array.prototype.slice.call(doc.querySelectorAll('[data-buy]'));
+    var before = buttons.map(function (b) { return b.getBoundingClientRect(); });
+    var target = null;
+    for (var i = 0; i < buttons.length; i++) {
+      var card = buttons[i].closest('.card');
+      if (!buttons[i].disabled && card && !card.hidden) { target = buttons[i]; break; }
+    }
+    if (!target) return 'no enabled File button';
+    target.click();
+    var worst = 0;
+    buttons.forEach(function (b, i) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      var r = b.getBoundingClientRect();
+      worst = Math.max(worst, Math.abs(r.top - before[i].top), Math.abs(r.left - before[i].left));
+    });
+    return worst > 2 ? worst.toFixed(2) : '';
+  }
+
+  function tabs(doc) {
+    var problems = [];
+    var imp = doc.getElementById('page-improvements');
+    doc.getElementById('tab-improvements').click();
+    imp.scrollTop = 180;
+    var ids = Array.prototype.map.call(doc.querySelectorAll('[data-up]'), function (b) { return b.getAttribute('data-up'); });
+    var affordable = doc.querySelector('#ups button:not([disabled])');
+    if (affordable) affordable.click();
+    var after = Array.prototype.map.call(doc.querySelectorAll('[data-up]'), function (b) { return b.getAttribute('data-up'); });
+    if (ids.join('|') !== after.join('|')) problems.push('improvement order changed');
+    doc.getElementById('tab-inventions').click();
+    doc.getElementById('page-inventions').scrollTop = 30;
+    doc.getElementById('tab-improvements').click();
+    if (Math.abs(imp.scrollTop - 180) > 2) problems.push('improvement scroll was not kept');
+    return problems;
+  }
+};
+</script>
+</body>
+</html>
