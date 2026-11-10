@@ -2335,6 +2335,40 @@ document.querySelector('#run').onclick = async function () {
       });
     });
     check(phoneFit.length ? 'phone buy labels overflow: ' + phoneFit.slice(0, 4).join(' | ') : 'buy labels fit at 320, 360, 375 and 390, and Next names coins', phoneFit.length === 0);
+    var rowFitProblems = [];
+    [[1280, 800], [390, 844], [320, 568]].forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 40; s.owned = i === 5 ? 0 : 12; });
+      lm.state.cash = 1e9;
+      lm.state.bulk = 1;
+      if (lm.state.night) { lm.state.night.offer = null; lm.state.night.kept = false; }
+      lw.scrollTo(0, 0);
+      lm.render();
+      var rows = Array.prototype.filter.call(ld.querySelectorAll('#stalls > .stall, #stalls > #pick'), function (row) {
+        return row.getBoundingClientRect().height > 1;
+      });
+      rows.forEach(function (row, i) {
+        var a = row.getBoundingClientRect();
+        rows.slice(i + 1).forEach(function (other) {
+          var b = other.getBoundingClientRect();
+          var overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+          var overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+          if (overlapX > 0.5 && overlapY > 0.5) rowFitProblems.push(label + ' rows overlap ' + Math.round(overlapX) + 'x' + Math.round(overlapY));
+        });
+      });
+      Array.prototype.forEach.call(ld.querySelectorAll('#stalls .stall .actions button'), function (btn) {
+        if (btn.hidden || btn.offsetParent === null) return;
+        var view = btn.ownerDocument.defaultView;
+        var cs = view.getComputedStyle(btn);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return;
+        var box = btn.getBoundingClientRect();
+        if (box.height < 44) rowFitProblems.push(label + ' short ' + (btn.textContent || '').trim().slice(0, 40) + ' ' + Math.round(box.height) + 'px');
+        if (btn.scrollHeight > btn.clientHeight + 1) rowFitProblems.push(label + ' clipped ' + (btn.textContent || '').trim().slice(0, 40) + ' ' + btn.scrollHeight + '/' + btn.clientHeight);
+      });
+    });
+    check(rowFitProblems.length ? 'stall rows overlap or a button is clipped: ' + rowFitProblems.slice(0, 6).join(' | ') : 'stall rows do not overlap and every button shows its full label at 1280, 390 and 320', rowFitProblems.length === 0);
     layout.style.width = '320px';
     layout.style.height = '568px';
     lm.render();

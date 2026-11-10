@@ -675,6 +675,21 @@
   function matByClock(state) {
     return !!(state && state.night && (state.night.wallMs || 0) >= MAT_CLOCK * 1000);
   }
+  /* The bottom bar names a twelve-second price from 8:00 until it is answered.
+     While that bar is up, the heading and the row charge the same amount. */
+  function earlyMatLiveQuote(state) {
+    if (!state || !state.night || state.night.kept) return 0;
+    var mat = state.stalls && state.stalls[STALLS.length - 1];
+    if (mat && mat.owned >= 1) return 0;
+    var t = (state.night.wallMs || 0) / 1000;
+    var shown = state.night.lateShown || [];
+    if (!(t >= 480 && t < 555 && shown.indexOf(480) < 0)) return 0;
+    if (!(state.night.earlyQuote > 0)) {
+      var quoted = income(state) * 12;
+      if (quoted > 0) state.night.earlyQuote = quoted;
+    }
+    return state.night.earlyQuote > 0 ? state.night.earlyQuote : 0;
+  }
   function unlocked(state, i) {
     if (!spec(i)) return false;
     if (i === 0) return true;
@@ -881,7 +896,9 @@
        seconds of what the lane earns then, and never outside eight to twenty.
        A night that reached ten incense trays earlier still pays the catalogue
        price. The pacing buyer does not advance this clock. */
-    if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state)) {
+    if (stall.id === 'stories' && owned === 0 && state && state.night && earlyMatLiveQuote(state) > 0) {
+      total = Math.min(total, earlyMatLiveQuote(state));
+    } else if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state)) {
       if (!(state.night.matOffer > 0)) {
         var laneRate = income(state);
         var shownPrice = state.night.matShown > 0 ? state.night.matShown : (laneRate > 0 ? laneRate * 12 : 0);
@@ -1141,7 +1158,7 @@
       var matPrice = cost(mat, 0, 1, state);
       if (matPrice > 0) line += ' It costs ' + moneyText(matPrice) + '.';
     }
-    if (matReady && matByClock(state) && state.night && state.night.matOffer > 0 && state.night.matOffer + 1 < STALLS[mat].base && line.indexOf('twelve seconds') < 0) {
+    if (matReady && line.indexOf('twelve seconds') < 0 && (earlyMatLiveQuote(state) > 0 || (matByClock(state) && state.night && state.night.matOffer > 0 && state.night.matOffer + 1 < STALLS[mat].base))) {
       line += ' About twelve seconds of the lane.';
     }
     if (state && state.night && state.night.kept && state.stalls[mat] && state.stalls[mat].owned >= 1 && line.indexOf('stayed open') < 0) {
