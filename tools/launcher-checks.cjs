@@ -2,6 +2,74 @@
    phone-to-ultrawide widths, and saved-progress isolation. All contexts are fresh; no player data touched. */
 const {chromium}=require('playwright');
 const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0;function check(ok,label){if(!ok)throw Error(label);count++;}
+// The featured Continue Wildbond control is the hero link (Hub.cta reads the Godot journey in IndexedDB).
+// Wildbond has left the public hub. When that link is gone, this check skips instead of failing.
+function wildbondSaveSuffix(source){
+  const block=source.match(/const GODOT_SAVES\s*=\s*\{([\s\S]*?)\};/);
+  if(!block)return null;
+  const pair=[...block[1].matchAll(/['"]([^'"]*)['"]\s*:\s*['"]([^'"]*wildbond[^'"]*)['"]/gi)][0]
+    ||[...block[1].matchAll(/['"]([^'"]*wildbond[^'"]*)['"]\s*:\s*['"]([^'"]+)['"]/gi)][0];
+  return pair?pair[2]:null;
+}
+// Version 2 is the journey the game writes to user://journey.json. The hub only looks for the file's name.
+function wildbondJourney(){
+  return {v:2,saved:new Date().toISOString().slice(0,19).replace('T',' '),look:{name:'Roadie'},
+    team:[{sp:'ripplet',name:'Puddle',lvl:5,xp:0,rar:0,hp:20,pot:{hp:0,atk:0,def:0,spd:0},bond:0}],
+    ranch:[],bag:{},badges:[],seen:{},bonded:{},items:[],beaten:[],restore:[],explored:{},story:{},retry:{},egg:{},gear:[],taught:{},
+    letter:[0,[]],calendar:{},festival:{done:[],keep:[],flowers:[]},league:0,
+    spire:{floor:0,best:0,active:false},rematches:{},bondDay:0,keysLearned:{},
+    map:'larkhaven',x:12,y:14,partner:''};
+}
+async function plantWildbondJourney(page,suffix){
+  const key=suffix.startsWith('/userfs')?suffix:'/userfs/godot'+suffix;
+  await page.evaluate(async({key,json})=>{
+    await new Promise((resolve,reject)=>{
+      const req=indexedDB.open('/userfs',1);
+      req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains('FILE_DATA'))db.createObjectStore('FILE_DATA');};
+      req.onerror=()=>reject(req.error);
+      req.onsuccess=()=>{
+        const db=req.result,tx=db.transaction('FILE_DATA','readwrite');
+        tx.objectStore('FILE_DATA').put({contents:new TextEncoder().encode(json),mode:33206,timestamp:new Date()},key);
+        tx.oncomplete=()=>{db.close();resolve();};
+        tx.onerror=()=>reject(tx.error);
+      };
+    });
+  },{key,json:JSON.stringify(wildbondJourney())});
+  return key;
+}
+async function continueWildbond(browser){
+  const c=await browser.newContext({viewport:{width:1280,height:800},serviceWorkers:'block'}),p=await c.newPage();
+  const errors=[];p.on('pageerror',e=>errors.push(e.message));
+  try{
+    await p.goto(origin+'/');
+    await p.waitForFunction(()=>window.Hub&&document.querySelector('#heroPlay'));
+    const offer=await p.evaluate(()=>{
+      const links=[...document.querySelectorAll('a[href]')];
+      const textOf=a=>((a.textContent||'')+' '+(a.getAttribute('href')||''));
+      const play=links.find(a=>a.id==='heroPlay'&&/wildbond/i.test(textOf(a)))
+        ||links.find(a=>/wildbond/i.test(a.getAttribute('href')||'')&&/play|continue/i.test(a.textContent||''));
+      if(!play)return null;
+      const card=play.closest('[data-game]');
+      const selector=play.id?'#'+CSS.escape(play.id):card?`[data-game="${card.dataset.game}"] a.play`:`a[href="${play.getAttribute('href')}"]`;
+      return {selector,text:play.textContent.replace(/\s+/g,' ').trim(),href:play.getAttribute('href')};
+    });
+    if(!offer){console.log('skip — Continue Wildbond is not on the hub');return;}
+    check(!/continue/i.test(offer.text),'Wildbond offers Play before a journey exists ('+offer.text+')');
+    const hubJs=await (await p.request.get(origin+'/shared/hub.js')).text();
+    const suffix=wildbondSaveSuffix(hubJs);
+    check(!!suffix,'hub looks up the Wildbond journey file');
+    const key=await plantWildbondJourney(p,suffix);
+    await p.reload();
+    await p.waitForFunction(sel=>{const el=document.querySelector(sel);return !!el&&/continue/i.test(el.textContent);},offer.selector,{timeout:8000});
+    const label=await p.locator(offer.selector).innerText(),href=await p.locator(offer.selector).getAttribute('href');
+    check(/continue/i.test(label)&&/wildbond/i.test(label+' '+href),'button says Continue and still opens Wildbond ('+label+' → '+href+')');
+    await p.locator(offer.selector).click();
+    const wanted=new URL(href,origin).pathname.replace(/index\.html$/,'').replace(/\/$/,'');
+    await p.waitForURL(u=>u.pathname.replace(/index\.html$/,'').replace(/\/$/,'')===wanted||u.pathname.startsWith(wanted+'/'));
+    check(true,'Continue Wildbond opens '+wanted+' (save '+key+')');
+    check(errors.length===0,'Continue Wildbond has no page errors: '+errors.join(';'));
+  }finally{await c.close();}
+}
 const SHELVED=['starfall-guild','diamond-career','primordial'];
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME_PATH||(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':undefined),headless:true});try{
  const WIDTHS=process.env.LAUNCHER_WIDTHS?process.env.LAUNCHER_WIDTHS.split(',').map(w=>w.split('x').map(Number)):[[360,780],[390,844],[768,1024],[1280,800],[1920,1080],[2560,1080],[3440,1440],[5120,1440]];
@@ -76,5 +144,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
  const c=await b.newContext({serviceWorkers:'block'}),p=await c.newPage();await p.route('**/images/**',r=>r.abort());await p.goto(origin+'/');await p.waitForFunction(()=>document.querySelector('#current .cab'));
  check(await p.locator('#current .cab .ttl').first().isVisible(),'card title shows without its image');
  await p.locator('#heroPlay').focus();await p.keyboard.press('Enter');await p.waitForURL('**/games/little-ranch/**');check(true,'keyboard enters the game');
+ await c.close();
+ await continueWildbond(b);
  console.log('PASS — '+count+' launcher checks.');
 }finally{await b.close();}})().catch(e=>{console.error(e);process.exit(1)});
