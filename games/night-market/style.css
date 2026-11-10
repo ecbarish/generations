@@ -456,10 +456,11 @@ button[aria-pressed="true"], button.ask, button.best {
     right: 0;
     z-index: 5;
     box-sizing: border-box;
-    height: 44px;
-    max-height: 44px;
+    height: auto;
+    min-height: 44px;
+    max-height: 56px;
     margin: 0;
-    padding: 0 0.7rem;
+    padding: 0.15rem 0.7rem;
     padding-left: max(0.7rem, env(safe-area-inset-left));
     padding-right: max(0.7rem, env(safe-area-inset-right));
     background: var(--paper);
@@ -469,8 +470,8 @@ button[aria-pressed="true"], button.ask, button.best {
     cursor: pointer;
     white-space: normal;
     overflow: hidden;
-    line-height: 1.2;
-    font-size: 0.95rem;
+    line-height: 1.25;
+    font-size: 0.85rem;
   }
   .coin-pin { display: none !important; }
   .best-tag { top: 0.55rem; }

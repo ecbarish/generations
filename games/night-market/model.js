@@ -22,10 +22,10 @@
   var LANE_FACTORS = [1, 2, 2.5, 3.2];
   var NEXT_MARKS = [10, 25, 50, 100, 150, 200, 300, 400];
   var FINALE_AT = 10;
-  /* Four pours a second. A held second is a handful of cups, not the wage.
+  /* Six pours a second. A held second is a handful of cups, not the wage.
      Once the bought stalls pass this, holding is a top-up. A late timer
      cannot pay more than one second. */
-  var HOLD_PER_SEC = 4;
+  var HOLD_PER_SEC = 6;
   var HOLD_SLICE = 1;
   /* Max stops at the next doubling, and also when that buy would take longer than
      seven and a half minutes to pay for itself. A run from 25 lanterns therefore
@@ -106,7 +106,7 @@
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
       habit: 'Old Wen stops just before the ending. The crowd pays to hear the rest.',
       serve: 'Tell a piece of the story', left: 'piece of the story', lefts: 'pieces of the story', hire: 'Ask Old Wen to take the mat',
-      base: 2200000, growth: 1.36, rate: 2200, serves: 6, hand: 1,
+      base: 2200000, growth: 1.36, rate: 2240, serves: 6, hand: 1,
       looks: ['One cushion', 'Two cushions', 'A paper screen', 'Listeners sitting in the lane'],
       gossip: 'Old Wen says he reached the ending, then started again.',
       next: ''
@@ -892,6 +892,13 @@
     }
     /* A lower-prices choice never touches the Story Mat. */
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
+    /* The first tray is the long save between minute 2 and minute 15.
+       Later trays stay on the 62,000 curve, so that one lower price does not
+       speed the rest of the night. A charm that changes the base scales this too. */
+    if (stall.id === 'incense' && owned === 0) {
+      var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
+      total += base * ease * (45000 / 62000 - 1);
+    }
     /* At fifteen minutes of visible play the first mat costs about twelve
        seconds of what the lane earns then, and never outside eight to twenty.
        A night that reached ten incense trays earlier still pays the catalogue
@@ -4145,6 +4152,10 @@
     var growth = stallField(state, stallId, 'growth', stall.growth);
     var total = Idle.bulkCost(base, growth, owned, 1);
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
+    if (stall.id === 'incense' && owned === 0) {
+      var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
+      total += base * ease * (45000 / 62000 - 1);
+    }
     return total;
   }
   function ownedSnapshot(state) {
@@ -4743,7 +4754,8 @@
       (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime) : String(Math.round(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime))) + ' coins earned tonight.';
     var nextSeed = stepSeed(state.night && state.night.seed ? state.night.seed : 1);
     var teaPrice = STALLS[0].base * seedPriceFactor(nextSeed, 0);
-    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + '. Pour until Mei will take it.';
+    var matBase = STALLS[STALLS.length - 1].base * seedPriceFactor(nextSeed, STALLS.length - 1);
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + '. The Story Mat will cost ' + moneyText(matBase) + '.';
     return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {

@@ -333,6 +333,7 @@
     idle.start(state.seen);
     if (window.__nightMarket) window.__nightMarket.idle = idle;
   }
+  var inputLock = false, renderQueued = false;
   function render() {
     M.prepareMat(state);
     var freeze = M.dawnDue(state) && !(state.night && state.night.kept);
@@ -600,8 +601,14 @@
       var showStrip = !goal.hidden && (awayOn || (coinsGone && laneClear) || (goalBox.top <= 0.5 && laneClear));
       pin.hidden = !showStrip;
       if (!pin.hidden) {
-        var goalBit = pin.textContent.replace(/\s+/g, ' ').trim();
-        if (goalBit.length > 18) goalBit = goalBit.slice(0, 16) + '…';
+        var source = goal.textContent.replace(/\s+/g, ' ').trim();
+        var bonusAt = source.indexOf('Next bonus:');
+        var goalBit = source;
+        if (bonusAt >= 0) goalBit = source.slice(bonusAt);
+        else {
+          var sentence = source.indexOf('. ');
+          if (sentence > 0) goalBit = source.slice(0, sentence + 1);
+        }
         pin.textContent = money(state.cash) + ' coins' + (per ? ' · ' + per : '') + ' · ' + goalBit;
       }
       if (coinPin) coinPin.hidden = true;
@@ -614,7 +621,7 @@
         coinPin.style.top = '';
       }
     }
-    var reserve = phone ? 44 : (coinPin ? pinHeight(coinPin) : 0);
+    var reserve = phone ? (pin.hidden ? 56 : Math.min(56, Math.max(44, Math.ceil(pin.getBoundingClientRect().height)))) : (coinPin ? pinHeight(coinPin) : 0);
     document.documentElement.style.scrollPaddingTop = reserve > 0 ? Math.ceil(reserve) + 'px' : '';
     /* Reserving the pin can pull the lane the rest of the way off the screen.
        Judge the coin total against that final place. */
@@ -1057,14 +1064,19 @@
     if (doRender) render();
   }
   var swallowServeUntil = 0;
+  function flushRender() {
+    if (!renderQueued || inputLock) return;
+    renderQueued = false;
+    render();
+  }
   function stopHold(e) {
     var poured = hold && hold.n > 0;
     if (e && e.pointerId != null && hold && hold.b && hold.b.releasePointerCapture) {
       try { if (hold.b.hasPointerCapture && hold.b.hasPointerCapture(e.pointerId)) hold.b.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
     }
-    settleHold(true);
-    /* The release of a pour is not another cup. A later tap still is. */
+    settleHold(false);
     if (poured) swallowServeUntil = Date.now() + 400;
+    renderQueued = true;
   }
   document.addEventListener('touchmove', function (e) {
     var target = e.target && e.target.closest && e.target.closest('button');
@@ -1107,12 +1119,28 @@
   var pointerDown = false;
   document.addEventListener('pointerdown', function (e) {
     pointerDown = true;
+    inputLock = true;
+    /* A new press is not the release of the pour. */
+    if (!(e.target && e.target.closest && e.target.closest('[data-act="serve"]') && hold && hold.b && e.target.closest('[data-act="serve"]') === hold.b && !hold.settled)) swallowServeUntil = 0;
     var crowdBtn = e.target && e.target.closest && e.target.closest('[data-act="rush"], [data-act="mat-now"], [data-act="mat-wait"]');
     if (crowdBtn) crowdPressAt = Date.now();
   }, true);
-  document.addEventListener('pointerup', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
-  document.addEventListener('pointercancel', function () { pointerDown = false; pressedBuy = null; lastPointerUp = Date.now(); }, true);
-  window.addEventListener('blur', function () { pointerDown = false; });
+  document.addEventListener('pointerup', function () {
+    pointerDown = false;
+    lastPointerUp = Date.now();
+    /* The click is dispatched after pointerup, on this same turn. Paint after it. */
+    setTimeout(function () { inputLock = false; flushRender(); }, 0);
+  }, true);
+  document.addEventListener('pointercancel', function () {
+    pointerDown = false;
+    pressedBuy = null;
+    lastPointerUp = Date.now();
+    setTimeout(function () { inputLock = false; flushRender(); }, 0);
+  }, true);
+  window.addEventListener('blur', function () {
+    pointerDown = false;
+    setTimeout(function () { inputLock = false; flushRender(); }, 0);
+  });
   var pressedBuy = null;
   var buyDown = null;
   var ignoreTrustedUntil = 0;
@@ -1132,7 +1160,6 @@
     pressedBuy = null;
     pointerDown = false;
     if (!held || !held.el) return;
-    if (Date.now() - held.t > 2000) return;
     var el = document.contains(held.el) ? held.el : null;
     if (!el) {
       var stall = held.el.closest && held.el.closest('[data-i]');
@@ -1304,7 +1331,10 @@
   if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
   render();
   settleHash();
-  setInterval(render, 250);
+  setInterval(function () {
+    if (inputLock) { renderQueued = true; return; }
+    render();
+  }, 250);
   window.addEventListener('scroll', syncPins, true);
   window.addEventListener('resize', syncPins);
   window.addEventListener('hashchange', function () { syncPins(); settleHash(); });

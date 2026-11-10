@@ -276,7 +276,7 @@ document.querySelector('#run').onclick = async function () {
     check('a waiting omen leaves the approved prices alone',
       plain.night.offer && plain.night.offer.options.length === 3 && plain.night.omen === null &&
       M.cost(0, 0, 1, plain) === M.STALLS[0].base && M.cost(5, 0, 1, plain) === 2200000 &&
-      M.STALLS[5].base === 2200000 && M.STALLS[5].growth === 1.36 && M.STALLS[5].rate === 2200);
+      M.STALLS[5].base === 2200000 && M.STALLS[5].growth === 1.36 && M.STALLS[5].rate === 2240);
     var again = M.fresh();
     M.armNight(again, 1, 4);
     var twin = M.fresh();
@@ -974,6 +974,9 @@ document.querySelector('#run').onclick = async function () {
     check('Ferry crowd caps this session\'s away box at two hours and 75%',
       ferryAway && ferryAway.capped && ferryAway.credited === 2 * 3600 && near(ferryAway.gained, M.income(ferryNight) * 2 * 3600 * 0.75));
     check('the first Story Mat is dawn once every stall is open', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
+    check('the ending card names the next Tea Stall price and the Story Mat price',
+      /starts at the Tea Stall for /.test(M.dawnCopy(ended).nextGoal) && /The Story Mat will cost /.test(M.dawnCopy(ended).nextGoal) &&
+      M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.STALLS[5].base)) >= 0);
     check('nine mats are still not the last chapter', (function () { var nine = M.fresh(); nine.stalls[5].owned = 9; nine.night.kept = true; return !M.finaleReached(nine) && M.chapterLine(nine) === 'Chapter 9 of 10: The crowd holds still.'; })());
     var book = M.codexView(ended);
     check('dawn writes the night before the lane is cleared', M.noteDawn(ended) && book.nights.length === 0 && M.codexView(ended).nights.length === 1 && M.codexView(ended).nights[0].omen.length > 0);
@@ -1155,7 +1158,8 @@ document.querySelector('#run').onclick = async function () {
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
       M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
       M.STALLS[4].base === 62000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
-      M.STALLS[5].base === 2200000 && M.STALLS[5].rate === 2200 && M.STALLS[5].growth === 1.36 &&
+      M.cost(4, 0, 1) === 45000 && M.cost(4, 1, 1) === 68200 &&
+      M.STALLS[5].base === 2200000 && M.STALLS[5].rate === 2240 && M.STALLS[5].growth === 1.36 &&
       M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 &&
       M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
       M.STALLS[2].base === 700 && M.STALLS[2].growth === 1.07 && M.STALLS[2].rate === 5);
@@ -1775,7 +1779,7 @@ document.querySelector('#run').onclick = async function () {
       var bonusStart = bonusAt >= 0 ? goal.textContent.slice(bonusAt, bonusAt + 12) : '';
       var pinShowsGoal = pin.textContent === goal.textContent || (bonusAt >= 0 && pin.textContent === goal.textContent.slice(bonusAt)) || (pin.textContent.indexOf('coins') >= 0 && (pin.textContent.indexOf(goalStart) >= 0 || (bonusStart && pin.textContent.indexOf(bonusStart) >= 0)));
       check(width + 'x' + height + ': the green goal stays on screen after scrolling to the stalls',
-        !pin.hidden && pinShowsGoal && pinBox.height <= 44 && pinBox.top < 8 && pinBox.bottom > 0 && pinBox.bottom < height);
+        !pin.hidden && pinShowsGoal && pinBox.height <= 56 && pinBox.top < 8 && pinBox.bottom > 0 && pinBox.bottom < height);
       var best = d.querySelector('.best-tag');
       check(width + 'x' + height + ': the Best tag is at least 16px', best && parseFloat(w.getComputedStyle(best).fontSize) >= 16);
       var savedPin = pin.textContent;
@@ -1999,7 +2003,7 @@ document.querySelector('#run').onclick = async function () {
       var merged = d.querySelector('#goal-pin');
       var mergedBox = merged.getBoundingClientRect();
       check('a phone keeps a compact coin total while the header has scrolled away',
-        phonePin.hidden && !merged.hidden && mergedBox.height > 0 && mergedBox.height <= 44 &&
+        phonePin.hidden && !merged.hidden && mergedBox.height > 0 && mergedBox.height <= 56 &&
         /coins/.test(merged.textContent) &&
         (!phoneBuyHit || phoneBuyHit === phoneBuy || phoneBuy.contains(phoneBuyHit)));
       frame.style.width = '844px';
@@ -3202,7 +3206,7 @@ document.querySelector('#run').onclick = async function () {
         });
       }
       var portrait = size[1] > size[0];
-      var oneLine = pinLines <= 1 && pinH > 0 && pinH < 64;
+      var oneLine = pinLines <= 2 && pinH > 0 && pinH <= 56;
       if (gap > 0 || overlap > 0 || (portrait && (!saw || !oneLine)) || (saw && !oneLine)) {
         pinProblems.push(label + ' gap ' + gap + ' saw ' + saw + ' lines ' + pinLines + ' h ' + pinH.toFixed(1) + ' overlap ' + overlap.toFixed(1));
       }
@@ -3947,6 +3951,68 @@ document.querySelector('#run').onclick = async function () {
       var afterPour = pg.state.stalls[0].owned;
       buy.click();
       check('the first buy after a pour hold lands on that tap', pg.state.stalls[0].owned === afterPour + 1);
+      pg.state.night.wallMs = 0;
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [480];
+      if (pg.idle && pg.idle.stop) pg.idle.stop();
+      pg.render();
+      await wait(30);
+      var longServe = pd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      var mouse = { bubbles: true, button: 0, pointerId: 30, pointerType: 'mouse', clientX: 40, clientY: 40 };
+      longServe.dispatchEvent(new pw.PointerEvent('pointerdown', mouse));
+      await wait(30000);
+      longServe.dispatchEvent(new pw.PointerEvent('pointerup', Object.assign({}, mouse, { pointerId: 30 })));
+      await wait(50);
+      function mouseClick(el, id) {
+        if (!el) return false;
+        var press = { bubbles: true, button: 0, pointerId: id, pointerType: 'mouse', clientX: 30, clientY: 30 };
+        el.dispatchEvent(new pw.PointerEvent('pointerdown', press));
+        el.dispatchEvent(new pw.PointerEvent('pointerup', press));
+        el.click();
+        return true;
+      }
+      var longBuy = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+      var ownedAfterHold = pg.state.stalls[0].owned;
+      mouseClick(longBuy, 31);
+      await wait(30);
+      var buyLanded = pg.state.stalls[0].owned === ownedAfterHold + 1;
+      pg.state.night.wallMs = 560000;
+      pg.state.night.wallStamp = -1;
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [480];
+      pg.state.night.nextLateAt = 560000;
+      pg.render();
+      await wait(450);
+      var longCrowd = pd.querySelector('#crowd [data-act="rush"]');
+      var shownBefore = pg.state.night.lateShown.length;
+      mouseClick(longCrowd, 32);
+      await wait(30);
+      var crowdLanded = !!longCrowd && pg.state.night.lateShown.length > shownBefore;
+      pg.state.stalls[1].hired = false;
+      pg.state.stalls[1].serves = PM.servesNeed(pg.state, 1);
+      pg.state.stalls[1].owned = 0;
+      pg.render();
+      var longMei = pd.querySelector('#stalls [data-i="1"] [data-act="hire"]');
+      mouseClick(longMei, 33);
+      await wait(30);
+      var meiLanded = pg.state.stalls[1].hired === true;
+      pg.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 0 : 40; });
+      pg.state.cash = 1e9;
+      pg.state.night.kept = false;
+      pg.state.night.offer = null;
+      pg.render();
+      var longUnroll = pd.querySelector('[data-act="unroll"]');
+      mouseClick(longUnroll, 34);
+      var unrollLanded = pg.state.stalls[5].owned >= 1;
+      var nightBefore = pg.state.night.n;
+      var longNext = pd.querySelector('[data-act="next-night"]');
+      mouseClick(longNext, 35);
+      var nextLanded = pg.state.night.n === nightBefore + 1;
+      check('after a 30s mouse hold the first click lands on buy, the crowd, Mei, Unroll and Next night (' +
+        [buyLanded, crowdLanded, meiLanded, unrollLanded, nextLanded].join(',') +
+        (longCrowd ? '' : ' crowd-missing') + ')',
+        buyLanded && crowdLanded && meiLanded && unrollLanded && nextLanded);
+      if (pg.idle && pg.idle.start) pg.idle.start(pw.Date.now());
     })();
     (function () {
       var sizes = [[1280, 800], [320, 568], [390, 844], [844, 390]];
