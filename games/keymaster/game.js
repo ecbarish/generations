@@ -45,15 +45,19 @@
  }
  // A short face for a narrow phone. The full name stays in the button for the line under it.
  function planFace(name){
-  if(/basement/i.test(name)) return 'The basement';
+  if(/basement/i.test(name)) return 'Basement';
   if(/full renovation/i.test(name)) return 'Full work';
   if(/clean|as it is|let it/i.test(name)) return 'As it is';
-  if(/patch the roof/i.test(name)) return 'Patch the roof';
-  if(/small touches/i.test(name)) return 'Small touches';
-  if(/refresh all/i.test(name)) return 'Refresh all';
+  if(/patch the roof/i.test(name)) return 'Roof';
+  if(/small touches/i.test(name)) return 'Touches';
+  if(/refresh all/i.test(name)) return 'Flats';
+  if(/^refresh/i.test(name)) return 'Refresh';
   const head=name.split(':')[0].trim();
-  return head.length<=12?head:head.split(/\s+/).slice(0,2).join(' ');
+  return head.length<=10?head:head.split(/\s+/)[0];
  }
+ function herePlace(){return M.placeOf(R.order);}
+ function nextPlace(){return (R.tier||0)>=1?null:M.placeOf(M.dealFor(0,1));}
+ function walkWord(){return M.won(R)&&nextPlace()?'Walk '+nextPlace():'Walk '+herePlace()+' again';}
 
  // The cash note stays inside the reserved lines. A shorter win sentence picks up one true clause
  // when a font wraps the reserve a line lower, and never grows the row.
@@ -76,7 +80,9 @@
  function street(){
   const done=M.paying(R), b=M.streetBudget(R);
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
-  $('#goal').textContent='Own '+M.GOAL+' homes on '+M.placeOf(R.order)+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  $('#goal').textContent='Own '+M.GOAL+' homes on '+herePlace()+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  const tag=document.querySelector('header .tag'); if(tag) tag.textContent=herePlace()+', Millbrook';
+  const walk=document.querySelector('#giveup [data-act="again"]'); if(walk) walk.textContent='Walk '+herePlace()+' again';
   $('#budget').hidden=false;
   if(M.finished(R)) fitBudget(M.won(R)?'You have the '+done+' homes that pay.':'You can\'t reach '+M.GOAL+' homes that pay from here.');
   else $('#budget').textContent=!b.need?'You have the homes that pay.':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.':
@@ -304,15 +310,18 @@
     ', '+money(got.cashFlow)+' a month on the worksheet. '+h.lesson+'</small></li>';}).join('');
   const payingHomes=R.homes.filter(h=>h.bought&&h.onCash>=0).length;
   const ownWord=payingHomes===1?'home that pays':'homes that pay';
-  const where=M.placeOf(M.orderOf(R).map(h=>h.id));
-  const nextBlock=M.won(R)?'Next: a harder block, still from $200,000. Own 3 homes that pay you.':'Next: another block. Own 3 homes that pay you.';
-  const html='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
+  const where=herePlace();
+  const ahead=M.won(R)?nextPlace():null;
+  const nextSentence=!M.won(R)?'Walk '+where+' again when you want another try.'
+   :ahead?'Next is '+ahead+', still from $200,000.'
+   :where+' is done. Walk it again whenever you like.';
+  const html='<div class="actions"><button type="button" class="primary" data-act="again">'+walkWord()+'</button></div>'+
    '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
    '<p class="earn">Your homes earn '+money(flow)+' a month.</p>'+
    '<p>'+(M.won(R)?M.paying(R)+' homes on '+where+' pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
    'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. '+
    'You still have '+money(R.cash)+' of your savings.</p>'+
-   '<p>You own '+payingHomes+' '+ownWord+'. '+nextBlock+'</p>'+
+   '<p>You own '+payingHomes+' '+ownWord+', earning '+money(flow)+' a month. '+nextSentence+'</p>'+
    '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>';
   show(html);
   const fin=$('#finale');fin.innerHTML=html;fin.hidden=false;

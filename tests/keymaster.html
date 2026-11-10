@@ -565,9 +565,9 @@ document.querySelector('#run').onclick=async()=>{
   check('the first yes names the home you own and the next one',/You own 1 home that pays/.test(text('#answer'))&&!/1 home that pay[^s]/.test(text('#answer'))&&/Next: 2 more homes that pay/.test(text('#answer'))&&/a month/.test(text('#answer'))&&/1 of 3/.test(text('#goal')));
   M.passHome(H.run());M.buyHome(H.run(),{price:247000,down:0.2,rehab:'refresh'});M.passHome(H.run());M.buyHome(H.run(),{price:146000,down:0.2,rehab:'refresh'});
   H.next();await wait(30);
-  check('a win sums up what you earn and names the harder block',/Your homes earn \$[\d,]+ a month/.test(text('#finale'))&&/You own 3 homes that pay/.test(text('#finale'))&&/harder block/.test(text('#finale'))&&/Alder Street/.test(text('#goal'))&&d.querySelector('#goal').offsetParent);
+  check('a win sums up what you earn and names the next block',/Your homes earn \$[\d,]+ a month/.test(text('#finale'))&&/You own 3 homes that pay, earning/.test(text('#finale'))&&/Next is Birch Street/.test(text('#finale'))&&/Walk Birch Street/.test(d.querySelector('#finale [data-act="again"]').textContent)&&!/harder block/.test(text('#finale'))&&/Alder Street/.test(text('#goal')));
   click('#finale [data-act="again"]');await wait(40);
-  check('the next block is Birch Street and the goal says so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/costly buy/i.test(text('#outlook')));
+  check('the next block is Birch Street and the goal and header say so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/Birch Street, Millbrook/.test(d.querySelector('.tag').textContent)&&/costly buy/i.test(text('#outlook')));
   H.begin();await wait(20);
   const prior=M.serialize(M.newRun());delete prior.tier;
   check('an older save with no block number still loads and is not migrated',M.SAVE_VERSION===1&&!M.migrates&&M.valid(prior)&&M.restore(prior).tier===0&&M.restore(prior).order.join('|')===prior.order.join('|'));
@@ -591,6 +591,16 @@ document.querySelector('#run').onclick=async()=>{
    const walk=d.querySelector('#finale [data-act="again"]');
    const walkBox=walk.getBoundingClientRect();
    check(width+'×'+height+' does not pan on the win, and Walk is a full tap ('+d.documentElement.scrollWidth+')',/Your homes earn/.test(text('#finale'))&&fits()&&walkBox.height>=44&&walkBox.left>=-1&&walkBox.right<=w.innerWidth+1);
+   if(width===320&&height===568){
+    H.begin();await wait(20);
+    const runB=H.run(); runB.order=M.dealFor(0,1); runB.at=2; runB.tier=1; runB.cash=200000;
+    runB.homes=[{id:'birch12',bought:true,onCash:1,choice:{price:238000,down:0.2,rehab:'refresh'},cashFlow:1},{id:'birch5',bought:false}];
+    H.next();await wait(30);
+    check('21 Birch does not pan at the asking price ('+d.documentElement.scrollWidth+')',/^21 Birch/.test(text('#addr'))&&fits());
+    click('[data-offer="-2000"]');await wait(20);
+    const faces=[...d.querySelectorAll('.rehab .face')];
+    check('21 Birch does not pan after one step down, and the work labels fit ('+d.documentElement.scrollWidth+')',text('#offer')==='$283,000'&&fits()&&faces.length>=3&&faces.every(f=>f.scrollWidth<=f.clientWidth+1&&f.closest('button').getBoundingClientRect().height>=44));
+   }
   }
   frame.style.width='320px';frame.style.height='568px';await wait(40);
   H.begin();await wait(30);w.scrollTo(0,0);
