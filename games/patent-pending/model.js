@@ -210,7 +210,7 @@
     return {
       day: day,
       index: index,
-      factor: 2 + ((h >>> 13) % 3),
+      factor: 1.25,
       label: D.DOCKETS[h % D.DOCKETS.length],
       invention: INVENTIONS[index].name
     };
@@ -239,16 +239,15 @@
       var v = INVENTIONS[i];
       var n = Idle.maxAffordable(v.base, v.growth, state.owned[i], state.cash);
       if (!(n > 0)) return 1;
-      return Math.min(1000, n);
+      return Math.min(10, n);
     }
     return 1;
   }
 
   function clerkCost(i) {
-    /* The spoon's clerk is priced for the first three minutes.
-       Later clerks stay a long hire, ninety times the filing fee. */
-    if (i === 1) return 4.5;
-    return INVENTIONS[i].base * 90;
+    var hire = INVENTIONS[i].hire;
+    if (hire > 0) return hire;
+    return INVENTIONS[i].base * 45;
   }
 
   function upgradeCount(state, kind) {
@@ -329,17 +328,20 @@
     return false;
   }
 
-  function multiplier(state, i, now, day) {
+  function multiplier(state, i, now, day, withBoost) {
     var m = Idle.milestoneMult(state.owned[i]);
+    var extra = 0;
     for (var u = 0; u < UPGRADES.length; u++) {
       var up = UPGRADES[u];
       if (!state.up[up.id]) continue;
-      if (up.kind === 'g' || (up.kind === 'v' && up.invention === i)) m *= up.factor;
+      if (up.kind === 'g') extra += 0.12;
+      else if (up.kind === 'v' && up.invention === i) extra += 0.2;
     }
+    m *= 1 + extra;
     var dock = docket(day || localDay(now ? new Date(now) : new Date()));
     if (dock.index === i) m *= dock.factor;
     m *= sealMultiplier(state) * achievementMultiplier(state) * streakMultiplier(state);
-    if (now != null && now < state.boostUntil && state.boostIndex === i && state.clerk[i]) m *= boostFactor(state);
+    if (withBoost !== false && now != null && now < state.boostUntil && state.boostIndex === i && state.clerk[i]) m *= 1.5;
     return m;
   }
 
@@ -350,7 +352,12 @@
 
   function eachRate(state, i, now, day) {
     if (state.owned[i] <= 0) return 0;
-    return cycleRevenue(state, i, now, day) / INVENTIONS[i].cycle;
+    var full = cycleRevenue(state, i, now, day) / INVENTIONS[i].cycle;
+    if (state.clerk[i]) return full;
+    /* The first filing does nothing until its clerk. Later inventions
+       file a quarter on their own, so buying one is felt before the hire. */
+    if (i === 0) return 0;
+    return full * 0.25;
   }
 
   function potential(state, now, day) {
@@ -361,22 +368,36 @@
 
   function managedRate(state, now, day) {
     var sum = 0;
-    for (var i = 0; i < N; i++) if (state.clerk[i] && state.owned[i] > 0) sum += eachRate(state, i, now, day);
+    for (var i = 0; i < N; i++) sum += eachRate(state, i, now, day);
     return sum;
   }
 
-  /* Rewards follow the office that is actually filing.
-     Before a clerk, that is a quiet rate, so a goal cannot hand over the drawer.
-     A stamp stays at least a tenth of a fee, which is what reaches the first clerk. */
+  /* Clerk income without the short boost, so a goal cannot pay the boosted rate. */
   function rewardRate(state, now, day) {
-    var running = managedRate(state, now, day);
-    if (running > 0) return running;
+    var sum = 0;
+    for (var i = 0; i < N; i++) {
+      if (!state.clerk[i] || state.owned[i] <= 0) continue;
+      sum += INVENTIONS[i].revenue * state.owned[i] * multiplier(state, i, now, day, false) / INVENTIONS[i].cycle;
+    }
+    if (sum > 0) return sum;
     return 0.02;
   }
 
-  function handPay(state, now, day) {
-    var inc = Math.max(potential(state, now, day), managedRate(state, now, day));
-    return Math.max(0.08, inc * 0.35) * stampFactor(state);
+  /* A stamp pays a small fee. Extra taps in the same second share one cap,
+     so four taps a second earn less than twice one tap a second, and the
+     fee never grows with the office. */
+  function handPay(state, now) {
+    var fee = 0.05;
+    var cap = 0.075;
+    if (state.stampWindow == null || now - state.stampWindow >= 1000) {
+      state.stampWindow = now;
+      state.stampPaid = 0;
+    }
+    var room = cap - (state.stampPaid || 0);
+    if (!(room > 0)) return 0;
+    var pay = Math.min(fee, room);
+    state.stampPaid += pay;
+    return pay;
   }
 
   function goalPay(state, goal, now, day) {
@@ -431,8 +452,8 @@
       pay = handPay(state, now, day);
       grant(state, pay);
       state.combo = 0;
-    } else if (state.clerk[chosen]) {
-      if (now - state.lastStamp <= COMBO_WINDOW) state.combo += 1;
+    } else if (state.clerk[chosen] && !(now < state.boostUntil)) {
+      if (now - state.lastStamp <= 400) state.combo += 1;
       else state.combo = 1;
       if (state.combo >= COMBO_NEED) {
         state.boostIndex = chosen;
@@ -576,6 +597,31 @@
     return rewardRate(state, now, day) * 8;
   }
 
+  function produce(state, seconds, now, day) {
+    if (!(seconds > 0)) return 0;
+    return grant(state, managedRate(state, now, day) * seconds);
+  }
+
+  /* The next thing a steady player would buy: a missing clerk, or the first copy of a new invention. */
+  function nextPurchase(state) {
+    var best = null;
+    for (var i = 0; i < N; i++) {
+      if (state.owned[i] > 0 && !state.clerk[i]) {
+        var hireCost = clerkCost(i);
+        if (!best || hireCost < best.cost) best = { kind: 'hire', index: i, cost: hireCost };
+      }
+    }
+    if (best) return best;
+    for (var k = 0; k < N; k++) {
+      if (state.owned[k] > 0) continue;
+      if (!unlocked(state, k) && !(state.cash >= unitCost(state, k))) continue;
+      var cost = unitCost(state, k);
+      if (!(cost > 0) || !isFinite(cost)) continue;
+      if (!best || cost < best.cost) best = { kind: 'buy', index: k, cost: cost };
+    }
+    return best;
+  }
+
   function awayLines(state, awaySec, now, day) {
     var cap = offlineCap(state);
     var away = awaySec > 0 ? awaySec : 0;
@@ -642,6 +688,8 @@
     eachRate: eachRate,
     handPay: handPay,
     goalPay: goalPay,
+    produce: produce,
+    nextPurchase: nextPurchase,
     passes: passes,
     checkAll: checkAll,
     stamp: stamp,

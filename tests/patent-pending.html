@@ -65,14 +65,15 @@ document.querySelector('#run').onclick = function () {
     check('buying an improvement leaves the list order alone', bought.ok && P.UPGRADES.map(function (u) { return u.id; }).join('|') === order && rich.up[P.UPGRADES[0].id]);
 
     var spoon = P.fresh();
-    check('five spoons cost the same as the shared bulk price and a counted ladder', close(P.bulkCost(spoon, 1, 5), Idle.bulkCost(1, 1.15, 0, 5)) && close(P.bulkCost(spoon, 1, 5), brute(1, 1.15, 0, 5)));
+    var spoonDef = P.INVENTIONS[1];
+    check('five spoons cost the same as the shared bulk price and a counted ladder', close(P.bulkCost(spoon, 1, 5), Idle.bulkCost(spoonDef.base, spoonDef.growth, 0, 5)) && close(P.bulkCost(spoon, 1, 5), brute(spoonDef.base, spoonDef.growth, 0, 5)));
     check('Clerk Pip costs 4.50', close(P.clerkCost(0), 4.5));
     check('milestones double at 25, 50 and 100', P.milestone(0) === 1 && P.milestone(24) === 1 && P.milestone(25) === 2 && P.milestone(50) === 4 && P.milestone(100) === 8);
 
     var hand = P.fresh();
     var first = P.stamp(hand, 5000, DAY);
     check('a new office starts with an empty drawer', P.fresh().cash === 0 && P.fresh().lifetime === 0);
-    check('a stamp files the paperclip by hand for a small steady fee', first.pay >= 0.06 && first.pay < 0.2 && !hand.clerk[0] && hand.stamps === 1);
+    check('a stamp files the paperclip by hand for a small steady fee', first.pay >= 0.05 && first.pay < 0.12 && !hand.clerk[0] && hand.stamps === 1);
     var quietGoal = P.goalPay(P.fresh(), P.GOALS[6], 1000, DAY);
     check('a goal pays seconds of income, not the old flat pile', quietGoal < 20 && quietGoal > 0);
     var slipOffice = P.fresh();
@@ -80,17 +81,20 @@ document.querySelector('#run').onclick = function () {
     var slip = P.slipPay(slipOffice, 1000, DAY);
     check('a filing slip is eight seconds of clerk income', close(slip, P.managedRate(slipOffice, 1000, DAY) * 8));
     for (var s = 0; s < 4; s++) P.stamp(hand, 6000 + s, DAY);
-    check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash > 0.6);
+    check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash >= 0.4);
 
     var combo = P.fresh();
     combo.clerk[0] = true;
     var quiet = P.managedRate(combo, 10000, DAY);
     var c1 = P.stamp(combo, 10000, DAY);
-    P.stamp(combo, 11000, DAY);
-    P.stamp(combo, 12000, DAY);
-    var c4 = P.stamp(combo, 13000, DAY);
-    var loud = P.managedRate(combo, 13000, DAY);
-    check('after a clerk, stamps pay nothing and the fourth one boosts', c1.pay === 0 && c1.combo === 1 && c4.boosted && combo.boostUntil === 13000 + P.BOOST_MS && loud > quiet);
+    P.stamp(combo, 10200, DAY);
+    P.stamp(combo, 10400, DAY);
+    var c4 = P.stamp(combo, 10600, DAY);
+    var loud = P.managedRate(combo, 10600, DAY);
+    var held = combo.boostUntil;
+    P.stamp(combo, 10800, DAY);
+    var cooled = P.managedRate(combo, held + 1, DAY);
+    check('after a clerk, four quick stamps boost once and a fifth does not extend it', c1.pay === 0 && c4.boosted && held === 10600 + P.BOOST_MS && combo.boostUntil === held && loud > cooled && cooled < loud);
     var gap = P.fresh();
     gap.clerk[0] = true;
     P.stamp(gap, 1000, DAY);
@@ -167,7 +171,8 @@ document.querySelector('#run').onclick = function () {
     check('the preview names what you keep and what you lose', view.keep.length === 6 && view.lose.length === 5 && view.hint.indexOf('good time') >= 0);
 
     var dock = P.docket(DAY);
-    check('the same local day always picks the same docket', dock.index === P.docket(DAY).index && dock.factor === P.docket(DAY).factor && dock.factor >= 2 && dock.factor <= 4 && dock.label.length > 0);
+    check('the same local day always picks the same docket', dock.index === P.docket(DAY).index && dock.factor === 1.25 && dock.label.length > 0);
+    runPolicies();
 
     layout().then(function () {
       sum.textContent = 'PASS — ' + n + ' checks';
@@ -179,6 +184,55 @@ document.querySelector('#run').onclick = function () {
     window.setInterval = realSet;
     window.clearInterval = realClear;
     sum.textContent = 'FAIL — ' + (e && e.message ? e.message : e);
+  }
+
+  function runPolicies() {
+    var specs = [
+      { name: 'one a second', dt: 1, cap: 0.05, stampAfter: true },
+      { name: 'four a second', dt: 0.25, cap: 0.075, stampAfter: true },
+      { name: 'buys when it can', dt: 1, cap: 0.05, stampAfter: false }
+    ];
+    var ends = [];
+    specs.forEach(function (spec) {
+      var s = P.fresh();
+      var t = 0;
+      var first = null;
+      var second = null;
+      var worstWait = 0;
+      var worstFlat = 0;
+      var flat = 0;
+      var anchor = 0;
+      var since = 0;
+      while (t < 600) {
+        P.produce(s, spec.dt, t * 1000, DAY);
+        var next = P.nextPurchase(s);
+        var running = P.managedRate(s, t * 1000, DAY);
+        var earn = running > 0.02 ? running : spec.cap;
+        if (next && s.cash < next.cost && earn > 0) worstWait = Math.max(worstWait, (next.cost - s.cash) / earn);
+        if (next && s.cash >= next.cost) {
+          if (next.kind === 'hire') P.hire(s, next.index, t * 1000, DAY);
+          else P.buy(s, next.index, t * 1000, DAY);
+        } else if (spec.stampAfter || !s.clerk[0]) P.stamp(s, Math.round(t * 1000), DAY);
+        if (!first && s.clerk[0]) first = t + spec.dt;
+        if (!second && s.owned[1] > 0 && s.clerk[1]) second = t + spec.dt;
+        since += spec.dt;
+        if (since >= 1) {
+          since = 0;
+          var rate = P.managedRate(s, t * 1000, DAY);
+          if (rate > anchor * 1.08) { flat = 0; anchor = rate; }
+          else if (anchor > 0.05) { flat += 1; worstFlat = Math.max(worstFlat, flat); }
+        }
+        t += spec.dt;
+      }
+      ends.push(P.managedRate(s, 600000, DAY));
+      check(spec.name + ' hires the first clerk between 45 and 90 seconds (saw ' + first + ')', first >= 45 && first <= 90);
+      check(spec.name + ' has the spoon and its clerk between 2 and 4 minutes (saw ' + second + ')', second >= 120 && second <= 240);
+      check(spec.name + ' is not flat for more than 90 seconds (saw ' + worstFlat + ')', worstFlat <= 90);
+      check(spec.name + ' never saves more than about 90 seconds (saw ' + worstWait.toFixed(0) + ')', worstWait <= 95);
+    });
+    var hi = Math.max.apply(null, ends);
+    var lo = Math.min.apply(null, ends);
+    check('the three ten-minute incomes sit within five times of each other (' + lo.toFixed(2) + ' to ' + hi.toFixed(2) + ')', lo > 0 && hi / lo <= 5);
   }
 
   function layout() {
@@ -213,8 +267,11 @@ document.querySelector('#run').onclick = function () {
             return;
           }
           open.click();
+          var contrastProblems = readable(doc, win);
+          var shiftProblems = width === 390 ? heldStill(doc, win) : [];
           for (var i = 0; i < 8; i++) stamp.click();
-          var problems = hit(doc, win);
+          var problems = hit(doc, win).concat(contrastProblems).concat(shiftProblems);
+          if (width === 320) problems = problems.concat(fits(doc));
           if (width === 320 || width === 390) problems = problems.concat(rapid(doc, win));
           var shift = moved(doc);
           if (width === 390) problems = problems.concat(tabs(doc));
@@ -230,6 +287,73 @@ document.querySelector('#run').onclick = function () {
       };
       document.body.appendChild(frame);
     });
+  }
+
+  function lum(color) {
+    var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(color);
+    if (!m) return 0;
+    function chan(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+    return 0.2126 * chan(+m[1]) + 0.7152 * chan(+m[2]) + 0.0722 * chan(+m[3]);
+  }
+  function contrast(win, el) {
+    var style = win.getComputedStyle(el);
+    var a = lum(style.color);
+    var b = lum(style.backgroundColor);
+    var hi = Math.max(a, b);
+    var lo = Math.min(a, b);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+  function readable(doc, win) {
+    var problems = [];
+    var stamp = doc.getElementById('stamp');
+    var hire = doc.querySelector('[data-hire="0"]');
+    var stampContrast = contrast(win, stamp);
+    var hireContrast = contrast(win, hire);
+    if (stampContrast < 4.5) problems.push('stamp contrast ' + stampContrast.toFixed(2));
+    if (hireContrast < 4.5) problems.push('hire contrast ' + hireContrast.toFixed(2));
+    if (!stamp.textContent || !hire.textContent) problems.push('blank button');
+    return problems;
+  }
+  function heldStill(doc, win) {
+    var problems = [];
+    function tops() {
+      return {
+        tabs: doc.getElementById('tab-inventions').getBoundingClientRect().top,
+        stamp: doc.getElementById('stamp').getBoundingClientRect().top
+      };
+    }
+    var before = tops();
+    if (win.PatentView) win.PatentView.showSlip();
+    var slipped = tops();
+    if (Math.abs(slipped.tabs - before.tabs) > 2 || Math.abs(slipped.stamp - before.stamp) > 2) {
+      problems.push('slip moved tabs ' + (slipped.tabs - before.tabs).toFixed(1) + ' stamp ' + (slipped.stamp - before.stamp).toFixed(1));
+    }
+    var hire = doc.querySelector('[data-hire="0"]');
+    var guard = 0;
+    while (hire.disabled && guard < 160) {
+      doc.getElementById('stamp').click();
+      guard++;
+    }
+    var hiredAt = tops();
+    if (!hire.disabled) hire.click();
+    var after = tops();
+    if (Math.abs(after.tabs - hiredAt.tabs) > 2 || Math.abs(after.stamp - hiredAt.stamp) > 2) {
+      problems.push('clerk moved tabs ' + (after.tabs - hiredAt.tabs).toFixed(1) + ' stamp ' + (after.stamp - hiredAt.stamp).toFixed(1));
+    }
+    return problems;
+  }
+
+  function fits(doc) {
+    var problems = [];
+    var step = doc.querySelector('.step-line');
+    step.textContent = 'Step 2 of 4. Hire Clerk Pip for the Better Paperclip. Pip keeps filing while you are away.';
+    if (step.scrollHeight > step.clientHeight + 1) problems.push('the coaching line is clipped');
+    doc.getElementById('tab-charter').click();
+    doc.querySelectorAll('#charter .kv span').forEach(function (span) {
+      if (span.scrollWidth > span.clientWidth + 1) problems.push('charter row spills: ' + span.textContent);
+    });
+    doc.getElementById('tab-inventions').click();
+    return problems;
   }
 
   function rapid(doc, win) {

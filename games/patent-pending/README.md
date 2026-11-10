@@ -8,13 +8,13 @@ This is the first playable slice. The longer climb and the late-game balance are
 
 Penny Loop's counter pays about two seconds of income. A playtest found that pointless once managers were running. Patent Pending keeps one wide button, Stamp the desk, and gives it two beats on purpose.
 
-Until the invention you have selected has a clerk, each stamp files that invention by hand for a small steady fee, so the first clerk is about a minute of stamping. The guided steps ask for five stamps, then Clerk Pip.
+Until the invention you have selected has a clerk, each stamp files that invention by hand for a small steady fee, so the first clerk is about a minute of stamping. Stamps in the same second share one small cap, so tapping faster does not pile the fee up. The guided steps ask for five stamps, then Clerk Pip.
 
-Once that invention has a clerk, stamps stop paying a fee. Four stamps within a second and a half boost that invention for eight seconds. You choose the invention by tapping its row. The button is a burst you aim, not a penny you outgrow.
+Once that invention has a clerk, stamps stop paying a fee. Four stamps close together boost that invention for eight seconds, at one and a half times its filing. The boost ends on its own, and another one waits until it has. You choose the invention by tapping its row. The button is a burst you aim, not a penny you outgrow.
 
 ## Away from the desk
 
-Clerks keep filing while the page is closed. Come back after half a minute and a card names the time away, what each clerk filed, and the total. Collect puts it in the drawer. The time is taken from the moment you left. The first four hours count, at the full clerk rate. Three night-ledger improvements add four, four, and twelve hours. The shared idle core does the bulk prices, the doublings at 25, 50 and 100, and the tab title. Today's docket is picked from the date on this device. One invention files two, three or four times as much until tomorrow. There is no network call. Goals and the loose filing slip pay a few seconds of what the clerks are filing, not a flat pile.
+Clerks keep filing while the page is closed. Come back after half a minute and a card names the time away, what each clerk filed, and the total. Collect puts it in the drawer. The time is taken from the moment you left the page, not from the last save. The first four hours count, at the full clerk rate. Three night-ledger improvements add four, four, and twelve hours. The shared idle core does the bulk prices, the doublings at 25, 50 and 100, and the tab title. Today's docket is picked from the date on this device. One invention files one and a quarter times as much until tomorrow. There is no network call. Goals and the loose filing slip pay a few seconds of what the clerks are filing, and they ignore a boost that is already running.
 
 ## What a charter shows first
 

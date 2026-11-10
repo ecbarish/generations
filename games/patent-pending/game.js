@@ -91,14 +91,14 @@
   }
 
   function paintHint() {
-    document.querySelectorAll('.hint').forEach(function (el) { el.classList.remove('hint'); });
+    document.querySelectorAll('.coach-mark').forEach(function (el) { el.classList.remove('coach-mark'); });
     if (state.charters > 0 || state.coachOff || slipUntil > now()) return;
     var target = null;
     if (state.stamps < 5) target = $('stamp');
     else if (!state.clerk[0]) target = document.querySelector('[data-hire="0"]');
     else if (state.owned[1] < 1) target = document.querySelector('[data-buy="1"]');
     else if (M.upgradeCount(state) < 1) target = $('tab-improvements');
-    if (target) target.classList.add('hint');
+    if (target) target.classList.add('coach-mark');
   }
 
   function speak(found) {
@@ -137,10 +137,8 @@
 
   function markLeft() {
     if (!state || !state.introduced) return;
-    if (!state.leftAt) {
-      state.leftAt = Date.now();
-      state.cashAtLeave = state.cash;
-    }
+    state.leftAt = Date.now();
+    state.cashAtLeave = state.cash;
     state.seen = state.leftAt;
     saveNow();
   }
@@ -235,11 +233,12 @@
     card.sub.hidden = count <= 0;
     if (boosted) {
       var left = Math.max(1, Math.ceil((state.boostUntil - now()) / 1000));
-      card.badge.hidden = false;
-      card.badge.textContent = '×' + M.boostFactor(state).toFixed(1) + ' · ' + left + 's';
+      card.badge.classList.add('on');
+      card.badge.textContent = '×1.5 · ' + left + 's';
       card.sub.textContent = money(rate) + '/s · boosted';
     } else {
-      card.badge.hidden = true;
+      card.badge.classList.remove('on');
+      card.badge.textContent = '';
       card.sub.textContent = count > 0
         ? money(rate) + '/s · ' + (state.clerk[i] ? 'clerk at the desk' : 'file it by hand')
         : '';
@@ -467,7 +466,6 @@
       name.appendChild(count);
       var badge = document.createElement('span');
       badge.className = 'boost-badge';
-      badge.hidden = true;
       name.appendChild(badge);
       var blurb = document.createElement('p');
       blurb.className = 'blurb';
@@ -641,6 +639,14 @@
     setInterval(function () { render(); }, 500);
     requestAnimationFrame(loop);
   }
+
+  window.PatentView = {
+    showSlip: function () {
+      slipPay = 0.16;
+      slipUntil = now() + 8000;
+      paintNotice();
+    }
+  };
 
   boot();
 })();

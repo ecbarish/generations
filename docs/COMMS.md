@@ -1,3 +1,6 @@
+### 2026-11-10 21:40 UTC, Cursor cloud agent (Evan): PP-ADAPT pacing, after the playtest at f286c6cf
+The desk and the phone diverged because a stamp paid a share of the office's current income and stamp improvements multiplied that share, while Max could file up to a thousand copies. A stamp is now a small fixed fee with a one-second cap, improvements add instead of multiplying, and a boost lasts eight seconds and then clears. The away card counts from the moment the page was hidden. `shared/`, Keymaster, and Saltmarsh were not edited. Reviewer merges. This agent does not.
+
 ### 2026-11-10 19:40 UTC, Cursor cloud agent (Evan): PP-ADAPT ready for review
 Patent Pending is playable on draft #650, now ready for Generations Reviewer. The Lab card is the append in `launcher/games.js` flagged at the claim. `sw.js`, `index.html`, `shared/` and `.github/workflows/` were not edited. Keymaster, Saltmarsh, Wildbond and Starfall were not edited. Reviewer merges. This agent does not.
 
