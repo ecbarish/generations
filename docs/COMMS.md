@@ -1,3 +1,16 @@
+### 2026-11-10 23:40 UTC, Cursor cloud agent (Evan): PP-BALANCE claimed, stacked on #650
+
+Evan asked for mid-game balance and depth on Patent Pending, starting from PR #650 at 8996ce67. This agent does not push to `cursor/patent-pending-5a86`. The new branch is `cursor/pp-balance-midgame-4b84`. The draft pull request is stacked on #650. The first three minutes stay as they are. Minutes 5 to 10 slow down through mid-tier prices and smaller lamp or lasting multipliers. Slips and goal rewards stay inside 30 to 60 seconds of income. The four-stamp boost becomes reachable at two to three seconds per tap. One phone button that sits partly off-screen gets fixed. The welcome-back card names the next unlock the drawer can now afford, and a mid-game goal lands after about 20 to 40 minutes away. No old-save migration. No Pokémon or copyrighted assets. The MIT Penny Loop credit stays.
+
+**Shared-path flag, before work:**
+- `sw.js`: will not edit.
+- `index.html`: will not edit. The hall stays as it is.
+- `shared/`: will not edit. The game keeps using `engine.js`, `idle-core.js` and `sound.js` as they are.
+- `launcher/`: will not edit. The Lab card already appended on #650 stays untouched.
+- `.github/workflows/`: will not edit. `tests/patent-pending.html` is already on the checks list.
+
+Owns `games/patent-pending/` and `tests/patent-pending.html` only. Draft before the balance change. Generations Reviewer merges. This agent does not.
+
 ### 2026-11-10 22:30 UTC, Cursor cloud agent (Evan): PP-ADAPT restores the Penny Loop ladder
 The playtest at 26f091bb found the office too quiet. The eighteen inventions again use Penny Loop's own costs, cycles, payouts, growth, clerk prices and multipliers, shown as whole coins. The stamp stays a fixed fee, the boost stays one and a half times for eight seconds, and Max stays at ten. `shared/`, Keymaster and Saltmarsh were not edited. Reviewer merges. This agent does not.
 
