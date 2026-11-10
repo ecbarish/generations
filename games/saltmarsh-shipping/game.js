@@ -327,9 +327,19 @@
     var offer = M.deskChoice(state);
     box.hidden = !offer;
     if (back) back.hidden = !offer;
-    if (box.hidden) return;
-    var bar = $('#goalbar');
-    if (bar) box.style.bottom = '';
+    if (box.hidden) {
+      box.style.top = '';
+      box.style.bottom = '';
+      return;
+    }
+    /* Keep the sheet on the half of the screen the finger is not on. */
+    if (view.lastY > window.innerHeight * 0.42) {
+      box.style.top = '4.2rem';
+      box.style.bottom = 'auto';
+    } else {
+      box.style.top = 'auto';
+      box.style.bottom = '4.6rem';
+    }
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -650,7 +660,7 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
@@ -769,7 +779,6 @@
         card.appendChild(h);
         card.appendChild(p);
         host.appendChild(card);
-        host.style.minHeight = '6.2rem';
       }
     }
     if (offers.length) {
@@ -1214,10 +1223,15 @@
       x: e.clientX,
       y: e.clientY
     };
+    view.lastY = e.clientY;
   }, true);
+  function stillSame(el, a) {
+    if (!el) return false;
+    return (el.dataset.act || '') === a.act && (el.dataset.prep || '') === a.prep && (el.dataset.which || '') === a.which && (el.dataset.route || '') === a.route && (el.dataset.light || '') === a.light;
+  }
   function findLive(a) {
     if (!a) return null;
-    if (a.el && a.el.isConnected) return a.el;
+    if (a.el && a.el.isConnected && stillSame(a.el, a)) return a.el;
     if (a.prep) {
       var q = '#provision [data-prep="' + a.prep + '"]';
       if (a.which) q += '[data-which="' + a.which + '"]';
@@ -1227,8 +1241,20 @@
     if (a.act === 'route' && a.route) return document.querySelector('[data-act="route"][data-route="' + a.route + '"]');
     if (a.act === 'light' && a.light) return document.querySelector('[data-act="light"][data-light="' + a.light + '"]');
     if (a.act === 'buy' && a.tier !== '') return document.querySelector('#boats [data-i="' + a.tier + '"] [data-act="buy"]');
-    if (a.id) return document.getElementById(a.id);
+    if (a.id) {
+      var byId = document.getElementById(a.id);
+      if (stillSame(byId, a)) return byId;
+    }
     return null;
+  }
+  function buttonKey(b) {
+    return [b.id || '', b.dataset.act || '', b.dataset.which || '', b.dataset.prep || '', b.dataset.route || '', b.dataset.light || ''].join('|');
+  }
+  /* The next fork or errand must not inherit the tap that opened it. */
+  function armGuard(e, b) {
+    var seen = new Map();
+    document.querySelectorAll('button').forEach(function (btn) { seen.set(btn, buttonKey(btn)); });
+    view.guard = { until: performance.now() + 450, x: e.clientX, y: e.clientY, seen: seen, key: buttonKey(b) };
   }
   /* A render between press and release moves the button. The press still counts
      when the finger has not travelled, even if the click lands on empty page. */
@@ -1240,6 +1266,12 @@
     if (dx * dx + dy * dy > 24 * 24) return;
     var live = findLive(armed);
     if (!live || live.disabled) return;
+    if (view.guard && performance.now() < view.guard.until) {
+      var pdx = e.clientX - view.guard.x;
+      var pdy = e.clientY - view.guard.y;
+      var knownLive = view.guard.seen.get(live);
+      if (pdx * pdx + pdy * pdy < 72 * 72 && !(knownLive != null && knownLive === buttonKey(live))) return;
+    }
     var hit = document.elementFromPoint(e.clientX, e.clientY);
     var hitBtn = hit && hit.closest ? hit.closest('button') : null;
     if (hitBtn === live) return;
@@ -1266,6 +1298,12 @@
   document.addEventListener('click', function (e) {
     view.freshPrices = true;
     var b = e.target.closest('button');
+    if (b && view.guard && performance.now() < view.guard.until && (e.clientX || e.clientY)) {
+      var gdx = e.clientX - view.guard.x;
+      var gdy = e.clientY - view.guard.y;
+      var known = view.guard.seen.get(b);
+      if (gdx * gdx + gdy * gdy < 72 * 72 && !(known != null && known === buttonKey(b))) return;
+    }
     var held = remembered(b);
     if (!b || (b.disabled && !held)) return;
     if (held) {
@@ -1299,6 +1337,7 @@
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
+        armGuard(e, b);
         keepPlace(function () {
           persist();
           render();
@@ -1335,6 +1374,7 @@
     if (b.dataset.act === 'prep' || b.id === 'provision-go') {
       if (M.buyPreparation(state, b.dataset.prep, b.dataset.which || '', actNow()).ok) {
         if (state.sound) audio.sfx('quest');
+        armGuard(e, b);
         keepPlace(function () {
           persist();
           render();

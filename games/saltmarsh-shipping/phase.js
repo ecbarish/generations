@@ -251,13 +251,27 @@
         sentence: withNeed(state, 'Buy the spare sail, ' + M.coins(gear.cost), gear.cost)
       });
     }
+    var barksOwned = state.boats[3] ? state.boats[3].owned : 0;
+    if (barksOwned < M.BARK_LAMP && M.unlocked(state, 3) && !M.allLightsLit(state)) {
+      var bark = M.quote(state, 3, 1);
+      if (bark.count > 0) {
+        var lampLeft = M.BARK_LAMP - barksOwned;
+        add({
+          kind: 'boat', tier: 3, count: 1, id: 'bark', cost: bark.cost, gain: M.marginalRate(state, 3), progress: true,
+          selector: '#boats [data-i="3"]',
+          sentence: withNeed(state, 'Buy a bark. ' + lampLeft + ' to the house lamp', bark.cost)
+        });
+      }
+    }
     var tier;
     for (tier = M.BOATS.length - 1; tier >= 0; tier--) {
+      if (tier === 3 && barksOwned < M.BARK_LAMP) continue;
       if (!M.unlocked(state, tier)) continue;
       var one = M.quote(state, tier, 1);
       if (!(one.count > 0)) continue;
       var added = M.marginalRate(state, tier);
       if (!(added > 0)) continue;
+      if (rate > 80 && added < rate * 0.02) continue;
       var pay = one.cost / added;
       if (pay > 90) continue;
       add({
@@ -276,7 +290,7 @@
         add({
           kind: 'prep', id: prep.id, which: prep.choice ? prep.choice[0].id : '', progress: true,
           cost: prep.cost, gain: prep.gain || 0,
-          selector: '#provision',
+          selector: '#provision-go',
           sentence: withNeed(state, line + ', ' + M.coins(prep.cost), prep.cost)
         });
       }
@@ -311,8 +325,12 @@
       affordLights.sort(function (a, b) { return (b.stage === 1) - (a.stage === 1) || a.cost - b.cost; });
       return affordLights[0];
     }
+    var anyPrep = pool.filter(function (step) { return step.kind === 'prep'; })[0];
+    if (anyPrep && M.allLightsLit(state)) return anyPrep;
     var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
     if (affordPrep) return affordPrep;
+    var lampBark = pool.filter(function (step) { return step.id === 'bark'; })[0];
+    if (lampBark && !affordLights.length) return lampBark;
     var income = pool.filter(function (step) { return step.affordable && !step.progress && step.payback <= 90 && step.kind !== 'choice'; });
     var affordChoice = pool.filter(function (step) { return step.kind === 'choice' && step.affordable; })[0];
     if (affordChoice && !income.length) return affordChoice;
@@ -360,7 +378,7 @@
     if (choice && (!phase.routesReady || (desk && (desk.id === 'sloop' || desk.id === 'schooner')))) return choice;
     if (!phase.fleet) {
       left = M.UNLOCK_AT - state.boats[1].owned;
-      if (left > 0) return withNeed(state, 'Buy ' + left + ' sloops', M.quote(state, 1, left).cost);
+      if (left > 0) return withNeed(state, 'Buy ' + (left === 1 ? 'a sloop' : left + ' sloops'), M.quote(state, 1, left).cost);
     }
     if (M.canHire(state, 1)) return M.askLine(1);
     if (!phase.routesReady) {
@@ -368,8 +386,9 @@
       var schoonerAll = M.quote(state, 2, left).cost;
       var schoonerRate = Math.max(1, M.officeRate(state));
       var schoonerWait = Math.ceil(Math.max(0, schoonerAll - state.cash) / schoonerRate);
+      var schoonerNoun = left === 1 ? 'a schooner' : left + ' schooners';
       if (schoonerWait > 90) return withNeed(state, 'Buy a schooner for the next tide', M.quote(state, 2, 1).cost);
-      return withNeed(state, 'Buy ' + left + ' schooners for the next tide', schoonerAll);
+      return withNeed(state, 'Buy ' + schoonerNoun + ' for the next tide', schoonerAll);
     }
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
@@ -463,7 +482,7 @@
     var sailing = M.routesSailing(state);
     var sentence = goal(state);
     if (/^Choose a route/.test(sentence)) return '#route-cards [data-act="route"], #routes';
-    var aimed = cheapestAffordable(state);
+    var aimed = bestStep(state) || cheapestAffordable(state);
     if (aimed && aimed.sentence === sentence && aimed.selector) return aimed.selector;
     if (/^(Raise|Light) the /.test(sentence)) return '#lights';
     if (/^Sign /.test(sentence)) return '#routes';

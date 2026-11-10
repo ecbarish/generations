@@ -189,6 +189,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 /* The voyage list keeps its height on the card stack, so packing one item
    does not pull the button up. The button itself stays one line, full width,
    so a price and a Need line do not wrap into a second row. */
+#provision-cards { min-height: 14rem; }
 #provision-actions { flex-direction: row; flex-wrap: nowrap; align-items: stretch; min-height: 5.5rem; }
 #provision-actions button {
   flex: 1 1 0;
@@ -243,7 +244,6 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   margin: 0.7rem 0;
 }
 .choice-card, #routes-note { min-height: 2.9em; }
-#routes-note { max-height: 2.9em; overflow: hidden; }
 .route-card .actions button,
 .light-card .actions button,
 #work-go,
@@ -254,12 +254,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   overflow: visible;
   white-space: normal;
 }
-.route-card .facts {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: clip;
-}
-.light-card { min-height: 12.6rem; }
+.route-card .facts { white-space: normal; }
 .light-card .habit { min-height: 4.8em; }
 .light-card .actions { min-height: 2.75rem; }
 #sheds .actions { min-height: 44px; }
@@ -269,19 +264,14 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 }
 #sheds .shed-hold { margin: 0.15rem 0 0; }
 .shed-price { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; }
-#route-gear { min-height: 12.5rem; position: relative; }
-#route-gear .actions { position: absolute; left: 0.85rem; right: 0.85rem; bottom: 0.55rem; margin: 0; }
-#route-cards { min-height: 37.5rem; }
+#route-gear { min-height: 12rem; }
 .route-card,
-.route-card.is-wait {
-  height: 12.5rem;
-  min-height: 12.5rem;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+.route-card.is-wait,
+.light-card {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
 }
-.route-card .habit { flex: 1 1 auto; overflow: hidden; }
-.route-card .actions { margin-top: auto; }
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
@@ -390,34 +380,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .boat .habit,
   .boat .facts,
   .boat .wait { display: none; }
-  .light-card, .light-card.is-now {
-    height: 7.5rem;
-    min-height: 7.5rem;
-    overflow: hidden;
-  }
   #fleet, #sheds, #settled { display: none; }
-  .route-card .habit {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    max-height: 2.9em;
-  }
-  .route-card, .route-card.is-wait, #route-gear {
-    height: 8.5rem;
-    min-height: 8.5rem;
-  }
-  #route-cards {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    overflow-x: auto;
-    min-height: 8.5rem;
-    height: 8.5rem;
-    align-items: stretch;
-  }
-  #route-cards .route-card { flex: 0 0 15rem; height: 8.5rem; }
-  #choice.choice { max-height: 38vh; }
+  #route-cards { display: block; height: auto; min-height: 0; overflow: visible; }
+  .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
+  #route-gear { height: auto; min-height: 12rem; overflow: visible; }
+  #choice.choice { max-height: 46vh; }
 }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }
@@ -429,9 +396,9 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
     max-height: calc(1.3em * 2 + 1.4rem);
   }
   #away button[data-act="away"] {
-    position: sticky;
-    bottom: 4.8rem;
-    z-index: 7;
+    display: block;
+    width: 100%;
+    margin-top: 0.8rem;
   }
 }
 .goalbar #goal::after { content: '  \203A'; }

@@ -862,6 +862,7 @@
       if (!(gross > 0)) return;
       var cut = (state.routeCut && state.routeCut[spec.id]) || 0;
       if (spec.wren || spec.night) cut *= (1 - nightSafety(state));
+      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') cut *= 0.5;
       if ((spec.wren || spec.night) && nightLeak(state)) cut += gross * nightLeak(state);
       var g = gross - cut;
       if (g < 0) g = 0;
@@ -1142,21 +1143,16 @@
   /* Six errands, not a dozen small ones. Each one changes the office by
      about a tenth, and the two sides of a fork do not cost the same. */
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Food for the crew', stake: 36, choice: [
-      { id: 'fresh', name: 'Fresh food', costMul: 1.2, route: 0.12, line: 'Fresh food. Every route pays 12% more.' },
-      { id: 'pork', name: 'Salt pork', costMul: 0.75, nextCut: 0.2, line: 'Salt pork. The next errand costs 20% less.' }
+    { id: 'victuals', name: 'Food for the crew', stake: 40, choice: [
+      { id: 'fresh', name: 'Fresh food', costMul: 1.35, route: 0.22, line: 'Fresh food. Every route pays 22% more.' },
+      { id: 'pork', name: 'Salt pork', costMul: 0.7, nextCut: 0.25, line: 'Salt pork. The next errand costs 25% less.' }
     ]},
-    { id: 'canvas', name: 'Canvas for the sails', stake: 40, route: 0.1, line: 'New canvas. Every route pays 10% more.' },
-    { id: 'pilot', name: 'A pilot for the bar', stake: 44, choice: [
-      { id: 'pilot', name: 'A pilot', costMul: 1.15, route: 0.12, line: 'A pilot. Every route pays 12% more.' },
-      { id: 'chart', name: 'A bought chart', costMul: 0.8, boat: 0.12, line: 'A chart. Every boat earns 12% more.' }
+    { id: 'canvas', name: 'Canvas for the sails', stake: 48, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
+    { id: 'pilot', name: 'A pilot for the bar', stake: 42, choice: [
+      { id: 'pilot', name: 'A pilot', costMul: 1.4, shield: true, line: 'A pilot. Risky routes lose only half as much.' },
+      { id: 'chart', name: 'A bought chart', costMul: 0.72, boat: 0.18, line: 'A chart. Every boat earns 18% more.' }
     ]},
-    { id: 'watch', name: 'The night watch', stake: 48, choice: [
-      { id: 'hands', name: 'Extra hands', costMul: 0.85, boat: 0.1, line: 'Extra hands. Every boat earns 10% more.' },
-      { id: 'gun', name: 'A signal gun', costMul: 1.25, route: 0.1, line: 'A signal gun. Every route pays 10% more.' }
-    ]},
-    { id: 'coal', name: 'Coal for the lamps', stake: 42, route: 0.1, line: 'Coal in the lamps. Every route pays 10% more.' },
-    { id: 'tide', name: 'The tide table', stake: 36, route: 0.1, line: 'The hour is written down. Every route pays 10% more.' }
+    { id: 'tide', name: 'The tide table', stake: 44, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' }
   ];
   var WORK_SPAN = 32;
   var WORK_VERBS = ['Tar', 'Oil', 'Mend', 'Paint', 'Coil', 'Hang', 'Caulk', 'Sweep'];
@@ -1169,19 +1165,15 @@
   function prepRouteFactor(state) {
     var done = prepDoneMap(state);
     var m = 1 + 0.012 * ((state && state.works) || 0);
-    if (done.victuals === 'fresh') m *= 1.12;
-    if (done.canvas) m *= 1.1;
-    if (done.pilot === 'pilot') m *= 1.12;
-    if (done.watch === 'gun') m *= 1.1;
-    if (done.coal) m *= 1.1;
-    if (done.tide) m *= 1.1;
+    if (done.victuals === 'fresh') m *= 1.22;
+    if (done.canvas) m *= 1.2;
+    if (done.tide) m *= 1.2;
     return m;
   }
   function boatPrepFactor(state) {
     var done = prepDoneMap(state);
     var m = 1;
-    if (done.pilot === 'chart') m *= 1.12;
-    if (done.watch === 'hands') m *= 1.1;
+    if (done.pilot === 'chart') m *= 1.18;
     return m;
   }
   function voyageOpen(state) {
@@ -1193,7 +1185,7 @@
     if (!(state.prepPrices[item.id] > 0)) {
       var cost = Math.max(1, Math.round(officeRate(state) * (item.stake || 40)));
       if (item.id === 'victuals' && state.events && state.events.windfall === 'stow') cost = Math.round(cost * 0.7);
-      if (item.id !== 'victuals' && state.prepDone && state.prepDone.victuals === 'pork') cost = Math.round(cost * 0.8);
+      if (item.id !== 'victuals' && state.prepDone && state.prepDone.victuals === 'pork') cost = Math.round(cost * 0.75);
       state.prepPrices[item.id] = Math.max(1, cost);
     }
     return state.prepPrices[item.id];
@@ -1216,6 +1208,17 @@
     var route = (opt && opt.route) || (!opt && item && item.route) || 0;
     var boat = (opt && opt.boat) || (!opt && item && item.boat) || 0;
     if (opt && opt.nextCut) return { text: '−' + Math.round(opt.nextCut * 100) + '% next', gain: 0 };
+    if (opt && opt.shield) {
+      var before = routeIncome(state);
+      var prevPilot = state.prepDone && state.prepDone.pilot;
+      if (!state.prepDone) state.prepDone = {};
+      state.prepDone.pilot = 'pilot';
+      var after = routeIncome(state);
+      if (prevPilot) state.prepDone.pilot = prevPilot;
+      else delete state.prepDone.pilot;
+      var kept = Math.max(0, after - before);
+      return { text: kept > 1 ? 'risk cut +' + coins(Math.round(kept)) + '/s' : 'risky routes lose half', gain: kept };
+    }
     var gain = 0;
     if (route) gain = routeIncome(state) * route;
     if (boat) gain += income(state) * boat;
@@ -1496,8 +1499,8 @@
     if (id === 'request') return {
       goal: 'Choose Capt. Wren\'s request, or keep the purse.',
       cards: [
-        { which: 'grant', name: 'Let Wren keep the gull\'s coin', line: 'Wren\'s count keeps a little more of Gull Rock from here on.' },
-        { which: 'purse', name: 'Keep the purse', line: 'The coin stays in the office chest.' }
+        { which: 'grant', name: 'Let Wren keep the gull\'s coin', line: 'Wren\'s count keeps 5% more of Gull Rock.' },
+        { which: 'purse', name: 'Keep the purse', line: 'The coin stays in the chest.' }
       ]
     };
     if (id === 'windfall') return {
@@ -1521,11 +1524,14 @@
         id: id,
         goal: spec.goal,
         cards: spec.cards.map(function (card) {
+          var line = card.line;
+          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(Math.max(1, officeRate(state)) * 36)) + ' to the chest.';
+          if (id === 'windfall' && card.which === 'sell') line = 'The crate pays ' + coins(Math.round(Math.max(1, officeRate(state)) * 48)) + ' now.';
           return {
             which: card.which,
             name: card.name,
             cost: cost,
-            line: card.line,
+            line: line,
             affordable: state.cash >= cost
           };
         })
