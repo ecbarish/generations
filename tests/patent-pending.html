@@ -212,8 +212,8 @@ document.querySelector('#run').onclick = function () {
           if (width === 390) problems = problems.concat(tabs(doc));
           frame.remove();
           try {
-            check(width + 'px: every visible File button is at least 44px and its centre hits the button', problems.length === 0);
-            check(width + 'px: filing does not move a File button more than 2px', !shift);
+            check(width + 'px: every visible File button is at least 44px and its centre hits the button' + (problems.length ? ' (' + problems.join('; ') + ')' : ''), problems.length === 0);
+            check(width + 'px: filing does not move a File button more than 2px' + (shift ? ' (' + shift + ')' : ''), !shift);
             resolve();
           } catch (err) {
             reject(err);
@@ -228,18 +228,23 @@ document.querySelector('#run').onclick = function () {
     var problems = [];
     var seen = 0;
     doc.querySelectorAll('[data-buy]').forEach(function (b) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      b.scrollIntoView({ block: 'center', inline: 'nearest' });
       var r = b.getBoundingClientRect();
-      if (r.width < 2 || r.height < 2) return;
-      if (r.height < 44 || r.width < 44) problems.push('small ' + b.dataset.buy);
+      if (r.width < 44 || r.height < 44) problems.push('small ' + b.dataset.buy + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
       var cx = r.left + r.width / 2;
       var cy = r.top + r.height / 2;
-      if (cy < 0 || cx < 0 || cy > win.innerHeight || cx > win.innerWidth) return;
+      if (cy < 1 || cx < 1 || cy > win.innerHeight - 1 || cx > win.innerWidth - 1) {
+        problems.push('offscreen ' + b.dataset.buy);
+        return;
+      }
       seen++;
       var el = doc.elementFromPoint(cx, cy);
-      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy);
+      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy + ' ' + (el ? el.tagName + '.' + el.className : 'none'));
     });
     if (!seen) problems.push('no visible File button');
-    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('horizontal overflow');
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('horizontal overflow ' + doc.documentElement.scrollWidth);
     return problems;
   }
 
