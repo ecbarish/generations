@@ -33,13 +33,21 @@
   function persist(obj) {
     if (charmPreview || protect || Arcade.held[KEY]) return false;
     if (!obj) {
-      state.seen = Date.now();
-      obj = M.serialize(state, state.seen);
+      var stamp = (typeof document !== 'undefined' && document.hidden && state.leftAt > 0) ? state.leftAt : Date.now();
+      if (!(typeof document !== 'undefined' && document.hidden)) state.seen = stamp;
+      obj = M.serialize(state, stamp);
     }
     return Arcade.save(KEY, obj);
   }
 
   var idle = M.createIdle(state, persist);
+  var lastSeenWrite = 0;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      state.leftAt = Date.now();
+      persist(M.serialize(state, state.leftAt));
+    } else state.leftAt = 0;
+  });
   var dawnAtLoad = M.dawnDue(state);
   var rateFlashUntil = 0;
   var dawnCardSeen = false;
@@ -220,7 +228,9 @@
       if (i < 5 && st.owned >= 7 && st.owned < 10 && st.owned === M.lowestOwned(state)) goalBit += ' The lane doubles once every stall has 10.';
       nextGoal.textContent = goalBit;
     }
-    wait.textContent = M.paybackLine(state, i);
+    var tonight = M.seedPriceFactor && state.night ? M.seedPriceFactor(state.night.seed, i) : 1;
+    var priceNote = tonight > 1 ? 'Tonight this costs more. ' : (tonight < 1 ? 'Tonight this costs less. ' : '');
+    wait.textContent = priceNote + M.paybackLine(state, i);
     var hint = li.querySelector('.payback-hint');
     var showHint = false;
     if (!paybackHintDone && /pay(?:s)? for (?:itself|themselves)/i.test(wait.textContent)) {
@@ -244,6 +254,14 @@
     buy.hidden = false;
     buy.classList.remove('reserved', 'keep-slot');
     var offer = M.quote(state, i, state.bulk);
+    if (state.bulk === 'max' && offer.count > 1 && M.paybackSeconds(state, i, offer.count) > (M.RECOMMEND_CAP || 90)) {
+      var capped = offer.count;
+      while (capped > 1 && M.paybackSeconds(state, i, capped) > (M.RECOMMEND_CAP || 90)) capped--;
+      if (capped <= 1) {
+        var oneCostNow = M.cost(i, st.owned, 1, state);
+        offer = { count: oneCostNow <= state.cash ? 1 : 0, cost: oneCostNow, blocked: oneCostNow <= state.cash ? 'payback' : 'cost' };
+      } else offer = { count: capped, cost: M.cost(i, st.owned, capped, state), blocked: null };
+    }
     var affordable = bestBuyIndex();
     var saveUp = affordable < 0 && i === bestUnitIndex();
     var deal = offer.count > 0 && i === affordable;
@@ -326,6 +344,23 @@
       rebindIdle();
     }
     $('#coins').textContent = money(state.cash);
+    if (typeof document !== 'undefined' && !document.hidden) {
+      state.seen = Date.now();
+      if (Date.now() - lastSeenWrite > 2000) {
+        lastSeenWrite = Date.now();
+        persist(M.serialize(state, state.seen));
+      }
+    }
+    var help = $('#bulk-help');
+    if (help) {
+      var bestAt = typeof M.bestIndex === 'function' ? M.bestIndex(state) : -1;
+      var bestBit = '';
+      if (bestAt >= 0 && state.stalls[bestAt].hired) {
+        var bestSec = M.paybackSeconds(state, bestAt, 1);
+        if (bestSec < Infinity) bestBit = ' Best payback: ' + M.STALLS[bestAt].name + ', ' + M.paybackLabel(bestSec) + '.';
+      }
+      help.textContent = '1 is one copy. 10 is ten. Max stops at a minute and a half.' + bestBit + ' Next stops at the next doubling.';
+    }
     $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
     var rateLine = (freeze ? 'The night has ended.' : (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.')) + (freeze ? '' : holdSuffix());
@@ -558,19 +593,28 @@
     /* The pin used to wait until the whole goal box had left. On a phone that left
        about 40px where "Next bonus" was already gone and the pin was not up yet.
        It appears as the goal starts to leave, and only once the lane has gone. */
-    var showGoal = !goal.hidden && phone && (!laneBox || laneBox.bottom <= 0.5) && goalBox.top <= 0.5;
-    pin.hidden = !showGoal;
-    if (coinPin) {
-      var rate = M.income(state);
-      var per = rate > 0 ? money(rate) + ' a second' : 'nothing earning yet';
-      coinPin.textContent = money(state.cash) + ' coins · ' + per + holdSuffix();
-      coinPin.hidden = !(coinsGone && (laneGone || awayOn));
-    if (!coinPin.hidden && !wide) {
-      var pinBox = pin.getBoundingClientRect();
-      coinPin.style.top = (!pin.hidden ? Math.round(pinBox.bottom) : 0) + 'px';
-    } else coinPin.style.top = '';
+    var rate = M.income(state);
+    var per = rate > 0 ? money(rate) + '/s' : '';
+    if (phone) {
+      var laneClear = !laneBox || laneBox.bottom <= 1;
+      var showStrip = !goal.hidden && (awayOn || (coinsGone && laneClear) || (goalBox.top <= 0.5 && laneClear));
+      pin.hidden = !showStrip;
+      if (!pin.hidden) {
+        var goalBit = pin.textContent.replace(/\s+/g, ' ').trim();
+        if (goalBit.length > 18) goalBit = goalBit.slice(0, 16) + '…';
+        pin.textContent = money(state.cash) + ' coins' + (per ? ' · ' + per : '') + ' · ' + goalBit;
+      }
+      if (coinPin) coinPin.hidden = true;
+    } else {
+      var showGoal = false;
+      pin.hidden = !showGoal;
+      if (coinPin) {
+        coinPin.textContent = money(state.cash) + ' coins · ' + (rate > 0 ? money(rate) + ' a second' : 'nothing earning yet') + holdSuffix();
+        coinPin.hidden = !(coinsGone && (laneGone || awayOn));
+        coinPin.style.top = '';
+      }
     }
-    var reserve = wide && coinPin ? pinHeight(coinPin) : (pinHeight(pin) + (coinPin && !coinPin.hidden ? pinHeight(coinPin) : 0));
+    var reserve = phone ? 44 : (coinPin ? pinHeight(coinPin) : 0);
     document.documentElement.style.scrollPaddingTop = reserve > 0 ? Math.ceil(reserve) + 'px' : '';
     /* Reserving the pin can pull the lane the rest of the way off the screen.
        Judge the coin total against that final place. */

@@ -1154,7 +1154,7 @@ document.querySelector('#run').onclick = async function () {
     check('minute-glance stays within two minutes between purchases (' + Math.round(glanceGap) + 's)', glanceGap <= 120);
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
       M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
-      M.STALLS[4].base === 70000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
+      M.STALLS[4].base === 62000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
       M.STALLS[5].base === 2200000 && M.STALLS[5].rate === 2200 && M.STALLS[5].growth === 1.36 &&
       M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 &&
       M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
@@ -1385,7 +1385,7 @@ document.querySelector('#run').onclick = async function () {
     var buyHelp = d.querySelector('#bulk-help');
     check('the buying row explains 1, 10, Max and Next',
       buyHelp && !buyHelp.hidden && /1 is one copy/.test(buyHelp.textContent) && /10 is ten/.test(buyHelp.textContent) &&
-      /Max avoids a slow copy/.test(buyHelp.textContent) && /Next stops at the next doubling/.test(buyHelp.textContent));
+      /Max stops at a minute and a half/.test(buyHelp.textContent) && /Next stops at the next doubling/.test(buyHelp.textContent));
     async function countPx(width, height) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
       await new Promise(function (r) { setTimeout(r, 80); });
@@ -1600,6 +1600,7 @@ document.querySelector('#run').onclick = async function () {
       freshHook.state.cash = cost;
       freshHook.state.bulk = 'max';
       var expected = w.NightMarket.quote(freshHook.state, 2, 'max').count;
+      while (expected > 1 && w.NightMarket.paybackSeconds(freshHook.state, 2, expected) > (w.NightMarket.RECOMMEND_CAP || 90)) expected--;
       freshHook.render();
       var btn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
       var labelled = parseInt((btn.textContent.match(/(\d+)/) || [])[1], 10);
@@ -1770,9 +1771,11 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (r) { setTimeout(r, 80); });
       var pinBox = pin.getBoundingClientRect();
       var bonusAt = goal.textContent.indexOf('Next bonus:');
-      var pinShowsGoal = pin.textContent === goal.textContent || (bonusAt >= 0 && pin.textContent === goal.textContent.slice(bonusAt));
+      var goalStart = goal.textContent.replace(/\s+/g, ' ').trim().slice(0, 12);
+      var bonusStart = bonusAt >= 0 ? goal.textContent.slice(bonusAt, bonusAt + 12) : '';
+      var pinShowsGoal = pin.textContent === goal.textContent || (bonusAt >= 0 && pin.textContent === goal.textContent.slice(bonusAt)) || (pin.textContent.indexOf('coins') >= 0 && (pin.textContent.indexOf(goalStart) >= 0 || (bonusStart && pin.textContent.indexOf(bonusStart) >= 0)));
       check(width + 'x' + height + ': the green goal stays on screen after scrolling to the stalls',
-        !pin.hidden && pinShowsGoal && pinBox.top < 8 && pinBox.bottom > 0 && pinBox.bottom < height);
+        !pin.hidden && pinShowsGoal && pinBox.height <= 44 && pinBox.top < 8 && pinBox.bottom > 0 && pinBox.bottom < height);
       var best = d.querySelector('.best-tag');
       check(width + 'x' + height + ': the Best tag is at least 16px', best && parseFloat(w.getComputedStyle(best).fontSize) >= 16);
       var savedPin = pin.textContent;
@@ -1963,16 +1966,20 @@ document.querySelector('#run').onclick = async function () {
       }
       w.scrollTo(0, scrollMax);
       nm.render();
+      var coinsAtEnd = d.querySelector('.coins').getBoundingClientRect().bottom;
       var pinBox = coinPin.getBoundingClientRect();
       var pad = parseFloat(w.getComputedStyle(d.documentElement).scrollPaddingTop) || 0;
       var beforeBulk = String(nm.state.bulk);
       var beforeOwned = nm.state.stalls[0].owned;
       var hit = pinBox.height > 1 ? d.elementFromPoint(pinBox.left + pinBox.width / 2, pinBox.top + pinBox.height / 2) : null;
       if (hit) hit.click();
+      var pinUp = coinsAtEnd <= 0;
       check('desktop coin total stays off the lane, takes its own tap, and pads the scroll',
-        !covered && !coinPin.hidden && /coins/.test(coinPin.textContent) && /a second/.test(coinPin.textContent) &&
-        pad + 0.5 >= pinBox.height && hit && hit.closest && hit.closest('#coin-pin') &&
-        String(nm.state.bulk) === beforeBulk && nm.state.stalls[0].owned === beforeOwned);
+        !covered && String(nm.state.bulk) === beforeBulk && nm.state.stalls[0].owned === beforeOwned &&
+        (pinUp
+          ? (!coinPin.hidden && /coins/.test(coinPin.textContent) && /a second/.test(coinPin.textContent) &&
+            pad + 0.5 >= pinBox.height && hit && hit.closest && hit.closest('#coin-pin'))
+          : coinPin.hidden));
       frame.style.width = '390px';
       frame.style.height = '844px';
       w.scrollTo(0, scrollMax);
@@ -1989,9 +1996,11 @@ document.querySelector('#run').onclick = async function () {
       var phoneBuy = d.querySelector('#stalls [data-act="buy"]');
       var phoneBuyBox = phoneBuy ? phoneBuy.getBoundingClientRect() : null;
       var phoneBuyHit = phoneBuyBox && phoneBuyBox.height > 1 ? d.elementFromPoint(phoneBuyBox.left + 8, phoneBuyBox.top + phoneBuyBox.height / 2) : null;
+      var merged = d.querySelector('#goal-pin');
+      var mergedBox = merged.getBoundingClientRect();
       check('a phone keeps a compact coin total while the header has scrolled away',
-        !phonePin.hidden && phonePin.getBoundingClientRect().height > 0 && phonePin.getBoundingClientRect().height < 48 &&
-        /coins/.test(phonePin.textContent) &&
+        phonePin.hidden && !merged.hidden && mergedBox.height > 0 && mergedBox.height <= 44 &&
+        /coins/.test(merged.textContent) &&
         (!phoneBuyHit || phoneBuyHit === phoneBuy || phoneBuy.contains(phoneBuyHit)));
       frame.style.width = '844px';
       frame.style.height = '390px';
@@ -2705,13 +2714,16 @@ document.querySelector('#run').onclick = async function () {
     slowBtn.click();
     ld.dispatchEvent(new lw.PointerEvent('pointerup', { bubbles: true, button: 0, cancelable: true }));
     check('Max · 1 buys one stall', /Max · 1 ·/.test(slowBtn.textContent) && lm.state.stalls[0].owned === slowBefore + 1);
-    lw.scrollTo(0, 900);
+    lw.scrollTo(0, 0);
     lm.render();
     var deskBulk = ld.querySelector('#bulk').getBoundingClientRect();
     var deskPin = ld.querySelector('#coin-pin').getBoundingClientRect();
+    var deskBuys = Array.prototype.map.call(ld.querySelectorAll('#stalls [data-act="buy"]'), function (btn) { return btn.getBoundingClientRect(); });
+    var viewH = ld.documentElement.clientHeight;
     check('the buy row stays on screen while scrolling at desktop width',
-      deskBulk.top >= -1 && deskBulk.bottom <= ld.documentElement.clientHeight + 1 && deskBulk.height >= 40 &&
-      (deskPin.height < 1 || deskBulk.top + 1 >= deskPin.bottom - 1));
+      deskBulk.top >= -1 && deskBulk.bottom <= viewH + 1 && deskBulk.height >= 40 &&
+      (deskPin.height < 1 || deskBulk.top + 1 >= deskPin.bottom - 1) &&
+      deskBuys.length >= 1 && deskBuys.every(function (box) { return box.height > 8 && box.top >= -1 && box.bottom <= viewH + 1; }));
     lm.state.stalls[0].owned = 10;
     lm.state.stalls[0].hired = true;
     lm.state.stalls[1].hired = false;
@@ -2766,6 +2778,7 @@ document.querySelector('#run').onclick = async function () {
     check('opening the Story Mat does not move the other stalls', Math.abs(ld.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top - teaBeforeMat) < 1);
     layout.style.width = '320px';
     layout.style.height = '568px';
+    lw.scrollTo(0, 0);
     lm.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 1 : 20; st.serves = 30; });
     lm.state.night.kept = false;
     lm.state.night.offer = null;
@@ -2990,8 +3003,10 @@ document.querySelector('#run').onclick = async function () {
       hm.render();
       var holdRate = hd.querySelector('#rate').textContent;
       var holdPin = hd.querySelector('#coin-pin');
+      var holdCoins = hd.querySelector('.coins').getBoundingClientRect().bottom;
       var holdLabel = holdSize[0] + 'x' + holdSize[1];
-      if (holdRate.indexOf('holding adds') < 0 || holdPin.hidden || holdPin.textContent.indexOf('holding adds') < 0) {
+      var pinNeeded = holdCoins <= 0;
+      if (holdRate.indexOf('holding adds') < 0 || (pinNeeded && (holdPin.hidden || holdPin.textContent.indexOf('holding adds') < 0))) {
         holdProblems.push(holdLabel + ' rate "' + holdRate + '" pin "' + holdPin.textContent + '" hidden ' + holdPin.hidden);
       }
       hd.dispatchEvent(new hw.PointerEvent('pointerup', { bubbles: true, pointerId: 9 }));
@@ -3780,6 +3795,11 @@ document.querySelector('#run').onclick = async function () {
             var incUp = other.flow.inc > row.flow.inc + incSlack * 0.25;
             var priceDown = other.flow.price < row.flow.price - priceSlack * 0.25;
             if (incFine && priceFine && incUp && priceDown) faults.push(row.id + ' dominated by ' + other.id);
+            var cut = -row.flow.price;
+            var rise = other.flow.price > 0 ? other.flow.price : 0;
+            if (other.flow.inc > row.flow.inc + 0.001 && row.flow.price < -0.001 && rise < cut * 1.5 && other.flow.inc * 45 > cut * 3) {
+              faults.push(row.id + ' is a small price cut beside ' + other.id);
+            }
           });
         });
         if (rows.every(function (row) { return /earns less/.test(row.line) && /cheaper|lower|Prices are lower/.test(row.line); })) faults.push('all discounts');

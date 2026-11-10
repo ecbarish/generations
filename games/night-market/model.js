@@ -31,6 +31,7 @@
      seven and a half minutes to pay for itself. A run from 25 lanterns therefore
      stops at 50 instead of climbing into a multi-hour payback. */
   var PAYBACK_CAP = 450;
+  var RECOMMEND_CAP = 90;
 
   /* Old Wen tells one chapter of the tortoise's climb for each mat. The first mat ends the night.
      The tenth is his last chapter if the lane stays open. These lines are the game's own tale.
@@ -96,7 +97,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 70000, growth: 1.1, rate: 540, serves: 8, hand: 1, unlockAt: 12,
+      base: 62000, growth: 1.1, rate: 540, serves: 8, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -128,8 +129,8 @@
       line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10. Mooncakes 40 to 34 a second.',
       set: { mooncake: { unlockAt: 6, rate: 34 } } },
     { id: 'alley', name: 'Quiet alley', brief: 'Quiet alley. Tea costs less. Incense opens later and costs more.',
-      line: 'Quiet alley. Tea 0.45 to 0.52 a second, and tea stalls cost 6 to 5. Trays cost 10% more and wait for 14 tables instead of 12.',
-      set: { incense: { unlockAt: 14, base: 77000 }, tea: { base: 5, rate: 0.52 } } },
+      line: 'Quiet alley. Tea 0.45 to 0.48 a second. Dumplings cost 80 to 96, from the first cart. Trays wait for 14 tables instead of 12.',
+      set: { tea: { rate: 0.48 }, dumpling: { base: 96 }, incense: { unlockAt: 14 } } },
     { id: 'pour', name: 'Long pour', brief: 'Long pour. Mei wants more cups. Tea earns more once she has the stall.',
       line: 'Long pour. Mei wants 30 cups instead of 25. Tea 0.45 to 0.52 a second once she has the stall.',
       set: { tea: { serves: 30, rate: 0.52 } } }
@@ -143,8 +144,8 @@
       set: { lantern: { rate: 6 } } },
     { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes 40 to 48 a second.",
       set: { mooncake: { rate: 48 } } },
-    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost 15% less from now on. 70,000 to 59,500.",
-      set: { incense: { base: 59500 } } },
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost 15% less from now on. 62,000 to 52,700.",
+      set: { incense: { base: 52700 } } },
     { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost 15% less from now on. 2,200,000 to 1,870,000.",
       set: { stories: { base: 1870000 } } },
     { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea',       line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
@@ -1151,6 +1152,12 @@
       var prevOmen = prevNight && omenById(prevNight.omen);
       line = 'Night ' + state.night.n + '. Last night kept ' + (prevOmen ? prevOmen.name : 'what you learned') + '. ' + line;
     }
+    if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 1 && line.indexOf('first cup costs') < 0) {
+      var teaFactor = seedPriceFactor(state.night.seed, 0);
+      var teaNow = cost(0, 0, 1, state);
+      if (teaFactor > 1) line += ' Tonight the first cup costs ' + moneyText(teaNow) + ', half again the usual 6, because the late stall waits on tea.';
+      else if (teaFactor < 1) line += ' Tonight the first cup costs ' + moneyText(teaNow) + ', three quarters of the usual 6, because the early stall opens from tea.';
+    }
     return line;
   }
   function dawnGoal() {
@@ -1476,8 +1483,15 @@
       offlineRate: offlineOf(state).rate,
       title: { label: 'Night Market', unit: '' },
       save: function (seen) {
-        state.seen = seen;
-        if (typeof save === 'function') save(serialize(state, seen));
+        var stamp = seen;
+        if (typeof document !== 'undefined' && document.hidden) {
+          if (!(state.leftAt > 0)) state.leftAt = state.seen > 0 ? state.seen : seen;
+          stamp = state.leftAt;
+        } else {
+          state.leftAt = 0;
+          state.seen = seen;
+        }
+        if (typeof save === 'function') save(serialize(state, stamp));
       }
     });
   }
@@ -1494,7 +1508,7 @@
     { id: 'warm-tea', name: 'Warmer tea', line: 'Tea earns 0.52 a second. Lanterns cost 770.', set: { tea: { rate: 0.52 }, lantern: { base: 770 } } },
     { id: 'loud-carts', name: 'Louder carts', line: 'Dumplings earn 1.05 a second. Mooncakes cost 7360.', set: { dumpling: { rate: 1.05 }, mooncake: { base: 7360 } } },
     { id: 'short-wick', name: 'Shorter wick', line: 'The Story Mat costs 1,760,000. Incense earns 460 a second.', set: { stories: { base: 1760000 }, incense: { rate: 460 } } },
-    { id: 'quiet-tea', name: 'Quieter tea', line: 'Tea costs 5. Incense costs 77,000.', set: { tea: { base: 5 }, incense: { base: 77000 } } }
+    { id: 'quiet-tea', name: 'Quieter tea', line: 'Tea costs 5. Incense costs 68,200.', set: { tea: { base: 5 }, incense: { base: 68200 } } }
   ];
   var BOOST_RATE = { tea: 0.54, dumpling: 1.08, lantern: 6, mooncake: 48 };
   function twistById(id) { return byId(TWISTS, id); }
@@ -1729,7 +1743,7 @@
       return current;
     }
     function usable(list) {
-      var text, measured, a, b, table;
+      var text, a, b, table;
       if (!list || list.length < 2) return false;
       text = list.map(lineOf);
       if (text.every(discountTrade)) return false;
@@ -2723,6 +2737,8 @@
       for (b = 0; b < bumps.length; b++) {
         rateNext = before * factors[f];
         priceNext = priceNow * bumps[b];
+        /* A price cut, or a rise much smaller than the income, is the obvious pick. */
+        if (bumps[b] < 1 + (factors[f] - 1) * 0.8) continue;
         if (moneyText(before) === moneyText(rateNext) || moneyText(priceNow) === moneyText(priceNext)) continue;
         ev = (rateNext - before) * 60 - (priceNext - priceNow) * buys;
         if (!(ev > 0)) continue;
@@ -4545,7 +4561,7 @@
     if (!mark) return null;
     if (mark === LATE_MARKS[0]) {
       if (!(state.night.earlyQuote > 0)) {
-        var quoted = income(state) * 20;
+        var quoted = income(state) * 12;
         if (quoted > 0) state.night.earlyQuote = quoted;
       }
       var quote = state.night.earlyQuote > 0 ? state.night.earlyQuote : 0;
@@ -4554,12 +4570,8 @@
         kind: 'early-mat',
         quote: quote,
         lead: (function () {
-          var text = 'Open the Story Mat row now. This does not end the night. Unroll will cost ' + (quote > 0 ? moneyText(quote) : 'the price on this button') + '.';
-          var per = income(state);
-          var secs = per > 0 && quote > 0 ? Math.round(quote / per) : 0;
-          if (secs === 12) text += ' About twelve seconds of the lane.';
-          else if (secs === 20) text += ' About twenty seconds of the lane.';
-          else if (secs > 0) text += ' About ' + secs + ' seconds of the lane.';
+          var text = 'Opening the row does not end the night. Unroll does. It will cost ' + (quote > 0 ? moneyText(quote) : 'the price on the row') + '.';
+          if (quote > 0) text += ' About twelve seconds of the lane.';
           return text;
         })()
       };
@@ -4712,7 +4724,9 @@
     var summary = names + '. ' + (omen ? omen.name : 'No omen') + '. ' +
       (charms.length ? charms.join(', ') : 'No charm') + '. ' +
       (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime) : String(Math.round(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime))) + ' coins earned tonight.';
-    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall. Pour until Mei will take it.';
+    var nextSeed = stepSeed(state.night && state.night.seed ? state.night.seed : 1);
+    var teaPrice = STALLS[0].base * seedPriceFactor(nextSeed, 0);
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + '. Pour until Mei will take it.';
     return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {
@@ -4823,6 +4837,7 @@
     FINALE_AT: FINALE_AT,
     HOLD_PER_SEC: HOLD_PER_SEC,
     PAYBACK_CAP: PAYBACK_CAP,
+    RECOMMEND_CAP: RECOMMEND_CAP,
     CHAPTERS: CHAPTERS,
     OMENS: OMENS,
     CHARMS: CHARMS,
