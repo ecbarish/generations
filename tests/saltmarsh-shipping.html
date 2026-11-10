@@ -747,6 +747,100 @@ document.querySelector('#run').onclick = async function () {
     M.newHarbour(sea, 0, 10);
     check('a new harbour keeps one captain and the charts', sea.ended === false && sea.boats[0].owned === 0 && sea.captains[0].hired && sea.charts === 2 && charts === 2 && sea.cash === 0);
 
+    function copyOffice(state) {
+      return M.restore(JSON.parse(JSON.stringify(M.serialize(state, 1))));
+    }
+    function sideValue(state, apply, horizon) {
+      var cash = state.cash;
+      var rate = M.officeRate(state);
+      var bought = apply(state);
+      if (!bought || bought.ok === false) return null;
+      var next = M.nextPreparation ? M.nextPreparation(state) : null;
+      if (next && next.id !== 'victuals' && next.id !== 'pilot') {
+        state.cash = Math.max(state.cash, next.cost);
+        var later = M.buyPreparation(state, next.id, next.choice ? next.choice[0].id : '', 1);
+        if (!later || later.ok === false) return null;
+      }
+      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
+    }
+    function voyageDesk(routes, boats) {
+      var state = M.preset('lamps');
+      state.played = 700;
+      state.cash = 1e15;
+      state.ended = false;
+      state.prepDone = {};
+      state.prepPrices = {};
+      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { state.lights[id] = 2; });
+      state.boats[0].owned = boats[0];
+      state.boats[1].owned = boats[1];
+      state.boats[2].owned = boats[2];
+      state.boats[3].owned = boats[3];
+      M.ROUTES.forEach(function (spec) {
+        var depth = routes[spec.id] || 0;
+        state.routes[spec.id] = depth;
+        state.routeGross[spec.id] = routes[spec.id + 'Gross'] || 0;
+        state.routeCut[spec.id] = routes[spec.id + 'Cut'] || 0;
+      });
+      return state;
+    }
+    var foodThin = voyageDesk({ kelp: 1, kelpGross: 400 }, [80, 40, 30, 24]);
+    var foodFat = voyageDesk({
+      kelp: 2, kelpGross: 791, gull: 2, gullGross: 993, gullCut: 85,
+      tea: 2, teaGross: 973, night: 1, nightGross: 8341, nightCut: 3003
+    }, [32, 10, 10, 16]);
+    var freshThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
+    var porkThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
+    var freshFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
+    var porkFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
+    check('fresh food and salt pork each win a real desk (' + Math.round(freshThin) + ' / ' + Math.round(porkThin) + ' thin, ' + Math.round(freshFat) + ' / ' + Math.round(porkFat) + ' fat)', freshThin != null && porkThin != null && freshFat != null && porkFat != null && porkThin > freshThin && freshFat > porkFat);
+    function readyForPilot(desk) {
+      var state = copyOffice(desk);
+      state.cash = 1e15;
+      M.buyPreparation(state, 'victuals', 'fresh', 1);
+      M.buyPreparation(state, 'canvas', '', 1);
+      return state;
+    }
+    var pilotSafe = readyForPilot(foodThin);
+    var pilotRisk = readyForPilot(foodFat);
+    var pilotOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
+    var chartOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
+    var pilotOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
+    var chartOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
+    check('the pilot and the chart each win a real desk (' + Math.round(pilotOnSafe) + ' / ' + Math.round(chartOnSafe) + ' safe, ' + Math.round(pilotOnRisk) + ' / ' + Math.round(chartOnRisk) + ' risk)', pilotOnSafe != null && chartOnSafe != null && pilotOnRisk != null && chartOnRisk != null && chartOnSafe > pilotOnSafe && pilotOnRisk > chartOnRisk);
+    function gullDesk(gullGross) {
+      var state = M.preset('fleet');
+      state.cash = 1e12;
+      state.boats[2].owned = 10;
+      state.boats[3].owned = 4;
+      state.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      state.lights.pier = 2;
+      state.routes.kelp = 1;
+      state.routeGross.kelp = 400;
+      state.voyages = 1;
+      state.events = { squall: 'wait' };
+      if (gullGross > 0) {
+        state.routes.gull = 2;
+        state.routeGross.gull = gullGross;
+        state.routeCut.gull = gullGross * 0.28;
+        state.voyages = 2;
+      }
+      return state;
+    }
+    function purseValue(state, which, horizon) {
+      var cash = state.cash;
+      var rate = M.officeRate(state);
+      var bought = M.chooseDesk(state, 'request', which, 1);
+      if (!bought || bought.ok === false) return null;
+      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
+    }
+    var bare = gullDesk(0);
+    var signed = gullDesk(8000);
+    var purseBare = purseValue(copyOffice(bare), 'purse', 240);
+    var grantBare = purseValue(copyOffice(bare), 'grant', 240);
+    var purseSigned = purseValue(copyOffice(signed), 'purse', 240);
+    var grantSigned = purseValue(copyOffice(signed), 'grant', 240);
+    check('the purse and the gull each win a real desk (' + Math.round(purseBare) + ' / ' + Math.round(grantBare) + ' bare, ' + Math.round(purseSigned) + ' / ' + Math.round(grantSigned) + ' signed)', purseBare != null && grantBare != null && purseSigned != null && grantSigned != null && purseBare > grantBare && grantSigned > purseSigned);
+
     var active = SaltmarshPacing.simulate(M, 'active');
     var days = SaltmarshPacing.workdays(M);
     check('an active office reaches a captain within 10 minutes', active.captainAt > 0 && active.captainAt <= 600);
