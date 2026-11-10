@@ -142,7 +142,11 @@
   mark('cap',a.capRate>=L.marketCap,pct(a.capRate));
   reserve('coc',[cocNote(a),COC_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>cocNote(t.x))]);
   mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),cocNote(a));
-  mark('one',a.onePercent>=0.01,pct(a.onePercent,2));
+  // Green only when this offer's monthly rent is at least 1% of its price. A costly buy under that line stays red.
+  const oneMet=a.rent*100>=a.price;
+  mark('one',oneMet,pct(a.rent/a.price,2));
+  const sellers=M.respond(choice.price,L);
+  $('#countCue').textContent=!view.o.counts?'Would not count.':sellers.answer==='yes'?'Would count.':'Only if they take it.';
   reserve('arv',[arvNote(a,L.plans[S.rehab].cost),ARV_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);
   mark('arv',a.equity>=0,money(a.arv),arvNote(a,L.plans[S.rehab].cost));
   $('#outlookSlot').hidden=S.phase==='done';
@@ -153,7 +157,6 @@
   const warn=choosing?cashWarning(choice):'';
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
   $('#shortCash').hidden=!(running&&L&&!M.canAfford(R,choice,L));
-  $('#dealActions').hidden=S.phase==='counter';
   document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
   $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
@@ -184,11 +187,21 @@
 
  // The reply sits under the choices. Bring its first action into view on every size, and only
  // when it opens, so a later tap does not throw Make this offer or Pass.
+ function clearReply(){
+  const slot=$('#replyActions'); if(slot){slot.replaceChildren();slot.hidden=true;}
+  const live=$('#dealButtons'); if(live) live.hidden=false;
+ }
+ // The reply's buttons take the same row as Make this offer, so the row does not drop when the seller speaks.
+ function parkReply(box){
+  const row=box.querySelector('.actions'), slot=$('#replyActions'); if(!row||!slot) return;
+  slot.replaceChildren(row); slot.hidden=false; $('#dealButtons').hidden=true;
+ }
  function show(html){
   const box=$('#answer');const reveal=box.hidden;
   box.innerHTML=html;box.hidden=false;
+  parkReply(box);
   if(!reveal)return;
-  const btn=box.querySelector('button'); if(!btn||!btn.scrollIntoView)return;
+  const btn=$('#replyActions button')||box.querySelector('button'); if(!btn||!btn.scrollIntoView)return;
   const r=btn.getBoundingClientRect();
   if(r.top<0||r.bottom>window.innerHeight||r.left<0||r.right>window.innerWidth)
    btn.scrollIntoView({block:'nearest',inline:'nearest'});
@@ -229,7 +242,11 @@
   const y=M.buyHome(R,S),v=M.verdict(y.onCash);persist();render();
   const months=y.months.map(m=>'<li class="'+(m.notes.length?'event':'')+'" title="'+m.notes.join('; ')+'"><b>'+MONTHS[m.m-1]+
    '</b>'+money(m.net)+(m.notes.length?'<b>'+m.notes[0]+'</b>':'')+'</li>').join('');
-  show(nextButton()+'<h2>'+line+' You own '+L.address+'.</h2><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
+  const owned=R.homes.filter(h=>h.bought&&h.onCash>=0);
+  const earn=owned.reduce((n,h)=>n+(h.cashFlow||0),0);
+  const left=M.GOAL-owned.length;
+  const next=left<=0?'That finishes the street.':'Next: '+left+' more '+(left===1?'home':'homes')+' that pay.';
+  show(nextButton()+'<h2>'+line+' You own '+L.address+'.</h2><p>You own '+owned.length+' '+(owned.length===1?'home':'homes')+' that pay, earning '+money(earn)+' a month. '+next+'</p><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
    '<ul class="months" aria-label="Its first year, month by month">'+months+'</ul>'+
    '<p><small>A quiet month pays more than the worksheet\'s '+money(y.analysis.cashFlow)+': the '+money(y.analysis.setAside)+' set aside stays yours until something breaks or a unit sits empty.</small></p>'+
    '<table class="year"><tr><th>Cash in hand over the year</th><td>'+money(y.cash)+'</td></tr>'+
@@ -249,7 +266,7 @@
 
  function startListing(){
   L=M.current(R);Object.assign(S,{price:L.ask,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null});
-  fill();render();$('#answer').hidden=true;$('#finale').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
+  fill();render();clearReply();$('#answer').hidden=true;$('#finale').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
  }
 
  function next(){
@@ -266,11 +283,14 @@
    const v=M.verdict(got.onCash);
    return '<li class="'+(got.onCash>=0?'pays':'lost')+'"><b>'+h.address+'</b><span>'+v.word+'</span><small>Bought for '+money(got.choice.price)+
     ', '+money(got.cashFlow)+' a month on the worksheet. '+h.lesson+'</small></li>';}).join('');
+  const payingHomes=R.homes.filter(h=>h.bought&&h.onCash>=0).length;
+  const nextBlock=M.won(R)?'Next: a harder block, still from $200,000. Own 3 homes that pay you.':'Next: another block. Own 3 homes that pay you.';
   const html='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
    '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
    '<p>'+(M.won(R)?M.paying(R)+' homes on Alder Street pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
    'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. '+
    'Together they bring in '+money(flow)+' a month on the worksheet, and you still have '+money(R.cash)+' of your savings.</p>'+
+   '<p>You own '+payingHomes+' '+(payingHomes===1?'home':'homes')+' that pay, earning '+money(flow)+' a month. '+nextBlock+'</p>'+
    '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>';
   show(html);
   const fin=$('#finale');fin.innerHTML=html;fin.hidden=false;
@@ -282,17 +302,37 @@
  function begin(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
  function again(){
   const prev=M.orderOf(R).map(h=>h.id).join('|');
+  const tier=M.won(R)?(R.tier||0)+1:(R.tier||0);
   let seed=(Date.now()>>>0)||1, run, n=0;
-  do{run=M.newRun(seed+n); n++;}while(run.order.join('|')===prev&&n<8);
+  do{run=M.newRun(seed+n,tier); n++;}while(run.order.join('|')===prev&&n<12);
   R=run;persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});
  }
 
  // On a phone the offer controls are a screen above the answer: take the player back to them.
  function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="2000"]').focus({preventScroll:true});}
 
+ let holdTimer=null, heldStep=false;
+ function stopHold(){if(holdTimer){clearInterval(holdTimer);holdTimer=null;}}
+ function stepOffer(delta){
+  if(S.phase!=='run'||!L)return;
+  S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),S.price+delta));render();
+ }
+ document.addEventListener('pointerdown',e=>{
+  const b=e.target.closest&&e.target.closest('[data-offer]');
+  if(!b||b.disabled)return;
+  heldStep=true;const delta=+b.dataset.offer;stepOffer(delta);
+  let ticks=0;stopHold();
+  holdTimer=setInterval(()=>{
+   if(b.disabled||S.phase!=='run'){stopHold();return;}
+   stepOffer(delta);ticks++;
+   if(ticks===3){stopHold();holdTimer=setInterval(()=>{if(b.disabled||S.phase!=='run'){stopHold();return;}stepOffer(delta);},70);}
+  },320);
+ });
+ document.addEventListener('pointerup',()=>{stopHold();setTimeout(()=>{heldStep=false;},0);});
+ document.addEventListener('pointercancel',()=>{stopHold();heldStep=false;});
  document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
-  if(b.dataset.offer){S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),S.price+ +b.dataset.offer));render();}
+  if(b.dataset.offer){if(heldStep){heldStep=false;return;}stepOffer(+b.dataset.offer);}
   else if(b.dataset.down){S.sure=false;S.down=+b.dataset.down;render();if(S.phase==='counter')paintCounter();}
   else if(b.dataset.rehab){S.sure=false;S.rehab=b.dataset.rehab;render();if(S.phase==='counter')paintCounter();}
   else if(b.id==='offerBtn')offer();
@@ -300,11 +340,11 @@
   else if(b.dataset.act==='take')buy(S.counter,'You take their '+money(S.counter)+'.');
   else if(b.dataset.act==='walk')lose('You walk away.');
   else if(b.dataset.act==='anyway')offer();
-  else if(b.dataset.act==='look'){S.sure=false;$('#answer').hidden=true;}
+  else if(b.dataset.act==='look'){S.sure=false;clearReply();$('#answer').hidden=true;}
   else if(b.dataset.act==='end')endStreet();
   else if(b.dataset.act==='next')next();
   else if(b.dataset.act==='again')again();
-  else if(b.dataset.act==='change')backToOffer();
+  else if(b.dataset.act==='change'){clearReply();$('#answer').hidden=true;backToOffer();}
  });
 
  if(M.finished(R))showStreet();else startListing();
