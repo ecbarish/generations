@@ -91,4 +91,5 @@ window.ArcadeOffShelf=[
    tags:['Evolution','Idle','Roguelike runs'],cover:'primordial',
    kind:'different',goal:'Feed a single cell until it can evolve, pick mutations, and survive extinctions that make your next run stronger.',controls:'Mouse or tap only: click the pool to feed, then pick from the buttons and tabs.'},
 ];
+if(typeof document!=='undefined'&&document.head){const s=document.createElement('style');s.textContent='#lab [data-game="keymaster"] a.play{min-height:44px;min-width:44px}';document.head.appendChild(s);}
 })();

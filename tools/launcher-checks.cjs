@@ -49,6 +49,15 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
+  const kmPlay=p.locator('#lab [data-game="keymaster"] a.play');
+  await kmPlay.scrollIntoViewIfNeeded();
+  check(await kmPlay.getAttribute('href')==='games/keymaster/index.html','Keymaster Play opens the game');
+  const kmBox=await kmPlay.boundingBox();
+  check(!!kmBox&&kmBox.width>=44&&kmBox.height>=44,'Keymaster play target is at least 44px ('+width+'x'+height+')');
+  const kmHit=await kmPlay.evaluate(el=>{const r=el.getBoundingClientRect();const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!(hit&&el.contains(hit));});
+  check(kmHit,'a tap on the Keymaster Play control hits that control ('+width+'x'+height+')');
+  check(await p.locator('#lab [data-game="keymaster"] .chip').evaluate(el=>el.textContent.trim())==='Test version','Keymaster card shows its status');
+  check(await p.locator('#lab [data-game="keymaster"] details').evaluate(el=>/What you do:/.test(el.textContent)&&/Controls:/.test(el.textContent)),'Keymaster card has a goal and controls');
   check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow (lab '+width+')');
   if(width===WIDTHS[0][0]){await shareOk(p,'lab');await linksOk(p,'lab');for(const g of games.filter(g=>g.href)){const r=await p.request.get(origin+'/'+g.href);check(r.ok(),'play target exists: '+g.id);}}
   // --- game pages ---
