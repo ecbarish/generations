@@ -329,10 +329,7 @@
     if (back) back.hidden = !offer;
     if (box.hidden) return;
     var bar = $('#goalbar');
-    if (bar) {
-      box.style.bottom = bar.offsetHeight + 'px';
-      box.style.maxHeight = 'calc(100vh - ' + (bar.offsetHeight + 8) + 'px)';
-    }
+    if (bar) box.style.bottom = '';
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -348,8 +345,17 @@
       var button = host.querySelector('[data-which="' + card.which + '"]');
       if (!button) return;
       button.disabled = !card.affordable;
-      var label = 'Take · ' + money(card.cost);
-      button.textContent = card.affordable || !(card.cost > 0) ? label : label + ' · ' + M.needMore(state, card.cost);
+      button.replaceChildren();
+      var main = document.createElement('span');
+      main.className = 'take-main';
+      main.textContent = 'Take · ' + money(card.cost);
+      button.appendChild(main);
+      if (!card.affordable && card.cost > 0) {
+        var sub = document.createElement('span');
+        sub.className = 'take-need';
+        sub.textContent = M.needMore(state, card.cost);
+        button.appendChild(sub);
+      }
     });
   }
 
@@ -656,7 +662,7 @@
         if (offer) button.dataset.act = 'light';
         else {
           button.disabled = true;
-          button.textContent = 'Burning';
+          button.textContent = stage >= 2 ? 'Burning' : 'Not yet';
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -718,7 +724,7 @@
     if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
     $('#provision-note').textContent = offers.length
       ? 'These prices don\'t go up as your fleet grows.'
-      : 'All eight are packed.';
+      : 'All ' + M.PREPARATIONS.length + ' are packed.';
     var host = $('#provision-cards');
     var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
@@ -731,7 +737,7 @@
         host.dataset.heldHeight = '';
         var packed = document.createElement('p');
         packed.className = 'habit';
-        packed.textContent = 'All eight are packed.';
+        packed.textContent = 'All ' + M.PREPARATIONS.length + ' are packed.';
         host.appendChild(packed);
       } else {
         M.PREPARATIONS.forEach(function (item) {
@@ -798,12 +804,8 @@
       alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
     } else if (alt) alt.hidden = true;
     if (actions) {
-      var rowH = actions.offsetHeight;
-      var rowHeld = parseFloat(actions.dataset.heldHeight || '0');
-      if (rowH > rowHeld + 0.5) {
-        actions.dataset.heldHeight = String(rowH);
-        actions.style.minHeight = rowH + 'px';
-      }
+      actions.style.minHeight = '';
+      actions.dataset.heldHeight = '';
     }
   }
 
@@ -1042,6 +1044,21 @@
     box.appendChild(btn);
   }
 
+  function cheer(button, text) {
+    var el = $('#cheer');
+    if (!el || !button || !button.getBoundingClientRect) return;
+    var rect = button.getBoundingClientRect();
+    el.hidden = false;
+    el.textContent = text;
+    el.style.left = (rect.left + rect.width / 2) + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+    button.classList.add('answered');
+    setTimeout(function () { button.classList.remove('answered'); }, 450);
+  }
+
   function pop(x, y, text) {
     var wrap = $('.harbour-wrap');
     var rect = wrap.getBoundingClientRect();
@@ -1206,21 +1223,25 @@
     }
     if (b.dataset.act === 'gear') {
       if (M.buyGear(state, b.dataset.route).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, 'Sail up');
+        if (state.sound) audio.sfx('coin');
         keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'route') {
       if (M.signRoute(state, b.dataset.route).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, 'Signed');
+        if (state.sound) audio.sfx('coin');
         keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'light') {
+      var raised = (state.lights[b.dataset.light] || 0) === 0;
       if (M.buildLight(state, b.dataset.light).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, raised ? 'Raised' : 'Lit');
+        if (state.sound) audio.sfx(raised ? 'quest' : 'level');
         keepPlace(function () { persist(); render(); });
       }
       return;
@@ -1260,6 +1281,7 @@
     }
     if (b.id === 'finale-go') {
       if (M.launchFinale(state, Date.now()).ok) {
+        cheer(b, 'Under way');
         if (state.sound) audio.sfx('level');
         persist();
         render();
@@ -1459,84 +1481,90 @@
      so a measured wait is a wait on the step the player can see. */
   function followGoal() {
     var goal = ($('#goal') && $('#goal').textContent) || '';
+    function press(el) {
+      var x = window.scrollX;
+      var y = window.scrollY;
+      el.click();
+      if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
+    }
     var act = P.nextAct(state);
     if (/^Choose a route/.test(goal)) {
       var routeAct = P.nextAct(state);
       var routeBtn = routeAct && routeAct.kind === 'route'
         ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
         : null;
-      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      if (usableControl(routeBtn)) { press(routeBtn); return true; }
       return false;
     }
     if (/^Pick bell or coal/.test(goal)) {
       var bellBtn = document.querySelector('#choice button');
-      if (usableControl(bellBtn)) { bellBtn.click(); return true; }
+      if (usableControl(bellBtn)) { press(bellBtn); return true; }
       return false;
     }
     if (/^Choose fresh|^Choose a pilot/.test(goal)) {
       var prepBtn = act && act.kind === 'prep'
         ? document.querySelector('#provision [data-prep="' + act.id + '"]' + (act.which ? '[data-which="' + act.which + '"]' : ''))
         : $('#provision-go');
-      if (usableControl(prepBtn)) { prepBtn.click(); return true; }
+      if (usableControl(prepBtn)) { press(prepBtn); return true; }
       return false;
     }
     if (/^Choose /.test(goal)) {
       var choice = document.querySelector('#choice button');
-      if (usableControl(choice)) { choice.click(); return true; }
+      if (usableControl(choice)) { press(choice); return true; }
       return false;
     }
     if (/^Ask /.test(goal)) {
       var ask = $('#ask');
-      if (usableControl(ask)) { ask.click(); return true; }
+      if (usableControl(ask)) { press(ask); return true; }
       return false;
     }
     if (/^Row /.test(goal)) {
       var row = $('#row');
-      if (usableControl(row)) { row.click(); return true; }
+      if (usableControl(row)) { press(row); return true; }
       return false;
     }
     if (/^Set sail/.test(goal)) {
       var sail = $('#finale-go');
-      if (usableControl(sail)) { sail.click(); return true; }
+      if (usableControl(sail)) { press(sail); return true; }
       return false;
     }
     if (/^Pack /.test(goal)) {
       var packBtn = act && act.kind === 'prep'
         ? document.querySelector('#provision [data-prep="' + act.id + '"]')
         : $('#provision-go');
-      if (usableControl(packBtn)) { packBtn.click(); return true; }
+      if (usableControl(packBtn)) { press(packBtn); return true; }
       return false;
     }
     if (/^Do the harbour work/.test(goal)) {
       var workBtn = $('#work-go');
-      if (usableControl(workBtn)) { workBtn.click(); return true; }
+      if (usableControl(workBtn)) { press(workBtn); return true; }
       return false;
     }
     if (/^Run the errand/.test(goal)) {
       var errandBtn = $('#errand-go');
-      if (usableControl(errandBtn)) { errandBtn.click(); return true; }
+      if (usableControl(errandBtn)) { press(errandBtn); return true; }
       return false;
     }
     if (/^Send /.test(goal)) {
       var send = $('#finale-go');
-      if (usableControl(send)) { send.click(); return true; }
+      if (usableControl(send)) { press(send); return true; }
       return false;
     }
     if (/^Sign /.test(goal) && act && act.kind === 'route') {
       var routeBtn = document.querySelector('#route-cards [data-route="' + act.id + '"] [data-act="route"]');
-      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      if (usableControl(routeBtn)) { press(routeBtn); return true; }
       return false;
     }
     if (/^(Raise|Light) the /.test(goal) && act && act.kind === 'light') {
       var lightBtn = document.querySelector('#light-cards [data-light="' + act.id + '"] [data-act="light"]');
-      if (usableControl(lightBtn)) { lightBtn.click(); return true; }
+      if (usableControl(lightBtn)) { press(lightBtn); return true; }
       return false;
     }
     if (/^Buy |^Tie up /.test(goal)) {
       var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
       var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
       if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);
-      if (usableControl(buy)) { buy.click(); return true; }
+      if (usableControl(buy)) { press(buy); return true; }
       return false;
     }
     return false;

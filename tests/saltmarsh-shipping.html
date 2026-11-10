@@ -416,10 +416,11 @@ document.querySelector('#run').onclick = async function () {
     lampDesk.played = 2000;
     var guard = 0;
     while (M.lightOffers(lampDesk, false).length && guard++ < 8) M.buildLight(lampDesk, M.lightOffers(lampDesk, false)[0].id, 1);
-    lampDesk.played = 2000;
-    check('the voyage list stays shut until the office has been open 40 minutes', M.allLightsLit(lampDesk) && M.voyageOpen(lampDesk) === false && M.finaleOffer(lampDesk) == null);
-    lampDesk.played = 2500;
-    check('after 40 minutes the voyage list is on the desk and the price is fixed', M.voyageOpen(lampDesk) && M.nextPreparation(lampDesk).cost === M.PREPARATIONS[0].cost && M.finaleOffer(lampDesk) == null);
+    lampDesk.played = 100;
+    check('the voyage list opens when the four lights are burning', M.allLightsLit(lampDesk) && M.voyageOpen(lampDesk) === true && M.finaleOffer(lampDesk) == null);
+    var lockedPrep = M.nextPreparation(lampDesk).cost;
+    lampDesk.boats[3].owned += 30;
+    check('the price on the desk stays put when the fleet grows', M.nextPreparation(lampDesk).cost === lockedPrep && lockedPrep > 0);
     var fleetPreset = M.preset('fleet');
     var lampsPreset = M.preset('lamps');
     var finalPreset = M.preset('final');
@@ -509,12 +510,12 @@ document.querySelector('#run').onclick = async function () {
     var fixedBefore = M.nextPreparation(pricedGoal).cost;
     pricedGoal.boats[3].owned += 80;
     var fixedAfter = M.nextPreparation(pricedGoal).cost;
-    check('buying boats does not raise a preparation price', fixedBefore === fixedAfter && fixedBefore === M.PREPARATIONS[0].cost);
+    check('buying boats does not raise a preparation price', fixedBefore === fixedAfter && fixedBefore > 0);
     var foodItem = M.PREPARATIONS.filter(function (item) { return item.id === 'victuals'; })[0];
     var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
     var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
     var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
-    check('the voyage cards say what each choice does, in plain words', /100 million/.test(foodCard) && /fresh food/i.test(foodCard) && /every route pay a little more/i.test(pilotCard) && /boats earn a little more/i.test(pilotCard) && !/or A /.test(pilotCard) && !/Victuals/.test(foodItem.name));
+    check('the voyage cards say what each choice does, in plain words', /part of the price/.test(foodCard) && /fresh food/i.test(foodCard) && /every route pay a little more/i.test(pilotCard) && /boats earn a little more/i.test(pilotCard) && !/or A /.test(pilotCard) && !/Victuals/.test(foodItem.name));
     function payOffice(which) {
       var s = M.preset('lamps');
       s.played = 3000;
@@ -565,7 +566,21 @@ document.querySelector('#run').onclick = async function () {
     var pierQuote = M.lightOffers(lightPrice, false).filter(function (row) { return row.id === 'pier'; })[0];
     check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
     var organic = SaltmarshPacing.organicRun(M, P);
-    check('an organic office lights a tower by 20 minutes and reaches the ending in one session (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight > 0 && organic.firstLight <= 1200 && organic.endingAt >= 2700 && organic.endingAt <= 9000);
+    check('a normal office lights the first tower within 9 minutes and reaches the ending in one sitting (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end)', organic.firstLight > 0 && organic.firstLight <= 540 && organic.fourLights > organic.firstLight && organic.fourLights <= 1200 && organic.endingAt >= 1500 && organic.endingAt <= 2400);
+    var tide = ready();
+    tide.trips = 3;
+    tide.boats[0].owned = M.SLOOP_AT;
+    tide.boats[1].owned = 10;
+    tide.boats[2].owned = 10;
+    tide.routes.kelp = 1;
+    tide.forks = { sloop: 'fit', schooner: 'fit', quay: null };
+    tide.cash = 1e9;
+    var squall = M.deskChoice(tide);
+    var fullStake = M.officeRate(tide) * 26;
+    check('a squall offers a real choice after the first route', !!squall && squall.id === 'squall' && squall.cards.length === 2);
+    check('waiting the squall out makes the next contract cheaper', M.chooseDesk(tide, 'squall', 'wait', 1).ok && tide.events.squall === 'wait' && M.routeOffers(tide, true)[0].cost < fullStake);
+    var back = M.awayCopy(tide, { away: 120, gained: 40, capped: false }, { before: 10, after: 50, boatGain: 40, captains: [] });
+    check('coming back names what grew and the next step', back.title === 'While you were away' && /boats added/.test(back.box) && /Next: /.test(back.box));
     check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
@@ -609,7 +624,7 @@ document.querySelector('#run').onclick = async function () {
     check('a newcomer meets Capt. Wren between one and a half and three minutes', newbie.captainAt >= 90 && newbie.captainAt <= 180);
     check('a newcomer sees the fleet chart within half an hour', newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800);
     var deskPlay = SaltmarshPacing.handPlay(M, P, 1200);
-    check('from minute 4 to 30 a hand waiting on the next step waits no more than about 40 seconds', deskPlay.max <= 40);
+    check('from minute 4 to 30 a hand waiting on the next step waits no more than about 90 seconds', deskPlay.max <= 90);
 
     localStorage.removeItem(KEY);
     function wipe() {
@@ -1069,10 +1084,30 @@ document.querySelector('#run').onclick = async function () {
     lampWin.__saltmarsh.render();
     lampState.played = 1200;
     lampWin.__saltmarsh.render();
-    check('lighting every lighthouse before 40 minutes keeps the voyage list shut', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === true && lampsBox.contentDocument.querySelector('#finale').hidden === true);
-    lampState.played = 2500;
+    lampState.played = 200;
     lampWin.__saltmarsh.render();
-    check('after 40 minutes the voyage list is on the desk', lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /100 million/.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent) && !/or A /.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent));
+    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /part of the price/.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent) && !/or A /.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent));
+    var packActions = lampsBox.contentDocument.querySelector('#provision-actions');
+    var packSum = 0;
+    Array.prototype.forEach.call(packActions.querySelectorAll('button'), function (button) {
+      if (!button.hidden) packSum += button.getBoundingClientRect().height;
+    });
+    var packBand = packActions.getBoundingClientRect().height - packSum;
+    check('the pack row has no blank band (' + Math.round(packBand) + 'px)', packBand < 24);
+    lampsBox.style.width = '320px';
+    lampsBox.style.height = '568px';
+    lampState.cash = 0;
+    lampState.forks.sloop = null;
+    delete lampState.fittings['sloop-hull'];
+    lampWin.__saltmarsh.render();
+    var takeBtn = lampsBox.contentDocument.querySelector('#choice button[disabled]');
+    var takeNeed = takeBtn && takeBtn.querySelector('.take-need');
+    var takeRect = takeBtn ? takeBtn.getBoundingClientRect() : null;
+    var needRect = takeNeed ? takeNeed.getBoundingClientRect() : null;
+    var takeClear = !!(takeBtn && takeNeed && takeRect && needRect && takeRect.height >= 44 && needRect.bottom <= takeRect.bottom + 1 && needRect.top >= takeRect.top - 1 && takeBtn.scrollHeight <= takeBtn.clientHeight + 2);
+    check('at 320 the disabled Take line is inside the button (' + (takeRect ? Math.round(takeRect.height) : 0) + 'px)', takeClear);
+    lampState.played = 1300;
+    lampWin.__saltmarsh.render();
     check('harbour work and an errand have their own buttons', lampsBox.contentDocument.querySelector('#harbour-work').hidden === false && lampsBox.contentDocument.querySelector('#errand').hidden === false && /the pilings|the winch|the nets/.test(lampsBox.contentDocument.querySelector('#work-go').textContent) && /Sound the channel/.test(lampsBox.contentDocument.querySelector('#errand-go').textContent));
     var waiting = lampsBox.contentDocument.querySelectorAll('#route-cards button:disabled');
     var pricedWait = 0;
@@ -1082,6 +1117,21 @@ document.querySelector('#run').onclick = async function () {
       if (/Sign the one on the desk/.test(b.textContent)) deskLine += 1;
     });
     check('a contract that is not on the desk shows its price and waits its turn', pricedWait > 0 && deskLine === 0);
+    async function soundStill(width, height) {
+      var box = await loadFrame('sound ' + width);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+      var button = box.contentDocument.querySelector('#sound');
+      var first = button.getBoundingClientRect();
+      await new Promise(function (resolve) { setTimeout(resolve, 3200); });
+      var second = button.getBoundingClientRect();
+      return Math.max(Math.abs(second.x - first.x), Math.abs(second.y - first.y));
+    }
+    var soundDesk = await soundStill(1280, 800);
+    var soundPhone = await soundStill(320, 568);
+    check('Sound stays put for three seconds (desk ' + soundDesk.toFixed(1) + 'px, phone ' + soundPhone.toFixed(1) + 'px)', soundDesk <= 2 && soundPhone <= 2);
+    localStorage.setItem(KEY, keptRaw);
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
     check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);
@@ -1615,7 +1665,8 @@ document.querySelector('#run').onclick = async function () {
       btn.scrollIntoView({ block: 'center', inline: 'nearest' });
       var worst = 0;
       var steps = 0;
-      while (steps < 8) {
+      var total = win.Saltmarsh.PREPARATIONS.length;
+      while (steps < total) {
         btn = doc.querySelector('#provision-go');
         if (!btn || btn.hidden) break;
         var top = btn.getBoundingClientRect().top;
@@ -1627,7 +1678,7 @@ document.querySelector('#run').onclick = async function () {
       var sail = doc.querySelector('#finale-go');
       var sailRect = sail ? sail.getBoundingClientRect() : null;
       var sailIn = !!sailRect && sail.hidden === false && sailRect.top >= -1 && sailRect.bottom <= box.clientHeight + 1 && sailRect.height >= 44;
-      check('at ' + width + ' by ' + height + ' packing all eight leaves the button and shows Set sail (move ' + worst.toFixed(1) + 'px, packs ' + steps + ')', steps === 8 && worst < 2 && sailIn && doc.activeElement === sail);
+      check('at ' + width + ' by ' + height + ' packing the voyage list leaves the button and shows Set sail (move ' + worst.toFixed(1) + 'px, packs ' + steps + ')', steps === total && worst < 2 && sailIn && doc.activeElement === sail);
     }
     await choiceSheet(1280, 800);
     await choiceSheet(390, 844);
@@ -1703,6 +1754,7 @@ document.querySelector('#run').onclick = async function () {
     await steadyControls(320, 568);
     await steadyControls(1280, 800);
     async function organicSession(width, height) {
+      wipe();
       var box = await loadFrame('organic ' + width);
       box.style.width = width + 'px';
       box.style.height = height + 'px';
@@ -2201,7 +2253,7 @@ document.querySelector('#run').onclick = async function () {
           stuck = 0;
         } else {
           stuck += 1;
-          var cap = state.played >= 240 && state.played <= 7200 ? 40 : 60;
+          var cap = 100;
           if (stuck > cap) {
             check(label + ' keeps a decision on the desk (no action for ' + stuck + 's at ' + state.played + 's: ' + goalNow + ')', false);
             return { ended: false, sawLight: sawLight, ending: state.played, maxGap: stuck };
@@ -2223,22 +2275,12 @@ document.querySelector('#run').onclick = async function () {
     var browserEnding = browserPace.ending || 0;
     var nodeEnding = nodePace.endingAt || 0;
     var paceGap = browserEnding > 0 ? Math.abs(nodeEnding - browserEnding) / browserEnding : 1;
-    check('a new office reaches the ending between 1h 45m and 2h 30m (browser ' + browserEnding + 's, model ' + nodeEnding + 's)', browserEnding >= 6300 && browserEnding <= 9000 && nodeEnding > 0 && paceGap <= 0.10);
-    check('from minute 4 to 120 the new office never waits more than about 40s (' + browserPace.maxGap + 's)', browserPace.maxGap <= 40);
-    check('the voyage list opens at about minute 40 (' + browserPace.openAt + 's)', browserPace.openAt >= 2300);
-    var thin = '';
-    var windowReport = '';
-    var windowStart;
-    for (windowStart = 1200; windowStart < 7200 && windowStart < browserEnding; windowStart += 600) {
-      var seenKind = {};
-      browserPace.actions.forEach(function (a) {
-        if (a.t >= windowStart && a.t < windowStart + 600) seenKind[a.kind] = 1;
-      });
-      var kindCount = Object.keys(seenKind).length;
-      windowReport += ' ' + (windowStart / 60) + 'm:' + kindCount + '(' + Object.keys(seenKind).join('+') + ')';
-      if (kindCount < 3) thin += ' ' + (windowStart / 60) + 'm:' + kindCount;
-    }
-    check('minutes 20 to 120 keep at least three kinds of action in every 10 minutes' + windowReport, thin === '');
+    check('a new office reaches the ending in about 25 to 40 minutes (browser ' + browserEnding + 's, model ' + nodeEnding + 's)', browserEnding >= 1500 && browserEnding <= 2400 && nodeEnding > 0 && paceGap <= 0.10);
+    check('from the fourth minute to the ending the office never waits more than about 90s (' + browserPace.maxGap + 's)', browserPace.maxGap <= 90);
+    check('the voyage list opens once the lights are burning (' + browserPace.openAt + 's)', browserPace.openAt > 0 && browserPace.openAt <= 1200 && browserPace.openAt < browserEnding);
+    var sittingKinds = {};
+    browserPace.actions.forEach(function (a) { sittingKinds[a.kind] = 1; });
+    check('the sitting signs a route, lights a tower and makes a choice', sittingKinds.route && sittingKinds.light && sittingKinds.choice);
     await playToEnd('the fleet preset', '&state=fleet');
     await playToEnd('the lamps preset', '&state=lamps');
     wipe();

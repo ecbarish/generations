@@ -27,7 +27,7 @@
       fleet: owned(1) >= M.UNLOCK_AT,
       routesReady: routesReady,
       routesOpen: ROUTES_OPEN && routesReady && !state.ended,
-      lighthousesOpen: ROUTES_OPEN && routesReady && sailing >= 5 && !state.ended,
+      lighthousesOpen: ROUTES_OPEN && routesReady && !state.ended,
       ending: !!(state && state.ended)
     };
   }
@@ -43,11 +43,13 @@
     var M = window.Saltmarsh;
     var desk = M.deskChoice(state);
     if (!desk) return '';
+    var cost = desk.cards && desk.cards[0] ? desk.cards[0].cost : 0;
     if (desk.id === 'pilot') {
-      var cost = desk.cards && desk.cards[0] ? desk.cards[0].cost : 0;
-      var need = M.needMore(state, cost);
       var line = 'Pick bell or coal on the desk.';
-      return need ? line + ' ' + need + ' more.' : line;
+      return cost > 0 && state.cash < cost ? withNeed(state, line, cost) : line;
+    }
+    if (desk.id === 'squall' || desk.id === 'request' || desk.id === 'windfall') {
+      return cost > 0 && state.cash < cost ? withNeed(state, desk.goal, cost) : desk.goal;
     }
     return desk.goal;
   }
@@ -64,9 +66,18 @@
   }
 
   function withNeed(state, sentence, cost) {
-    var need = window.Saltmarsh.needMore(state, cost);
+    var M = window.Saltmarsh;
+    var need = M.needMore(state, cost);
     var base = sentence.replace(/\.$/, '');
     if (!need) return base + '.';
+    var rate = M.officeRate(state);
+    var sec = rate > 0 ? Math.ceil((cost - state.cash) / rate) : 0;
+    if (sec > 0) {
+      var when = sec < 90
+        ? 'about ' + sec + (sec === 1 ? ' second' : ' seconds')
+        : 'about ' + Math.max(2, Math.ceil(sec / 60)) + ' minutes';
+      return base + '. ' + need + ' more, ' + when + '.';
+    }
     return base + '. ' + need + ' more.';
   }
 
@@ -79,7 +90,7 @@
       return { kind: 'finale', id: 'finale', selector: '#finale', sentence: 'Set sail.', cost: 0, rank: 0 };
     }
     var routes = M.routeOffers(state, true);
-    var lights = M.routesSailing(state) >= 5 ? M.lightOffers(state, true) : [];
+    var lights = M.lightOffers(state, true) || [];
     var route = null;
     var pending = null;
     var raised = null;
@@ -98,6 +109,19 @@
         sentence: withNeed(state, 'Light the ' + pending.name + ', ' + M.coins(pending.cost), pending.cost),
         cost: pending.cost
       };
+    }
+    if (M.voyageOpen && M.voyageOpen(state) && M.nextPreparation) {
+      var packing = M.nextPreparation(state);
+      if (packing) {
+        var packingLine = packing.choice
+          ? 'Choose ' + packing.choice[0].name.toLowerCase() + ', or ' + packing.choice[1].name.toLowerCase() + ', ' + M.coins(packing.cost)
+          : 'Pack ' + packing.name + ', ' + M.coins(packing.cost);
+        return {
+          kind: 'prep', id: packing.id, which: packing.choice ? packing.choice[0].id : '', rank: 0, cost: packing.cost,
+          selector: '#provision',
+          sentence: withNeed(state, packingLine, packing.cost)
+        };
+      }
     }
     function routeAct() {
       if (!route) return null;
@@ -209,7 +233,7 @@
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
     if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
-    if (sailing >= 5) {
+    if (sailing >= 1) {
       var pendingLight = null;
       var lightRows = M.lightOffers(state, true) || [];
       for (i = 0; i < lightRows.length; i++) {
@@ -284,10 +308,6 @@
     if (state.ended) return '';
     var lit = M.lightsLit(state);
     if (M.finaleOffer && M.finaleOffer(state)) return 'The list is complete. Set sail.';
-    if (lit >= 4 && (state.played || 0) < (M.VOYAGE_AT || 2400)) {
-      var leftMin = Math.max(1, Math.ceil(((M.VOYAGE_AT || 2400) - (state.played || 0)) / 60));
-      return 'The lighthouses are burning. The voyage list opens in ' + leftMin + ' minutes.';
-    }
     if (lit >= 4) return 'The lighthouses are burning. Pack the voyage list, then set sail.';
     if (lit === 1) return 'Four lighthouses along the coast, then the last voyage home. One is burning.';
     if (lit > 1) return 'Four lighthouses along the coast, then the last voyage home. ' + ['', '', 'Two', 'Three'][lit] + ' are burning.';

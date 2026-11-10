@@ -74,6 +74,18 @@ h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weigh
   pointer-events: none;
   animation: rise 0.8s ease-out forwards;
 }
+#cheer {
+  position: fixed;
+  z-index: 9;
+  margin: 0;
+  color: var(--lamp);
+  font-weight: 600;
+  text-shadow: 0 1px 0 var(--water);
+  pointer-events: none;
+  transform: translate(-50%, -120%);
+  animation: rise 0.7s ease-out forwards;
+}
+button.answered { background: var(--sand); }
 @keyframes rise {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(-28px); opacity: 0; }
@@ -158,14 +170,27 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   white-space: normal;
   min-height: 44px;
 }
-#choice .actions button,
+#choice .actions button {
+  white-space: normal;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  min-height: 44px;
+  line-height: 1.25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#choice .take-main,
+#choice .take-need { display: block; max-width: 100%; }
 #provision-go, #provision .actions button,
 #work-go, #errand-go, #finale-go { white-space: normal; min-height: 44px; }
 /* The voyage list keeps its height on the card stack, so packing one item
    does not pull the button up. The button itself stays one line, full width,
    so a price and a Need line do not wrap into a second row. */
-#provision-actions { flex-direction: column; align-items: stretch; }
-#provision-actions button { flex: 0 0 auto; width: 100%; }
+#provision-actions { flex-direction: row; flex-wrap: nowrap; align-items: stretch; }
+#provision-actions button { flex: 1 1 0; width: auto; min-width: 0; }
 /* Status lines stay one row when the short copy fits, so a longer figure cannot
    push the Buy button or the routes. */
 .boat .habit,
@@ -175,7 +200,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .rate {
   white-space: nowrap;
 }
-#away-rule { white-space: normal; min-height: 2.9em; }
+#away-rule {
+  white-space: normal;
+  min-height: 2.9em;
+  max-height: 2.9em;
+  overflow: hidden;
+}
 .boats,
 .boat,
 .captain { min-width: 0; }
@@ -219,10 +249,15 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
   .boat .wait,
-  .captain .wait,
+  .captain .wait {
+    white-space: normal;
+    min-height: 2.9em;
+  }
   #rate {
     white-space: normal;
     min-height: 2.9em;
+    max-height: 2.9em;
+    overflow: hidden;
   }
 }
 @media (max-width: 340px) {
@@ -297,25 +332,18 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .goalbar #goal::after { content: '  \203A'; }
 .goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
 .goal-target { outline: 3px solid var(--lamp); outline-offset: 3px; }
-#choice-back.choice-back {
-  position: fixed;
-  inset: 0;
-  z-index: 5;
-  background: rgba(35, 57, 76, 0.45);
-  /* The dimmer shows the desk is waiting. It must not swallow a tap on Sign or Sail. */
-  pointer-events: none;
-}
+#choice-back.choice-back { display: none !important; }
 #choice.choice {
   position: fixed;
   z-index: 7;
+  top: auto;
   left: 50%;
+  bottom: 4.6rem;
   transform: translateX(-50%);
   width: min(40rem, 100%);
-  bottom: 4.6rem;
-  max-height: calc(100vh - 5.4rem);
+  max-height: calc(100vh - 7.2rem);
   margin: 0;
   overflow: auto;
-  padding: 0.8rem 0.85rem;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
@@ -364,7 +392,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .float, .fleet.reveal { animation: none; }
+  .float, #cheer, .fleet.reveal { animation: none; }
 }
 @media (max-height: 430px) {
   .window { padding: 0.3rem 0.75rem 4.2rem; }
@@ -380,7 +408,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
-  #choice.choice { max-height: calc(100vh - 3.6rem); }
+  #choice.choice { max-height: calc(100vh - 5rem); bottom: 3.4rem; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }
