@@ -6,7 +6,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.4 system
 .desk{max-width:1100px;margin:0 auto;padding:12px 16px 24px;display:grid;gap:14px;grid-template-columns:1fr}
 header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{margin:0;font-size:1.5rem;letter-spacing:.02em}
+.tag-slot{display:grid;min-width:0;flex:1 1 auto}
+.tag-slot>.tag{grid-area:1/1;align-self:start;min-width:0;overflow-wrap:anywhere}
 .tag{color:var(--soft);font-size:.9rem}
+.tag-hold{visibility:hidden}
 .home{color:var(--accent);text-decoration:none;font-weight:600;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
 section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
 .listing{display:grid;gap:12px;grid-template-columns:1fr}
@@ -54,6 +57,11 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #replyActions{display:block}#replyActions>.actions{width:100%;margin-top:0}
 .give-slot{grid-column:1/-1;display:grid}.give-slot>.actions{grid-area:1/1;margin-top:0}
 .give-hold{visibility:hidden;pointer-events:none}
+@media (max-width:900px){
+ .give-slot .actions{flex-wrap:nowrap;gap:6px}
+ .give-slot button{flex:1 1 0;min-width:0;font-size:.75rem;line-height:1.15;padding:6px 6px;white-space:normal}
+ .give-slot button:last-child{flex:2.4 1 0}
+}
 .count-cue{display:grid;min-height:1.2em}.count-cue>span{grid-area:1/1}
 .answer .actions{flex-wrap:nowrap}.answer .actions button{flex:1 1 0}
 .primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}

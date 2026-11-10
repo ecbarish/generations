@@ -81,7 +81,7 @@
   const done=M.paying(R), b=M.streetBudget(R);
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
   $('#goal').textContent='Own '+M.GOAL+' homes on '+herePlace()+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
-  const tag=document.querySelector('header .tag'); if(tag) tag.textContent=herePlace()+', Millbrook';
+  const tag=document.querySelector('#placeTag'); if(tag) tag.textContent=herePlace()+', Millbrook';
   const walk=document.querySelector('#giveup [data-act="again"]'); if(walk) walk.textContent='Walk '+herePlace()+' again';
   $('#budget').hidden=false;
   if(M.finished(R)) fitBudget(M.won(R)?'You have the '+done+' homes that pay.':'You can\'t reach '+M.GOAL+' homes that pay from here.');

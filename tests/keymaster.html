@@ -567,7 +567,7 @@ document.querySelector('#run').onclick=async()=>{
   H.next();await wait(30);
   check('a win sums up what you earn and names the next block',/Your homes earn \$[\d,]+ a month/.test(text('#finale'))&&/You own 3 homes that pay, earning/.test(text('#finale'))&&/Next is Birch Street/.test(text('#finale'))&&/Walk Birch Street/.test(d.querySelector('#finale [data-act="again"]').textContent)&&!/harder block/.test(text('#finale'))&&/Alder Street/.test(text('#goal')));
   click('#finale [data-act="again"]');await wait(40);
-  check('the next block is Birch Street and the goal and header say so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/Birch Street, Millbrook/.test(d.querySelector('.tag').textContent)&&/costly buy/i.test(text('#outlook')));
+  check('the next block is Birch Street and the goal and header say so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/Birch Street, Millbrook/.test(d.querySelector('#placeTag').textContent)&&/costly buy/i.test(text('#outlook')));
   H.begin();await wait(20);
   const prior=M.serialize(M.newRun());delete prior.tier;
   check('an older save with no block number still loads and is not migrated',M.SAVE_VERSION===1&&!M.migrates&&M.valid(prior)&&M.restore(prior).tier===0&&M.restore(prior).order.join('|')===prior.order.join('|'));
@@ -607,6 +607,30 @@ document.querySelector('#run').onclick=async()=>{
   const downA=d.querySelector('[data-down="0.2"]').getBoundingClientRect(), downB=d.querySelector('[data-down="0.25"]').getBoundingClientRect();
   const planLine=d.querySelector('#planLive');
   check('at 320×568 the down payment sits in one row and the work line is whole',Math.abs(downA.top-downB.top)<=2&&downA.height>=44&&downB.height>=44&&/floors, fixtures/.test(planLine.textContent)&&planLine.scrollWidth<=planLine.clientWidth+2);
+  const longPlace='Alder Street, Birch Street, Cedar Lane, Dock Street and Elm Court';
+  check('the reserved goal, header and walk lines name the longest block',d.querySelector('.goal-hold').textContent.includes(longPlace)&&d.querySelector('.tag-hold').textContent.includes(longPlace)&&d.querySelector('.give-hold').textContent.includes('Walk '+longPlace+' again'));
+  for(const [width,height] of [[1280,800],[390,600],[390,844],[375,812],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(40);
+   H.begin();await wait(20);w.scrollTo(0,0);
+   const doorA=docTop('#doors');
+   const runM=H.run(); runM.order=['alder14','birch16','cedar4','dock27','elm2']; runM.at=0; runM.homes=[]; runM.tier=0; runM.cash=200000;
+   H.next();await wait(20);
+   const doorB=docTop('#doors');
+   H.run().cash=1;H.render();await wait(20);
+   const doorC=docTop('#doors');
+   check(width+'×'+height+' a mixed block does not move the doors ('+(doorB-doorA).toFixed(1)+' then '+(doorC-doorB).toFixed(1)+')',Math.abs(doorB-doorA)<=2&&Math.abs(doorC-doorB)<=2&&d.querySelector('#giveup [data-act="again"]').textContent.includes(longPlace)&&text('#goal').includes('Elm Court'));
+  }
+  for(const [width,height] of [[320,568],[390,600]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(40);
+   H.begin();await wait(20);w.scrollTo(0,0);
+   const plus=d.querySelector('[data-offer="2000"]'), twenty=d.querySelector('[data-down="0.2"]');
+   const pr=plus.getBoundingClientRect(), tr=twenty.getBoundingClientRect();
+   const shares=!(pr.right<=tr.left+0.5||tr.right<=pr.left+0.5||pr.bottom<=tr.top+0.5||tr.bottom<=pr.top+0.5);
+   const hit=d.elementFromPoint(pr.left+pr.width/2, pr.top+pr.height/2);
+   check(width+'×'+height+' plus is the control under its centre and it does not cover 20%',!shares&&!!hit&&(hit===plus||plus.contains(hit)));
+  }
+  frame.style.width='320px';frame.style.height='568px';await wait(40);
+  H.begin();await wait(20);w.scrollTo(0,0);
   d.querySelector('#offerBtn').scrollIntoView({block:'center'});await wait(20);
   const goalBox=d.querySelector('#goal').getBoundingClientRect(), offerHit=d.querySelector('#offerBtn'), offerNow=offerHit.getBoundingClientRect();
   const hitGoal=d.elementFromPoint(offerNow.left+offerNow.width/2, offerNow.top+Math.min(offerNow.height/2,12));
