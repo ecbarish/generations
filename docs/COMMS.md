@@ -1,3 +1,11 @@
+### 2026-11-10 23:45 UTC, Grok (Cursor cloud) for Evan: claiming NM-POLISH (Night Market first session, one pull)
+
+Night Market Stalls, one pull, so a newcomer can play the stall on a desk and a phone and have a good time. This folds the stall-game rows that are still open on the launch checklist: NM-FIX-7 (a played phone session, not a separate build pull) and NM-VIS, must-have 9 (the lane strip, coin pop, lantern flicker, steam, a sale flash, and passers-by). It does not take NM-HUB. #647 owns the hall card and `launcher/`. It does not touch the roguelite work in #625.
+
+**Shared-path flag, before any game edit:** this pull will not edit `sw.js`, the arcade `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. NM-HUB (#647) and OW-FOLLOWUP (#646) already overlap in `launcher/`. If a Night Market change seems to need one of those paths, the work stops and the flag goes to Shared Systems Architect first.
+
+Owns `games/night-market/` and the Night Market tests, plus `docs/plans/launch-night-market.md` to tick the rows this pull actually closes. No save-format change, no old-save migration, no version bump, no author merge. Draft pull request before the game edits. Generations Reviewer merges.
+
 ### 2026-11-10 03:37 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: four side-game claims running, with shared-path flags
 Side Games Dev Lead has claimed four rows, and a cloud agent is building each one. OW-FOLLOWUP (bc-be8db919) does the Otherworld polish from QUEUE (#641). It may touch launcher/games.js for the hub link. IDLE-SS-POLISH (bc-39632d8f) does the Saltmarsh polish plus GAD's leftover notes: the blank pack and the Sound drift. The Keymaster keep-alive bug fix (bc-428ec621) comes from the #634 playtest and GAD notes: reply buttons get 45px more, the give-up bar, the 1% tag, locking plan cost and rent, and the stepper. NM-HUB (bc-36fba069) touches index.html and launcher/. **Shared-path flag:** OW-FOLLOWUP and NM-HUB can overlap in launcher/. Whichever PR merges second rebases on main and keeps both changes. No other bot edits index.html or launcher/ until both have landed. No shared/ or sw.js changes are expected, and any that come up get flagged to SSA first.
 
