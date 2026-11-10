@@ -175,35 +175,6 @@
       };
     }
     var rate = Math.max(1, M.officeRate(state));
-    function payBoat() {
-      var best = null;
-      var bestPay = Infinity;
-      var tier;
-      for (tier = 0; tier < M.BOATS.length; tier++) {
-        var one = M.quote(state, tier, 1);
-        if (!(one.count > 0) || !(state.cash >= one.cost)) continue;
-        var pay = M.paybackSeconds(state, tier);
-        if (pay < bestPay) {
-          bestPay = pay;
-          best = { tier: tier, cost: one.cost, name: M.BOATS[tier].name };
-        }
-      }
-      if (!best || bestPay > 90 || best.cost > rate * 20) return null;
-      return {
-        kind: 'boat', id: 'boat', tier: best.tier, count: 1, rank: 2, cost: best.cost,
-        selector: '#boats [data-i="' + best.tier + '"]',
-        sentence: 'Buy one ' + best.name.toLowerCase() + ', ' + M.coins(best.cost) + '. It earns while the list waits.'
-      };
-    }
-    if (M.voyageOpen && M.voyageOpen(state)) {
-      var waiting = prepAct();
-      if (waiting && state.cash < waiting.cost) {
-        var tap = payBoat();
-        if (tap) return tap;
-        var signed = routeAct();
-        if (signed && state.cash >= signed.cost && signed.cost <= rate * 20) return signed;
-      }
-    }
     var raisedNow = lightAct();
     var sideWork = workAct();
     var sideErrand = errandAct();
@@ -229,6 +200,90 @@
     return rest[0];
   }
 
+  /* One boat whose pay shows up on the rate line. A token sloop does not count. */
+  function incomeBoat(state) {
+    var M = window.Saltmarsh;
+    if (!state || !M.voyageOpen || !M.voyageOpen(state)) return null;
+    var rate = Math.max(1, M.officeRate(state));
+    var tier;
+    for (tier = M.BOATS.length - 1; tier >= 0; tier--) {
+      if (!M.unlocked(state, tier)) continue;
+      var one = M.quote(state, tier, 1);
+      if (!(one.count > 0)) continue;
+      var add = M.marginalRate(state, tier);
+      if (!(add >= 100)) continue;
+      if (one.cost > rate * 90) continue;
+      return { tier: tier, cost: one.cost, add: add, name: M.BOATS[tier].name };
+    }
+    return null;
+  }
+
+  /* Lights, routes, the open choice, the next pack, and a boat that changes the rate.
+     The goal bar and the session check both read this list. */
+  function progressSteps(state) {
+    var M = window.Saltmarsh;
+    var out = [];
+    if (!state || state.ended || !M.routesUnlocked(state) || M.routesSailing(state) < 1) return out;
+    (M.lightOffers(state, false) || []).forEach(function (row) {
+      if (row.blocked) return;
+      var verb = row.stage === 0 ? 'Raise' : 'Light';
+      out.push({
+        kind: 'light', id: row.id, cost: row.cost, affordable: state.cash >= row.cost,
+        selector: '#light-cards [data-light="' + row.id + '"]',
+        sentence: withNeed(state, verb + ' the ' + row.name + ', ' + M.coins(row.cost), row.cost)
+      });
+    });
+    (M.routeOffers(state, false) || []).forEach(function (row) {
+      out.push({
+        kind: 'route', id: row.id, cost: row.cost, affordable: state.cash >= row.cost,
+        selector: '#route-cards [data-route="' + row.id + '"]',
+        sentence: withNeed(state, 'Sign ' + row.name + ', ' + M.coins(row.cost), row.cost)
+      });
+    });
+    var desk = M.deskChoice(state);
+    if (desk && desk.cards && desk.cards.length) {
+      var card = desk.cards.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
+      out.push({
+        kind: 'choice', id: desk.id, which: card.which, cost: card.cost, affordable: state.cash >= card.cost,
+        selector: '#choice',
+        sentence: choiceGoal(state)
+      });
+    }
+    if (M.voyageOpen && M.voyageOpen(state) && M.nextPreparation) {
+      var prep = M.nextPreparation(state);
+      if (prep) {
+        var line = prep.choice
+          ? 'Choose ' + prep.choice[0].name.toLowerCase() + ', or ' + prep.choice[1].name.toLowerCase() + ', ' + M.coins(prep.cost)
+          : 'Pack ' + prep.name + ', ' + M.coins(prep.cost);
+        out.push({
+          kind: 'prep', id: prep.id, which: prep.choice ? prep.choice[0].id : '', fork: !!prep.choice,
+          cost: prep.cost, affordable: state.cash >= prep.cost,
+          selector: '#provision',
+          sentence: withNeed(state, line, prep.cost)
+        });
+      }
+      var boat = incomeBoat(state);
+      if (boat) {
+        out.push({
+          kind: 'boat', tier: boat.tier, count: 1, cost: boat.cost, affordable: state.cash >= boat.cost,
+          selector: '#boats [data-i="' + boat.tier + '"]',
+          sentence: 'Buy a ' + boat.name.toLowerCase() + ', ' + M.coins(boat.cost) + '. It adds ' + M.coins(Math.max(1, Math.round(boat.add))) + ' a second.'
+        });
+      }
+    }
+    return out;
+  }
+
+  /* The cheapest step the purse can pay. Null when every step is still dear. */
+  function cheapestAffordable(state) {
+    var best = null;
+    progressSteps(state).forEach(function (step) {
+      if (!step.affordable) return;
+      if (!best || step.cost < best.cost) best = step;
+    });
+    return best;
+  }
+
   /* One sentence, always. The player should be able to read it and know what to do. */
   function goal(state) {
     var M = window.Saltmarsh;
@@ -249,8 +304,9 @@
       left = M.SLOOP_AT - state.boats[0].owned;
       return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then a sloop can tie up.';
     }
+    var desk = M.deskChoice(state);
     choice = choiceGoal(state);
-    if (choice) return choice;
+    if (choice && (!phase.routesReady || (desk && (desk.id === 'sloop' || desk.id === 'schooner')))) return choice;
     if (!phase.fleet) {
       left = M.UNLOCK_AT - state.boats[1].owned;
       if (left > 0) return withNeed(state, 'Buy ' + more(left, 'sloop', 'sloops') + '. At ten, the fleet chart unrolls', M.quote(state, 1, left).cost);
@@ -264,6 +320,8 @@
     sailing = M.routesSailing(state);
     if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
     if (sailing >= 1) {
+      var cheap = cheapestAffordable(state);
+      if (cheap) return cheap.sentence;
       var pendingLight = null;
       var lightRows = M.lightOffers(state, true) || [];
       for (i = 0; i < lightRows.length; i++) {
@@ -272,18 +330,19 @@
       }
       if (pendingLight) return withNeed(state, 'Light the ' + pendingLight.name + ', ' + M.coins(pendingLight.cost), pendingLight.cost);
     }
+    if (choice) return choice;
     if (state.boats[3].owned < M.UNLOCK_AT) {
       left = M.UNLOCK_AT - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Ten for Capt. Pell, then two more for the quay', M.quote(state, 3, left).cost);
+      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
     }
     if (M.canHire(state, 3)) return M.askLine(3);
     if (state.boats[3].owned < M.BARK_QUAY) {
       left = M.BARK_QUAY - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Twelve opens the quay choice', M.quote(state, 3, left).cost);
+      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
     }
     if (state.boats[3].owned < M.BARK_LAMP) {
       left = M.BARK_LAMP - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Sixteen shows a house lamp', M.quote(state, 3, left).cost);
+      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
     }
     var act = nextAct(state);
     if (act) return act.sentence;
@@ -361,12 +420,21 @@
     if (state.boats[0].owned < M.WREN_AT) return '#boats [data-i="0"]';
     if (M.canHire(state, 0)) return '#ask';
     if (state.boats[0].owned < M.SLOOP_AT) return '#boats [data-i="0"]';
-    if (M.deskChoice(state)) return '#choice';
+    var earlyDesk = M.deskChoice(state);
+    if (earlyDesk && (earlyDesk.id === 'sloop' || earlyDesk.id === 'schooner' || !phase.routesReady)) return '#choice';
     if (!phase.fleet) return '#boats [data-i="1"]';
     if (M.canHire(state, 1)) return '#ask';
     if (!phase.routesReady) return '#boats [data-i="2"]';
     if (M.canHire(state, 2)) return '#ask';
     var sailing = M.routesSailing(state);
+    var sentence = goal(state);
+    if (/^Choose a route/.test(sentence)) return '#route-cards [data-act="route"], #routes';
+    var aimed = cheapestAffordable(state);
+    if (aimed && aimed.sentence === sentence && aimed.selector) return aimed.selector;
+    if (/^(Raise|Light) the /.test(sentence)) return '#lights';
+    if (/^Sign /.test(sentence)) return '#routes';
+    if (/^Pack |^Choose /.test(sentence) && M.voyageOpen(state)) return '#provision';
+    if (/^Choose |^Pick bell/.test(sentence)) return '#choice';
     if (sailing < 1) return boatTarget(state) || '#routes';
     if (state.boats[3].owned < M.UNLOCK_AT) return '#boats [data-i="3"]';
     if (M.canHire(state, 3)) return '#ask';
@@ -397,5 +465,5 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct };
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct, progressSteps: progressSteps, cheapestAffordable: cheapestAffordable };
 })();

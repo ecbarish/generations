@@ -446,11 +446,12 @@
     var offerById = {};
     offers.forEach(function (offer) { offerById[offer.id] = offer; });
     var rows = [];
+    /* Every route keeps a card once the desk is open, so a later contract
+       cannot shove the Sign buttons that are already on the page. */
     M.ROUTES.forEach(function (spec) {
       var signed = (state.routes && state.routes[spec.id]) || 0;
       var offer = offerById[spec.id] || null;
-      if (!offer && signed <= 0) return;
-      rows.push({ spec: spec, offer: offer, signed: signed });
+      rows.push({ spec: spec, offer: offer, signed: signed, waiting: !offer && signed <= 0 });
     });
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
@@ -467,17 +468,22 @@
         wrap.dataset.route = spec.id;
         var h = document.createElement('h3');
         var contract = M.routeContract(state, spec.id);
-        h.textContent = row.signed >= spec.depths
-          ? spec.name + ' · ' + contract.signed + ' signed'
-          : spec.name + ' · contract ' + contract.next + ' of ' + contract.depths;
+        h.textContent = row.waiting
+          ? spec.name
+          : row.signed >= spec.depths
+            ? spec.name + ' · ' + contract.signed + ' signed'
+            : spec.name + ' · contract ' + contract.next + ' of ' + contract.depths;
         var p = document.createElement('p');
         p.className = 'habit';
         var risk = spec.risk > 0 ? ' About ' + Math.round(spec.risk * 100) + '% can be lost.' : ' Nothing is risked.';
-        p.textContent = spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
+        p.textContent = row.waiting
+          ? 'Not on the desk yet.'
+          : spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
         var gain = document.createElement('p');
         gain.className = 'facts';
         var peek = !offer && row.signed > 0 && row.signed < spec.depths ? M.peekRoute(state, spec) : null;
-        if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
+        if (row.waiting) gain.textContent = 'It waits its turn.';
+        else if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
         else if (peek) gain.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
         else gain.textContent = 'Signed.';
         wrap.appendChild(h);
@@ -491,7 +497,7 @@
         if (offer) button.dataset.act = 'route';
         else {
           button.disabled = true;
-          button.textContent = peek ? (money(peek.cost) + ' · after the current one') : 'Signed';
+          button.textContent = row.waiting ? 'Not yet' : (peek ? (money(peek.cost) + ' · after the current one') : 'Signed');
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -517,6 +523,8 @@
       var spec = null;
       M.ROUTES.forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
       if (!spec) return;
+      var signedNow = (state.routes && state.routes[spec.id]) || 0;
+      if (signedNow <= 0) return;
       var peek = M.peekRoute(state, spec);
       var card = button.parentNode && button.parentNode.parentNode;
       var facts = card ? card.querySelector('.facts') : null;
@@ -669,17 +677,18 @@
         host.appendChild(wrap);
       });
     }
-    Array.prototype.forEach.call(host.querySelectorAll('[data-act="light"]'), function (button) {
+    Array.prototype.forEach.call(host.querySelectorAll('button'), function (button) {
+      var spec = null;
+      for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
-      if (!offer) return;
-      var desk = M.deskChoice(state);
-      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
-      if (offer.blocked) {
+      if (!offer || offer.blocked) {
         button.disabled = true;
-        button.textContent = offer.blocked;
+        button.textContent = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
         return;
       }
+      button.dataset.act = 'light';
+      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
       button.disabled = !offer.affordable;
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
@@ -784,10 +793,21 @@
     if (actions) actions.hidden = false;
     button.dataset.prep = current.id;
     button.dataset.which = current.choice ? current.choice[0].id : '';
-    var mainName = current.choice ? current.choice[0].name : current.name;
-    var mainLabel = mainName + ' · ' + money(current.cost);
-    button.disabled = !(state.cash >= current.cost);
-    button.textContent = state.cash >= current.cost ? mainLabel : mainLabel + ' · ' + M.needMore(state, current.cost);
+    function packLabel(node, name, cost) {
+      node.replaceChildren();
+      var main = document.createElement('span');
+      main.className = 'take-main';
+      main.textContent = name;
+      var price = document.createElement('span');
+      price.className = 'take-need';
+      price.textContent = money(cost);
+      node.appendChild(main);
+      node.appendChild(price);
+      node.disabled = !(state.cash >= cost);
+      if (state.cash >= cost) node.removeAttribute('title');
+      else node.setAttribute('title', name + ' · ' + money(cost) + ' · ' + M.needMore(state, cost));
+    }
+    packLabel(button, current.choice ? current.choice[0].name : current.name, current.cost);
     if (current.choice) {
       if (!alt) {
         alt = document.createElement('button');
@@ -799,9 +819,7 @@
       alt.hidden = false;
       alt.dataset.prep = current.id;
       alt.dataset.which = current.choice[1].id;
-      var altLabel = current.choice[1].name + ' · ' + money(current.cost);
-      alt.disabled = !(state.cash >= current.cost);
-      alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
+      packLabel(alt, current.choice[1].name, current.cost);
     } else if (alt) alt.hidden = true;
     if (actions) {
       actions.style.minHeight = '';
@@ -1017,7 +1035,9 @@
     if (routes && !routes.hidden) view.routes = true;
     if (openedFleet) fleet.classList.add('reveal');
     Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function (el) {
-      if (el.textContent) el.setAttribute('title', el.textContent);
+      if (!el.textContent) return;
+      if (el.getAttribute('title') && el.getAttribute('title').indexOf('Need ') >= 0) return;
+      el.setAttribute('title', el.textContent);
     });
     if (audio && audio.render) audio.render();
     var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
@@ -1163,8 +1183,40 @@
       prep: b.dataset.prep || '',
       bulk: b.dataset.bulk || '',
       id: b.id || '',
-      tier: li ? li.dataset.i : ''
+      tier: li ? li.dataset.i : '',
+      x: e.clientX,
+      y: e.clientY
     };
+  }, true);
+  function findLive(a) {
+    if (!a) return null;
+    if (a.el && a.el.isConnected) return a.el;
+    if (a.prep) {
+      var q = '#provision [data-prep="' + a.prep + '"]';
+      if (a.which) q += '[data-which="' + a.which + '"]';
+      var same = document.querySelector(q);
+      if (same) return same;
+    }
+    if (a.act === 'route' && a.route) return document.querySelector('[data-act="route"][data-route="' + a.route + '"]');
+    if (a.act === 'light' && a.light) return document.querySelector('[data-act="light"][data-light="' + a.light + '"]');
+    if (a.act === 'buy' && a.tier !== '') return document.querySelector('#boats [data-i="' + a.tier + '"] [data-act="buy"]');
+    if (a.id) return document.getElementById(a.id);
+    return null;
+  }
+  /* A render between press and release moves the button. The press still counts
+     when the finger has not travelled, even if the click lands on empty page. */
+  document.addEventListener('pointerup', function (e) {
+    if (!armed) return;
+    if (performance.now() - armed.t > 700) return;
+    var dx = e.clientX - armed.x;
+    var dy = e.clientY - armed.y;
+    if (dx * dx + dy * dy > 24 * 24) return;
+    var live = findLive(armed);
+    if (!live || live.disabled) return;
+    var hit = document.elementFromPoint(e.clientX, e.clientY);
+    var hitBtn = hit && hit.closest ? hit.closest('button') : null;
+    if (hitBtn === live) return;
+    live.click();
   }, true);
   function remembered(b) {
     if (!armed || !b) return null;
@@ -1174,7 +1226,7 @@
        still counts: same action, same boat, route or light. */
     var li = b.closest('[data-i]');
     var tier = li ? li.dataset.i : '';
-    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.id || '') === armed.id) return armed;
+    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.dataset.prep || '') === armed.prep && (b.dataset.which || '') === armed.which && (b.id || '') === armed.id) return armed;
     return null;
   }
   function keepPlace(work) {
@@ -1493,6 +1545,36 @@
       var y = window.scrollY;
       el.click();
       if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
+    }
+    var cheap = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
+    if (cheap && goal === cheap.sentence) {
+      if (cheap.kind === 'choice') {
+        var whichBtn = cheap.which ? document.querySelector('#choice [data-which="' + cheap.which + '"]') : document.querySelector('#choice button');
+        if (usableControl(whichBtn)) { press(whichBtn); return true; }
+        return false;
+      }
+      if (cheap.kind === 'prep') {
+        var prepSel = '#provision [data-prep="' + cheap.id + '"]' + (cheap.which ? '[data-which="' + cheap.which + '"]' : '');
+        var prepHit = document.querySelector(prepSel) || $('#provision-go');
+        if (usableControl(prepHit)) { press(prepHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'route') {
+        var routeHit = document.querySelector('#route-cards [data-route="' + cheap.id + '"] [data-act="route"]');
+        if (usableControl(routeHit)) { press(routeHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'light') {
+        var lightHit = document.querySelector('#light-cards [data-light="' + cheap.id + '"] [data-act="light"]');
+        if (usableControl(lightHit)) { press(lightHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'boat') {
+        var boatHit = document.querySelector('#boats [data-i="' + cheap.tier + '"] [data-act="buy"]');
+        if (boatHit) boatHit.dataset.count = String(cheap.count || 1);
+        if (usableControl(boatHit)) { press(boatHit); return true; }
+        return false;
+      }
     }
     var act = P.nextAct(state);
     if (/^Choose a route/.test(goal)) {

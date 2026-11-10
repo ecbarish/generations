@@ -269,7 +269,33 @@
   /* What the goal bar is asking for. Kept in step with the page's followGoal. */
   function goalAction(M, P, state, now) {
     var goal = P.goal(state);
-    if (/^Choose fresh|^Choose a pilot/.test(goal)) {
+    var cheap = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
+    if (cheap && goal === cheap.sentence) {
+      if (cheap.kind === 'light') {
+        return { id: 'light:' + cheap.id + ':' + ((state.lights && state.lights[cheap.id]) || 0), affordable: true, buy: function () { M.buildLight(state, cheap.id, now); } };
+      }
+      if (cheap.kind === 'route') {
+        return { id: 'route:' + cheap.id + ':' + ((state.routes && state.routes[cheap.id]) || 0), affordable: true, buy: function () { M.signRoute(state, cheap.id, now); } };
+      }
+      if (cheap.kind === 'prep') {
+        return { id: 'prep:' + cheap.id, affordable: true, buy: function () { M.buyPreparation(state, cheap.id, cheap.which || '', now); } };
+      }
+      if (cheap.kind === 'choice') {
+        return {
+          id: 'desk:' + cheap.id,
+          affordable: true,
+          buy: function () { M.chooseDesk(state, cheap.id, cheap.which, now); }
+        };
+      }
+      if (cheap.kind === 'boat') {
+        return {
+          id: 'boat:' + cheap.tier + ':' + state.boats[cheap.tier].owned + ':' + cheap.count,
+          affordable: true,
+          buy: function () { if (M.buy(state, cheap.tier, cheap.count).ok) M.commitGoal(state, 'boat'); }
+        };
+      }
+    }
+    if (/^Choose fresh|^Choose a pilot|^Choose extra/.test(goal)) {
       var earlyPrep = P.nextAct(state);
       if (earlyPrep && earlyPrep.kind === 'prep') {
         return { id: 'prep:' + earlyPrep.id, affordable: state.cash >= earlyPrep.cost, buy: function () { M.buyPreparation(state, earlyPrep.id, earlyPrep.which || '', now); } };
@@ -518,12 +544,15 @@
     var lastVoyage = null;
     var ready = null;
     var seen = '';
+    var missedCheap = 0;
     var sec;
     for (sec = 1; sec <= 12000 && !state.ended; sec++) {
       sim += 1000;
       state.played = sec;
       M.addCash(state, M.income(state) + M.routeIncome(state));
       M.collectCaptains(state, sim, 1);
+      var best = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
+      if (best && best.affordable && P.goal(state) !== best.sentence) missedCheap += 1;
       var act = goalAction(M, P, state, sim);
       if (voyageAt == null && M.voyageOpen(state)) voyageAt = sec;
       if (!act) continue;
@@ -549,6 +578,7 @@
       voyageAt: voyageAt,
       voyageBuys: voyageBuys,
       voyageGap: voyageGap,
+      missedCheap: missedCheap,
       played: state.played,
       hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0)
     };

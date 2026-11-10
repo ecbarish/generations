@@ -161,6 +161,7 @@
       routeDiscount: 0,
       nightLeak: 0,
       prepPrices: {},
+      routePaid: {},
       peekQuotes: {},
       goalCursor: 0,
       jobs: {},
@@ -892,9 +893,18 @@
        The long arc is the provisions after the lights, not a hidden wait on a later contract. */
     var stake = depth <= 0 ? spec.first : depth === 1 ? spec.mid : spec.later;
     if (state.routeDiscount > 0 && state.routeDiscount < 1) stake = stake * (1 - state.routeDiscount);
+    var cost = rate * stake;
+    var gross = cost / spec.payback;
+    var paid = state.routePaid && state.routePaid[spec.id];
+    /* The next contract on a route stays within twice the price just signed.
+       A later stake used to jump with the whole office. */
+    if (depth > 0 && paid > 0 && cost > paid * 2) {
+      gross = gross * ((paid * 2) / cost);
+      cost = paid * 2;
+    }
     var risk = spec.risk || 0;
     if (spec.wren) risk = Math.max(0, risk - wrenKeep(state));
-    return { id: spec.id, depth: depth, cost: rate * stake, gross: (rate * stake) / spec.payback, risk: risk };
+    return { id: spec.id, depth: depth, cost: cost, gross: gross, risk: risk };
   }
   function quoteRoute(state, spec, lock) {
     var depth = (state.routes && state.routes[spec.id]) || 0;
@@ -957,6 +967,8 @@
     state.routeCut[id] = (state.routeCut[id] || 0) + quote.gross * (quote.risk || 0);
     state.voyages = (state.voyages || 0) + 1;
     if (state.routeDiscount) state.routeDiscount = 0;
+    if (!state.routePaid) state.routePaid = {};
+    state.routePaid[id] = quote.cost;
     var depth = state.routes[id];
     if (state.quotes) delete state.quotes[id + ':' + (depth - 1)];
     pushLog(state, spec.name + ', contract ' + depth + '. ' + spec.line, now);
@@ -1077,6 +1089,9 @@
     if (!spec) return 'Not yet';
     if ((state.lights && state.lights[spec.id] || 0) >= 2) return 'Burning';
     if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) return 'Choose the quay first.';
+    if (spec.id === 'quay' && ((state.boats && state.boats[3] && state.boats[3].owned) || 0) < BARK_LAMP) {
+      return 'Sixteen barks light the house lamp first.';
+    }
     var need = spec.needRoutes || 1;
     var have = routesSailing(state);
     if (have < need) {
@@ -1093,7 +1108,7 @@
       var quote = quoteLight(state, spec, !!lock);
       if (!quote) return;
       var blocked = '';
-      if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) blocked = 'Choose the quay first.';
+      if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) blocked = lightClosed(state, spec);
       out.push({
         id: spec.id, name: spec.name, stage: quote.stage, cost: quote.cost, line: quote.line,
         verb: quote.stage === 0 ? 'Raise the' : 'Light the',
@@ -1134,6 +1149,10 @@
       { id: 'pilot', name: 'A pilot for the bar', line: 'A pilot makes every route pay a little more.' },
       { id: 'chart', name: 'A bought chart', line: 'A bought chart makes the boats earn a little more.' }
     ]},
+    { id: 'watch', name: 'The night watch', stake: 32, choice: [
+      { id: 'hands', name: 'Extra hands', line: 'Extra hands make every boat earn more.' },
+      { id: 'gun', name: 'A signal gun', line: 'A signal gun makes every route pay more.' }
+    ]},
     { id: 'casks', name: 'Water casks', stake: 32, line: 'The hold rides lower. The boats earn a little more.' },
     { id: 'cable', name: 'A new anchor cable', stake: 32, line: 'The mooring holds. The boats earn a little more.' },
     { id: 'flag', name: 'A house flag', stake: 32, line: 'The ship shows her house flag. Routes pay a little more.' },
@@ -1160,6 +1179,7 @@
     if (done.letter) m *= 1.01;
     if (done.victuals === 'fresh') m *= 1.03;
     if (done.pilot === 'pilot') m *= 1.02;
+    if (done.watch === 'gun') m *= 1.08;
     return m;
   }
   function boatPrepFactor(state) {
@@ -1168,6 +1188,7 @@
     if (done.casks) m *= 1.02;
     if (done.cable) m *= 1.02;
     if (done.pilot === 'chart') m *= 1.02;
+    if (done.watch === 'hands') m *= 1.08;
     if (done.coats) m *= 1.01;
     if (done.biscuit) m *= 1.01;
     return m;
@@ -1723,6 +1744,7 @@
     if (o.gearQuote != null && typeof o.gearQuote !== 'object') return false;
     if (o.routeGross != null && typeof o.routeGross !== 'object') return false;
     if (o.routeCut != null && typeof o.routeCut !== 'object') return false;
+    if (o.routePaid != null && typeof o.routePaid !== 'object') return false;
     return true;
   }
 
@@ -1783,6 +1805,7 @@
       routeDiscount: state.routeDiscount > 0 && state.routeDiscount < 1 ? state.routeDiscount : 0,
       nightLeak: state.nightLeak > 0 ? state.nightLeak : 0,
       prepPrices: state.prepPrices && typeof state.prepPrices === 'object' ? state.prepPrices : {},
+      routePaid: state.routePaid && typeof state.routePaid === 'object' ? state.routePaid : {},
       workQuote: state.workQuote && finiteNum(state.workQuote.cost) ? { index: state.workQuote.index || 0, name: state.workQuote.name || '', cost: state.workQuote.cost } : null,
       peekQuotes: state.peekQuotes && typeof state.peekQuotes === 'object' ? state.peekQuotes : {},
       goalCursor: state.goalCursor || 0,
@@ -1864,6 +1887,12 @@
     }
     state.routeDiscount = finiteNum(o.routeDiscount) && o.routeDiscount > 0 && o.routeDiscount < 1 ? o.routeDiscount : 0;
     state.nightLeak = finiteNum(o.nightLeak) && o.nightLeak > 0 ? o.nightLeak : 0;
+    state.routePaid = {};
+    if (o.routePaid && typeof o.routePaid === 'object') {
+      ROUTE_IDS.forEach(function (id) {
+        if (finiteNum(o.routePaid[id]) && o.routePaid[id] > 0) state.routePaid[id] = o.routePaid[id];
+      });
+    }
     state.prepPrices = {};
     if (o.prepPrices && typeof o.prepPrices === 'object') {
       PREPARATIONS.forEach(function (item) {
