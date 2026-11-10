@@ -18,7 +18,7 @@ toward the street. Then the four measures Evan picked: **cap rate** (against the
 **cash-on-cash**, **the 1% rule**, and **after-repair value** with your equity on day one.
 
 Each home has its own sellers. On 14 Alder Street they say yes at $232,000 or more, counter from 84% of asking up to that price, and say
-no below that (two noes and they sell to someone else). A green 1% check appears only when the monthly rent is at least 1% of the price. A counter still lets you change the down payment and the
+no below that (two noes and they sell to someone else). A green 1% check appears only on a buy that is not costly, and only when the monthly rent is at least 1% of the price. A costly buy, including 9 Alder, never gets that green check. A counter still lets you change the down payment and the
 work. Buy, and you see that home's first year, then a verdict. Growth is shown but not counted, because nobody
 promises it. Pass, and you see how the next buyer did. Two of the five homes do not pay you at any price.
 

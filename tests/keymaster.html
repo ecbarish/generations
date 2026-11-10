@@ -487,13 +487,25 @@ document.querySelector('#run').onclick=async()=>{
   const moneyOf=s=>+String(s).replace(/[^0-9.]/g,'');
   H.begin();await wait(30);
   H.S.price=240000;H.S.down=0.25;H.S.rehab='asis';H.S.phase='run';H.render();
-  const oneLi=d.querySelector('[data-m="one"]'), oneV=oneLi.querySelector('.v');
-  const oneMark=w.getComputedStyle(oneV,'::before').content;
-  check('a costly buy under the 1% rule has no green check ('+oneV.textContent+')',oneLi.className==='bad'&&!/✓/.test(oneMark)&&moneyOf(text('#rent'))*100<moneyOf(text('#offer')));
-  H.S.rehab='refresh';H.S.price=190000;H.run().at=3;H.run().homes=[{id:'alder14',bought:false},{id:'alder3',bought:false},{id:'alder22',bought:false}];
-  H.next();await wait(20);
-  const nine=d.querySelector('[data-m="one"]'), nineMark=w.getComputedStyle(nine.querySelector('.v'),'::before').content;
-  check('9 Alder keeps the green 1% check when the rent really clears 1% ('+nine.querySelector('.v').textContent+')',/^9 Alder/.test(text('#addr'))&&nine.className==='good'&&/✓/.test(nineMark)&&moneyOf(text('#rent'))*100>=moneyOf(text('#offer')));
+  const greenOne=()=>{const li=d.querySelector('[data-m="one"]'),v=li.querySelector('.v');const mark=w.getComputedStyle(v,'::before').content;return li.classList.contains('good')||/✓/.test(mark);};
+  const showHome=id=>{const ids=M.POOL.map(h=>h.id);const run=H.run();run.order=[id].concat(ids.filter(x=>x!==id)).slice(0,5);run.at=0;run.homes=[];run.cash=M.START_CASH;H.S.phase='run';H.S.sure=false;H.next();};
+  const expensiveGreen=[];
+  for(const h of M.POOL){
+   showHome(h.id);await wait(10);
+   for(const price of [h.ask,h.lowest])for(const rehab of ['asis','refresh','full'])for(const down of [0.2,0.25]){
+    const y=M.yearOutlook({price,down,rehab},h);
+    if(y.onCash>=0)continue;
+    H.S.price=price;H.S.down=down;H.S.rehab=rehab;H.S.phase='run';H.render();
+    if(greenOne())expensiveGreen.push(h.id+' '+price+' '+rehab);
+   }
+  }
+  check('no costly buy wears the green 1% check'+(expensiveGreen.length?' ('+expensiveGreen.slice(0,4).join(', ')+')':''),expensiveGreen.length===0);
+  showHome('alder9');await wait(10);
+  H.S.price=190000;H.S.down=0.25;H.S.rehab='refresh';H.render();
+  check('9 Alder is a costly buy whose rent clears 1%, and the green check stays hidden ('+d.querySelector('[data-m="one"] .v').textContent+')',/^9 Alder/.test(text('#addr'))&&M.yearOutlook({price:190000,down:0.25,rehab:'refresh'},M.POOL.find(h=>h.id==='alder9')).onCash<0&&moneyOf(text('#rent'))*100>=moneyOf(text('#offer'))&&!greenOne());
+  H.begin();await wait(20);
+  H.S.price=180000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.render();
+  check('a cheap buy that clears 1% still gets the green check ('+d.querySelector('[data-m="one"] .v').textContent+')',M.yearOutlook({price:180000,down:0.25,rehab:'refresh'},M.LISTING).onCash>=0&&moneyOf(text('#rent'))*100>=moneyOf(text('#offer'))&&greenOne());
   const replyMoves=[], doorShift=[];
   for(const [width,height] of [[1280,800],[390,600],[375,812],[320,568],[844,390]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);

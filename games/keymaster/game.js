@@ -142,9 +142,12 @@
   mark('cap',a.capRate>=L.marketCap,pct(a.capRate));
   reserve('coc',[cocNote(a),COC_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>cocNote(t.x))]);
   mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),cocNote(a));
-  // Green only when this offer's monthly rent is at least 1% of its price. A costly buy under that line stays red.
+  // The green check is an endorsement. A costly buy never gets one, even when the rent clears 1% of the price.
   const oneMet=a.rent*100>=a.price;
-  mark('one',oneMet,pct(a.rent/a.price,2));
+  const expensive=M.yearOutlook(choice,L).onCash<0;
+  const oneLi=document.querySelector('[data-m="one"]');
+  oneLi.className=expensive?'':(oneMet?'good':'bad');
+  oneLi.querySelector('.v').textContent=pct(a.rent/a.price,2);
   const sellers=M.respond(choice.price,L);
   $('#countCue').textContent=!view.o.counts?'Would not count.':sellers.answer==='yes'?'Would count.':'Only if they take it.';
   reserve('arv',[arvNote(a,L.plans[S.rehab].cost),ARV_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);

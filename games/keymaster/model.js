@@ -63,7 +63,7 @@
           full:{name:'Full renovation: kitchen and bath',cost:16000,rent:2150}},
    events:[{m:6,cost:1200,note:'The sewer line backs up: $1,200'},{m:11,lose:1,note:'Between tenants for a month'}],
    mood:'firm',
-   lesson:'The 1% rule is only a quick screen.'},
+   lesson:'The rent can clear 1% of the price, and the house can still be a costly buy. The 1% rule is only a quick screen.'},
   {id:'alder31', address:'31 Alder Street', kind:'Cottage, built 1940', picture:'cottage',
    ask:150000, lowest:146000, counterAt:0.85, taxes:2400, insurance:1100, baseRent:0,
    blurb:'Two bedrooms at the quiet end of the street. Small, plain and solid. The last tenant stayed nine years.',
