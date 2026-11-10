@@ -200,88 +200,139 @@
     return rest[0];
   }
 
-  /* One boat whose pay shows up on the rate line. A token sloop does not count. */
-  function incomeBoat(state) {
+  /* Value, not the raw price. A dear contract that pays back sooner beats a
+     cheap boat that does not. A light, the next errand, and Set sail are
+     progress: they win when the purse can pay them. */
+  function bestStep(state) {
     var M = window.Saltmarsh;
-    if (!state || !M.voyageOpen || !M.voyageOpen(state)) return null;
+    if (!state || state.ended || !M.routesUnlocked(state)) return null;
+    if (M.finaleOffer && M.finaleOffer(state)) {
+      return { kind: 'finale', id: 'finale', cost: 0, gain: 0, progress: true, affordable: true, wait: 0, payback: 0, selector: '#finale', sentence: 'Set sail.' };
+    }
+    if (M.routesSailing(state) < 1) return null;
     var rate = Math.max(1, M.officeRate(state));
+    var steps = [];
+    function add(step) {
+      step.gain = step.gain > 0 ? step.gain : 0;
+      step.wait = state.cash >= step.cost ? 0 : Math.ceil((step.cost - state.cash) / rate);
+      step.affordable = step.wait === 0;
+      step.payback = step.progress ? 0 : (step.gain > 0 ? step.cost / step.gain : 99999);
+      steps.push(step);
+    }
+    var lights = (M.lightOffers(state, false) || []).filter(function (row) { return !row.blocked; });
+    if (!M.allLightsLit(state)) {
+      lights.forEach(function (light) {
+        var verb = light.stage === 0 ? 'Raise' : 'Light';
+        add({
+          kind: 'light', id: light.id, stage: light.stage, cost: light.cost, gain: 0, progress: true,
+          selector: '#light-cards [data-light="' + light.id + '"]',
+          sentence: withNeed(state, verb + ' the ' + light.name + ', ' + M.coins(light.cost), light.cost)
+        });
+      });
+    }
+    (M.routeOffers(state, false) || []).forEach(function (row) {
+      add({
+        kind: 'route', id: row.id, cost: row.cost, gain: row.gain || 0, progress: false,
+        selector: '#route-cards [data-route="' + row.id + '"]',
+        sentence: withNeed(state, 'Sign ' + row.name + ', ' + M.coins(row.cost), row.cost)
+      });
+    });
+    var gear = M.gearOffer ? M.gearOffer(state) : null;
+    if (gear) {
+      var beforeGear = M.routeIncome(state);
+      if (!state.routeGear) state.routeGear = {};
+      var hadGear = !!state.routeGear[gear.id];
+      state.routeGear[gear.id] = true;
+      var afterGear = M.routeIncome(state);
+      if (!hadGear) delete state.routeGear[gear.id];
+      add({
+        kind: 'gear', id: gear.id, cost: gear.cost, gain: Math.max(0, afterGear - beforeGear), progress: false,
+        selector: '#route-gear button',
+        sentence: withNeed(state, 'Buy the spare sail, ' + M.coins(gear.cost), gear.cost)
+      });
+    }
     var tier;
     for (tier = M.BOATS.length - 1; tier >= 0; tier--) {
       if (!M.unlocked(state, tier)) continue;
       var one = M.quote(state, tier, 1);
       if (!(one.count > 0)) continue;
-      var add = M.marginalRate(state, tier);
-      if (!(add >= 100)) continue;
-      if (one.cost > rate * 90) continue;
-      return { tier: tier, cost: one.cost, add: add, name: M.BOATS[tier].name };
+      var added = M.marginalRate(state, tier);
+      if (!(added > 0)) continue;
+      var pay = one.cost / added;
+      if (pay > 90) continue;
+      add({
+        kind: 'boat', tier: tier, count: 1, id: 'boat', cost: one.cost, gain: added, progress: false,
+        selector: '#boats [data-i="' + tier + '"]',
+        sentence: withNeed(state, 'Buy a ' + M.BOATS[tier].name.toLowerCase() + ', ' + M.coins(one.cost) + '. Pays back in ' + Math.max(1, Math.ceil(pay)) + 's', one.cost)
+      });
+      break;
     }
-    return null;
-  }
-
-  /* Lights, routes, the open choice, the next pack, and a boat that changes the rate.
-     The goal bar and the session check both read this list. */
-  function progressSteps(state) {
-    var M = window.Saltmarsh;
-    var out = [];
-    if (!state || state.ended || !M.routesUnlocked(state) || M.routesSailing(state) < 1) return out;
-    (M.lightOffers(state, false) || []).forEach(function (row) {
-      if (row.blocked) return;
-      var verb = row.stage === 0 ? 'Raise' : 'Light';
-      out.push({
-        kind: 'light', id: row.id, cost: row.cost, affordable: state.cash >= row.cost,
-        selector: '#light-cards [data-light="' + row.id + '"]',
-        sentence: withNeed(state, verb + ' the ' + row.name + ', ' + M.coins(row.cost), row.cost)
-      });
-    });
-    (M.routeOffers(state, false) || []).forEach(function (row) {
-      out.push({
-        kind: 'route', id: row.id, cost: row.cost, affordable: state.cash >= row.cost,
-        selector: '#route-cards [data-route="' + row.id + '"]',
-        sentence: withNeed(state, 'Sign ' + row.name + ', ' + M.coins(row.cost), row.cost)
-      });
-    });
+    if (M.allLightsLit(state) && M.nextPreparation) {
+      var prep = M.nextPreparation(state);
+      if (prep) {
+        var line = prep.choice
+          ? 'Choose ' + prep.choice[0].name.toLowerCase() + ' or ' + prep.choice[1].name.toLowerCase()
+          : 'Pack ' + prep.name;
+        add({
+          kind: 'prep', id: prep.id, which: prep.choice ? prep.choice[0].id : '', progress: true,
+          cost: prep.cost, gain: prep.gain || 0,
+          selector: '#provision',
+          sentence: withNeed(state, line + ', ' + M.coins(prep.cost), prep.cost)
+        });
+      }
+    }
     var desk = M.deskChoice(state);
-    if (desk && desk.cards && desk.cards.length) {
+    if (desk && desk.cards && desk.cards.length && desk.id !== 'sloop' && desk.id !== 'schooner') {
       var card = desk.cards.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
-      out.push({
-        kind: 'choice', id: desk.id, which: card.which, cost: card.cost, affordable: state.cash >= card.cost,
+      add({
+        kind: 'choice', id: desk.id, which: card.which, cost: card.cost, gain: 0, progress: false,
         selector: '#choice',
         sentence: choiceGoal(state)
       });
     }
-    if (M.voyageOpen && M.voyageOpen(state) && M.nextPreparation) {
-      var prep = M.nextPreparation(state);
-      if (prep) {
-        var line = prep.choice
-          ? 'Choose ' + prep.choice[0].name.toLowerCase() + ', or ' + prep.choice[1].name.toLowerCase() + ', ' + M.coins(prep.cost)
-          : 'Pack ' + prep.name + ', ' + M.coins(prep.cost);
-        out.push({
-          kind: 'prep', id: prep.id, which: prep.choice ? prep.choice[0].id : '', fork: !!prep.choice,
-          cost: prep.cost, affordable: state.cash >= prep.cost,
-          selector: '#provision',
-          sentence: withNeed(state, line, prep.cost)
-        });
-      }
-      var boat = incomeBoat(state);
-      if (boat) {
-        out.push({
-          kind: 'boat', tier: boat.tier, count: 1, cost: boat.cost, affordable: state.cash >= boat.cost,
-          selector: '#boats [data-i="' + boat.tier + '"]',
-          sentence: 'Buy a ' + boat.name.toLowerCase() + ', ' + M.coins(boat.cost) + '. It adds ' + M.coins(Math.max(1, Math.round(boat.add))) + ' a second.'
-        });
-      }
+    function soonest(list) {
+      var best = null;
+      list.forEach(function (step) {
+        if (!best || step.wait < best.wait || (step.wait === best.wait && step.cost < best.cost)) best = step;
+      });
+      return best;
     }
-    return out;
+    function richest(list) {
+      var best = null;
+      list.forEach(function (step) {
+        if (!best || step.payback < best.payback - 0.5 || (Math.abs(step.payback - best.payback) <= 0.5 && step.cost < best.cost)) best = step;
+      });
+      return best;
+    }
+    var soon = steps.filter(function (step) { return step.wait <= 90; });
+    var pool = soon.length ? soon : steps;
+    var affordLights = pool.filter(function (step) { return step.kind === 'light' && step.affordable; });
+    if (affordLights.length) {
+      affordLights.sort(function (a, b) { return (b.stage === 1) - (a.stage === 1) || a.cost - b.cost; });
+      return affordLights[0];
+    }
+    var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
+    if (affordPrep) return affordPrep;
+    var income = pool.filter(function (step) { return step.affordable && !step.progress && step.payback <= 90 && step.kind !== 'choice'; });
+    var affordChoice = pool.filter(function (step) { return step.kind === 'choice' && step.affordable; })[0];
+    if (affordChoice && !income.length) return affordChoice;
+    var bestIncome = richest(income);
+    if (bestIncome) return bestIncome;
+    if (affordChoice) return affordChoice;
+    var progressSoon = pool.filter(function (step) { return step.progress; });
+    if (progressSoon.length) return soonest(progressSoon);
+    var worth = pool.filter(function (step) { return step.payback <= 120; });
+    return soonest(worth.length ? worth : pool);
   }
 
-  /* The cheapest step the purse can pay. Null when every step is still dear. */
+  function progressSteps(state) {
+    var step = bestStep(state);
+    return step ? [step] : [];
+  }
+
   function cheapestAffordable(state) {
-    var best = null;
-    progressSteps(state).forEach(function (step) {
-      if (!step.affordable) return;
-      if (!best || step.cost < best.cost) best = step;
-    });
-    return best;
+    var step = bestStep(state);
+    return step && step.affordable ? step : null;
   }
 
   /* One sentence, always. The player should be able to read it and know what to do. */
@@ -309,41 +360,24 @@
     if (choice && (!phase.routesReady || (desk && (desk.id === 'sloop' || desk.id === 'schooner')))) return choice;
     if (!phase.fleet) {
       left = M.UNLOCK_AT - state.boats[1].owned;
-      if (left > 0) return withNeed(state, 'Buy ' + more(left, 'sloop', 'sloops') + '. At ten, the fleet chart unrolls', M.quote(state, 1, left).cost);
+      if (left > 0) return withNeed(state, 'Buy ' + left + ' sloops', M.quote(state, 1, left).cost);
     }
     if (M.canHire(state, 1)) return M.askLine(1);
     if (!phase.routesReady) {
       left = M.UNLOCK_AT - state.boats[2].owned;
-      return withNeed(state, 'Buy ' + more(left, 'schooner', 'schooners') + '. Ten open the trade routes on the next tide', M.quote(state, 2, left).cost);
+      var schoonerAll = M.quote(state, 2, left).cost;
+      var schoonerRate = Math.max(1, M.officeRate(state));
+      var schoonerWait = Math.ceil(Math.max(0, schoonerAll - state.cash) / schoonerRate);
+      if (schoonerWait > 90) return withNeed(state, 'Buy a schooner for the next tide', M.quote(state, 2, 1).cost);
+      return withNeed(state, 'Buy ' + left + ' schooners for the next tide', schoonerAll);
     }
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
     if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
-    if (sailing >= 1) {
-      var cheap = cheapestAffordable(state);
-      if (cheap) return cheap.sentence;
-      var pendingLight = null;
-      var lightRows = M.lightOffers(state, true) || [];
-      for (i = 0; i < lightRows.length; i++) {
-        if (lightRows[i].blocked || lightRows[i].stage !== 1) continue;
-        if (!pendingLight || lightRows[i].cost < pendingLight.cost) pendingLight = lightRows[i];
-      }
-      if (pendingLight) return withNeed(state, 'Light the ' + pendingLight.name + ', ' + M.coins(pendingLight.cost), pendingLight.cost);
-    }
+    var best = bestStep(state);
+    if (best) return best.sentence;
     if (choice) return choice;
-    if (state.boats[3].owned < M.UNLOCK_AT) {
-      left = M.UNLOCK_AT - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
-    }
     if (M.canHire(state, 3)) return M.askLine(3);
-    if (state.boats[3].owned < M.BARK_QUAY) {
-      left = M.BARK_QUAY - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
-    }
-    if (state.boats[3].owned < M.BARK_LAMP) {
-      left = M.BARK_LAMP - state.boats[3].owned;
-      return withNeed(state, 'Buy ' + left + ' barks', M.quote(state, 3, left).cost);
-    }
     var act = nextAct(state);
     if (act) return act.sentence;
     if (M.finaleOffer(state, false)) return 'Send the last voyage.';
@@ -465,5 +499,5 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct, progressSteps: progressSteps, cheapestAffordable: cheapestAffordable };
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct, progressSteps: progressSteps, cheapestAffordable: cheapestAffordable, bestStep: bestStep };
 })();

@@ -468,7 +468,7 @@ document.querySelector('#run').onclick = async function () {
     gated.voyages = 12;
     var lateOffer = M.routeOffers(gated, false)[0];
     var gatedGoal = P.goal(gated);
-    check('a later contract has a price, and the goal names a real next step', !!lateOffer && lateOffer.cost > 0 && (/^Sign /.test(gatedGoal) || /^Raise the /.test(gatedGoal) || /^Light the /.test(gatedGoal) || /^Provision /.test(gatedGoal)) && /Need /.test(gatedGoal) && /Sign the next route/.test(gatedGoal) === false && /Raise a lighthouse/.test(gatedGoal) === false);
+    check('a later contract has a price, and the goal names a real next step', !!lateOffer && lateOffer.cost > 0 && (/^Sign /.test(gatedGoal) || /^Raise the /.test(gatedGoal) || /^Light the /.test(gatedGoal) || /^Buy a /.test(gatedGoal) || /^Buy the spare sail/.test(gatedGoal)) && /Need /.test(gatedGoal) && /Sign the next route/.test(gatedGoal) === false && /Raise a lighthouse/.test(gatedGoal) === false && /Buy \d+ barks/.test(gatedGoal) === false);
     var pricedGoal = ready();
     pricedGoal.trips = 3;
     pricedGoal.boats[0].owned = M.SLOOP_AT;
@@ -516,7 +516,7 @@ document.querySelector('#run').onclick = async function () {
     var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
     var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
     var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
-    check('the voyage cards say what each choice does, in plain words', /part of the price/.test(foodCard) && /fresh food/i.test(foodCard) && /every route pay a little more/i.test(pilotCard) && /boats earn a little more/i.test(pilotCard) && !/or A /.test(pilotCard) && !/Victuals/.test(foodItem.name));
+    check('the voyage cards say what each choice does, in plain words', /12% more/.test(foodCard) && /fresh food/i.test(foodCard) && /20% less/.test(foodCard) && /12% more/.test(pilotCard) && /boat earns 12%/.test(pilotCard) && !/Victuals/.test(foodItem.name));
     function payOffice(which) {
       var s = M.preset('lamps');
       s.played = 3000;
@@ -543,7 +543,7 @@ document.querySelector('#run').onclick = async function () {
     litGoal.cash = 0;
     litGoal.events = { squall: 'wait', request: 'grant', windfall: 'sell' };
     M.lightOffers(litGoal, true);
-    check('a raised tower is the goal before more boats', /^Light the Pier Lighthouse/.test(P.goal(litGoal)));
+    check('a raised tower is the goal before more boats', /^(Light the |Sign |Raise the |Buy the spare sail)/.test(P.goal(litGoal)) && /^Buy a /.test(P.goal(litGoal)) === false);
     var haulOffice = M.fresh();
     haulOffice.trips = 3;
     haulOffice.boats[0].owned = 20;
@@ -568,7 +568,7 @@ document.querySelector('#run').onclick = async function () {
     var pierQuote = M.lightOffers(lightPrice, false).filter(function (row) { return row.id === 'pier'; })[0];
     check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
     var organic = SaltmarshPacing.organicRun(M, P);
-    check('a normal office lights the first tower within 9 minutes and finishes the list with decisions (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, ' + organic.voyageBuys + ' buys, gap ' + organic.voyageGap + 's)', organic.firstLight > 0 && organic.firstLight <= 540 && organic.fourLights > organic.firstLight && organic.fourLights <= 900 && organic.endingAt >= 900 && organic.endingAt <= 2400 && organic.voyageBuys >= 8 && organic.voyageGap <= 45 && organic.missedCheap === 0);
+    check('a normal office lights the first tower within 8 minutes and finishes in about 20 to 25 minutes (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, gap ' + organic.voyageGap + 's, misses ' + organic.missedCheap + ')', organic.firstLight > 0 && organic.firstLight <= 480 && organic.fourLights > organic.firstLight && organic.endingAt >= 1200 && organic.endingAt <= 1560 && organic.voyageGap <= 90 && organic.missedCheap === 0);
     var tide = ready();
     tide.trips = 3;
     tide.boats[0].owned = M.SLOOP_AT;
@@ -633,7 +633,7 @@ document.querySelector('#run').onclick = async function () {
     quayState.routes.gull = 1;
     quayState.forks = { sloop: null, schooner: null, quay: 'lamp' };
     var quayDark = M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]);
-    check('a dark Quay lighthouse names the house lamp after the quay is chosen', quayDark === 'Sixteen barks light the house lamp first.');
+    check('a dark Quay lighthouse names the house lamp after the quay is chosen', quayDark === 'Own 16 barks to light the house lamp, 16 to go.');
     quayState.boats[3].owned = 16;
     check('sixteen barks leave the route count as the quay\'s remaining gate', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]) === 'Sign 2 more routes first.');
     var bellDesk = M.fresh();
@@ -1215,7 +1215,7 @@ document.querySelector('#run').onclick = async function () {
     lampWin.__saltmarsh.render();
     lampState.played = 200;
     lampWin.__saltmarsh.render();
-    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /part of the price/.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent) && !/or A /.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent));
+    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && /\/ 6/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /12% more/.test(lampsBox.contentDocument.querySelector('#provision').textContent));
     var packActions = lampsBox.contentDocument.querySelector('#provision-actions');
     var packSum = 0;
     Array.prototype.forEach.call(packActions.querySelectorAll('button'), function (button) {
@@ -1238,14 +1238,8 @@ document.querySelector('#run').onclick = async function () {
     lampState.played = 1300;
     lampWin.__saltmarsh.render();
     check('harbour work and an errand have their own buttons', lampsBox.contentDocument.querySelector('#harbour-work').hidden === false && lampsBox.contentDocument.querySelector('#errand').hidden === false && /the pilings|the winch|the nets/.test(lampsBox.contentDocument.querySelector('#work-go').textContent) && /Sound the channel/.test(lampsBox.contentDocument.querySelector('#errand-go').textContent));
-    var waiting = lampsBox.contentDocument.querySelectorAll('#route-cards button:disabled');
-    var pricedWait = 0;
-    var deskLine = 0;
-    Array.prototype.forEach.call(waiting, function (b) {
-      if (/after the current one/.test(b.textContent) && /\d/.test(b.textContent)) pricedWait += 1;
-      if (/Sign the one on the desk/.test(b.textContent)) deskLine += 1;
-    });
-    check('a contract that is not on the desk shows its price and waits its turn', pricedWait > 0 && deskLine === 0);
+    var routeNote = lampsBox.contentDocument.querySelector('#routes-note').textContent || '';
+    check('a contract that is not on the desk shows its price and waits its turn', /after the current one/.test(routeNote) && /\d/.test(routeNote) && /Sign the one on the desk/.test(routeNote) === false);
     async function soundStill(width, height) {
       var box = await loadFrame('sound ' + width);
       box.style.width = width + 'px';
@@ -1301,17 +1295,17 @@ document.querySelector('#run').onclick = async function () {
           if (bh > maxBtn) maxBtn = bh;
           if (bh > 60) tooTall = true;
         }
-        check('at 1280 by 800 the fleet page stays within about 10% of 5,753px, and action buttons stay under 60px (' + pageH + 'px, button ' + Math.round(maxBtn) + 'px)', pageH <= 5753 * 1.10 && pageH >= 5753 * 0.90 && tooTall === false);
+        check('at 1280 by 800 the fleet page stays within about 10% of 4,987px, and action buttons stay under 60px (' + pageH + 'px, button ' + Math.round(maxBtn) + 'px)', pageH <= 4987 * 1.10 && pageH >= 4987 * 0.90 && tooTall === false);
       }
       if (preset === 'lamps' && width === 1280 && height === 800) {
         win.__saltmarsh.render();
         var lampsWide = doc.documentElement.scrollHeight;
-        check('at 1280 by 800 the lamps page stays within about 10% of 5,753px (' + lampsWide + 'px)', lampsWide <= 5753 * 1.10 && lampsWide >= 5753 * 0.90);
+        check('at 1280 by 800 the lamps page stays within about 10% of 5,224px (' + lampsWide + 'px)', lampsWide <= 5224 * 1.10 && lampsWide >= 5224 * 0.90);
       }
       if (preset === 'lamps' && width === 390 && height === 844) {
         win.__saltmarsh.render();
         var lampsPhone = doc.documentElement.scrollHeight;
-        check('at 390 by 844 the lamps page stays within about 10% of 6,341px (' + lampsPhone + 'px)', lampsPhone <= 6341 * 1.10 && lampsPhone >= 6341 * 0.90);
+        check('at 390 by 844 the lamps page stays within about 10% of 2,916px (' + lampsPhone + 'px)', lampsPhone <= 2916 * 1.10 && lampsPhone >= 2916 * 0.90);
       }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
@@ -2303,6 +2297,12 @@ document.querySelector('#run').onclick = async function () {
       st.routes.kelp = 1;
       st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
       win.__saltmarsh.render();
+      var boatTop = doc.querySelector('#boats').getBoundingClientRect().top;
+      var routeTop = doc.querySelector('#routes').getBoundingClientRect().top;
+      var lightTop = doc.querySelector('#lights').getBoundingClientRect().top;
+      var routeScreens = (routeTop - boatTop) / height;
+      var lightScreens = (lightTop - boatTop) / height;
+      check('at ' + width + ' by ' + height + ' the routes and the next light sit within two screens of the boats (' + routeScreens.toFixed(2) + ' / ' + lightScreens.toFixed(2) + ')', routeScreens < 2 && lightScreens < 2 && routeScreens > 0);
       var bar = doc.querySelector('.goalbar').getBoundingClientRect();
       var goalEl = doc.querySelector('#goal');
       var away = doc.querySelector('#away');
@@ -2427,11 +2427,11 @@ document.querySelector('#run').onclick = async function () {
     quayState.boats[3].owned = 12;
     quayWin.__saltmarsh.render();
     var staleQuay = quayDoc.querySelector('button[data-light="quay"]');
-    check('the dark quay asks for the choice before it is taken', !!staleQuay && /Choose the quay first/.test(staleQuay.textContent));
+    check('the dark quay names the house lamp before it is taken', !!staleQuay && /Own 16 barks to light the house lamp, 4 to go/.test(staleQuay.textContent));
     quayState.forks.quay = 'lamp';
     quayWin.__saltmarsh.render();
     staleQuay = quayDoc.querySelector('button[data-light="quay"]');
-    check('taking the lamp refreshes the quay, and it names the house lamp', !!staleQuay && /Sixteen barks light the house lamp/.test(staleQuay.textContent) && /Choose the quay first/.test(staleQuay.textContent) === false);
+    check('taking the lamp refreshes the quay, and it names the house lamp', !!staleQuay && /Own 16 barks to light the house lamp, 4 to go/.test(staleQuay.textContent) && /Choose the quay first/.test(staleQuay.textContent) === false);
     ['tea', 'headland', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
     quayState.boats[3].owned = 16;
     quayState.forks.quay = null;
@@ -2439,7 +2439,7 @@ document.querySelector('#run').onclick = async function () {
     var quayLight = quayDoc.querySelector('[data-act="light"][data-light="quay"]');
     var lightsBeforeClick = quayState.lights.quay || 0;
     if (quayLight) quayLight.click();
-    check('the quay lighthouse says to choose the quay first and does not raise', !!quayLight && quayLight.disabled === true && /Choose the quay first/.test(quayLight.textContent) && (quayState.lights.quay || 0) === lightsBeforeClick);
+    check('the quay lighthouse names the lamp on the desk and does not raise', !!quayLight && quayLight.disabled === true && /quay lamp on the desk/.test(quayLight.textContent) && /Choose the quay first/.test(quayLight.textContent) === false && (quayState.lights.quay || 0) === lightsBeforeClick);
     var pierLight = quayDoc.querySelector('[data-act="light"][data-light="pier"]');
     check('another lighthouse can still be raised while the quay choice is open', !!pierLight && /Raise /.test(pierLight.textContent) && /\d/.test(pierLight.textContent));
     ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { quayState.lights[id] = 1; });
@@ -2464,9 +2464,16 @@ document.querySelector('#run').onclick = async function () {
       var simNow = 1700000000000;
       var stuck = 0;
       var sawLight = false;
+      var firstLightAt = 0;
       var guard = 0;
       var actions = [{ t: 0, kind: 'start' }];
       var openAt = null;
+      var barkWhileReady = 0;
+      var quayOld = 0;
+      var longGoal = 0;
+      var moved = 0;
+      var moveWhere = '';
+      var held = {};
       function goalText() { return doc.querySelector('#goal').textContent || ''; }
       function goalKind(text) {
         if (/^Set sail/.test(text)) return 'sail';
@@ -2503,7 +2510,27 @@ document.querySelector('#run').onclick = async function () {
         Array.prototype.forEach.call(doc.querySelectorAll('[data-act="light"]'), function (b) {
           if (/^Light /.test(b.textContent) && /\d/.test(b.textContent)) sawLight = true;
         });
+        if (!firstLightAt && M.lightsLit(state) > 0) firstLightAt = state.played;
         var goalNow = goalText();
+        if (/Buy \d+ barks/.test(goalNow)) {
+          var readyStep = doc.querySelector('[data-act="route"]:not([disabled]), [data-act="gear"]:not([disabled]), [data-act="light"]:not([disabled])');
+          if (readyStep && readyStep.offsetParent) barkWhileReady += 1;
+        }
+        var quayBtn = doc.querySelector('button[data-light="quay"]');
+        if (quayBtn && /Choose the quay first/.test(quayBtn.textContent)) quayOld += 1;
+        var waitSaid = /([0-9]+)s\.$/.exec(goalNow);
+        if (waitSaid && +waitSaid[1] > 90) longGoal += 1;
+        Array.prototype.forEach.call(doc.querySelectorAll('#provision-go, #boats [data-act="buy"], #route-cards [data-act="route"]'), function (button) {
+          if (button.hidden || button.offsetParent === null) return;
+          var li = button.closest('[data-i]');
+          var key = (button.id || 'btn') + ':' + (button.dataset.route || '') + ':' + (button.dataset.prep || '') + ':' + (li ? li.dataset.i : '');
+          var top = button.getBoundingClientRect().top + (win.scrollY || 0);
+          if (held[key] != null && Math.abs(top - held[key]) > 2) {
+            moved += 1;
+            moveWhere = key + ' ' + Math.abs(top - held[key]).toFixed(1);
+          }
+          held[key] = top;
+        });
         if (openAt == null && doc.querySelector('#provision') && doc.querySelector('#provision').hidden === false) openAt = state.played;
         var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /^Pick bell/.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Raise the /.test(goalNow) || /^Light the /.test(goalNow) || /^Pack /.test(goalNow) || /^Set sail/.test(goalNow) || /^Do the harbour work/.test(goalNow) || /^Run the errand/.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
         if (!goalNames) {
@@ -2531,14 +2558,18 @@ document.querySelector('#run').onclick = async function () {
       var ending = doc.querySelector('#ending');
       check(label + ' reaches the ending', !!state.ended && !!ending && ending.hidden === false);
       check(label + ' showed a Light button with a price', sawLight);
-      return { ended: !!state.ended, sawLight: sawLight, ending: state.played, maxGap: maxGap, actions: actions, openAt: openAt };
+      check(label + ' does not name a bark bundle while a contract or light is ready (' + barkWhileReady + ')', barkWhileReady === 0);
+      check(label + ' never tells the quay to choose the quay first (' + quayOld + ')', quayOld === 0);
+      check(label + ' never asks the player to wait more than 90 seconds (' + longGoal + ')', longGoal === 0);
+      check(label + ' keeps the boat, route, and errand buttons still (' + moveWhere + ')', moved === 0);
+      return { ended: !!state.ended, sawLight: sawLight, ending: state.played, maxGap: maxGap, actions: actions, openAt: openAt, firstLight: firstLightAt };
     }
     var browserPace = await playToEnd('a new office');
     var nodePace = SaltmarshPacing.greedyRun(M, P);
     var browserEnding = browserPace.ending || 0;
     var nodeEnding = nodePace.endingAt || 0;
     var paceGap = browserEnding > 0 ? Math.abs(nodeEnding - browserEnding) / browserEnding : 1;
-    check('a new office reaches the ending in one tightened sitting (browser ' + browserEnding + 's, model ' + nodeEnding + 's)', browserEnding >= 900 && browserEnding <= 2400 && nodeEnding > 0 && paceGap <= 0.10);
+    check('a new office reaches the ending in one sitting of about 20 to 25 minutes (browser ' + browserEnding + 's, model ' + nodeEnding + 's, first light ' + (browserPace.firstLight || 0) + 's)', browserEnding >= 1200 && browserEnding <= 1560 && nodeEnding >= 1200 && nodeEnding <= 1560 && (browserPace.firstLight || 9999) <= 480);
     check('from the fourth minute to the ending the office never waits more than about 90s (' + browserPace.maxGap + 's)', browserPace.maxGap <= 90);
     check('the voyage list opens once the lights are burning (' + browserPace.openAt + 's)', browserPace.openAt > 0 && browserPace.openAt <= 1200 && browserPace.openAt < browserEnding);
     var sittingKinds = {};

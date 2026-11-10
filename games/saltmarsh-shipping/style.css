@@ -243,6 +243,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   margin: 0.7rem 0;
 }
 .choice-card, #routes-note { min-height: 2.9em; }
+#routes-note { max-height: 2.9em; overflow: hidden; }
 .route-card .actions button,
 .light-card .actions button,
 #work-go,
@@ -268,8 +269,19 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 }
 #sheds .shed-hold { margin: 0.15rem 0 0; }
 .shed-price { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; }
-#route-gear { min-height: 12.5rem; }
-.route-card { min-height: 16.5rem; }
+#route-gear { min-height: 12.5rem; position: relative; }
+#route-gear .actions { position: absolute; left: 0.85rem; right: 0.85rem; bottom: 0.55rem; margin: 0; }
+#route-cards { min-height: 37.5rem; }
+.route-card,
+.route-card.is-wait {
+  height: 12.5rem;
+  min-height: 12.5rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.route-card .habit { flex: 1 1 auto; overflow: hidden; }
+.route-card .actions { margin-top: auto; }
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
@@ -341,9 +353,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  width: min(40rem, 100%);
+  width: min(40rem, 100vw);
+  max-width: 100vw;
   bottom: 0;
   z-index: 6;
+  box-sizing: border-box;
   margin: 0;
   background: var(--water);
   color: var(--mist);
@@ -365,14 +379,45 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #boats { order: 5; }
   #routes { order: 6; }
   #lights { order: 7; }
-  #sheds { order: 8; }
-  #settled { order: 9; }
-  #fleet { order: 10; }
-  #harbour-work { order: 11; }
-  #errand { order: 12; }
-  #provision { order: 13; }
-  #finale { order: 14; }
-  #ending { order: 15; }
+  #provision { order: 8; }
+  #finale { order: 9; }
+  #sheds { order: 20; }
+  #settled { order: 21; }
+  #fleet { order: 22; }
+  #harbour-work { order: 23; }
+  #errand { order: 24; }
+  #ending { order: 25; }
+  .boat .habit,
+  .boat .facts,
+  .boat .wait { display: none; }
+  .light-card, .light-card.is-now {
+    height: 7.5rem;
+    min-height: 7.5rem;
+    overflow: hidden;
+  }
+  #fleet, #sheds, #settled { display: none; }
+  .route-card .habit {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    max-height: 2.9em;
+  }
+  .route-card, .route-card.is-wait, #route-gear {
+    height: 8.5rem;
+    min-height: 8.5rem;
+  }
+  #route-cards {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    overflow-x: auto;
+    min-height: 8.5rem;
+    height: 8.5rem;
+    align-items: stretch;
+  }
+  #route-cards .route-card { flex: 0 0 15rem; height: 8.5rem; }
+  #choice.choice { max-height: 38vh; }
 }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }

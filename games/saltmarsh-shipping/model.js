@@ -1088,9 +1088,10 @@
   function lightClosed(state, spec) {
     if (!spec) return 'Not yet';
     if ((state.lights && state.lights[spec.id] || 0) >= 2) return 'Burning';
-    if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) return 'Choose the quay first.';
-    if (spec.id === 'quay' && ((state.boats && state.boats[3] && state.boats[3].owned) || 0) < BARK_LAMP) {
-      return 'Sixteen barks light the house lamp first.';
+    if (spec.id === 'quay') {
+      var barks = (state.boats && state.boats[3] && state.boats[3].owned) || 0;
+      if (barks < BARK_LAMP) return 'Own 16 barks to light the house lamp, ' + (BARK_LAMP - barks) + ' to go.';
+      if (!state.forks || !state.forks.quay) return 'Choose the quay lamp on the desk.';
     }
     var need = spec.needRoutes || 1;
     var have = routesSailing(state);
@@ -1108,7 +1109,7 @@
       var quote = quoteLight(state, spec, !!lock);
       if (!quote) return;
       var blocked = '';
-      if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) blocked = lightClosed(state, spec);
+      if (spec.id === 'quay' && (!state.forks || !state.forks.quay || ((state.boats[3] && state.boats[3].owned) || 0) < BARK_LAMP)) blocked = lightClosed(state, spec);
       out.push({
         id: spec.id, name: spec.name, stage: quote.stage, cost: quote.cost, line: quote.line,
         verb: quote.stage === 0 ? 'Raise the' : 'Light the',
@@ -1138,28 +1139,24 @@
      to the office at that moment, in seconds of pay, so a bigger fleet does not
      make the list dearer and a slower office is not stuck on an old coin figure. */
   var VOYAGE_AT = 0;
+  /* Six errands, not a dozen small ones. Each one changes the office by
+     about a tenth, and the two sides of a fork do not cost the same. */
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Food for the crew', stake: 32, choice: [
-      { id: 'fresh', name: 'Fresh food', line: 'Fresh food makes every route pay a little more.' },
-      { id: 'pork', name: 'Salt pork', line: 'Salt pork puts part of the price back in the chest.' }
+    { id: 'victuals', name: 'Food for the crew', stake: 36, choice: [
+      { id: 'fresh', name: 'Fresh food', costMul: 1.2, route: 0.12, line: 'Fresh food. Every route pays 12% more.' },
+      { id: 'pork', name: 'Salt pork', costMul: 0.75, nextCut: 0.2, line: 'Salt pork. The next errand costs 20% less.' }
     ]},
-    { id: 'canvas', name: 'Canvas for the sails', stake: 32, line: 'New canvas. Every route pays a little more.' },
-    { id: 'coal', name: 'Coal for the lamps', stake: 32, line: 'The lamps are coaled. Every route pays a little more.' },
-    { id: 'pilot', name: 'A pilot for the bar', stake: 32, choice: [
-      { id: 'pilot', name: 'A pilot for the bar', line: 'A pilot makes every route pay a little more.' },
-      { id: 'chart', name: 'A bought chart', line: 'A bought chart makes the boats earn a little more.' }
+    { id: 'canvas', name: 'Canvas for the sails', stake: 40, route: 0.1, line: 'New canvas. Every route pays 10% more.' },
+    { id: 'pilot', name: 'A pilot for the bar', stake: 44, choice: [
+      { id: 'pilot', name: 'A pilot', costMul: 1.15, route: 0.12, line: 'A pilot. Every route pays 12% more.' },
+      { id: 'chart', name: 'A bought chart', costMul: 0.8, boat: 0.12, line: 'A chart. Every boat earns 12% more.' }
     ]},
-    { id: 'watch', name: 'The night watch', stake: 32, choice: [
-      { id: 'hands', name: 'Extra hands', line: 'Extra hands make every boat earn more.' },
-      { id: 'gun', name: 'A signal gun', line: 'A signal gun makes every route pay more.' }
+    { id: 'watch', name: 'The night watch', stake: 48, choice: [
+      { id: 'hands', name: 'Extra hands', costMul: 0.85, boat: 0.1, line: 'Extra hands. Every boat earns 10% more.' },
+      { id: 'gun', name: 'A signal gun', costMul: 1.25, route: 0.1, line: 'A signal gun. Every route pays 10% more.' }
     ]},
-    { id: 'casks', name: 'Water casks', stake: 32, line: 'The hold rides lower. The boats earn a little more.' },
-    { id: 'cable', name: 'A new anchor cable', stake: 32, line: 'The mooring holds. The boats earn a little more.' },
-    { id: 'flag', name: 'A house flag', stake: 32, line: 'The ship shows her house flag. Routes pay a little more.' },
-    { id: 'coats', name: 'Coats for the night watch', stake: 32, line: 'The watch stays on deck. The boats earn a little more.' },
-    { id: 'letter', name: 'A letter from the harbour master', stake: 32, line: 'The letter names the deep channel. Routes pay a little more.' },
-    { id: 'biscuit', name: 'Biscuit for the galley', stake: 32, line: 'The galley is stocked. The boats earn a little more.' },
-    { id: 'tide', name: 'The tide table', stake: 32, line: 'The hour of sailing is written down.' }
+    { id: 'coal', name: 'Coal for the lamps', stake: 42, route: 0.1, line: 'Coal in the lamps. Every route pays 10% more.' },
+    { id: 'tide', name: 'The tide table', stake: 36, route: 0.1, line: 'The hour is written down. Every route pays 10% more.' }
   ];
   var WORK_SPAN = 32;
   var WORK_VERBS = ['Tar', 'Oil', 'Mend', 'Paint', 'Coil', 'Hang', 'Caulk', 'Sweep'];
@@ -1172,25 +1169,19 @@
   function prepRouteFactor(state) {
     var done = prepDoneMap(state);
     var m = 1 + 0.012 * ((state && state.works) || 0);
-    if (done.canvas) m *= 1.02;
-    if (done.coal) m *= 1.02;
-    if (done.flag) m *= 1.02;
-    if (done.tide) m *= 1.02;
-    if (done.letter) m *= 1.01;
-    if (done.victuals === 'fresh') m *= 1.03;
-    if (done.pilot === 'pilot') m *= 1.02;
-    if (done.watch === 'gun') m *= 1.08;
+    if (done.victuals === 'fresh') m *= 1.12;
+    if (done.canvas) m *= 1.1;
+    if (done.pilot === 'pilot') m *= 1.12;
+    if (done.watch === 'gun') m *= 1.1;
+    if (done.coal) m *= 1.1;
+    if (done.tide) m *= 1.1;
     return m;
   }
   function boatPrepFactor(state) {
     var done = prepDoneMap(state);
     var m = 1;
-    if (done.casks) m *= 1.02;
-    if (done.cable) m *= 1.02;
-    if (done.pilot === 'chart') m *= 1.02;
-    if (done.watch === 'hands') m *= 1.08;
-    if (done.coats) m *= 1.01;
-    if (done.biscuit) m *= 1.01;
+    if (done.pilot === 'chart') m *= 1.12;
+    if (done.watch === 'hands') m *= 1.1;
     return m;
   }
   function voyageOpen(state) {
@@ -1200,11 +1191,36 @@
     if (!item) return 0;
     if (!state.prepPrices) state.prepPrices = {};
     if (!(state.prepPrices[item.id] > 0)) {
-      var cost = Math.max(1, Math.round(officeRate(state) * (item.stake || 80)));
+      var cost = Math.max(1, Math.round(officeRate(state) * (item.stake || 40)));
       if (item.id === 'victuals' && state.events && state.events.windfall === 'stow') cost = Math.round(cost * 0.7);
+      if (item.id !== 'victuals' && state.prepDone && state.prepDone.victuals === 'pork') cost = Math.round(cost * 0.8);
       state.prepPrices[item.id] = Math.max(1, cost);
     }
     return state.prepPrices[item.id];
+  }
+  function prepOption(item, which) {
+    if (!item || !item.choice) return null;
+    var found = null;
+    item.choice.forEach(function (opt) { if (opt.id === which) found = opt; });
+    return found;
+  }
+  function optionPrice(state, item, which) {
+    var base = preparationCost(state, item);
+    var opt = prepOption(item, which);
+    var mul = opt && opt.costMul ? opt.costMul : 1;
+    return Math.max(1, Math.round(base * mul));
+  }
+  /* What this side does, in coins per second or as the next-errand cut. */
+  function optionEffect(state, item, which) {
+    var opt = which ? prepOption(item, which) : null;
+    var route = (opt && opt.route) || (!opt && item && item.route) || 0;
+    var boat = (opt && opt.boat) || (!opt && item && item.boat) || 0;
+    if (opt && opt.nextCut) return { text: '−' + Math.round(opt.nextCut * 100) + '% next', gain: 0 };
+    var gain = 0;
+    if (route) gain = routeIncome(state) * route;
+    if (boat) gain += income(state) * boat;
+    if (!(gain > 1)) return { text: '', gain: 0 };
+    return { text: '+' + coins(Math.round(gain)) + '/s', gain: gain };
   }
   function preparationById(id) {
     var i;
@@ -1222,13 +1238,28 @@
     var done = prepDoneMap(state);
     var left = PREPARATIONS.filter(function (item) { return !done[item.id]; });
     return left.map(function (item, index) {
-      var cost = index === 0 ? preparationCost(state, item) : 0;
+      var choice = null;
+      var cost = 0;
+      if (index === 0 && item.choice) {
+        choice = item.choice.map(function (opt) {
+          var price = optionPrice(state, item, opt.id);
+          var effect = optionEffect(state, item, opt.id);
+          return { id: opt.id, name: opt.name, line: opt.line, cost: price, effect: effect.text, gain: effect.gain };
+        });
+        cost = choice[0].cost;
+        choice.forEach(function (opt) { if (opt.cost < cost) cost = opt.cost; });
+      } else if (index === 0) {
+        cost = preparationCost(state, item);
+      }
+      var solo = !item.choice ? optionEffect(state, item, '') : null;
       return {
         id: item.id,
         name: item.name,
         cost: cost,
-        choice: item.choice || null,
+        choice: choice,
         line: item.line || '',
+        effect: solo ? solo.text : '',
+        gain: solo ? solo.gain : 0,
         affordable: index === 0 && state.cash >= cost
       };
     });
@@ -1242,21 +1273,20 @@
     if (!item || !voyageOpen(state) || prepDoneMap(state)[id]) return { ok: false, reason: 'closed' };
     var offer = nextPreparation(state);
     if (!offer || offer.id !== id) return { ok: false, reason: 'closed' };
-    var price = preparationCost(state, item);
-    if (!(state.cash >= price)) return { ok: false, reason: 'cost', cost: price };
     var picked = which || null;
     if (item.choice) {
       var ok = false;
       item.choice.forEach(function (opt) { if (opt.id === which) ok = true; });
       if (!ok) picked = item.choice[0].id;
     }
+    var price = item.choice ? optionPrice(state, item, picked) : preparationCost(state, item);
+    if (!(state.cash >= price)) return { ok: false, reason: 'cost', cost: price };
     state.cash -= price;
     if (state.cash < 1e-6) state.cash = 0;
     if (!state.prepDone) state.prepDone = {};
     state.prepDone[id] = item.choice ? picked : true;
     if (!state.prepChoices) state.prepChoices = {};
     if (item.choice) state.prepChoices[id] = picked;
-    if (id === 'victuals' && picked === 'pork') addCash(state, Math.round(price * 0.15));
     var line = item.line || item.name;
     if (item.choice) item.choice.forEach(function (opt) { if (opt.id === picked) line = opt.line; });
     pushLog(state, item.name + '. ' + line, now);
@@ -2090,6 +2120,8 @@
     buildLight: buildLight,
     voyageOpen: voyageOpen,
     preparationCost: preparationCost,
+    optionPrice: optionPrice,
+    optionEffect: optionEffect,
     eventOffer: eventOffer,
     preparationOffers: preparationOffers,
     nextPreparation: nextPreparation,

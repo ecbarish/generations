@@ -269,28 +269,34 @@
   /* What the goal bar is asking for. Kept in step with the page's followGoal. */
   function goalAction(M, P, state, now) {
     var goal = P.goal(state);
-    var cheap = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
+    var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
     if (cheap && goal === cheap.sentence) {
+      if (cheap.kind === 'finale') {
+        return { id: 'sail', affordable: true, buy: function () { M.launchFinale(state, now); } };
+      }
       if (cheap.kind === 'light') {
-        return { id: 'light:' + cheap.id + ':' + ((state.lights && state.lights[cheap.id]) || 0), affordable: true, buy: function () { M.buildLight(state, cheap.id, now); } };
+        return { id: 'light:' + cheap.id + ':' + ((state.lights && state.lights[cheap.id]) || 0), affordable: !!cheap.affordable, buy: function () { M.buildLight(state, cheap.id, now); } };
       }
       if (cheap.kind === 'route') {
-        return { id: 'route:' + cheap.id + ':' + ((state.routes && state.routes[cheap.id]) || 0), affordable: true, buy: function () { M.signRoute(state, cheap.id, now); } };
+        return { id: 'route:' + cheap.id + ':' + ((state.routes && state.routes[cheap.id]) || 0), affordable: !!cheap.affordable, buy: function () { M.signRoute(state, cheap.id, now); } };
       }
       if (cheap.kind === 'prep') {
-        return { id: 'prep:' + cheap.id, affordable: true, buy: function () { M.buyPreparation(state, cheap.id, cheap.which || '', now); } };
+        return { id: 'prep:' + cheap.id, affordable: !!cheap.affordable, buy: function () { M.buyPreparation(state, cheap.id, cheap.which || '', now); } };
       }
       if (cheap.kind === 'choice') {
         return {
           id: 'desk:' + cheap.id,
-          affordable: true,
+          affordable: !!cheap.affordable,
           buy: function () { M.chooseDesk(state, cheap.id, cheap.which, now); }
         };
+      }
+      if (cheap.kind === 'gear') {
+        return { id: 'gear:' + cheap.id, affordable: !!cheap.affordable, buy: function () { M.buyGear(state, cheap.id, now); } };
       }
       if (cheap.kind === 'boat') {
         return {
           id: 'boat:' + cheap.tier + ':' + state.boats[cheap.tier].owned + ':' + cheap.count,
-          affordable: true,
+          affordable: !!cheap.affordable,
           buy: function () { if (M.buy(state, cheap.tier, cheap.count).ok) M.commitGoal(state, 'boat'); }
         };
       }
@@ -551,8 +557,8 @@
       state.played = sec;
       M.addCash(state, M.income(state) + M.routeIncome(state));
       M.collectCaptains(state, sim, 1);
-      var best = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
-      if (best && best.affordable && P.goal(state) !== best.sentence) missedCheap += 1;
+      var best = P.bestStep ? P.bestStep(state) : null;
+      if (best && P.goal(state) !== best.sentence) missedCheap += 1;
       var act = goalAction(M, P, state, sim);
       if (voyageAt == null && M.voyageOpen(state)) voyageAt = sec;
       if (!act) continue;

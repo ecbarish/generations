@@ -446,13 +446,20 @@
     var offerById = {};
     offers.forEach(function (offer) { offerById[offer.id] = offer; });
     var rows = [];
-    /* Every route keeps a card once the desk is open, so a later contract
-       cannot shove the Sign buttons that are already on the page. */
+    /* Only the contracts on the desk. A signed route stays in its card,
+       so a new name is not inserted above a button the player can already see. */
+    var waitingLine = [];
     M.ROUTES.forEach(function (spec) {
-      var signed = (state.routes && state.routes[spec.id]) || 0;
       var offer = offerById[spec.id] || null;
-      rows.push({ spec: spec, offer: offer, signed: signed, waiting: !offer && signed <= 0 });
+      var signed = (state.routes && state.routes[spec.id]) || 0;
+      if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
+      else if (signed > 0 && signed < spec.depths) {
+        var peek = M.peekRoute(state, spec);
+        if (peek) waitingLine.push(spec.name + ' ' + money(peek.cost) + ' after the current one');
+        rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
+      }
     });
+    if (waitingLine.length) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
       return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
@@ -464,7 +471,7 @@
         var spec = row.spec;
         var offer = row.offer;
         var wrap = document.createElement('div');
-        wrap.className = 'route-card';
+        wrap.className = 'route-card' + (row.queued ? ' is-wait' : '');
         wrap.dataset.route = spec.id;
         var h = document.createElement('h3');
         var contract = M.routeContract(state, spec.id);
@@ -749,23 +756,20 @@
         packed.textContent = 'All ' + M.PREPARATIONS.length + ' are packed.';
         host.appendChild(packed);
       } else {
-        M.PREPARATIONS.forEach(function (item) {
-          var card = document.createElement('div');
-          card.className = 'route-card';
-          var h = document.createElement('h3');
-          var picked = doneMap[item.id];
-          var chosen = null;
-          if (item.choice && picked) item.choice.forEach(function (opt) { if (opt.id === picked) chosen = opt; });
-          h.textContent = chosen ? item.name + ' · ' + chosen.name : (picked ? item.name + ' · packed' : item.name);
-          var p = document.createElement('p');
-          p.className = 'habit';
-          if (chosen) p.textContent = chosen.line;
-          else if (item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
-          else p.textContent = item.line || '';
-          card.appendChild(h);
-          card.appendChild(p);
-          host.appendChild(card);
-        });
+        var item = null;
+        M.PREPARATIONS.forEach(function (row) { if (row.id === offers[0].id) item = row; });
+        var card = document.createElement('div');
+        card.className = 'route-card';
+        var h = document.createElement('h3');
+        h.textContent = item ? item.name : offers[0].name;
+        var p = document.createElement('p');
+        p.className = 'habit';
+        if (item && item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
+        else p.textContent = (item && item.line) || offers[0].line || '';
+        card.appendChild(h);
+        card.appendChild(p);
+        host.appendChild(card);
+        host.style.minHeight = '6.2rem';
       }
     }
     if (offers.length) {
@@ -793,21 +797,22 @@
     if (actions) actions.hidden = false;
     button.dataset.prep = current.id;
     button.dataset.which = current.choice ? current.choice[0].id : '';
-    function packLabel(node, name, cost) {
+    function packLabel(node, opt) {
       node.replaceChildren();
       var main = document.createElement('span');
       main.className = 'take-main';
-      main.textContent = name;
+      main.textContent = opt.name;
       var price = document.createElement('span');
       price.className = 'take-need';
-      price.textContent = money(cost);
+      price.textContent = money(opt.cost) + (opt.effect ? ' · ' + opt.effect : '');
       node.appendChild(main);
       node.appendChild(price);
-      node.disabled = !(state.cash >= cost);
-      if (state.cash >= cost) node.removeAttribute('title');
-      else node.setAttribute('title', name + ' · ' + money(cost) + ' · ' + M.needMore(state, cost));
+      node.disabled = !(state.cash >= opt.cost);
+      node.dataset.cost = String(opt.cost);
+      if (state.cash >= opt.cost) node.removeAttribute('title');
+      else node.setAttribute('title', opt.name + ' · ' + money(opt.cost) + (opt.effect ? ' · ' + opt.effect : ''));
     }
-    packLabel(button, current.choice ? current.choice[0].name : current.name, current.cost);
+    packLabel(button, current.choice ? current.choice[0] : { name: current.name, cost: current.cost, effect: current.effect || '' });
     if (current.choice) {
       if (!alt) {
         alt = document.createElement('button');
@@ -819,7 +824,7 @@
       alt.hidden = false;
       alt.dataset.prep = current.id;
       alt.dataset.which = current.choice[1].id;
-      packLabel(alt, current.choice[1].name, current.cost);
+      packLabel(alt, current.choice[1]);
     } else if (alt) alt.hidden = true;
     if (actions) {
       actions.style.minHeight = '';
@@ -938,7 +943,17 @@
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
     else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
     else showLine(rateLine, M.rateWords(totalRate));
-    $('#goal').textContent = P.goal(state);
+    var goalEl = $('#goal');
+    var focusStep = P.bestStep ? P.bestStep(state) : null;
+    goalEl.textContent = P.goal(state);
+    if (focusStep && goalEl.textContent === focusStep.sentence) {
+      goalEl.dataset.step = focusStep.kind + ':' + (focusStep.id || '');
+      goalEl.dataset.wait = String(focusStep.wait || 0);
+      goalEl.dataset.payback = String(Math.round(focusStep.payback || 0));
+    } else {
+      goalEl.dataset.step = '';
+      goalEl.dataset.wait = '';
+    }
     var aim = $('#aim');
     if (aim) {
       var aimText = P.aim(state);
@@ -996,11 +1011,23 @@
         list.appendChild(li);
       });
     }
-    Array.prototype.forEach.call(list.children, function (li) { fillBoat(li, +li.dataset.i); });
+    Array.prototype.forEach.call(list.children, function (li) {
+      fillBoat(li, +li.dataset.i);
+      li.classList.toggle('is-now', !!(focusStep && focusStep.kind === 'boat' && String(focusStep.tier) === li.dataset.i));
+    });
     fillChoice();
     fillSettled();
     fillRoutes();
     fillLights();
+    var nextLight = null;
+    Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
+      var burning = card.querySelector('h3') && /burning/.test(card.querySelector('h3').textContent);
+      if (!burning && !nextLight) nextLight = card;
+      if (focusStep && focusStep.kind === 'light' && focusStep.id === card.dataset.light) nextLight = card;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
+      card.classList.toggle('is-now', card === nextLight);
+    });
     fillWork();
     fillErrand();
     fillProvision();
@@ -1546,8 +1573,9 @@
       el.click();
       if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
     }
-    var cheap = P.cheapestAffordable ? P.cheapestAffordable(state) : null;
+    var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
     if (cheap && goal === cheap.sentence) {
+      if (!cheap.affordable) return false;
       if (cheap.kind === 'choice') {
         var whichBtn = cheap.which ? document.querySelector('#choice [data-which="' + cheap.which + '"]') : document.querySelector('#choice button');
         if (usableControl(whichBtn)) { press(whichBtn); return true; }
@@ -1567,6 +1595,11 @@
       if (cheap.kind === 'light') {
         var lightHit = document.querySelector('#light-cards [data-light="' + cheap.id + '"] [data-act="light"]');
         if (usableControl(lightHit)) { press(lightHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'gear') {
+        var gearHit = document.querySelector('#route-gear button');
+        if (usableControl(gearHit)) { press(gearHit); return true; }
         return false;
       }
       if (cheap.kind === 'boat') {
