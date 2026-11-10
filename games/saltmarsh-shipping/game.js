@@ -662,7 +662,7 @@
         if (offer) button.dataset.act = 'light';
         else {
           button.disabled = true;
-          button.textContent = stage >= 2 ? 'Burning' : 'Not yet';
+          button.textContent = M.lightClosed ? M.lightClosed(state, spec) : (stage >= 2 ? 'Burning' : 'Not yet');
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -903,6 +903,8 @@
   }
 
   function render(fromClock) {
+    var pin = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var pinTop = pin ? pin.getBoundingClientRect().top : null;
     var sec = Math.floor(Date.now() / 1000);
     view.allowPrices = !fromClock || view.priceSec !== sec;
     if (view.allowPrices) view.priceSec = sec;
@@ -1018,6 +1020,11 @@
       if (el.textContent) el.setAttribute('title', el.textContent);
     });
     if (audio && audio.render) audio.render();
+    var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    if (pinned && pinTop != null) {
+      var shift = pinned.getBoundingClientRect().top - pinTop;
+      if (shift > 2) window.scrollBy(0, shift);
+    }
   }
 
   function showAway(summary, detail) {

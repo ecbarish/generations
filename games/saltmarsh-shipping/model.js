@@ -1073,6 +1073,18 @@
     if (!routesUnlocked(state) || !spec) return false;
     return routesSailing(state) >= (spec.needRoutes || 1);
   }
+  function lightClosed(state, spec) {
+    if (!spec) return 'Not yet';
+    if ((state.lights && state.lights[spec.id] || 0) >= 2) return 'Burning';
+    if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) return 'Choose the quay first.';
+    var need = spec.needRoutes || 1;
+    var have = routesSailing(state);
+    if (have < need) {
+      var left = need - have;
+      return left === 1 ? 'Sign one more route first.' : 'Sign ' + left + ' more routes first.';
+    }
+    return 'Not yet';
+  }
   function lightOffers(state, lock) {
     if (!routesUnlocked(state)) return [];
     var out = [];
@@ -1112,23 +1124,23 @@
      make the list dearer and a slower office is not stuck on an old coin figure. */
   var VOYAGE_AT = 0;
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Food for the crew', stake: 90, choice: [
+    { id: 'victuals', name: 'Food for the crew', stake: 32, choice: [
       { id: 'fresh', name: 'Fresh food', line: 'Fresh food makes every route pay a little more.' },
       { id: 'pork', name: 'Salt pork', line: 'Salt pork puts part of the price back in the chest.' }
     ]},
-    { id: 'canvas', name: 'Canvas for the sails', stake: 90, line: 'New canvas. Every route pays a little more.' },
-    { id: 'coal', name: 'Coal for the lamps', stake: 90, line: 'The lamps are coaled. Every route pays a little more.' },
-    { id: 'pilot', name: 'A pilot for the bar', stake: 90, choice: [
+    { id: 'canvas', name: 'Canvas for the sails', stake: 32, line: 'New canvas. Every route pays a little more.' },
+    { id: 'coal', name: 'Coal for the lamps', stake: 32, line: 'The lamps are coaled. Every route pays a little more.' },
+    { id: 'pilot', name: 'A pilot for the bar', stake: 32, choice: [
       { id: 'pilot', name: 'A pilot for the bar', line: 'A pilot makes every route pay a little more.' },
       { id: 'chart', name: 'A bought chart', line: 'A bought chart makes the boats earn a little more.' }
     ]},
-    { id: 'casks', name: 'Water casks', stake: 90, line: 'The hold rides lower. The boats earn a little more.' },
-    { id: 'cable', name: 'A new anchor cable', stake: 90, line: 'The mooring holds. The boats earn a little more.' },
-    { id: 'flag', name: 'A house flag', stake: 90, line: 'The ship shows her house flag. Routes pay a little more.' },
-    { id: 'coats', name: 'Coats for the night watch', stake: 90, line: 'The watch stays on deck. The boats earn a little more.' },
-    { id: 'letter', name: 'A letter from the harbour master', stake: 90, line: 'The letter names the deep channel. Routes pay a little more.' },
-    { id: 'biscuit', name: 'Biscuit for the galley', stake: 90, line: 'The galley is stocked. The boats earn a little more.' },
-    { id: 'tide', name: 'The tide table', stake: 90, line: 'The hour of sailing is written down.' }
+    { id: 'casks', name: 'Water casks', stake: 32, line: 'The hold rides lower. The boats earn a little more.' },
+    { id: 'cable', name: 'A new anchor cable', stake: 32, line: 'The mooring holds. The boats earn a little more.' },
+    { id: 'flag', name: 'A house flag', stake: 32, line: 'The ship shows her house flag. Routes pay a little more.' },
+    { id: 'coats', name: 'Coats for the night watch', stake: 32, line: 'The watch stays on deck. The boats earn a little more.' },
+    { id: 'letter', name: 'A letter from the harbour master', stake: 32, line: 'The letter names the deep channel. Routes pay a little more.' },
+    { id: 'biscuit', name: 'Biscuit for the galley', stake: 32, line: 'The galley is stocked. The boats earn a little more.' },
+    { id: 'tide', name: 'The tide table', stake: 32, line: 'The hour of sailing is written down.' }
   ];
   var WORK_SPAN = 32;
   var WORK_VERBS = ['Tar', 'Oil', 'Mend', 'Paint', 'Coil', 'Hang', 'Caulk', 'Sweep'];
@@ -1413,8 +1425,8 @@
     var sailing = routesSailing(state);
     var lit = lightsLit(state);
     if (id === 'squall') return sailing === 1 && lit === 0;
-    if (id === 'request') return (state.lights.pier || 0) >= 2 && (state.lights.headland || 0) < 2;
-    if (id === 'windfall') return (state.lights.headland || 0) >= 2 && (state.lights.reed || 0) < 2;
+    if (id === 'request') return lit === 1;
+    if (id === 'windfall') return lit === 2;
     return false;
   }
   function eventQuote(state, id) {
@@ -1426,7 +1438,7 @@
     if (id === 'squall') return {
       goal: 'Choose to wait the squall out, or sail through it.',
       cards: [
-        { which: 'wait', name: 'Wait the squall out', line: 'The next contract on the desk costs less.' },
+        { which: 'wait', name: 'Wait the squall out', line: 'Every contract on the desk costs less.' },
         { which: 'sail', name: 'Sail through the squall', line: 'A purse comes in now. Night runs keep a little less until the Pier Lighthouse is burning.' }
       ]
     };
@@ -1483,9 +1495,20 @@
     var rate = Math.max(1, officeRate(state));
     if (id === 'squall' && which === 'wait') {
       state.events.squall = 'wait';
-      state.routeDiscount = 0.25;
-      state.quotes = {};
-      pushLog(state, 'The squall passed. The next contract on the desk costs less.', now);
+      state.routeDiscount = 0;
+      var shown = routeOffers(state, true);
+      if (!state.quotes) state.quotes = {};
+      shown.forEach(function (row) {
+        var key = row.id + ':' + row.depth;
+        var prev = state.quotes[key];
+        if (!prev || !(prev.cost > 0)) return;
+        state.quotes[key] = {
+          id: prev.id, depth: prev.depth,
+          cost: Math.max(1, Math.round(prev.cost * 0.75)),
+          gross: prev.gross, risk: prev.risk
+        };
+      });
+      pushLog(state, 'The squall passed. The contracts on the desk cost less.', now);
     } else if (id === 'squall') {
       state.events.squall = 'sail';
       state.nightLeak = 0.12;
@@ -2034,6 +2057,7 @@
     gearOffer: gearOffer,
     buyGear: buyGear,
     lightOffers: lightOffers,
+    lightClosed: lightClosed,
     buildLight: buildLight,
     voyageOpen: voyageOpen,
     preparationCost: preparationCost,

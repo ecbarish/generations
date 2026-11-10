@@ -72,12 +72,7 @@
     if (!need) return base + '.';
     var rate = M.officeRate(state);
     var sec = rate > 0 ? Math.ceil((cost - state.cash) / rate) : 0;
-    if (sec > 0) {
-      var when = sec < 90
-        ? 'about ' + sec + (sec === 1 ? ' second' : ' seconds')
-        : 'about ' + Math.max(2, Math.ceil(sec / 60)) + ' minutes';
-      return base + '. ' + need + ' more, ' + when + '.';
-    }
+    if (sec > 0) return base + '. ' + need + ', ' + sec + 's.';
     return base + '. ' + need + ' more.';
   }
 
@@ -112,14 +107,14 @@
     }
     if (M.voyageOpen && M.voyageOpen(state) && M.nextPreparation) {
       var packing = M.nextPreparation(state);
-      if (packing) {
-        var packingLine = packing.choice
+      if (packing && state.cash >= packing.cost) {
+        var readyLine = packing.choice
           ? 'Choose ' + packing.choice[0].name.toLowerCase() + ', or ' + packing.choice[1].name.toLowerCase() + ', ' + M.coins(packing.cost)
           : 'Pack ' + packing.name + ', ' + M.coins(packing.cost);
         return {
           kind: 'prep', id: packing.id, which: packing.choice ? packing.choice[0].id : '', rank: 0, cost: packing.cost,
           selector: '#provision',
-          sentence: withNeed(state, packingLine, packing.cost)
+          sentence: withNeed(state, readyLine, packing.cost)
         };
       }
     }
@@ -179,9 +174,44 @@
         sentence: withNeed(state, sentence, prep.cost)
       };
     }
+    var rate = Math.max(1, M.officeRate(state));
+    function payBoat() {
+      var best = null;
+      var bestPay = Infinity;
+      var tier;
+      for (tier = 0; tier < M.BOATS.length; tier++) {
+        var one = M.quote(state, tier, 1);
+        if (!(one.count > 0) || !(state.cash >= one.cost)) continue;
+        var pay = M.paybackSeconds(state, tier);
+        if (pay < bestPay) {
+          bestPay = pay;
+          best = { tier: tier, cost: one.cost, name: M.BOATS[tier].name };
+        }
+      }
+      if (!best || bestPay > 90 || best.cost > rate * 20) return null;
+      return {
+        kind: 'boat', id: 'boat', tier: best.tier, count: 1, rank: 2, cost: best.cost,
+        selector: '#boats [data-i="' + best.tier + '"]',
+        sentence: 'Buy one ' + best.name.toLowerCase() + ', ' + M.coins(best.cost) + '. It earns while the list waits.'
+      };
+    }
+    if (M.voyageOpen && M.voyageOpen(state)) {
+      var waiting = prepAct();
+      if (waiting && state.cash < waiting.cost) {
+        var tap = payBoat();
+        if (tap) return tap;
+        var signed = routeAct();
+        if (signed && state.cash >= signed.cost && signed.cost <= rate * 20) return signed;
+      }
+    }
+    var raisedNow = lightAct();
+    var sideWork = workAct();
+    var sideErrand = errandAct();
+    if (raisedNow && (!sideWork || raisedNow.cost <= sideWork.cost) && (!sideErrand || raisedNow.cost <= sideErrand.cost)) {
+      return raisedNow;
+    }
     var made = { route: routeAct, boat: boatAct, work: workAct, errand: errandAct, prep: prepAct, light: lightAct };
     var order = ['light', 'route', 'boat', 'work', 'errand', 'prep'];
-    var rate = Math.max(1, M.officeRate(state));
     var limit = rate * 38;
     var cursor = state.goalCursor || 0;
     var step, opt;
@@ -223,12 +253,12 @@
     if (choice) return choice;
     if (!phase.fleet) {
       left = M.UNLOCK_AT - state.boats[1].owned;
-      if (left > 0) return 'Buy ' + more(left, 'sloop', 'sloops') + '. At ten, the fleet chart unrolls.';
+      if (left > 0) return withNeed(state, 'Buy ' + more(left, 'sloop', 'sloops') + '. At ten, the fleet chart unrolls', M.quote(state, 1, left).cost);
     }
     if (M.canHire(state, 1)) return M.askLine(1);
     if (!phase.routesReady) {
       left = M.UNLOCK_AT - state.boats[2].owned;
-      return 'Buy ' + more(left, 'schooner', 'schooners') + '. Ten open the trade routes on the next tide.';
+      return withNeed(state, 'Buy ' + more(left, 'schooner', 'schooners') + '. Ten open the trade routes on the next tide', M.quote(state, 2, left).cost);
     }
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
@@ -244,16 +274,16 @@
     }
     if (state.boats[3].owned < M.UNLOCK_AT) {
       left = M.UNLOCK_AT - state.boats[3].owned;
-      return 'Buy ' + more(left, 'bark', 'barks') + '. Ten barks, and Capt. Pell can take a deep boat.';
+      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Ten for Capt. Pell, then two more for the quay', M.quote(state, 3, left).cost);
     }
     if (M.canHire(state, 3)) return M.askLine(3);
     if (state.boats[3].owned < M.BARK_QUAY) {
       left = M.BARK_QUAY - state.boats[3].owned;
-      return 'Buy ' + more(left, 'bark', 'barks') + '. Then the quay grows longer, and a choice comes with it.';
+      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Twelve opens the quay choice', M.quote(state, 3, left).cost);
     }
     if (state.boats[3].owned < M.BARK_LAMP) {
       left = M.BARK_LAMP - state.boats[3].owned;
-      return 'Buy ' + more(left, 'bark', 'barks') + '. Then a house lamp shows in the office window.';
+      return withNeed(state, 'Buy ' + more(left, 'bark', 'barks') + '. Sixteen shows a house lamp', M.quote(state, 3, left).cost);
     }
     var act = nextAct(state);
     if (act) return act.sentence;

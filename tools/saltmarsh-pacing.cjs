@@ -512,6 +512,10 @@
     var sim = 1700000000000;
     var firstLight = null;
     var fourLights = null;
+    var voyageAt = null;
+    var voyageBuys = 0;
+    var voyageGap = 0;
+    var lastVoyage = null;
     var ready = null;
     var seen = '';
     var sec;
@@ -521,12 +525,18 @@
       M.addCash(state, M.income(state) + M.routeIncome(state));
       M.collectCaptains(state, sim, 1);
       var act = goalAction(M, P, state, sim);
+      if (voyageAt == null && M.voyageOpen(state)) voyageAt = sec;
       if (!act) continue;
       if (act.id !== seen) { seen = act.id; ready = null; }
       if (!act.affordable) { ready = null; continue; }
       if (ready == null) ready = sec;
       if (sec - ready < 2) continue;
       act.buy();
+      if (voyageAt != null && !state.ended) {
+        if (lastVoyage != null) voyageGap = Math.max(voyageGap, sec - lastVoyage);
+        lastVoyage = sec;
+        if (/^boat:|^route:/.test(act.id)) voyageBuys += 1;
+      }
       if (firstLight == null && M.lightsLit(state) > 0) firstLight = sec;
       if (fourLights == null && M.lightsLit(state) >= 4) fourLights = sec;
       seen = '';
@@ -536,6 +546,9 @@
       endingAt: state.ended ? state.played : null,
       firstLight: firstLight,
       fourLights: fourLights,
+      voyageAt: voyageAt,
+      voyageBuys: voyageBuys,
+      voyageGap: voyageGap,
       played: state.played,
       hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0)
     };
@@ -612,7 +625,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       console.log('browser longest no-action stretch, minutes 4 to 120: ' + browser.maxGap + 's');
       console.log('model longest no-action stretch, minutes 4 to 30: ' + nodeRun.maxGap + 's');
       assert(browser.ended, 'browser greedy reached the ending' + (browser.goal ? ' goal ' + browser.goal : '') + (browser.fail ? ' ' + browser.fail : ''));
-      assert(browserEnding >= 1500 && browserEnding <= 2400, 'browser ending about 25 to 40 minutes, was ' + browserEnding);
+      assert(browserEnding >= 900 && browserEnding <= 1600, 'browser ending in the tightened sitting, was ' + browserEnding);
       assert(apart <= 0.10, 'model matches the browser within 10%, browser ' + browserEnding + ' model ' + nodeEnding);
       assert(browser.maxGap <= 90, 'browser play stays within about 90s, was ' + browser.maxGap);
       console.log('validation: passed');
