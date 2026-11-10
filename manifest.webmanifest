@@ -30,16 +30,20 @@
   ],
   "shortcuts": [
     {
-      "name": "Wildbond",
-      "url": "play/wildbond/"
+      "name": "Little Ranch",
+      "url": "games/little-ranch/index.html"
     },
     {
-      "name": "Realmbound",
-      "url": "games/realmbound/index.html"
+      "name": "Keymaster",
+      "url": "games/keymaster/index.html"
     },
     {
-      "name": "Starfall",
-      "url": "play/starfall/"
+      "name": "Saltmarsh Shipping Office",
+      "url": "games/saltmarsh-shipping/index.html"
+    },
+    {
+      "name": "Night Market Stalls",
+      "url": "games/night-market/index.html"
     }
   ]
 }

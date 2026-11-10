@@ -1,19 +1,25 @@
 /* Hub, Lab and game pages (HUB-REDESIGN, 2026-10-14). Reads the display-only save index; never writes a save
-   except when the player confirms "Erase and start over" on a card. Classic editions are never shown. */
+   except when the player confirms "Erase and start over" on a card. Classic editions are never shown.
+   Lantern Bowl has been shelved since 2026-10-18, so it is never a hub or Lab card. Its own address still opens. */
 (function () {
   'use strict';
-  const VERSION = '1.8.0';
-  const CURRENT = ['little-ranch', 'starfall-preview', 'realmbound']; // the headline games on the hub
+  const VERSION = '1.9.0';
+  // Focus row. Night Market joins when its catalogue card is present (NM-HUB). A missing id is skipped.
+  const CURRENT = ['little-ranch', 'keymaster', 'saltmarsh-shipping', 'night-market'];
   const PAGES = { 'starfall-preview': 'game/starfall.html', realmbound: 'game/realmbound.html' };
   const SHORT = {
     'little-ranch': 'A toy for ages 2 to 4. Feed, bath, peekaboo and bedtime. No reading, nothing to lose.',
+    keymaster: 'Five homes on Alder Street and $200,000. Run the numbers, then make an offer or pass.',
+    'saltmarsh-shipping': 'Row the first cargoes, then send boats along the Saltmarsh coast until the last voyage.',
+    'night-market': 'Lanterns over a short lane of stalls. You work the Tea Stall yourself before Mei will run it.',
     'starfall-preview': 'Build a frontier guild town: post jobs, cook at the inn, work the forge, then hire help.',
     realmbound: 'A classic-MMO adventure from level 1 to 60. Quest, dungeon, raid, or let Auto play.'
   };
-  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1, 'saltmarsh-shipping': 1 };
+  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', otherworld: 1, 'little-ranch': 1, 'saltmarsh-shipping': 1 };
+  const SHELVED_IDS = new Set(['lantern-bowl']);
   const GODOT_SAVES = {};
   const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1', keymaster: 'keymaster-save-v1' };
-  const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer);
+  const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer && !SHELVED_IDS.has(g.id));
   let idx = {};
   try { idx = window.ArcadeSportsProgress ? ArcadeSportsProgress.forHall(Arcade.readIndex()) : Arcade.readIndex(); } catch (_) { idx = {}; }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -50,12 +56,13 @@
     render(el, list, opts) { if (!el) return; opts = Object.assign({ seen: {} }, opts); el.innerHTML = list.map(g => card(g, opts)).join(''); wireResets(el); },
     // Previews are Godot games: their saves live in the browser's IndexedDB file system, never in the shared index.
     // Read-only: only look inside the database if it already exists (never create it), and only list keys.
-    // Old hub links (v1.7 and the canvas hall) keep working: section anchors of current games land on Play now,
-    // the others move to the matching section of the Lab.
+    // Old hub links (v1.7 and the canvas hall) keep working: a section that still has a Play now game stays
+    // on the hub. A section whose games have moved to the Lab follows them.
     redirectOldHash() {
       const h = location.hash.slice(1); if (!h) return;
       const labKinds = this.lab().map(g => 'kind-' + g.kind);
-      if (h === 'more-games' || h === 'kindsNav' || (labKinds.includes(h) && !['kind-adventure', 'kind-build', 'kind-kids'].includes(h))) { location.replace('lab.html' + (h.startsWith('kind-') ? '#' + h : '')); return; }
+      const currentKinds = this.current().map(g => 'kind-' + g.kind);
+      if (h === 'more-games' || h === 'kindsNav' || (labKinds.includes(h) && !currentKinds.includes(h))) { location.replace('lab.html' + (h.startsWith('kind-') ? '#' + h : '')); return; }
       if (/^(kind-|launch)/.test(h)) { const t = document.getElementById('games'); if (t) t.scrollIntoView(); }
     },
     jump() { const t = location.hash && document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); },

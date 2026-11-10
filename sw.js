@@ -1,8 +1,8 @@
 'use strict';
 /* Offline play (L5). Online first: with internet, every page, script and style comes fresh from the site (so a new
    release shows up on the next reload, with nothing to bump), and each copy is kept. Without internet, or when the
-   site is very slow, the kept copy is used. The hub prepares a complete copy of the eight games on its first visit,
-   so they work offline even before you've opened them. Saves are never touched (they live in localStorage).
+   site is very slow, the kept copy is used. The hub prepares the focus games and the older direct-link games
+   on its first visit, so they work offline even before you've opened them. Saves are never touched (they live in localStorage).
    CACHE_VERSION only needs changing if this worker's own storage format changes. See docs/offline.md. */
 const CACHE_VERSION = '2';
 const ROOT = new URL('./', self.location.href);
@@ -10,9 +10,11 @@ const PREFIX = 'idle-arcade-shell:' + ROOT.href + ':';
 const CACHE = PREFIX + CACHE_VERSION;
 const SLOW_MS = 4000; // past this, a waiting network request gives way to the kept copy (it still refreshes it)
 const PAGES = ['index.html', 'lab.html', 'game/starfall.html', 'game/realmbound.html', 'promo.html', 'playtest.html', 'credits.html',
+  'games/little-ranch/index.html', 'games/keymaster/index.html', 'games/saltmarsh-shipping/index.html', 'games/night-market/index.html',
   'games/primordial/index.html', 'games/starfall-guild/index.html', 'games/realmbound/index.html',
   'games/otherworld/index.html', 'games/diamond-career/index.html', 'games/diamond-manager/index.html',
-  'games/lantern-bowl/index.html'];
+  'games/lantern-bowl/index.html', 'games/storm-front/index.html', 'games/lighthouse-watch/index.html',
+  'games/briskets-crossing/index.html', 'games/ember-bricks/index.html'];
 const CORE = ['manifest.webmanifest', 'shared/offline.js', 'icons/arcade.svg', 'icons/arcade-192.png', 'icons/arcade-512.png'];
 function local(path, base) { const u = new URL(path, base || ROOT); return u.origin === ROOT.origin && u.pathname.startsWith(ROOT.pathname) ? u : null; }
 // HTML is authored in this repo. Only explicit scripts/styles and credits notices are followed; no crawled links or remote assets.
