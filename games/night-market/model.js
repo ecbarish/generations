@@ -100,7 +100,7 @@
       base: 62000, growth: 1.1, rate: 540, serves: 8, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
-      next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
+      next: 'The Story Mat opens at 15:00, or at 10 incense trays, whichever comes first.'
     },
     {
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
@@ -645,6 +645,8 @@
   /* Fifteen minutes of visible play. Choice cards and setup count. A hidden
      tab does not. The pacing buyer never calls noteWall, so its clock stays put. */
   var MAT_CLOCK = 900;
+  /* Night 2 and after begin with four first cups, so the tea ladder is close. */
+  var NIGHT_PURSE = 24;
   function noteWall(state, now, hidden) {
     if (!state || !state.night || !(now >= 0)) return 0;
     var night = state.night;
@@ -671,6 +673,11 @@
     var mins = Math.floor(left / 60);
     var secs = left % 60;
     return 'Old Wen opens the Story Mat in ' + mins + ':' + (secs < 10 ? '0' : '') + secs + '.';
+  }
+  /* One rule for every surface. The clock and the trays are the same gate. */
+  function matGateLine(state) {
+    var trays = unlockNeed(state, STALLS.length - 1);
+    return 'The Story Mat opens at 15:00, or at ' + trays + ' incense trays, whichever comes first.';
   }
   function matByClock(state) {
     return !!(state && state.night && (state.night.wallMs || 0) >= MAT_CLOCK * 1000);
@@ -892,12 +899,16 @@
     }
     /* A lower-prices choice never touches the Story Mat. */
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
-    /* The first tray is the long save between minute 2 and minute 15.
-       Later trays stay on the 62,000 curve, so that one lower price does not
-       speed the rest of the night. A charm that changes the base scales this too. */
+    /* The first tray and the first mooncake are the long saves, when nothing
+       else on the table pays for itself within a minute and a half. Later
+       copies stay on the catalogue curve. A charm that changes the base scales this too. */
     if (stall.id === 'incense' && owned === 0) {
       var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
-      total += base * ease * (45000 / 62000 - 1);
+      total += base * ease * (34000 / 62000 - 1);
+    }
+    if (stall.id === 'mooncake' && owned === 0) {
+      var moonEase = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
+      total += base * moonEase * (3600 / 6400 - 1);
     }
     /* At fifteen minutes of visible play the first mat costs about twelve
        seconds of what the lane earns then, and never outside eight to twenty.
@@ -1171,6 +1182,9 @@
     if (state && state.night && state.night.kept && state.stalls[mat] && state.stalls[mat].owned >= 1 && line.indexOf('stayed open') < 0) {
       line = 'The lane stayed open. ' + line;
     }
+    if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 10 && line.indexOf('Ten tea stalls') !== 0) {
+      line = 'Ten tea stalls open the Dumpling Cart. ' + line;
+    }
     if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 1 && state.stalls[0].serves < 3 && line.indexOf('Night ' + state.night.n) !== 0) {
       var prevNight = state.meta && state.meta.nights && state.meta.nights.length ? state.meta.nights[state.meta.nights.length - 1] : null;
       var prevOmen = prevNight && omenById(prevNight.omen);
@@ -1282,7 +1296,7 @@
     var lead = 'You were gone ' + Arcade.fmtTime(summary.away) + '.';
     if (summary.capped) lead += ' The box only holds ' + awayHours(off.cap) + ', so ' + Arcade.fmtTime(summary.credited) + ' counted.';
     else lead += ' The stalls kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
-    lead += ' While away, stalls earn ' + Math.round(off.rate * 100) + '%.';
+    lead += ' Away pay is ' + Math.round(off.rate * 100) + '% of what the stalls earn.';
     var box = summary.gained > 0
       ? Arcade.fmt(summary.gained) + ' coins are in the box.'
       : 'The box is empty. Nothing was earning while you were gone.';
@@ -1496,6 +1510,7 @@
   function createIdle(state, save) {
     return Idle.create({
     getRate: function () {
+      if (typeof document !== 'undefined' && document.hidden) return 0;
       if (dawnDue(state) && !(state.night && state.night.kept)) return 0;
       return income(state);
     },
@@ -4154,7 +4169,11 @@
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
     if (stall.id === 'incense' && owned === 0) {
       var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
-      total += base * ease * (45000 / 62000 - 1);
+      total += base * ease * (34000 / 62000 - 1);
+    }
+    if (stall.id === 'mooncake' && owned === 0) {
+      var moonEase = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
+      total += base * moonEase * (3600 / 6400 - 1);
     }
     return total;
   }
@@ -4755,7 +4774,7 @@
     var nextSeed = stepSeed(state.night && state.night.seed ? state.night.seed : 1);
     var teaPrice = STALLS[0].base * seedPriceFactor(nextSeed, 0);
     var matBase = STALLS[STALLS.length - 1].base * seedPriceFactor(nextSeed, STALLS.length - 1);
-    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + '. The Story Mat will cost ' + moneyText(matBase) + '.';
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + ', with ' + moneyText(NIGHT_PURSE) + ' coins in the purse. Ten tea stalls open the Dumpling Cart. The Story Mat will cost ' + moneyText(matBase) + '.';
     return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {
@@ -4793,7 +4812,7 @@
     recordNight(state);
     var n = (state.night && state.night.n > 0 ? state.night.n : 1) + 1;
     var seed = stepSeed(state.night ? state.night.seed : 1);
-    state.cash = 0;
+    state.cash = n > 1 ? NIGHT_PURSE : 0;
     state.lifetime = 0;
     state.bulk = 1;
     state.stalls = STALLS.map(function () { return { owned: 0, serves: 0, hired: false }; });
@@ -4879,6 +4898,8 @@
     prepareMat: prepareMat,
     noteWall: noteWall,
     matCountdown: matCountdown,
+    matGateLine: matGateLine,
+    NIGHT_PURSE: NIGHT_PURSE,
     matSecondsLeft: matSecondsLeft,
     matByClock: matByClock,
     matLivePrice: matLivePrice,
@@ -4932,6 +4953,7 @@
     unlocked: unlocked,
     unlockNeed: unlockNeed,
     income: income,
+    offlineOf: offlineOf,
     optionEV: optionEV,
     choiceCashflow: choiceCashflow,
     surgeEV: surgeEV,

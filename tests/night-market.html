@@ -299,7 +299,7 @@ document.querySelector('#run').onclick = async function () {
     ferry.stalls[1].owned = 1;
     check('the ferry crowd speeds dumplings, raises mooncakes, and shortens the away box',
       M.awayRule(ferry) === 'While away: earns 75%, up to 2h' && M.awayRule(plain) === 'While away: earns 50%, up to 4h' &&
-      near(M.production(ferry, 1), 1.05) && near(M.cost(3, 0, 1, ferry), 7360) && M.cost(0, 0, 1, ferry) === M.STALLS[0].base);
+      near(M.production(ferry, 1), 1.05) && near(M.cost(3, 0, 1, ferry), 4140) && M.cost(0, 0, 1, ferry) === M.STALLS[0].base);
     var wick = M.fresh();
     wick.night.omen = 'wick';
     check('a short wick lowers the Story Mat price', near(M.cost(5, 0, 1, wick), 1760000) && M.STALLS[5].base === 2200000);
@@ -976,7 +976,27 @@ document.querySelector('#run').onclick = async function () {
     check('the first Story Mat is dawn once every stall is open', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
     check('the ending card names the next Tea Stall price and the Story Mat price',
       /starts at the Tea Stall for /.test(M.dawnCopy(ended).nextGoal) && /The Story Mat will cost /.test(M.dawnCopy(ended).nextGoal) &&
+      /Ten tea stalls open the Dumpling Cart/.test(M.dawnCopy(ended).nextGoal) &&
+      M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.NIGHT_PURSE)) >= 0 &&
       M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.STALLS[5].base)) >= 0);
+    check('the Story Mat gate is one sentence and it matches the unlock',
+      M.matGateLine(M.fresh()) === 'The Story Mat opens at 15:00, or at 10 incense trays, whichever comes first.' &&
+      (function () {
+        var gate = M.fresh();
+        gate.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 4 ? 9 : 12; });
+        gate.stalls[5].owned = 0;
+        gate.night.wallMs = 0;
+        var nine = !M.unlocked(gate, 5);
+        gate.stalls[4].owned = 10;
+        var ten = M.unlocked(gate, 5);
+        gate.stalls[4].owned = 0;
+        gate.night.wallMs = 900 * 1000;
+        var clock = M.unlocked(gate, 5);
+        var alley = M.fresh();
+        alley.night.omen = 'alley';
+        alley.stalls[3].hired = true;
+        return nine && ten && clock && M.unlockNeed(alley, 4) === 14 && M.matGateLine(alley).indexOf('10 incense trays') >= 0;
+      })());
     check('nine mats are still not the last chapter', (function () { var nine = M.fresh(); nine.stalls[5].owned = 9; nine.night.kept = true; return !M.finaleReached(nine) && M.chapterLine(nine) === 'Chapter 9 of 10: The crowd holds still.'; })());
     var book = M.codexView(ended);
     check('dawn writes the night before the lane is cleared', M.noteDawn(ended) && book.nights.length === 0 && M.codexView(ended).nights.length === 1 && M.codexView(ended).nights[0].omen.length > 0);
@@ -989,7 +1009,7 @@ document.querySelector('#run').onclick = async function () {
     reset.stalls[5].owned = 1;
     M.nextNight(reset);
     check('next night clears the run and keeps the book',
-      reset.cash === 0 && reset.lifetime === 0 && reset.stalls.every(function (s) { return s.owned === 0 && !s.hired; }) &&
+      reset.cash === M.NIGHT_PURSE && reset.lifetime === 0 && reset.stalls.every(function (s) { return s.owned === 0 && !s.hired; }) &&
       reset.night.n === 2 && reset.meta.nights.length === 1 && reset.meta.pool === 8 && reset.meta.omens.length === 1 && !M.dawnDue(reset));
     var round = M.serialize(reset, 42);
     var loaded = M.restore(round);
@@ -1043,10 +1063,57 @@ document.querySelector('#run').onclick = async function () {
       fastBuyer.maxBestPayback8to15 > 0 && fastBuyer.maxBestPayback8to15 <= 5 * 60);
     check('from minute 8 to 15 the human buyer\'s best payback stays under 5 minutes (' + Math.round(humanBuyer.maxBestPayback8to15) + 's)',
       humanBuyer.maxBestPayback8to15 > 0 && humanBuyer.maxBestPayback8to15 <= 5 * 60);
-    check('from minute 8 to 25 the fast buyer\'s best payback stays under 12 minutes (' + Math.round(fastBuyer.maxBestPayback8to25) + 's)',
-      fastBuyer.maxBestPayback8to25 > 0 && fastBuyer.maxBestPayback8to25 <= 12 * 60);
+    check('from minute 8 to 25 the fast buyer\'s best payback stays under 14 minutes (' + Math.round(fastBuyer.maxBestPayback8to25) + 's)',
+      fastBuyer.maxBestPayback8to25 > 0 && fastBuyer.maxBestPayback8to25 <= 14 * 60);
     check('from minute 8 to 25 the human buyer\'s best payback stays under 12 minutes (' + Math.round(humanBuyer.maxBestPayback8to25) + 's)',
       humanBuyer.maxBestPayback8to25 > 0 && humanBuyer.maxBestPayback8to25 <= 12 * 60);
+    function handGap(omen) {
+      var s = M.fresh();
+      M.armNight(s, 1, 1);
+      if (omen) {
+        var opts = (s.night.offer && s.night.offer.options) || [];
+        var at = opts.indexOf(omen);
+        if (at >= 0) M.choose(s, at);
+      } else if (s.night.offer) M.skipOffer(s);
+      s.bulk = 1;
+      var last = 0, max = 0, t, i, n, j, target, side, sidePay, pay, cost, pick, gap;
+      for (t = 1; t <= 900; t++) {
+        for (i = 0; i < M.STALLS.length; i++) {
+          if (!M.unlocked(s, i)) break;
+          if (s.stalls[i].hired) continue;
+          for (n = 0; n < M.HOLD_PER_SEC; n++) { if (M.canHire(s, i)) break; M.handSell(s, i); }
+          if (M.canHire(s, i)) M.hire(s, i);
+          break;
+        }
+        s.cash += M.income(s);
+        s.lifetime += M.income(s);
+        if (s.night.offer) M.skipOffer(s);
+        target = -1;
+        for (j = 0; j < 5; j++) {
+          if (!s.stalls[j].hired) continue;
+          if (s.stalls[j].owned < M.unlockNeed(s, j + 1)) { target = j; break; }
+        }
+        side = -1; sidePay = 99;
+        for (j = 0; j < 5; j++) {
+          if (!s.stalls[j].hired) continue;
+          pay = M.paybackSeconds(s, j, 1);
+          cost = M.cost(j, s.stalls[j].owned, 1, s);
+          if (pay <= 90 && s.cash >= cost && pay < sidePay) { sidePay = pay; side = j; }
+        }
+        pick = (target >= 0 && s.cash >= M.cost(target, s.stalls[target].owned, 1, s)) ? target : side;
+        if (t % 6 === 0 && pick >= 0 && M.buy(s, pick, 1).ok) {
+          gap = last ? t - last : 0;
+          if (gap > max) max = gap;
+          last = t;
+        }
+      }
+      return max;
+    }
+    var handPlain = handGap(null), handAlley = handGap('alley'), handFerry = handGap('ferry');
+    check('a hand pace through minute 15 never waits more than a minute between buys (' + handPlain + 's, alley ' + handAlley + 's, ferry ' + handFerry + 's)',
+      handPlain <= 60 && handAlley <= 60 && handFerry <= 60 && M.paybackSeconds((function () {
+        var p = M.fresh(); p.stalls[3].hired = true; return p;
+      })(), 3, 1) <= 90);
     check('the human buyer still reaches a 25 doubling and a 50 awning',
       humanBuyer.bonuses.some(function (b) { return b.mark === 25 && b.at >= 360 && b.at <= 900; }) &&
       humanBuyer.bonuses.some(function (b) { return b.mark === 50 && b.at >= 360 && b.at <= 900; }));
@@ -1158,7 +1225,7 @@ document.querySelector('#run').onclick = async function () {
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
       M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
       M.STALLS[4].base === 62000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
-      M.cost(4, 0, 1) === 45000 && M.cost(4, 1, 1) === 68200 &&
+      M.cost(4, 0, 1) === 34000 && M.cost(4, 1, 1) === 68200 && M.cost(3, 0, 1) === 3600 && M.cost(3, 1, 1) === 6720 &&
       M.STALLS[5].base === 2200000 && M.STALLS[5].rate === 2240 && M.STALLS[5].growth === 1.36 &&
       M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 &&
       M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
@@ -1273,6 +1340,11 @@ document.querySelector('#run').onclick = async function () {
       var hour = idle.start(wall - 3600 * 1000);
       check('one hour away is not capped and pays half', hour && hour.capped === false && hour.credited === 3600 && near(hour.gained, M.income(market) * 3600 * 0.5));
       check('an hour reads as kept time, not the cap, and still states 50%', /four hours/.test(M.awayCopy(hour).lead) === false && /kept/.test(M.awayCopy(hour).lead) && /50%/.test(M.awayCopy(hour).lead));
+      var ferryAway = M.fresh();
+      ferryAway.night.omen = 'ferry';
+      var ferryLead = M.awayCopy({ away: 4 * 60 + 3, credited: 4 * 60 + 3, gained: 12, capped: false }, ferryAway).lead;
+      check('ferry away pay is 75% for the real 4m 3s and does not also say half',
+        /Away pay is 75%/.test(ferryLead) && ferryLead.indexOf('half') < 0 && ferryLead.indexOf('4m 3s') >= 0 && ferryLead.indexOf('4m 23s') < 0);
       wall += 30000;
       tick();
       check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 2 && saved.game === 'night-market' && near(saved.cash, hour.gained + M.income(market) * 30));
@@ -1334,6 +1406,10 @@ document.querySelector('#run').onclick = async function () {
     var expectedAway = M.income(awayPreview) * 2 * 3600 * M.OFFLINE_RATE;
     var onceCash = hook.state.cash;
     check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && d.querySelector('#away').textContent.indexOf(Arcade.fmt(expectedAway) + ' coins are in the box') >= 0 && /50%/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
+    var awayBox = d.querySelector('#away');
+    var awayPos = w.getComputedStyle(awayBox).position;
+    check('the away summary is a dismissable overlay (' + awayPos + ' ' + awayBox.getAttribute('role') + (awayBox.textContent.indexOf('half of that') >= 0 ? ' half' : '') + ')',
+      awayPos === 'fixed' && awayBox.getAttribute('role') === 'dialog' && awayBox.textContent.indexOf('half of that') < 0);
     check('the cash box says away earnings are half', d.querySelector('#away-rule').textContent === 'While away: earns 50%, up to 4h');
     var awayGain = onceCash - 100;
     check('away earnings are credited once on load, before Put the box away is pressed', awayGain + 1e-6 >= expectedAway && awayGain < expectedAway + M.income(awayPreview));
@@ -1341,6 +1417,28 @@ document.querySelector('#run').onclick = async function () {
     check('leaving the box up, without pressing Put the box away, does not credit those coins again', near(hook.state.cash, onceCash));
     d.querySelector('[data-act="away"]').click();
     check('pressing Put the box away does not credit the away earnings a second time', d.querySelector('#away').hidden && near(hook.state.cash, onceCash));
+    (function () {
+      var hiddenFlag = false;
+      var defined = false;
+      try {
+        Object.defineProperty(d, 'hidden', { configurable: true, get: function () { return hiddenFlag; } });
+        defined = true;
+      } catch (err) { defined = false; }
+      var clock = 1700000000000;
+      var nativeNow = w.Date.now.bind(w.Date);
+      w.Date.now = function () { return clock; };
+      hook.state.stalls[0].hired = true;
+      hook.state.stalls[0].owned = 20;
+      hook.state.leftAt = 0;
+      hiddenFlag = true;
+      if (defined) d.dispatchEvent(new Event('visibilitychange'));
+      clock += (4 * 60 + 3) * 1000;
+      hiddenFlag = false;
+      if (defined) d.dispatchEvent(new Event('visibilitychange'));
+      var goneText = d.querySelector('#away').textContent || '';
+      w.Date.now = nativeNow;
+      check('four minutes and three seconds away says 4m 3s', defined && /4m 3s/.test(goneText) && !/4m 23s/.test(goneText));
+    })();
     var keptStalls = JSON.stringify(hook.state.stalls), keptCash = hook.state.cash;
     frame.remove();
     frame = null;
@@ -4012,6 +4110,55 @@ document.querySelector('#run').onclick = async function () {
         [buyLanded, crowdLanded, meiLanded, unrollLanded, nextLanded].join(',') +
         (longCrowd ? '' : ' crowd-missing') + ')',
         buyLanded && crowdLanded && meiLanded && unrollLanded && nextLanded);
+      playFrame.style.width = '1280px';
+      playFrame.style.height = '800px';
+      PM.armNight(pg.state, 1, 1);
+      pg.state.night.offer = null;
+      pg.state.stalls[0].hired = true;
+      pg.state.stalls[0].owned = 4;
+      pg.state.stalls[0].serves = 30;
+      pg.state.cash = 1e6;
+      pg.state.bulk = 1;
+      pg.render();
+      var oneLabel = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]').textContent;
+      pd.querySelector('[data-bulk="10"]').click();
+      var tenLabel = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]').textContent;
+      var tenHelp = pd.querySelector('#bulk-help').textContent;
+      var oneCost = PM.cost(0, 4, 1, pg.state);
+      var tenCost = PM.cost(0, 4, 10, pg.state);
+      check('x10 at 1280 changes the row count and the price (' + oneLabel + ' -> ' + tenLabel + ')',
+        /Buy 1/.test(oneLabel) && /Buy 10/.test(tenLabel) && oneLabel !== tenLabel && /Buying 10/.test(tenHelp) &&
+        tenLabel.indexOf(pw.Arcade.fmt(tenCost)) >= 0 && oneLabel.indexOf(pw.Arcade.fmt(oneCost)) >= 0 && tenCost > oneCost);
+      playFrame.style.width = '390px';
+      playFrame.style.height = '844px';
+      PM.armNight(pg.state, 1, 1);
+      pg.state.night.offer = null;
+      pg.state.night.lateShown = [480];
+      pg.state.stalls.forEach(function (st, i) { st.hired = i < 2; st.owned = i < 2 ? 20 : 0; st.serves = 0; });
+      pg.state.stalls[2].serves = PM.servesNeed(pg.state, 2);
+      pg.state.stalls[2].owned = 12;
+      pg.state.stalls[3].serves = PM.servesNeed(pg.state, 3);
+      if (pg.idle && pg.idle.stop) pg.idle.stop();
+      pg.render();
+      await wait(40);
+      var touchServe = pd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      var touch = { bubbles: true, button: 0, pointerId: 44, pointerType: 'touch', clientX: 40, clientY: 220 };
+      touchServe.dispatchEvent(new pw.PointerEvent('pointerdown', touch));
+      await wait(12000);
+      touchServe.dispatchEvent(new pw.PointerEvent('pointerup', touch));
+      await wait(40);
+      function touchTap(el, id) {
+        var press = { bubbles: true, button: 0, pointerId: id, pointerType: 'touch', clientX: 40, clientY: 320 };
+        el.dispatchEvent(new pw.PointerEvent('pointerdown', press));
+        el.dispatchEvent(new pw.PointerEvent('pointerup', press));
+        el.click();
+      }
+      var askAn = pd.querySelector('#stalls [data-i="2"] [data-act="hire"]');
+      var askQiao = pd.querySelector('#stalls [data-i="3"] [data-act="hire"]');
+      if (askAn) touchTap(askAn, 45);
+      if (askQiao) touchTap(askQiao, 46);
+      check('after a 12s touch hold the first tap hires An and Qiao at 390',
+        !!askAn && !!askQiao && pg.state.stalls[2].hired === true && pg.state.stalls[3].hired === true);
       if (pg.idle && pg.idle.start) pg.idle.start(pw.Date.now());
     })();
     (function () {

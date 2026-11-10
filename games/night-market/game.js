@@ -46,7 +46,22 @@
     if (document.hidden) {
       state.leftAt = Date.now();
       persist(M.serialize(state, state.leftAt));
-    } else state.leftAt = 0;
+      return;
+    }
+    var left = state.leftAt;
+    state.leftAt = 0;
+    if (!(left > 0)) return;
+    var now = Date.now();
+    var awaySec = (now - left) / 1000;
+    state.seen = now;
+    persist(M.serialize(state, now));
+    if (awaySec >= 60 && !awayOn) {
+      var off = M.offlineOf(state);
+      var credited = Math.min(awaySec, off.cap);
+      var gained = M.income(state) * credited * off.rate;
+      if (gained > 0) M.addCash(state, gained);
+      showAway({ away: awaySec, credited: credited, gained: gained, capped: awaySec > off.cap });
+    }
   });
   var dawnAtLoad = M.dawnDue(state);
   var rateFlashUntil = 0;
@@ -305,7 +320,7 @@
         var openAt = M.unlockNeed(state, i + 1);
         if (st.owned < openAt) {
           needLine.textContent = M.STALLS[i + 1].vendor + ' opens at ' + openAt + '.';
-          if (i + 1 === M.STALLS.length - 1) needLine.textContent = M.matSecondsLeft(state) > 0 ? M.matCountdown(state) : ('Old Wen opens at ' + openAt + ' trays.');
+          if (i + 1 === M.STALLS.length - 1) needLine.textContent = M.matSecondsLeft(state) > 0 ? M.matCountdown(state) : M.matGateLine(state);
         }
       }
     }
@@ -317,11 +332,9 @@
     var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
     var line = stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
     if (i === M.STALLS.length - 1) {
-      if (M.matSecondsLeft(state) > 0) {
-        var preview = M.matLivePrice(state);
-        if (preview > 0 && state.night) state.night.matShown = preview;
-        line = M.matCountdown(state) + (preview > 0 ? (' Price when it opens: ' + money(preview) + ' coins.') : ' Price set when it opens.');
-      } else line = 'Old Wen opens the Story Mat at ' + need + ' incense trays.';
+      var preview = M.matLivePrice(state);
+      if (preview > 0 && state.night) state.night.matShown = preview;
+      line = M.matGateLine(state) + (preview > 0 ? (' Price when it opens: ' + money(preview) + ' coins.') : '');
     }
     return line;
   }
@@ -360,7 +373,8 @@
         var bestSec = M.paybackSeconds(state, bestAt, 1);
         if (bestSec < Infinity) bestBit = ' Best payback: ' + M.STALLS[bestAt].name + ', ' + M.paybackLabel(bestSec) + '.';
       }
-      help.textContent = '1 is one copy. 10 is ten. Max stops at a minute and a half.' + bestBit + ' Next stops at the next doubling.';
+      var modeWord = state.bulk === 10 || state.bulk === '10' ? '10' : (state.bulk === 'max' ? 'Max' : (state.bulk === 'next' ? 'Next' : '1'));
+      help.textContent = 'Buying ' + modeWord + '. 1 is one copy. 10 is ten. Max stops at a minute and a half.' + bestBit + ' Next stops at the next doubling.';
     }
     $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
@@ -646,9 +660,20 @@
     box.hidden = false;
     awayOn = true;
     var per = M.income(state);
-    var scale = per > 0 ? ' The lane earns ' + money(per) + ' a second now. Away pay is half of that.' : '';
-    box.innerHTML = '<h2>' + copy.title + '</h2><p>' + copy.lead + scale + '</p><p>' + copy.box + '</p><p>' +
+    var scale = per > 0 ? ' The lane earns ' + money(per) + ' a second now.' : '';
+    box.innerHTML = '<h2 id="away-title">' + copy.title + '</h2><p>' + copy.lead + scale + '</p><p>' + copy.box + '</p><p>' +
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-labelledby', 'away-title');
+    box.style.position = 'fixed';
+    box.style.zIndex = '40';
+    box.style.left = '0.75rem';
+    box.style.right = '0.75rem';
+    box.style.top = '12vh';
+    box.style.width = 'min(28rem, calc(100% - 1.5rem))';
+    box.style.maxHeight = '70vh';
+    box.style.margin = '0 auto';
     var stalls = document.querySelector('.stalls');
     if (stalls) stalls.scrollTop = 0;
     window.scrollTo(0, 0);

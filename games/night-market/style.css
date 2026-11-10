@@ -364,7 +364,7 @@ button[aria-pressed="true"], button.ask, button.best {
    first paint, so the rows under the Story Mat do not drop when it opens. */
 /* The closed mat names its price on a second line. The next-goal box lends
    that height, so opening the mat does not shrink the row. */
-#stalls [data-i="5"] .wait { min-height: 4.8rem; }
+#stalls [data-i="5"] .wait { height: 4.8rem; min-height: 4.8rem; max-height: 4.8rem; overflow: hidden; }
 #stalls [data-i="5"] .next-goal { min-height: 3.6rem; }
 #stalls [data-i="5"] [data-act="buy"] {
   white-space: normal;
@@ -379,7 +379,23 @@ button[aria-pressed="true"], button.ask, button.best {
   border: 1px solid var(--amber);
   background: #fbf6ec;
   padding: 0.8rem 0.85rem 0.9rem;
-  margin: 0.9rem 0;
+  margin: 0 auto;
+  position: fixed;
+  z-index: 40;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 12vh;
+  width: min(28rem, calc(100% - 1.5rem));
+  max-height: 70vh;
+  overflow: auto;
+  box-shadow: 0 12px 40px rgba(22, 19, 38, 0.45);
+}
+.away::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 19, 38, 0.62);
+  z-index: -1;
 }
 .away h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
 .away p { margin: 0.3rem 0; }
