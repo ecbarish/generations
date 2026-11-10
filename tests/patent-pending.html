@@ -244,7 +244,14 @@ document.querySelector('#run').onclick = function () {
       if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy + ' ' + (el ? el.tagName + '.' + el.className : 'none'));
     });
     if (!seen) problems.push('no visible File button');
-    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('horizontal overflow ' + doc.documentElement.scrollWidth);
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) {
+      var wide = null;
+      doc.querySelectorAll('body *').forEach(function (el) {
+        var w = el.getBoundingClientRect().width;
+        if (w > win.innerWidth + 1 && (!wide || w > wide.w)) wide = { w: Math.round(w), t: el.tagName + '.' + (el.className || el.id) };
+      });
+      problems.push('horizontal overflow ' + doc.documentElement.scrollWidth + (wide ? ' ' + wide.t + ' ' + wide.w : ''));
+    }
     return problems;
   }
 
