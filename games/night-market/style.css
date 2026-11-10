@@ -28,7 +28,7 @@ body {
   color: var(--ink);
   font: 17px/1.45 Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
 }
-button, summary { font: inherit; }
+button, summary { font: inherit; touch-action: manipulation; }
 .window {
   max-width: 42rem;
   margin: 0 auto;
@@ -434,7 +434,19 @@ button[aria-pressed="true"], button.ask, button.best {
   .actions button.reserved { display: none; }
   .actions button.keep-slot { display: flex; visibility: hidden; flex: 1 1 100%; min-height: 44px; }
   .count { font-size: 16px; }
-  .coin-pin { display: none !important; }
+  .coin-pin:not([hidden]) {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 6;
+    margin: 0;
+    padding: 0.2rem 0.7rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
   .goal-pin:not([hidden]) {
     display: block;
     position: fixed;

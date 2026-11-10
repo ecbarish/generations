@@ -252,7 +252,7 @@
       else tag.hidden = true;
     }
     buy.classList.remove('best');
-    var holdingBuy = typeof pressedBuy !== 'undefined' && pressedBuy && pressedBuy.el === buy && Date.now() - pressedBuy.t < 1500;
+    var holdingBuy = pointerDown && typeof pressedBuy !== 'undefined' && pressedBuy && pressedBuy.el === buy && Date.now() - pressedBuy.t < 1500;
     if (!holdingBuy) buy.dataset.count = String(offer.count);
     var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
     var slowMax = state.bulk === 'max' && offer.blocked === 'payback' && !firstMat;
@@ -360,6 +360,12 @@
     if (quietDt > 0) M.elapse(state, Math.min(quietDt, 120));
     var dawn = M.dawnDue(state);
     var goalText = dawn && !(state.night && state.night.kept) ? M.dawnGoal() : M.goal(state);
+    var clockNote = '';
+    var shortGoal = window.matchMedia('(max-width: 420px) and (max-height: 640px)').matches;
+    if (shortGoal && /About twelve seconds of the lane\./.test(goalText)) {
+      clockNote = 'About twelve seconds of the lane.';
+      goalText = goalText.replace(' About twelve seconds of the lane.', '');
+    }
     var goalEl = $('#goal');
     goalEl.hidden = false;
     var matI = M.STALLS.length - 1;
@@ -383,7 +389,7 @@
       goalEl.textContent = goalText;
     }
     var laneGoal = $('#lane-goal');
-    if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
+    if (laneGoal) laneGoal.textContent = clockNote || laneCounterText(goalText);
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
     var finaleOn = M.dawnDue(state) && !finaleDismissed;
@@ -406,7 +412,7 @@
     }
     if (!finaleOn) dawnCardSeen = false;
     if (finaleNote) {
-      var showNote = !!(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1 && !noteDismissed && Date.now() < noteUntil);
+      var showNote = !!(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1 && !noteDismissed);
       finaleNote.hidden = !showNote;
       var noteText = $('#finale-note-text');
       if (noteText && showNote) noteText.textContent = 'The mat is unrolled. The lane stays open.';
@@ -554,9 +560,13 @@
       var rate = M.income(state);
       var per = rate > 0 ? money(rate) + ' a second' : 'nothing earning yet';
       coinPin.textContent = money(state.cash) + ' coins · ' + per + holdSuffix();
-      coinPin.hidden = !(wide && laneGone && coinsGone);
+      coinPin.hidden = !(laneGone && coinsGone);
+    if (!coinPin.hidden && !wide) {
+      var pinBox = pin.getBoundingClientRect();
+      coinPin.style.top = (!pin.hidden ? Math.round(pinBox.bottom) : 0) + 'px';
+    } else coinPin.style.top = '';
     }
-    var reserve = phone ? pinHeight(pin) : pinHeight(coinPin);
+    var reserve = wide && coinPin ? pinHeight(coinPin) : (pinHeight(pin) + (coinPin && !coinPin.hidden ? pinHeight(coinPin) : 0));
     document.documentElement.style.scrollPaddingTop = reserve > 0 ? Math.ceil(reserve) + 'px' : '';
     /* Reserving the pin can pull the lane the rest of the way off the screen.
        Judge the coin total against that final place. */
@@ -769,8 +779,8 @@
     var note = $('#finale-note');
     if (note && !note.hidden && e.key === 'Escape') {
       e.preventDefault();
-      noteDismissed = true;
-      render();
+      var noteNext = note.querySelector('[data-act="next-night"]');
+      if (noteNext) noteNext.click();
       return;
     }
     var pick = $('#pick');
@@ -989,7 +999,13 @@
     if (poured) persist();
     if (doRender) render();
   }
-  function stopHold() { settleHold(true); }
+  var swallowServeUntil = 0;
+  function stopHold() {
+    var poured = hold && hold.n > 0;
+    settleHold(true);
+    /* The release of a pour is not another cup. A later tap still is. */
+    if (poured) swallowServeUntil = Date.now() + 400;
+  }
   document.addEventListener('touchmove', function (e) {
     var target = e.target && e.target.closest && e.target.closest('button');
     if (!target) return;
@@ -1031,16 +1047,18 @@
   var pointerDown = false;
   document.addEventListener('pointerdown', function () { pointerDown = true; }, true);
   document.addEventListener('pointerup', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
-  document.addEventListener('pointercancel', function () { pointerDown = false; lastPointerUp = Date.now(); }, true);
+  document.addEventListener('pointercancel', function () { pointerDown = false; pressedBuy = null; lastPointerUp = Date.now(); }, true);
   window.addEventListener('blur', function () { pointerDown = false; });
   var pressedBuy = null;
   var buyDown = null;
+  var ignoreTrustedUntil = 0;
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('button');
     if (!b || b.disabled || e.button > 0) return;
-    if (b.dataset.act !== 'buy' && !b.dataset.bulk) return;
-    pressedBuy = { el: b, t: Date.now() };
-    if (b.dataset.act === 'buy') {
+    var act = b.dataset.act || '';
+    if (act !== 'buy' && act !== 'serve' && act !== 'hire' && act !== 'unroll' && act !== 'next-night' && !b.dataset.bulk) return;
+    pressedBuy = { el: b, t: Date.now(), x: e.clientX, y: e.clientY };
+    if (act === 'buy') {
       var stall = b.closest('[data-i]');
       buyDown = { i: stall ? +stall.dataset.i : -1, t: Date.now(), used: false };
     }
@@ -1048,6 +1066,7 @@
   document.addEventListener('pointerup', function (e) {
     var held = pressedBuy;
     pressedBuy = null;
+    pointerDown = false;
     if (!held || !held.el) return;
     if (Date.now() - held.t > 2000) return;
     var el = document.contains(held.el) ? held.el : null;
@@ -1059,11 +1078,17 @@
       el = sel ? document.querySelector(sel) : null;
     }
     if (!el || el.disabled) return;
+    var moved = Math.hypot((e.clientX || 0) - held.x, (e.clientY || 0) - held.y) > 8;
+    if (el.dataset.act === 'serve' && ((hold && hold.n > 0) || !moved)) return;
     var up = e.target && e.target.closest && e.target.closest('button');
-    if (up === el || up === held.el) return;
+    /* A still tap on the same button gets the browser's click. A scroll, or a
+       button that was redrawn under the finger, does not, so fire it here. */
+    if (!moved && (up === el || up === held.el)) return;
+    ignoreTrustedUntil = Date.now() + 700;
     el.click();
   }, true);
   document.addEventListener('click', function (e) {
+    if (e.isTrusted && Date.now() < ignoreTrustedUntil) return;
     if (e.target.closest && e.target.closest('#open-book')) {
       var saveBox = $('details.save');
       var book = $('details.codex');
@@ -1084,7 +1109,7 @@
     }
     var b = e.target.closest('button');
     if (!b || b.disabled) return;
-    if (b.dataset.act === 'serve' && hold && hold.b === b && hold.n > 0) { hold = null; return; } // a hold already poured; the release isn't one more
+    if (b.dataset.act === 'serve' && Date.now() < swallowServeUntil) { swallowServeUntil = 0; return; } // a hold already poured; the release isn't one more
     if (b.dataset.bulk) {
       M.setBulk(state, b.dataset.bulk);
       persist();

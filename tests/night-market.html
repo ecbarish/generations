@@ -469,7 +469,10 @@ document.querySelector('#run').onclick = async function () {
       return { worst: worst, opens: opens, doubles: doubles, beats: beats, seed: seed };
     }
     var clocks = [];
-    for (var seedN = 1; seedN <= 5; seedN++) clocks.push(playClock(seedN, 1700));
+    for (var seedN = 1; seedN <= 5; seedN++) {
+      await new Promise(function (r) { setTimeout(r, 0); });
+      clocks.push(playClock(seedN, 1700));
+    }
     var waitProblems = clocks.filter(function (c) { return c.worst > 120; }).map(function (c) { return 'seed ' + c.seed + ' ' + c.worst + 's'; });
     check('the simulated nights still reach dawn', clocks.every(function (c) { return c.opens[1] > 0; }));
     var shapeHits = 0;
@@ -1713,6 +1716,9 @@ document.querySelector('#run').onclick = async function () {
       finEl.hidden && !noteEl.hidden && d.activeElement === noteEl &&
       noteBox.top >= 0 && noteBox.bottom <= viewH + 0.5);
     check('keeping the lane open still shows Next night', noteEl.querySelector('[data-act="next-night"]') && !noteEl.querySelector('[data-act="next-night"]').hidden);
+    noteEl.querySelector('[data-act="next-night"]').click();
+    check('one tap on Next night starts the next night and names its goal',
+      hk.state.night.n === 2 && /^Night 2\. Last night kept /.test(M.goal(hk.state)) && d.querySelector('#finale-note').hidden);
     hk.state.stalls.forEach(function (s, i) { s.owned = ownedFinale[i]; });
     hk.render();
     d.querySelector('#stalls [data-act="serve"]').click(); check('...but a sale still shows one still coin', NL.coinsOn() >= 1);
@@ -1971,7 +1977,22 @@ document.querySelector('#run').onclick = async function () {
       frame.style.height = '844px';
       w.scrollTo(0, scrollMax);
       nm.render();
-      check('the desktop coin total does not pin on a phone', d.querySelector('#coin-pin').hidden);
+      w.scrollTo(0, 0);
+      nm.render();
+      var phoneCoins = d.querySelector('.coins');
+      var phoneCoinsOnScreen = phoneCoins && phoneCoins.getBoundingClientRect().bottom > 0;
+      check('the coin total stays in the header while it is on screen', phoneCoinsOnScreen && d.querySelector('#coin-pin').hidden);
+      var phoneScroll = d.documentElement.scrollHeight;
+      w.scrollTo(0, phoneScroll);
+      nm.render();
+      var phonePin = d.querySelector('#coin-pin');
+      var phoneBuy = d.querySelector('#stalls [data-act="buy"]');
+      var phoneBuyBox = phoneBuy ? phoneBuy.getBoundingClientRect() : null;
+      var phoneBuyHit = phoneBuyBox && phoneBuyBox.height > 1 ? d.elementFromPoint(phoneBuyBox.left + 8, phoneBuyBox.top + phoneBuyBox.height / 2) : null;
+      check('a phone keeps a compact coin total while the header has scrolled away',
+        !phonePin.hidden && phonePin.getBoundingClientRect().height > 0 && phonePin.getBoundingClientRect().height < 48 &&
+        /coins/.test(phonePin.textContent) &&
+        (!phoneBuyHit || phoneBuyHit === phoneBuy || phoneBuy.contains(phoneBuyHit)));
       frame.style.width = '844px';
       frame.style.height = '390px';
       w.scrollTo(0, 0);
@@ -3741,11 +3762,81 @@ document.querySelector('#run').onclick = async function () {
       check('model only: after 75 seconds an ignored early quote expires as a wait and the crowd follows (' + (atSurge && atSurge.kind) + ', marks ' + (waited.night.lateShown || []).join(',') + ')',
         atEight && atEight.kind === 'early-mat' && atSurge && atSurge.kind === 'surge' && atSurge.stalls && atSurge.stalls.length === 1 &&
         waited.night.lateShown.indexOf(480) >= 0 && waited.night.lateLog.some(function (row) { return row.kind === 'early-mat' && row.choice === 'wait'; }) &&
-        !(offerBefore > 0) && waited.stalls[5].owned === 0 && matPrice > 0 && matPrice < M.STALLS[5].base);
+        !(offerBefore > 0) && waited.stalls[5].owned === 0 && matPrice > 0 && matPrice < M.STALLS[5].base &&
+        /twelve seconds of the lane/.test(M.goal(waited)));
+      function offerFaults(state) {
+        var offer = state.night && state.night.offer;
+        if (!offer || offer.kind === 'omen' || !offer.options || offer.options.length < 2) return [];
+        var faults = [], rows = offer.options.map(function (id) {
+          return { id: id, flow: M.choiceCashflow(state, id), line: M.choiceLine(state, offer.kind, id) || '' };
+        });
+        rows.forEach(function (row) {
+          rows.forEach(function (other) {
+            if (row === other || !row.flow || !other.flow || !row.flow.ok || !other.flow.ok) return;
+            if (other.flow.inc + 1e-9 >= row.flow.inc && other.flow.price < row.flow.price - 1e-6) faults.push(row.id + ' dominated by ' + other.id);
+          });
+        });
+        if (rows.every(function (row) { return /earns less/.test(row.line) && /cheaper|lower|Prices are lower/.test(row.line); })) faults.push('all discounts');
+        var worth = rows.some(function (row) {
+          var flow = row.flow;
+          return flow && flow.ok && (flow.inc > 0.001 || (flow.price < -0.001 && flow.inc > -Math.abs(flow.price) / 45));
+        });
+        if (!worth) faults.push('nothing worth taking');
+        return faults;
+      }
+      var cardFaults = [], cardSeen = 0;
+      [1, 2, 3, 5, 8, 13].forEach(function (seed) {
+        [[0, 2], [1, 6], [3, 8]].forEach(function (stage, si) {
+          var sample = M.fresh();
+          M.armNight(sample, 1, seed);
+          sample.stalls.forEach(function (st, i) {
+            st.hired = i <= stage[0];
+            st.owned = i < stage[0] ? 8 : (i === stage[0] ? stage[1] : 0);
+            st.serves = 20;
+          });
+          sample.cash = 1e7;
+          sample.night.wallMs = si === 2 ? 400000 : 60000;
+          var pulls = 0;
+          for (var step = 0; step < 24 && pulls < 2; step++) {
+            M.elapse(sample, 8);
+            if (!sample.night.offer || !sample.night.offer.options) continue;
+            var faults = offerFaults(sample);
+            cardSeen++;
+            if (faults.length) cardFaults.push('seed ' + seed + ' stage ' + si + ' ' + faults.join(', ') + ' [' + sample.night.offer.options.join('|') + ']');
+            pulls++;
+            M.skipOffer(sample);
+          }
+        });
+      });
+      check(cardFaults.length ? 'choice sets: ' + cardFaults.slice(0, 4).join(' || ') : 'every generated choice has a real trade-off (' + cardSeen + ' cards)', cardSeen >= 12 && cardFaults.length === 0);
+      var crowd = M.fresh();
+      M.armNight(crowd, 1, 4);
+      crowd.stalls[0].hired = true; crowd.stalls[0].owned = 6;
+      crowd.stalls[1].hired = true; crowd.stalls[1].owned = 4;
+      crowd.night.wallMs = 480000;
+      var asked = M.lateView(crowd);
+      crowd.night.holdOffer = true;
+      crowd.night.wallMs = 480000 + 30000;
+      var held = M.lateView(crowd);
+      crowd.night.holdOffer = false;
+      M.takeLate(crowd, 'wait');
+      var fromAnswer = crowd.night.nextLateAt - crowd.night.wallMs;
+      crowd.night.wallMs = crowd.night.nextLateAt - 1000;
+      var notYet = M.lateView(crowd);
+      crowd.night.wallMs = crowd.night.nextLateAt + 180000;
+      var queued = M.lateView(crowd);
+      var answeredAt = crowd.night.wallMs;
+      M.takeLate(crowd, queued && queued.stalls && queued.stalls[0] ? queued.stalls[0].id : 'wait');
+      var afterClick = crowd.night.nextLateAt - answeredAt;
+      crowd.night.wallMs = crowd.night.nextLateAt - 1000;
+      var quiet = M.lateView(crowd);
+      check('the crowd returns 75 seconds after the answer, including a hold, and does not queue (' + Math.round(fromAnswer) + ' then ' + Math.round(afterClick) + ')',
+        asked && asked.kind === 'early-mat' && held && held.mark === asked.mark && Math.abs(fromAnswer - 75000) < 1 &&
+        !notYet && queued && queued.kind === 'surge' && Math.abs(afterClick - 75000) < 1 && !quiet);
     })();
     var playFrame = await openLane('../games/night-market/index.html', 390, 844);
     var pw = playFrame.contentWindow, pd = pw.document, pg = pw.__nightMarket, PM = pw.NightMarket;
-    (function () {
+    await (async function () {
       playFrame.style.width = '320px';
       playFrame.style.height = '568px';
       PM.armNight(pg.state, 1, 1);
@@ -3761,6 +3852,25 @@ document.querySelector('#run').onclick = async function () {
       var view = PM.lateView(pg.state);
       check('the crowd bar is on screen before the long nights (' + (bar ? bar.offsetHeight : 'none') + ' hidden ' + (bar && bar.hidden) + ' view ' + (view && view.kind) + ' offer ' + (pg.state.night.offer && pg.state.night.offer.kind) + ')',
         bar && !bar.hidden && bar.offsetHeight > 40 && view && view.kind === 'surge');
+      var rush = bar.querySelector('[data-act="rush"]');
+      var beforeRush = pg.state.night.lateShown.slice();
+      await wait(450);
+      if (rush) rush.click();
+      var afterAnswer = (pg.state.night.nextLateAt || 0) - (pg.state.night.wallMs || 0);
+      check('clicking the crowd asks again 75 seconds later, not at once (' + Math.round(afterAnswer) + ')',
+        beforeRush.length < pg.state.night.lateShown.length && afterAnswer > 73000 && afterAnswer <= 75000);
+      var buy = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+      var owned = pg.state.stalls[0].owned;
+      buy.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 8, clientY: 8, pointerId: 11 }));
+      buy.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0, clientX: 36, clientY: 30, pointerId: 11 }));
+      check('a buy that moved, as a scroll does, shows on this frame', pg.state.stalls[0].owned === owned + 1);
+      var serve = pd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      serve.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, button: 0, clientX: 8, clientY: 8, pointerId: 12 }));
+      await wait(pg.HOLD_DELAY + 80);
+      serve.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, button: 0, clientX: 9, clientY: 9, pointerId: 12 }));
+      var afterPour = pg.state.stalls[0].owned;
+      buy.click();
+      check('the first buy after a pour hold lands on that tap', pg.state.stalls[0].owned === afterPour + 1);
     })();
     (function () {
       var sizes = [[1280, 800], [320, 568], [390, 844], [844, 390]];
