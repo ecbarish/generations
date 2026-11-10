@@ -131,13 +131,51 @@
         detail: state.seals + (state.seals === 1 ? ' seal' : ' seals')
       });
     });
-    return idle.start(state.seen);
+    /* The away grant waits for Collect, measured from the moment the office was left. */
+    idle.start(Date.now());
   }
 
-  function showAway(away) {
-    if (!away || !(away.gained > 0)) return;
-    var capNote = away.capped ? ' They keep at most ' + Arcade.fmtTime(away.credited) + '.' : '';
-    note('While you were away, the clerks filed ' + money(away.gained) + ' in fees over ' + Arcade.fmtTime(away.credited) + '.' + capNote, 8000);
+  function markLeft() {
+    if (!state || !state.introduced) return;
+    if (!state.leftAt) {
+      state.leftAt = Date.now();
+      state.cashAtLeave = state.cash;
+    }
+    state.seen = state.leftAt;
+    saveNow();
+  }
+
+  var welcomeOwed = 0;
+
+  function showWelcome(pack, owed) {
+    welcomeOwed = owed > 0 ? owed : 0;
+    $('welcome-time').textContent = 'You were away ' + Arcade.fmtTime(Math.round(pack.away)) + '.';
+    var list = $('welcome-lines');
+    list.replaceChildren();
+    if (!pack.lines.length) {
+      var empty = document.createElement('li');
+      empty.textContent = 'No clerk was at a desk, so the office held still.';
+      list.appendChild(empty);
+    } else {
+      pack.lines.forEach(function (line) {
+        var li = document.createElement('li');
+        li.textContent = line.clerk + ' filed ' + money(line.amount) + ' on the ' + line.name + '.';
+        list.appendChild(li);
+      });
+    }
+    $('welcome-total').textContent = 'Together, ' + money(pack.total) + ' in fees.';
+    if (pack.capped) $('welcome-total').textContent += ' They keep at most ' + Arcade.fmtTime(pack.credited) + '.';
+    $('welcome').hidden = false;
+  }
+
+  function offerWelcome() {
+    if (!state.introduced || !state.leftAt) return;
+    var away = (Date.now() - state.leftAt) / 1000;
+    if (away < 30) return;
+    var pack = M.awayLines(state, away, Date.now(), day());
+    var drifted = state.cash - (state.cashAtLeave || 0);
+    var owed = Math.max(0, pack.total - Math.max(0, drifted));
+    showWelcome(pack, owed);
   }
 
   function selectedName() {
@@ -192,10 +230,20 @@
     var count = state.owned[i];
     card.count.textContent = String(count);
     var rate = M.eachRate(state, i, now(), day());
+    var boosted = !!(state.clerk[i] && now() < state.boostUntil && state.boostIndex === i);
+    card.root.classList.toggle('boosted', boosted);
     card.sub.hidden = count <= 0;
-    card.sub.textContent = count > 0
-      ? money(rate) + '/s · ' + (state.clerk[i] ? 'clerk at the desk' : 'file it by hand')
-      : '';
+    if (boosted) {
+      var left = Math.max(1, Math.ceil((state.boostUntil - now()) / 1000));
+      card.badge.hidden = false;
+      card.badge.textContent = '×' + M.boostFactor(state).toFixed(1) + ' · ' + left + 's';
+      card.sub.textContent = money(rate) + '/s · boosted';
+    } else {
+      card.badge.hidden = true;
+      card.sub.textContent = count > 0
+        ? money(rate) + '/s · ' + (state.clerk[i] ? 'clerk at the desk' : 'file it by hand')
+        : '';
+    }
     card.bar.style.transform = 'scaleX(' + barScale(i) + ')';
     var n = M.buyCount(state, i);
     var cost = M.bulkCost(state, i, n);
@@ -325,7 +373,10 @@
   function onStamp() {
     var result = M.stamp(state, now(), day());
     if (sfx) sfx.sfx(result.boosted ? 'level' : 'coin');
-    if (result.boosted) note(M.INVENTIONS[result.chosen].name + ' is boosted for a few seconds.');
+    if (result.boosted && !state.boostTold) {
+      state.boostTold = true;
+      note('Four quick stamps boost the invention you picked. The row glows, and its fees per second rise, for eight seconds.');
+    }
     speak(result);
     render();
   }
@@ -414,6 +465,10 @@
       var count = document.createElement('span');
       count.className = 'count-n';
       name.appendChild(count);
+      var badge = document.createElement('span');
+      badge.className = 'boost-badge';
+      badge.hidden = true;
+      name.appendChild(badge);
       var blurb = document.createElement('p');
       blurb.className = 'blurb';
       blurb.textContent = inv.blurb;
@@ -458,7 +513,7 @@
       mid.onclick = function () { state.selected = i; render(); };
       buy.onclick = function () { onBuy(i); };
       hire.onclick = function () { onHire(i); };
-      cards.push({ root: li, count: count, sub: sub, bar: fill, buy: buy, cost: small, hire: hire, hireLabel: hireLabel });
+      cards.push({ root: li, count: count, sub: sub, bar: fill, buy: buy, cost: small, hire: hire, hireLabel: hireLabel, badge: badge });
     });
   }
 
@@ -561,11 +616,26 @@
       saveNow();
       if (sfx) sfx.sfx('coin');
     };
+    $('welcome-collect').onclick = function () {
+      if (welcomeOwed > 0) M.grant(state, welcomeOwed);
+      state.leftAt = 0;
+      state.cashAtLeave = state.cash;
+      welcomeOwed = 0;
+      $('welcome').hidden = true;
+      saveNow();
+      render();
+      if (sfx) sfx.sfx('coin');
+    };
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) markLeft();
+      else offerWelcome();
+    });
+    window.addEventListener('pagehide', markLeft);
     idleCap = M.offlineCap(state);
-    var away = armIdle();
+    armIdle();
     if (!state.introduced) $('intro').hidden = false;
     else if (roll.changed) note('Day ' + state.streak + ' in a row. All filing fees are a little stronger today.', 6000);
-    showAway(away);
+    offerWelcome();
     render();
     scheduleSlip();
     setInterval(function () { render(); }, 500);

@@ -71,7 +71,14 @@ document.querySelector('#run').onclick = function () {
 
     var hand = P.fresh();
     var first = P.stamp(hand, 5000, DAY);
-    check('a stamp files the paperclip by hand for at least 0.05', first.pay >= 0.05 && !hand.clerk[0] && hand.stamps === 1);
+    check('a new office starts with an empty drawer', P.fresh().cash === 0 && P.fresh().lifetime === 0);
+    check('a stamp files the paperclip by hand for a small steady fee', first.pay >= 0.06 && first.pay < 0.2 && !hand.clerk[0] && hand.stamps === 1);
+    var quietGoal = P.goalPay(P.fresh(), P.GOALS[6], 1000, DAY);
+    check('a goal pays seconds of income, not the old flat pile', quietGoal < 20 && quietGoal > 0);
+    var slipOffice = P.fresh();
+    slipOffice.clerk[0] = true;
+    var slip = P.slipPay(slipOffice, 1000, DAY);
+    check('a filing slip is eight seconds of clerk income', close(slip, P.managedRate(slipOffice, 1000, DAY) * 8));
     for (var s = 0; s < 4; s++) P.stamp(hand, 6000 + s, DAY);
     check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash > 0.6);
 
@@ -115,7 +122,7 @@ document.querySelector('#run').onclick = function () {
     var expect = P.awayPay(P.restore(P.serialize(live)), 120, wall);
     var idle = P.createIdle(live, function () {});
     var summary = idle.start(wall - 120 * 1000);
-    check('the idle catch-up matches the preview of the same away time', summary && summary.credited === 120 && close(summary.gained, expect.gained) && close(live.cash, 0.01 + expect.gained));
+    check('the idle catch-up matches the preview of the same away time', summary && summary.credited === 120 && close(summary.gained, expect.gained) && close(live.cash, expect.gained));
     idle.stop();
     Date.now = realNow;
     window.setInterval = realSet;
@@ -155,7 +162,7 @@ document.querySelector('#run').onclick = function () {
     var filed = P.fileCharter(ready);
     check('the charter preview is the result you get', filed.ok && filed.gain === view.gain && ready.seals === view.nextSeals && close(P.permanentMultiplier(ready), view.nextMultiplier));
     check('a charter keeps seals, achievements, the goal, the streak and the sound', ready.ach.first === true && ready.goal === 6 && ready.streak === 2 && ready.sound === 2 && ready.day === DAY);
-    check('a charter clears the drawer, the inventions, the clerks and the improvements', close(ready.cash, 0.01) && ready.owned[0] === 1 && ready.owned[2] === 0 && ready.clerk[1] === false && !ready.up.t1);
+    check('a charter clears the drawer, the inventions, the clerks and the improvements', ready.cash === 0 && ready.owned[0] === 1 && ready.owned[2] === 0 && ready.clerk[1] === false && !ready.up.t1);
     check('filing again immediately adds no further seal', P.charterPreview(ready).gain === 0);
     check('the preview names what you keep and what you lose', view.keep.length === 6 && view.lose.length === 5 && view.hint.indexOf('good time') >= 0);
 
@@ -208,6 +215,7 @@ document.querySelector('#run').onclick = function () {
           open.click();
           for (var i = 0; i < 8; i++) stamp.click();
           var problems = hit(doc, win);
+          if (width === 320 || width === 390) problems = problems.concat(rapid(doc, win));
           var shift = moved(doc);
           if (width === 390) problems = problems.concat(tabs(doc));
           frame.remove();
@@ -222,6 +230,42 @@ document.querySelector('#run').onclick = function () {
       };
       document.body.appendChild(frame);
     });
+  }
+
+  function rapid(doc, win) {
+    var stamp = doc.getElementById('stamp');
+    var problems = [];
+    for (var i = 0; i < 20; i++) stamp.click();
+    var scroller = doc.querySelector('.page.on');
+    if (scroller) scroller.scrollTop = 0;
+    if (win.scrollX !== 0) problems.push('scrollX ' + win.scrollX);
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('scrollWidth ' + doc.documentElement.scrollWidth);
+    var bad = [];
+    doc.querySelectorAll('body *').forEach(function (el) {
+      if (el.closest('[hidden]')) return;
+      var style = win.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return;
+      var r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return;
+      if (r.left < -1 || r.right > win.innerWidth + 1) bad.push((el.id || el.className || el.tagName) + ' ' + Math.round(r.left) + '..' + Math.round(r.right));
+    });
+    if (bad.length) problems.push('past the edge ' + bad.slice(0, 3).join(', '));
+    var seen = 0;
+    var pages = doc.querySelector('.pages').getBoundingClientRect();
+    doc.querySelectorAll('[data-buy]').forEach(function (b) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      var r = b.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      if (cy < pages.top + 1 || cy > pages.bottom - 1 || cx < 1 || cx > win.innerWidth - 1) return;
+      seen++;
+      var el = doc.elementFromPoint(cx, cy);
+      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy + ' hit ' + (el ? el.tagName + '.' + (el.id || el.className) : 'none') + ' at ' + Math.round(cx) + ',' + Math.round(cy));
+    });
+    if (!seen) problems.push('no File button after the taps');
+    if (problems.length) problems.unshift('after 20 stamps');
+    return problems;
   }
 
   function hit(doc, win) {

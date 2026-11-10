@@ -47,8 +47,8 @@
     }
     return {
       v: SAVE_VERSION,
-      cash: 0.01,
-      lifetime: 0.01,
+      cash: 0,
+      lifetime: 0,
       seals: 0,
       charters: 0,
       owned: owned,
@@ -64,6 +64,9 @@
       lastStamp: 0,
       boostUntil: 0,
       boostIndex: 0,
+      boostTold: false,
+      leftAt: 0,
+      cashAtLeave: 0,
       selected: 0,
       bulk: 1,
       sound: 1,
@@ -111,6 +114,9 @@
       lastStamp: state.lastStamp,
       boostUntil: state.boostUntil,
       boostIndex: state.boostIndex,
+      boostTold: !!state.boostTold,
+      leftAt: state.leftAt || 0,
+      cashAtLeave: state.cashAtLeave || 0,
       selected: state.selected,
       bulk: state.bulk,
       sound: state.sound,
@@ -149,6 +155,9 @@
     state.lastStamp = num(o.lastStamp, 0);
     state.boostUntil = num(o.boostUntil, 0);
     state.boostIndex = Math.max(0, Math.min(N - 1, Math.floor(num(o.boostIndex, 0))));
+    state.boostTold = !!o.boostTold;
+    state.leftAt = num(o.leftAt, 0);
+    state.cashAtLeave = num(o.cashAtLeave, 0);
     state.selected = Math.max(0, Math.min(N - 1, Math.floor(num(o.selected, 0))));
     state.bulk = o.bulk === 10 || o.bulk === 0 ? o.bulk : 1;
     state.sound = o.sound === 0 || o.sound === 2 ? o.sound : 1;
@@ -236,6 +245,9 @@
   }
 
   function clerkCost(i) {
+    /* The spoon's clerk is priced for the first three minutes.
+       Later clerks stay a long hire, ninety times the filing fee. */
+    if (i === 1) return 4.5;
     return INVENTIONS[i].base * 90;
   }
 
@@ -353,12 +365,22 @@
     return sum;
   }
 
+  /* Rewards follow the office that is actually filing.
+     Before a clerk, that is a quiet rate, so a goal cannot hand over the drawer.
+     A stamp stays at least a tenth of a fee, which is what reaches the first clerk. */
+  function rewardRate(state, now, day) {
+    var running = managedRate(state, now, day);
+    if (running > 0) return running;
+    return 0.02;
+  }
+
   function handPay(state, now, day) {
-    return Math.max(0.05, potential(state, now, day) * 2) * stampFactor(state);
+    var inc = Math.max(potential(state, now, day), managedRate(state, now, day));
+    return Math.max(0.08, inc * 0.35) * stampFactor(state);
   }
 
   function goalPay(state, goal, now, day) {
-    return Math.max(goal.floor, potential(state, now, day) * goal.seconds);
+    return rewardRate(state, now, day) * goal.seconds;
   }
 
   function checkGoals(state, now, day) {
@@ -408,7 +430,6 @@
     if (!state.clerk[chosen] && state.owned[chosen] > 0) {
       pay = handPay(state, now, day);
       grant(state, pay);
-      if (!state.running[chosen]) state.running[chosen] = true;
       state.combo = 0;
     } else if (state.clerk[chosen]) {
       if (now - state.lastStamp <= COMBO_WINDOW) state.combo += 1;
@@ -552,10 +573,22 @@
   }
 
   function slipPay(state, now, day) {
-    var rate = managedRate(state, now, day);
-    var tap = handPay(state, now, day);
-    if (rate > 0) return Math.min(Math.max(tap * 12, rate * 120), rate * 600);
-    return tap * 12;
+    return rewardRate(state, now, day) * 8;
+  }
+
+  function awayLines(state, awaySec, now, day) {
+    var cap = offlineCap(state);
+    var away = awaySec > 0 ? awaySec : 0;
+    var credited = away > cap ? cap : away;
+    var lines = [];
+    var total = 0;
+    for (var i = 0; i < N; i++) {
+      if (!state.clerk[i] || state.owned[i] <= 0) continue;
+      var amount = eachRate(state, i, now, day) * credited;
+      total += amount;
+      lines.push({ name: INVENTIONS[i].name, clerk: INVENTIONS[i].clerk, amount: amount });
+    }
+    return { away: away, credited: credited, capped: away > cap, total: total, lines: lines };
   }
 
   function createIdle(state, save) {
@@ -623,6 +656,8 @@
     fileCharter: fileCharter,
     awayPay: awayPay,
     slipPay: slipPay,
+    rewardRate: rewardRate,
+    awayLines: awayLines,
     createIdle: createIdle,
     upgradeCount: upgradeCount
   };

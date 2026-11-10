@@ -11,7 +11,7 @@
   var brass = '#8a6a32';
 
   var INVENTIONS = [
-    { id: 'clip', name: 'Better Paperclip', blurb: 'It holds the stack and still lets one page go.', clerk: 'Clerk Pip', base: 0.05, growth: 1.07, revenue: 0.01, cycle: 0.5,
+    { id: 'clip', name: 'Better Paperclip', blurb: 'It holds the stack and still lets one page go.', clerk: 'Clerk Pip', base: 0.05, growth: 1.07, revenue: 0.08, cycle: 0.5,
       icon: svg('<path d="M8 7a4 4 0 0 1 8 0v8a2.5 2.5 0 0 1-5 0V8" fill="none" stroke="' + ink + '" stroke-width="2" stroke-linecap="round"/>') },
     { id: 'spoon', name: 'Self-stirring Spoon', blurb: 'The spoon keeps the cocoa moving while you stamp.', clerk: 'Inventor Nib', base: 1, growth: 1.15, revenue: 0.55, cycle: 3,
       icon: svg('<path d="M12 3c2 3 2 5 0 7-2 2-2 4 0 11" fill="none" stroke="' + brass + '" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="6" r="2.2" fill="' + seal + '"/>') },
