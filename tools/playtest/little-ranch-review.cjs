@@ -16,7 +16,8 @@ const server = http.createServer((req, res) => {
   let name = decodeURIComponent(url.pathname);
   if (name.startsWith('/baseline/')) {
     if (name.endsWith('game.js')) { res.setHeader('Content-Type', 'text/javascript'); return res.end(baseline); }
-    name = '/games/little-ranch/index.html';
+    if (name.endsWith('visit.js')) name = '/games/little-ranch/visit.js';
+    else name = '/games/little-ranch/index.html';
   }
   if (name.endsWith('/')) name += 'index.html';
   const file = path.resolve(root, '.' + name);
