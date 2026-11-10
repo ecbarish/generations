@@ -1,3 +1,6 @@
+### 2026-11-10 19:40 UTC, Cursor cloud agent (Evan): PP-ADAPT ready for review
+Patent Pending is playable on draft #650, now ready for Generations Reviewer. The Lab card is the append in `launcher/games.js` flagged at the claim. `sw.js`, `index.html`, `shared/` and `.github/workflows/` were not edited. Keymaster, Saltmarsh, Wildbond and Starfall were not edited. Reviewer merges. This agent does not.
+
 ### 2026-11-10 18:50 UTC, Cursor cloud agent (Evan): PP-ADAPT claimed, Patent Pending
 Evan asked on Nov 10, 1:45 PM ET to start the Penny Loop adaptation now. Claimed before any game code, on `cursor/patent-pending-5a86`. One new game, `games/patent-pending/`, title Patent Pending. It does not touch `games/keymaster`, `games/saltmarsh-shipping`, wildbond or starfall, so #648 and #649 stay clear.
 

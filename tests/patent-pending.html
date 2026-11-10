@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Patent Pending checks</title>
+<style>
+  body{font:16px system-ui,sans-serif;background:#131820;color:#e8edf5;max-width:900px;margin:32px auto;padding:0 20px}
+  button{font:inherit;padding:10px 18px;cursor:pointer}
+  li{padding:5px 0;overflow-wrap:anywhere}
+  .pass{color:#96eba4}.fail{color:#ff9a9a}#summary{font-weight:bold}
+</style>
+<h1>Patent Pending checks</h1>
+<p>The office rules, then the real screen at four widths. A fresh page, so other saves stay put.</p>
+<p><a href="../">Back to arcade</a></p>
+<button id="run">Run checks</button>
+<p id="summary">Ready.</p>
+<ol id="results"></ol>
+<script src="../shared/engine.js"></script>
+<script src="../shared/idle-core.js"></script>
+<script src="../games/patent-pending/data.js"></script>
+<script src="../games/patent-pending/model.js"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = function () {
+  var sum = document.querySelector('#summary');
+  var list = document.querySelector('#results');
+  var button = document.querySelector('#run');
+  button.disabled = true;
+  list.replaceChildren();
+  sum.textContent = 'Running…';
+  var n = 0;
+  function check(name, ok) {
+    n++;
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
+    list.appendChild(li);
+    if (!ok) throw Error(name);
+  }
+  function close(a, b) {
+    var d = Math.abs(a - b);
+    return d <= 1e-6 || d <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  function brute(base, growth, owned, count) {
+    var total = 0;
+    for (var i = 0; i < count; i++) total += base * Math.pow(growth, owned + i);
+    return total;
+  }
+  function lifetimeFor(seals) {
+    return Math.pow(seals / 12, 2) * 1e6;
+  }
+  var DAY = '1999-06-15';
+  var realNow = Date.now;
+  var realSet = window.setInterval;
+  var realClear = window.clearInterval;
+  try {
+    var P = window.Patent;
+    check('eighteen inventions, twenty-two goals, twenty achievements', P.INVENTIONS.length === 18 && P.GOALS.length === 22 && P.ACHIEVEMENTS.length === 20);
+    check('the upstream file builds 71 improvements', P.UPGRADES.length === 71);
+    check('the first invention is the Better Paperclip and the twelfth climb is the Sky-ship', P.INVENTIONS[0].name === 'Better Paperclip' && P.INVENTIONS[12].name === 'Sky-ship');
+
+    var order = P.UPGRADES.map(function (u) { return u.id; }).join('|');
+    var rich = P.fresh();
+    rich.cash = 1e20;
+    var bought = P.buyUpgrade(rich, P.UPGRADES[0].id, 1000, DAY);
+    check('buying an improvement leaves the list order alone', bought.ok && P.UPGRADES.map(function (u) { return u.id; }).join('|') === order && rich.up[P.UPGRADES[0].id]);
+
+    var spoon = P.fresh();
+    check('five spoons cost the same as the shared bulk price and a counted ladder', close(P.bulkCost(spoon, 1, 5), Idle.bulkCost(1, 1.15, 0, 5)) && close(P.bulkCost(spoon, 1, 5), brute(1, 1.15, 0, 5)));
+    check('Clerk Pip costs 4.50', close(P.clerkCost(0), 4.5));
+    check('milestones double at 25, 50 and 100', P.milestone(0) === 1 && P.milestone(24) === 1 && P.milestone(25) === 2 && P.milestone(50) === 4 && P.milestone(100) === 8);
+
+    var hand = P.fresh();
+    var first = P.stamp(hand, 5000, DAY);
+    check('a stamp files the paperclip by hand for at least 0.05', first.pay >= 0.05 && !hand.clerk[0] && hand.stamps === 1);
+    for (var s = 0; s < 4; s++) P.stamp(hand, 6000 + s, DAY);
+    check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash > 0.6);
+
+    var combo = P.fresh();
+    combo.clerk[0] = true;
+    var quiet = P.managedRate(combo, 10000, DAY);
+    var c1 = P.stamp(combo, 10000, DAY);
+    P.stamp(combo, 11000, DAY);
+    P.stamp(combo, 12000, DAY);
+    var c4 = P.stamp(combo, 13000, DAY);
+    var loud = P.managedRate(combo, 13000, DAY);
+    check('after a clerk, stamps pay nothing and the fourth one boosts', c1.pay === 0 && c1.combo === 1 && c4.boosted && combo.boostUntil === 13000 + P.BOOST_MS && loud > quiet);
+    var gap = P.fresh();
+    gap.clerk[0] = true;
+    P.stamp(gap, 1000, DAY);
+    P.stamp(gap, 3000, DAY);
+    check('a slow second stamp starts the combo over', gap.combo === 1 && gap.boosts === 0);
+
+    var office = P.fresh();
+    office.clerk[0] = true;
+    office.streak = 0;
+    var rate = P.managedRate(office, Date.parse(DAY + 'T12:00:00'), DAY);
+    var shortAway = P.awayPay(office, 250, Date.parse(DAY + 'T12:00:00'), DAY);
+    var cap = P.offlineCap(office);
+    check('a fresh office banks four hours', cap === 4 * 3600);
+    check('two hundred and fifty seconds away is uncapped and matches the clerk rate', shortAway.credited === 250 && shortAway.capped === false && close(shortAway.gained, rate * 250));
+    var longAway = P.awayPay(office, cap + 500, Date.parse(DAY + 'T12:00:00'), DAY);
+    check('away time past the cap is cut to the cap', longAway.capped && longAway.credited === cap && close(longAway.gained, rate * cap));
+    office.up.o1 = true;
+    office.up.o2 = true;
+    office.up.o3 = true;
+    check('the three night ledgers reach twenty-four hours', P.offlineCap(office) === 24 * 3600);
+
+    var wall = Date.parse('1999-06-15T15:00:00Z');
+    Date.now = function () { return wall; };
+    window.setInterval = function () { return 1; };
+    window.clearInterval = function () {};
+    var live = P.fresh();
+    live.clerk[0] = true;
+    live.streak = 0;
+    var expect = P.awayPay(P.restore(P.serialize(live)), 120, wall);
+    var idle = P.createIdle(live, function () {});
+    var summary = idle.start(wall - 120 * 1000);
+    check('the idle catch-up matches the preview of the same away time', summary && summary.credited === 120 && close(summary.gained, expect.gained) && close(live.cash, 0.01 + expect.gained));
+    idle.stop();
+    Date.now = realNow;
+    window.setInterval = realSet;
+    window.clearInterval = realClear;
+
+    var saved = P.fresh();
+    saved.cash = 12.5;
+    saved.lifetime = 40;
+    saved.owned[1] = 3;
+    saved.clerk[0] = true;
+    saved.up.g1 = true;
+    saved.seals = 4;
+    saved.goal = 2;
+    var back = P.restore(P.serialize(saved));
+    check('a save round-trip keeps fees, inventions, the clerk, the improvement and the seals', back.cash === 12.5 && back.owned[1] === 3 && back.clerk[0] === true && back.up.g1 === true && back.seals === 4 && back.goal === 2);
+    check('a different game is not this save', P.valid(P.serialize(saved)) && !P.valid({ game: 'night-market', v: 1, cash: 1, owned: [], clerk: [] }));
+
+    var poor = P.fresh();
+    var poorView = P.charterPreview(poor);
+    check('a new office is told to keep filing', poorView.gain === 0 && poorView.canFile === false && poorView.hint.indexOf('no seals') >= 0);
+    var early = P.fresh();
+    early.lifetime = lifetimeFor(3);
+    var earlyView = P.charterPreview(early);
+    check('fewer than five seals is a wait', earlyView.gain > 0 && earlyView.gain < 5 && earlyView.hint.indexOf('five seals') >= 0);
+    var ready = P.fresh();
+    ready.lifetime = lifetimeFor(12);
+    ready.ach.first = true;
+    ready.cash = 80;
+    ready.owned[2] = 4;
+    ready.clerk[1] = true;
+    ready.up.t1 = true;
+    ready.goal = 6;
+    ready.streak = 2;
+    ready.day = DAY;
+    ready.sound = 2;
+    var view = P.charterPreview(ready);
+    var filed = P.fileCharter(ready);
+    check('the charter preview is the result you get', filed.ok && filed.gain === view.gain && ready.seals === view.nextSeals && close(P.permanentMultiplier(ready), view.nextMultiplier));
+    check('a charter keeps seals, achievements, the goal, the streak and the sound', ready.ach.first === true && ready.goal === 6 && ready.streak === 2 && ready.sound === 2 && ready.day === DAY);
+    check('a charter clears the drawer, the inventions, the clerks and the improvements', close(ready.cash, 0.01) && ready.owned[0] === 1 && ready.owned[2] === 0 && ready.clerk[1] === false && !ready.up.t1);
+    check('filing again immediately adds no further seal', P.charterPreview(ready).gain === 0);
+    check('the preview names what you keep and what you lose', view.keep.length === 6 && view.lose.length === 5 && view.hint.indexOf('good time') >= 0);
+
+    var dock = P.docket(DAY);
+    check('the same local day always picks the same docket', dock.index === P.docket(DAY).index && dock.factor === P.docket(DAY).factor && dock.factor >= 2 && dock.factor <= 4 && dock.label.length > 0);
+
+    layout().then(function () {
+      sum.textContent = 'PASS — ' + n + ' checks';
+    }).catch(function (e) {
+      if (!sum.textContent.startsWith('FAIL')) sum.textContent = 'FAIL — ' + (e && e.message ? e.message : e);
+    });
+  } catch (e) {
+    Date.now = realNow;
+    window.setInterval = realSet;
+    window.clearInterval = realClear;
+    sum.textContent = 'FAIL — ' + (e && e.message ? e.message : e);
+  }
+
+  function layout() {
+    var widths = [320, 360, 390, 1280];
+    var chain = Promise.resolve();
+    widths.forEach(function (width) {
+      chain = chain.then(function () { return oneWidth(width); });
+    });
+    return chain;
+  }
+
+  function oneWidth(width) {
+    return new Promise(function (resolve, reject) {
+      var frame = document.createElement('iframe');
+      frame.setAttribute('title', 'Patent Pending at ' + width);
+      frame.style.cssText = 'width:' + width + 'px;height:800px;border:0;display:block';
+      frame.src = '../games/patent-pending/index.html?width=' + width;
+      var timer = null;
+      frame.onload = function () {
+        var doc = frame.contentDocument;
+        var win = frame.contentWindow;
+        var tries = 0;
+        timer = setInterval(function () {
+          tries++;
+          var open = doc.getElementById('open-office');
+          var stamp = doc.getElementById('stamp');
+          if ((!open || !stamp) && tries < 50) return;
+          clearInterval(timer);
+          if (!open || !stamp) {
+            frame.remove();
+            reject(Error('the office did not open at ' + width));
+            return;
+          }
+          open.click();
+          for (var i = 0; i < 8; i++) stamp.click();
+          var problems = hit(doc, win);
+          var shift = moved(doc);
+          if (width === 390) problems = problems.concat(tabs(doc));
+          frame.remove();
+          try {
+            check(width + 'px: every visible File button is at least 44px and its centre hits the button', problems.length === 0);
+            check(width + 'px: filing does not move a File button more than 2px', !shift);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        }, 40);
+      };
+      document.body.appendChild(frame);
+    });
+  }
+
+  function hit(doc, win) {
+    var problems = [];
+    var seen = 0;
+    doc.querySelectorAll('[data-buy]').forEach(function (b) {
+      var r = b.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return;
+      if (r.height < 44 || r.width < 44) problems.push('small ' + b.dataset.buy);
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      if (cy < 0 || cx < 0 || cy > win.innerHeight || cx > win.innerWidth) return;
+      seen++;
+      var el = doc.elementFromPoint(cx, cy);
+      if (!el || !b.contains(el)) problems.push('miss ' + b.dataset.buy);
+    });
+    if (!seen) problems.push('no visible File button');
+    if (doc.documentElement.scrollWidth > win.innerWidth + 1) problems.push('horizontal overflow');
+    return problems;
+  }
+
+  function moved(doc) {
+    var buttons = Array.prototype.slice.call(doc.querySelectorAll('[data-buy]'));
+    var before = buttons.map(function (b) { return b.getBoundingClientRect(); });
+    var target = null;
+    for (var i = 0; i < buttons.length; i++) {
+      var card = buttons[i].closest('.card');
+      if (!buttons[i].disabled && card && !card.hidden) { target = buttons[i]; break; }
+    }
+    if (!target) return 'no enabled File button';
+    target.click();
+    var worst = 0;
+    buttons.forEach(function (b, i) {
+      var card = b.closest('.card');
+      if (!card || card.hidden) return;
+      var r = b.getBoundingClientRect();
+      worst = Math.max(worst, Math.abs(r.top - before[i].top), Math.abs(r.left - before[i].left));
+    });
+    return worst > 2 ? worst.toFixed(2) : '';
+  }
+
+  function tabs(doc) {
+    var problems = [];
+    var imp = doc.getElementById('page-improvements');
+    doc.getElementById('tab-improvements').click();
+    imp.scrollTop = 180;
+    var ids = Array.prototype.map.call(doc.querySelectorAll('[data-up]'), function (b) { return b.getAttribute('data-up'); });
+    var affordable = doc.querySelector('#ups button:not([disabled])');
+    if (affordable) affordable.click();
+    var after = Array.prototype.map.call(doc.querySelectorAll('[data-up]'), function (b) { return b.getAttribute('data-up'); });
+    if (ids.join('|') !== after.join('|')) problems.push('improvement order changed');
+    doc.getElementById('tab-inventions').click();
+    doc.getElementById('page-inventions').scrollTop = 30;
+    doc.getElementById('tab-improvements').click();
+    if (Math.abs(imp.scrollTop - 180) > 2) problems.push('improvement scroll was not kept');
+    return problems;
+  }
+};
+</script>
+</body>
+</html>

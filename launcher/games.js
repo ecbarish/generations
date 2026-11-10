@@ -67,6 +67,12 @@ window.ArcadeGames=[
    tags:['Shipping office','Routes and lights','A real ending'],cover:'saltmarsh',
    kind:'build',goal:'Build the fleet, choose the routes, light the coast, and send the last voyage.',
    controls:'Mouse or tap: Row the cargo, buy boats, and choose a route or a light when the desk offers one. The game remembers the office on this device.'},
+  {id:'patent-pending',title:'Patent Pending',tcls:'t-mmo',status:['Test version','s-proto'],href:'games/patent-pending/index.html',image:'images/lab/patent-pending.png',
+   alt:'Patent Pending: a paperclip, a spoon and a stamp on the town patent desk',
+   blurb:'Run a tiny patent office. File one doodle, hire a clerk, and climb from a better paperclip to a sky-ship.',
+   tags:['Patent office','Clerks','A new charter'],cover:'patent',
+   kind:'build',goal:'File inventions, hire clerks to keep them filing, and seal a new charter when the bonus is worth the fresh start.',
+   controls:'Mouse or tap. Stamp the desk, file an invention, and hire its clerk. The office is saved on this device.'},
 ];
 
 /* AR-SHELVE (Evan, 2026-10-13): off the site but kept. Their code, folders and save keys stay; old direct links still open.
