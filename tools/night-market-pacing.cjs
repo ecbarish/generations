@@ -442,8 +442,12 @@ if (typeof module !== 'undefined' && require.main === module) {
     const context = { console: console, window: null, Arcade: {} }; context.window = context;
     vm.createContext(context);
     let modelSource;
-    for (const file of ['shared/idle-core.js', 'games/night-market/model.js']) {
-      const source = ref ? cp.execFileSync('git', ['show', ref + ':' + file], { cwd: root, encoding: 'utf8' }) : fs.readFileSync(path.join(root, file), 'utf8');
+    for (const file of ['shared/idle-core.js', 'shared/payback-label.js', 'games/night-market/model.js']) {
+      let source;
+      if (ref) {
+        try { source = cp.execFileSync('git', ['show', ref + ':' + file], { cwd: root, encoding: 'utf8' }); }
+        catch (e) { if (file === 'shared/payback-label.js') continue; throw e; }
+      } else source = fs.readFileSync(path.join(root, file), 'utf8');
       if (file.endsWith('model.js')) modelSource = source;
       vm.runInContext(source, context, { filename: file });
     }

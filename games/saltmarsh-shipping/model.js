@@ -591,12 +591,6 @@
     return cost / added;
   }
 
-  function paybackLabel(seconds) {
-    if (!(seconds > 0) || !isFinite(seconds)) return '';
-    if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
-    return Math.max(1, Math.round(seconds)) + 's';
-  }
-
   function rateWords(n) {
     var shown, text;
     if (!(n > 0)) return '0 coins a second';
@@ -613,7 +607,7 @@
   function paybackLine(state, i) {
     var boat = spec(i);
     if (!boat) return '';
-    var label = paybackLabel(paybackSeconds(state, i));
+    var label = PaybackLabel(paybackSeconds(state, i));
     if (!label) return '';
     var added = marginalRate(state, i);
     var mult = Idle.milestoneMult((state.boats[i] ? state.boats[i].owned : 0) + 1);
@@ -1823,7 +1817,7 @@
     nextIn: nextIn,
     paybackSeconds: paybackSeconds,
     paybackLine: paybackLine,
-    paybackLabel: paybackLabel,
+    paybackLabel: PaybackLabel,
     rateWords: rateWords,
     shedNote: shedNote,
     needMore: needMore,
