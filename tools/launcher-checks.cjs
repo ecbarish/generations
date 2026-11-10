@@ -64,11 +64,16 @@ const FOCUS=['little-ranch','keymaster','saltmarsh-shipping','night-market'];
   check(!(await p.locator('#lab [data-game="starfall-preview"]').innerText()).includes('Wrong shared progress'),'preview ignores arbitrary shared index starfall-preview');
   check((await p.locator('#lab [data-game="realmbound"] .prog').innerText()).includes('Level 12 hero'),'saved progress shown');check((await p.locator('#lab [data-game="realmbound"] a.play').innerText())==='Continue','Continue when a save exists');
   check(!/Wildbond|Lantern Bowl|football night/.test(await p.locator('main').innerText()),'the Lab does not promote Wildbond or Lantern Bowl');
+  check(!lab.includes('lantern-bowl'),'Lantern Bowl is not a Lab card');
+  const labLinks=await p.evaluate(()=>[...document.querySelectorAll('a[href]')].map(a=>a.getAttribute('href')||''));
+  check(!labLinks.some(h=>/lantern-bowl/i.test(h)),'the Lab does not link to Lantern Bowl');
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
   check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow (lab '+width+')');
   if(width===WIDTHS[0][0]){await shareOk(p,'lab');await linksOk(p,'lab');
+   const labSource=await (await p.request.get(origin+'/lab.html')).text();
+   check(!/lantern-bowl|Lantern Bowl|football night/i.test(labSource),'lab.html does not list Lantern Bowl');
    await p.locator('#lab [data-game="realmbound"] [data-reset]').click();await p.locator('#lab [data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');
    for(const g of games.filter(g=>g.href)){const r=await p.request.get(origin+'/'+g.href);check(r.ok(),'play target exists: '+g.id);}
    const nm=await p.request.get(origin+'/games/night-market/index.html');check(nm.ok(),'Night Market still opens by its own address');}
@@ -81,7 +86,7 @@ const FOCUS=['little-ranch','keymaster','saltmarsh-shipping','night-market'];
    check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow ('+slug+' '+width+')');
    if(width===WIDTHS[0][0]){await shareOk(p,slug);await linksOk(p,slug);}
   }
-  for(const id of SHELVED){const r=await p.request.get(origin+'/games/'+id+'/index.html');check(r.ok(),'old direct link still opens: '+id);}
+  for(const id of SHELVED){const r=await p.request.get(origin+'/games/'+id+'/index.html');check(r.ok(),id==='lantern-bowl'?'shelved Lantern Bowl still opens by its address':'old direct link still opens: '+id);}
   check(engineRequests.length===0,'visiting the hub never fetches Godot payloads');check(errors.length===0,'no page errors: '+errors.join(';'));
   check(await savesIntact(p),'saves untouched');
   await c.close();console.log(width+'x'+height+': PASS');

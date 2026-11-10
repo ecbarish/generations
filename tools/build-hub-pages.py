@@ -79,6 +79,8 @@ idx+='<body data-base="">\n'+bar('','home')+f'''<main id="main">
 '''+foot('',True)+scripts('',True,'The arcade homepage',"Hub.render(document.getElementById('current'),Hub.current(),{short:true,page:true,eager:true});Hub.redirectOldHash();addEventListener('hashchange',()=>Hub.redirectOldHash());Hub.cta(document.getElementById('heroPlay'),'little-ranch','Little Ranch');")
 open('index.html','w').write(idx)
 # ---------- lab ----------
+# Lantern Bowl is shelved (Evan, 2026-10-18). Do not put it in this page, the noscript list, or the share text.
+# games/lantern-bowl/ stays playable by its own address.
 lab=head('','The Lab: test versions and prototypes · Generations','Early test versions and prototypes from Generations: arcade cabinets, a baseball club, a frontier town and a story life sim.','lab.html','images/lab/storm-front.jpg','Storm Front')
 lab+='<body data-base="">\n'+bar('','lab')+'''<main id="main"><section class="section"><div class="wrap">
 <div class="section-head"><div><h1 class="logo" style="font-size:clamp(1.8rem,1.2rem + 2vw,3.2rem);margin:0 0 .4rem">The Lab</h1><p style="color:var(--muted);margin:0;max-width:62ch">Test versions and prototypes. They may change a lot between visits, and some are rough. Each keeps its own save on this device.</p></div><a class="btn btn-ghost btn-sm" href="index.html#games">← Current games</a></div>

@@ -1,5 +1,6 @@
 /* Hub, Lab and game pages (HUB-REDESIGN, 2026-10-14). Reads the display-only save index; never writes a save
-   except when the player confirms "Erase and start over" on a card. Classic editions are never shown. */
+   except when the player confirms "Erase and start over" on a card. Classic editions are never shown.
+   Lantern Bowl has been shelved since 2026-10-18, so it is never a hub or Lab card. Its own address still opens. */
 (function () {
   'use strict';
   const VERSION = '1.9.0';
@@ -14,10 +15,11 @@
     'starfall-preview': 'Build a frontier guild town: post jobs, cook at the inn, work the forge, then hire help.',
     realmbound: 'A classic-MMO adventure from level 1 to 60. Quest, dungeon, raid, or let Auto play.'
   };
-  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1, 'saltmarsh-shipping': 1 };
+  const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', otherworld: 1, 'little-ranch': 1, 'saltmarsh-shipping': 1 };
+  const SHELVED_IDS = new Set(['lantern-bowl']);
   const GODOT_SAVES = {};
   const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1', keymaster: 'keymaster-save-v1' };
-  const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer);
+  const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer && !SHELVED_IDS.has(g.id));
   let idx = {};
   try { idx = window.ArcadeSportsProgress ? ArcadeSportsProgress.forHall(Arcade.readIndex()) : Arcade.readIndex(); } catch (_) { idx = {}; }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
