@@ -320,26 +320,62 @@
     return null;
   }
 
+  function placeChoice(box, offer) {
+    var trigger = choiceTrigger(offer);
+    var bar = document.querySelector('.goalbar');
+    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
+    var viewH = window.innerHeight || 800;
+    var cardMid = viewH * 0.45;
+    if (trigger) {
+      var card = trigger.getBoundingClientRect();
+      if (card.height > 0 && card.width > 0) cardMid = card.top + card.height / 2;
+    }
+    function pinBelow() {
+      box.style.top = 'auto';
+      box.style.bottom = (barH + 8) + 'px';
+      var cardBottom = trigger ? trigger.getBoundingClientRect().bottom : 0;
+      var room = viewH - (cardBottom > 0 ? cardBottom : 0) - barH - 16;
+      box.style.maxHeight = cardBottom > 8 && room > 140 ? Math.floor(room) + 'px' : '';
+    }
+    function pinAbove() {
+      box.style.bottom = 'auto';
+      box.style.top = '4.2rem';
+      var cardTop = trigger ? trigger.getBoundingClientRect().top : viewH;
+      var room = cardTop - 72 - 12;
+      box.style.maxHeight = cardTop < viewH && room > 140 ? Math.floor(room) + 'px' : '';
+    }
+    function overlapsCard() {
+      if (!trigger) return false;
+      var sheet = box.getBoundingClientRect();
+      var card = trigger.getBoundingClientRect();
+      if (!(sheet.height > 0) || !(card.height > 0)) return false;
+      return sheet.top < card.bottom - 1 && sheet.bottom > card.top + 1 && sheet.left < card.right && sheet.right > card.left;
+    }
+    if (cardMid < viewH * 0.5) pinBelow();
+    else pinAbove();
+    if (overlapsCard()) {
+      if (box.style.top === 'auto') pinAbove();
+      else pinBelow();
+    }
+  }
+
   function fillChoice() {
     var box = $('#choice');
     if (!box) return;
     var back = $('#choice-back');
     var offer = M.deskChoice(state);
-    box.hidden = !offer;
-    if (back) back.hidden = !offer;
-    if (box.hidden) {
+    if (!offer) {
+      box.hidden = true;
+      if (back) back.hidden = true;
       box.style.top = '';
       box.style.bottom = '';
+      box.style.maxHeight = '';
       return;
     }
-    /* Keep the sheet on the half of the screen the finger is not on. */
-    if (view.lastY > window.innerHeight * 0.42) {
-      box.style.top = '4.2rem';
-      box.style.bottom = 'auto';
-    } else {
-      box.style.top = 'auto';
-      box.style.bottom = '4.6rem';
-    }
+    placeChoice(box, offer);
+    box.hidden = false;
+    if (back) back.hidden = false;
+    if (placeChoice) placeChoice(box, offer);
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -660,7 +696,7 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + (offers.length ? '' : ':done');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + ':r' + M.routesSailing(state) + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
@@ -699,9 +735,17 @@
       for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
+      if (spec && spec.id === 'quay' && (state.lights.quay || 0) < 2) {
+        var habit = button.closest('.light-card') && button.closest('.light-card').querySelector('.habit');
+        var needs = M.lightClosed(state, spec);
+        var story = spec.lines[(state.lights.quay || 0)] || spec.lines[0];
+        if (habit) habit.textContent = needs && needs !== 'Not yet' && needs !== 'Burning' ? needs : story;
+      }
       if (!offer || offer.blocked) {
         button.disabled = true;
-        button.textContent = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
+        var closed = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
+        var stop = closed.indexOf('. ');
+        button.textContent = stop > 0 ? closed.slice(0, stop + 1) : closed;
         return;
       }
       button.dataset.act = 'light';
@@ -860,7 +904,7 @@
     if (box.hidden) return;
     var stats = state.ending || M.statsOf(state, Date.now());
     var voyageHow = '';
-    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot took the deep channel, and every route paid a little more.';
+    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot brought the risky cargo back in.';
     if (state.prepDone && state.prepDone.pilot === 'chart') voyageHow = ' The bought chart stayed in the cabin, and the boats earned a little more.';
     $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.' + voyageHow;
     var list = $('#ending-stats');
@@ -987,6 +1031,8 @@
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
     var deskOpen = !!M.deskChoice(state);
     ask.hidden = askIndex < 0 || deskOpen;
+    var pellBanner = $('#pell-banner');
+    if (pellBanner) pellBanner.hidden = askIndex !== 3 || view.pellClosed || deskOpen;
     if (askIndex >= 0 && !deskOpen) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
@@ -1317,6 +1363,11 @@
       if (held.bulk) b.dataset.bulk = held.bulk;
     }
     if (b.id === 'row' || b.id === 'sound' || b.id === 'ask' || b.classList.contains('arc-set-btn')) return;
+    if (b.id === 'pell-close') {
+      view.pellClosed = true;
+      render();
+      return;
+    }
     if (b.dataset.bulk) {
       keepPlace(function () {
         M.setBulk(state, b.dataset.bulk);
@@ -1554,6 +1605,7 @@
     }
     setTimeout(settle, 50);
   });
+  window.addEventListener('pageshow', function () { render(); });
   function captainGain(books) {
     var nowBooks = M.captainBooks(state);
     var n = 0;

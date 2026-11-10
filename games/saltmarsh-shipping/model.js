@@ -464,7 +464,7 @@
       shed: {
         name: 'Another shed',
         cost: price,
-        line: (price == null ? 'The yard is full.' : 'Pay ' + coins(price) + ' coins and one more shed stands. The office keeps two more hours when the game is closed.') + ' Taking the fitting instead leaves this price where it is.',
+        line: (price == null ? 'The yard is full.' : coins(price) + ' coins. Another shed keeps two more hours while the game is closed.') + ' The fitting leaves this price.',
         affordable: price != null && state.cash >= price
       }
     };
@@ -824,7 +824,6 @@
     var keep = Math.min(0.2, hauls * 0.01);
     if (state.pilot === 'bell') keep += 0.05;
     if (state.lights && state.lights.quay >= 2) keep = Math.min(0.4, keep * 2);
-    if (state.events && state.events.request === 'grant') keep += 0.05;
     return keep > 0.4 ? 0.4 : keep;
   }
   function brambleHaste(state) {
@@ -867,6 +866,8 @@
       var g = gross - cut;
       if (g < 0) g = 0;
       if (spec.wren) g *= (1 + wrenKeep(state));
+      if (spec.wren && state.events && state.events.request === 'grant') g *= 1.35;
+      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') g += (state.routeCut && state.routeCut[spec.id]) || 0;
       if (spec.bramble) g *= (1 + brambleHaste(state));
       if (state.routeGear && state.routeGear[spec.id]) g *= 1.2;
       n += g;
@@ -1091,8 +1092,22 @@
     if ((state.lights && state.lights[spec.id] || 0) >= 2) return 'Burning';
     if (spec.id === 'quay') {
       var barks = (state.boats && state.boats[3] && state.boats[3].owned) || 0;
-      if (barks < BARK_LAMP) return 'Own 16 barks to light the house lamp, ' + (BARK_LAMP - barks) + ' to go.';
-      if (!state.forks || !state.forks.quay) return 'Choose the quay lamp on the desk.';
+      var parts = [];
+      var routeNeed = spec.needRoutes || 1;
+      var sailing = routesSailing(state);
+      if (sailing < routeNeed) {
+        var routesLeft = routeNeed - sailing;
+        parts.push(routesLeft === 1
+          ? 'Sign 1 more route. The Quay Lighthouse opens when four routes are sailing.'
+          : 'Sign ' + routesLeft + ' more routes. The Quay Lighthouse opens when four routes are sailing.');
+      }
+      if (!state.forks || !state.forks.quay) {
+        parts.push(barks < BARK_QUAY
+          ? 'The quay choice opens at 12 barks, ' + (BARK_QUAY - barks) + ' to go.'
+          : 'Choose the quay lamp on the desk, or the deeper holds.');
+      }
+      if (barks < BARK_LAMP) parts.push('The house lamp lights at 16 barks, ' + (BARK_LAMP - barks) + ' to go.');
+      if (parts.length) return parts.join(' ');
     }
     var need = spec.needRoutes || 1;
     var have = routesSailing(state);
@@ -1144,13 +1159,13 @@
      about a tenth, and the two sides of a fork do not cost the same. */
   var PREPARATIONS = [
     { id: 'victuals', name: 'Food for the crew', stake: 40, choice: [
-      { id: 'fresh', name: 'Fresh food', costMul: 1.35, route: 0.22, line: 'Fresh food. Every route pays 22% more.' },
-      { id: 'pork', name: 'Salt pork', costMul: 0.7, nextCut: 0.25, line: 'Salt pork. The next errand costs 25% less.' }
+      { id: 'fresh', name: 'Fresh food', costMul: 1.1, route: 0.4, line: 'Fresh food. Every route pays 40% more.' },
+      { id: 'pork', name: 'Salt pork', costMul: 0.9, nextCut: 0.12, line: 'Salt pork. The next errand costs 12% less.' }
     ]},
     { id: 'canvas', name: 'Canvas for the sails', stake: 48, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
     { id: 'pilot', name: 'A pilot for the bar', stake: 42, choice: [
-      { id: 'pilot', name: 'A pilot', costMul: 1.4, shield: true, line: 'A pilot. Risky routes lose only half as much.' },
-      { id: 'chart', name: 'A bought chart', costMul: 0.72, boat: 0.18, line: 'A chart. Every boat earns 18% more.' }
+      { id: 'pilot', name: 'A pilot', costMul: 1, shield: true, line: 'A pilot. The risky cargo comes back in.' },
+      { id: 'chart', name: 'A bought chart', costMul: 0.96, boat: 0.1, line: 'A chart. Every boat earns 10% more.' }
     ]},
     { id: 'tide', name: 'The tide table', stake: 44, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' }
   ];
@@ -1165,7 +1180,7 @@
   function prepRouteFactor(state) {
     var done = prepDoneMap(state);
     var m = 1 + 0.012 * ((state && state.works) || 0);
-    if (done.victuals === 'fresh') m *= 1.22;
+    if (done.victuals === 'fresh') m *= 1.4;
     if (done.canvas) m *= 1.2;
     if (done.tide) m *= 1.2;
     return m;
@@ -1173,8 +1188,16 @@
   function boatPrepFactor(state) {
     var done = prepDoneMap(state);
     var m = 1;
-    if (done.pilot === 'chart') m *= 1.18;
+    if (done.pilot === 'chart') m *= 1.1;
     return m;
+  }
+  function porkCutsNext(state, item) {
+    if (!item || item.id !== 'canvas') return false;
+    if (!state || !state.prepDone || state.prepDone.victuals !== 'pork') return false;
+    var done = 0;
+    var i;
+    for (i = 0; i < PREPARATIONS.length; i++) if (state.prepDone[PREPARATIONS[i].id]) done += 1;
+    return done === 1;
   }
   function voyageOpen(state) {
     return !!(state && !state.ended && allLightsLit(state));
@@ -1185,7 +1208,7 @@
     if (!(state.prepPrices[item.id] > 0)) {
       var cost = Math.max(1, Math.round(officeRate(state) * (item.stake || 40)));
       if (item.id === 'victuals' && state.events && state.events.windfall === 'stow') cost = Math.round(cost * 0.7);
-      if (item.id !== 'victuals' && state.prepDone && state.prepDone.victuals === 'pork') cost = Math.round(cost * 0.75);
+      if (porkCutsNext(state, item)) cost = Math.round(cost * (1 - (prepOption(preparationById('victuals'), 'pork').nextCut || 0)));
       state.prepPrices[item.id] = Math.max(1, cost);
     }
     return state.prepPrices[item.id];
@@ -1499,7 +1522,7 @@
     if (id === 'request') return {
       goal: 'Choose Capt. Wren\'s request, or keep the purse.',
       cards: [
-        { which: 'grant', name: 'Let Wren keep the gull\'s coin', line: 'Wren\'s count keeps 5% more of Gull Rock.' },
+        { which: 'grant', name: 'Let Wren keep the gull\'s coin', line: 'Gull Rock pays 35% more.' },
         { which: 'purse', name: 'Keep the purse', line: 'The coin stays in the chest.' }
       ]
     };
@@ -1525,7 +1548,7 @@
         goal: spec.goal,
         cards: spec.cards.map(function (card) {
           var line = card.line;
-          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(Math.max(1, officeRate(state)) * 36)) + ' to the chest.';
+          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(Math.max(1, officeRate(state)) * 12)) + ' to the chest.';
           if (id === 'windfall' && card.which === 'sell') line = 'The crate pays ' + coins(Math.round(Math.max(1, officeRate(state)) * 48)) + ' now.';
           return {
             which: card.which,
@@ -1576,7 +1599,7 @@
       pushLog(state, 'Capt. Wren keeps the gull\'s coin. Her count holds a little more of Gull Rock.', now);
     } else if (id === 'request') {
       state.events.request = 'purse';
-      addCash(state, Math.round(rate * 36));
+      addCash(state, Math.round(rate * 12));
       pushLog(state, 'The purse stays in the chest. Capt. Wren lets the gull have its coin.', now);
     } else if (id === 'windfall' && which === 'stow') {
       state.events.windfall = 'stow';
