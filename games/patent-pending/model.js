@@ -13,7 +13,7 @@
   var SAVE_KEY = 'patent-pending-save-v1';
   var SAVE_VERSION = 1;
   var N = INVENTIONS.length;
-  var COMBO_WINDOW = 1500;
+  var COMBO_WINDOW = 3400;
   var COMBO_NEED = 4;
   var BOOST_MS = 8000;
   var BASE_AWAY_HOURS = 4;
@@ -75,7 +75,8 @@
       streak: 0,
       day: '',
       seen: null,
-      play: 0
+      play: 0,
+      awayLongest: 0
     };
   }
 
@@ -125,7 +126,8 @@
       streak: state.streak,
       day: state.day || '',
       seen: typeof seen === 'number' ? seen : state.seen,
-      play: state.play
+      play: state.play,
+      awayLongest: state.awayLongest || 0
     };
   }
 
@@ -167,6 +169,7 @@
     state.day = typeof o.day === 'string' ? o.day : '';
     state.seen = typeof o.seen === 'number' && isFinite(o.seen) ? o.seen : null;
     state.play = Math.max(0, num(o.play, 0));
+    state.awayLongest = Math.max(0, num(o.awayLongest, 0));
     return state;
   }
 
@@ -228,16 +231,27 @@
     return c > 0 ? c : 1;
   }
 
-  function unitCost(state, i) {
+  /* The first 49 paperclips stay on Penny Loop's price, and so does the first
+     copy of each later invention. The copy after that jumps, then climbs, so
+     the next filing takes about a minute instead of a tap. */
+  var COPY_JUMP = 1800;
+  var COPY_EXTRA = 1.35;
+  function copyPrice(i, owned) {
     var v = INVENTIONS[i];
-    return coins(v.base * Math.pow(v.growth, state.owned[i]));
+    var cost = v.base * Math.pow(v.growth, owned);
+    var gate = i === 0 ? 50 : 1;
+    if (owned >= gate) cost *= COPY_JUMP * Math.pow(COPY_EXTRA, owned - gate);
+    return coins(cost);
+  }
+
+  function unitCost(state, i) {
+    return copyPrice(i, state.owned[i]);
   }
 
   function bulkCost(state, i, count) {
-    var v = INVENTIONS[i];
     var total = 0;
     var n = count > 0 ? count : 0;
-    for (var k = 0; k < n; k++) total += coins(v.base * Math.pow(v.growth, state.owned[i] + k));
+    for (var k = 0; k < n; k++) total += copyPrice(i, state.owned[i] + k);
     return total;
   }
 
@@ -245,9 +259,8 @@
     var want = state.bulk === 10 || state.bulk === 0 ? 10 : 1;
     var left = state.cash;
     var n = 0;
-    var v = INVENTIONS[i];
     while (n < want) {
-      var c = coins(v.base * Math.pow(v.growth, state.owned[i] + n));
+      var c = copyPrice(i, state.owned[i] + n);
       if (left < c) break;
       left -= c;
       n++;
@@ -336,6 +349,7 @@
     if (test.kind === 'charters') return state.charters >= test.n;
     if (test.kind === 'seals') return state.seals >= test.n;
     if (test.kind === 'boosts') return state.boosts >= test.n;
+    if (test.kind === 'away') return (state.awayLongest || 0) >= test.n;
     return false;
   }
 
@@ -404,8 +418,15 @@
     return pay;
   }
 
+  function pacedSeconds(seconds) {
+    var s = seconds > 0 ? seconds : 45;
+    if (s < 30) s = 30;
+    if (s > 60) s = 60;
+    return s;
+  }
+
   function goalPay(state, goal, now, day) {
-    return Math.round(rewardRate(state, now, day) * goal.seconds);
+    return Math.round(rewardRate(state, now, day) * pacedSeconds(goal.seconds));
   }
 
   function checkGoals(state, now, day) {
@@ -457,7 +478,7 @@
       grant(state, pay);
       state.combo = 0;
     } else if (state.clerk[chosen] && !(now < state.boostUntil)) {
-      if (now - state.lastStamp <= 400) state.combo += 1;
+      if (now - state.lastStamp > 0 && now - state.lastStamp <= COMBO_WINDOW) state.combo += 1;
       else state.combo = 1;
       if (state.combo >= COMBO_NEED) {
         state.boostIndex = chosen;
@@ -584,6 +605,7 @@
     next.coachOff = true;
     next.introduced = true;
     next.play = state.play;
+    next.awayLongest = state.awayLongest || 0;
     replaceState(state, next);
     return { ok: true, gain: preview.gain, preview: preview };
   }
@@ -598,7 +620,13 @@
   }
 
   function slipPay(state, now, day) {
-    return Math.round(rewardRate(state, now, day) * 8);
+    return Math.round(rewardRate(state, now, day) * 45);
+  }
+
+  function noteReturn(state, credited, now, day) {
+    var span = credited > 0 ? credited : 0;
+    if (span > (state.awayLongest || 0)) state.awayLongest = span;
+    return checkAll(state, now, day);
   }
 
   function produce(state, seconds, now, day) {
@@ -618,9 +646,22 @@
     return managedRate(copy, now, day) - before;
   }
 
+  function purchaseVerb(state, pick) {
+    if (!pick) return '';
+    if (pick.kind === 'hire') return 'hire ' + INVENTIONS[pick.index].clerk;
+    if (pick.kind === 'upgrade') {
+      var name = 'that improvement';
+      for (var i = 0; i < UPGRADES.length; i++) if (UPGRADES[i].id === pick.id) name = UPGRADES[i].name;
+      return 'file ' + name;
+    }
+    var inv = INVENTIONS[pick.index];
+    if (state.owned[pick.index] <= 0) return 'file the ' + inv.name;
+    return 'file another ' + inv.name;
+  }
+
   /* The next coin a casual filer would spend: the affordable buy that adds the
      most income per coin, or the one they are saving for when nothing is affordable. */
-  function nextPurchase(state, now, day) {
+  function purchaseOptions(state, now, day) {
     var options = [];
     function consider(kind, index, id, cost, gain) {
       if (!(cost > 0) || !isFinite(cost) || !(gain > 0)) return;
@@ -633,8 +674,15 @@
         if (!waiting || wc < waiting.cost) waiting = { kind: 'hire', index: w, id: null, cost: wc, gain: 1, score: 1 };
       }
     }
-    /* A clerk for something you already own comes before another filing. */
-    if (waiting) return waiting;
+    /* Hire a clerk you can afford, or one that is about two minutes of filing.
+       A clerk who costs the rest of the afternoon does not block the other desks. */
+    if (waiting) {
+      var rateNow = managedRate(state, now, day);
+      var hireLimit = Math.max(120, rateNow * 120);
+      if (state.cash >= waiting.cost || waiting.cost <= hireLimit) return [waiting];
+      var hireGain = addedRate(state, function (s) { s.clerk[waiting.index] = true; }, now, day);
+      if (hireGain > 0) options.push({ kind: 'hire', index: waiting.index, id: null, cost: waiting.cost, gain: hireGain, score: hireGain / waiting.cost });
+    }
     for (var i = 0; i < N; i++) {
       if (state.clerk[i] && state.owned[i] > 0) {
         consider('buy', i, null, unitCost(state, i), addedRate(state, function (s) {
@@ -658,10 +706,49 @@
         s.up[up.id] = true;
       }, now, day));
     }
-    if (!options.length) return null;
     options.sort(function (a, b) { return b.score - a.score; });
-    for (var n = 0; n < options.length; n++) if (state.cash >= options[n].cost) return options[n];
-    return options[0];
+    return options;
+  }
+
+  function nextPurchase(state, now, day) {
+    var options = purchaseOptions(state, now, day);
+    if (!options.length) return null;
+    /* The first 49 paperclips buy whatever they can afford. After that, save for
+       the strongest filing that is about two minutes away, instead of emptying
+       the drawer on a cheap copy. */
+    if (state.owned[0] < 50) {
+      for (var n = 0; n < options.length; n++) if (state.cash >= options[n].cost) return options[n];
+      return options[0];
+    }
+    var rate = managedRate(state, now, day);
+    var horizon = state.cash + Math.max(0, rate) * 120;
+    var pool = [];
+    for (var i = 0; i < options.length; i++) if (options[i].cost <= horizon) pool.push(options[i]);
+    if (!pool.length) pool = options;
+    pool.sort(function (a, b) { return b.score - a.score; });
+    return pool[0];
+  }
+
+  /* What this return's fees newly cover. A filing you could already afford is skipped. */
+  function nextUnlock(state, extra, now, day) {
+    var gain = extra > 0 ? extra : 0;
+    var options = purchaseOptions(state, now, day);
+    if (!options.length) return null;
+    var fresh = [];
+    var later = [];
+    for (var i = 0; i < options.length; i++) {
+      var opt = options[i];
+      if (state.cash >= opt.cost) continue;
+      if (state.cash + gain >= opt.cost) fresh.push(opt);
+      else later.push(opt);
+    }
+    if (fresh.length) {
+      fresh.sort(function (a, b) { return b.score - a.score; });
+      return { affordable: true, text: 'You can now ' + purchaseVerb(state, fresh[0]) + '.' };
+    }
+    if (!later.length) return null;
+    later.sort(function (a, b) { return b.score - a.score; });
+    return { affordable: false, text: 'You are still saving to ' + purchaseVerb(state, later[0]) + '.' };
   }
 
   function awayLines(state, awaySec, now, day) {
@@ -732,6 +819,9 @@
     goalPay: goalPay,
     produce: produce,
     nextPurchase: nextPurchase,
+    nextUnlock: nextUnlock,
+    noteReturn: noteReturn,
+    pacedSeconds: pacedSeconds,
     passes: passes,
     checkAll: checkAll,
     stamp: stamp,

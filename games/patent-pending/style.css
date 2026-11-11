@@ -213,6 +213,34 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 .intro-card h2 { margin: 0 0 8px; }
 .intro-card p { color: var(--muted); }
 #open-office, #welcome-collect { width: 100%; padding: 10px 14px; }
+@media (max-height: 740px) {
+  .desk-head { padding: calc(env(safe-area-inset-top) + 4px) 12px 4px; }
+  h1 { font-size: 1.15rem; }
+  .fees { font-size: 1.35rem; }
+  .notice {
+    height: 108px; min-height: 108px; max-height: 108px;
+    flex-basis: 108px; margin-top: 4px;
+  }
+  .tabs { margin-top: 4px; }
+  .stamp, .stamp:hover, .stamp:focus, .stamp:active {
+    height: 64px; min-height: 64px; max-height: 64px;
+    flex-basis: 64px; margin-top: 4px;
+  }
+  .docket { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-height: 640px) {
+  .top { min-height: 36px; }
+  h1 { font-size: 1.05rem; }
+  .fees { font-size: 1.2rem; }
+  .docket { display: none; }
+  .notice { height: 96px; min-height: 96px; max-height: 96px; flex-basis: 96px; }
+  .stamp, .stamp:hover, .stamp:focus, .stamp:active {
+    height: 52px; min-height: 52px; max-height: 52px; flex-basis: 52px;
+  }
+  .blurb, .bar { display: none; }
+  .card { min-height: 0; padding: 6px; }
+  .bulk { margin-bottom: 6px; }
+}
 @media (min-width: 900px) {
   .rows { grid-template-columns: 1fr 1fr; }
   .office { padding-bottom: 12px; }

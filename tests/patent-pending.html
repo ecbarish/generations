@@ -59,7 +59,7 @@ document.querySelector('#run').onclick = function () {
   var realClear = window.clearInterval;
   try {
     var P = window.Patent;
-    check('eighteen inventions, twenty-two goals, twenty achievements', P.INVENTIONS.length === 18 && P.GOALS.length === 22 && P.ACHIEVEMENTS.length === 20);
+    check('eighteen inventions, twenty-three goals, twenty achievements', P.INVENTIONS.length === 18 && P.GOALS.length === 23 && P.ACHIEVEMENTS.length === 20);
     check('the upstream file builds 71 improvements', P.UPGRADES.length === 71);
     check('the first invention is the Better Paperclip and the twelfth climb is the Sky-ship', P.INVENTIONS[0].name === 'Better Paperclip' && P.INVENTIONS[12].name === 'Sky-ship');
 
@@ -71,7 +71,8 @@ document.querySelector('#run').onclick = function () {
 
     var spoon = P.fresh();
     var spoonDef = P.INVENTIONS[1];
-    check('five spoons cost the same whole coins as a counted ladder', P.bulkCost(spoon, 1, 5) === Math.round(brute(spoonDef.base, spoonDef.growth, 0, 5)) || P.bulkCost(spoon, 1, 5) === wholeCost(spoonDef.base, spoonDef.growth, 0, 5));
+    check('the first spoon still costs Penny Loop\'s whole coins', P.unitCost(spoon, 1) === Math.max(1, Math.round(spoonDef.base)));
+    check('a second spoon costs more than the Penny ladder', P.bulkCost(spoon, 1, 2) > wholeCost(spoonDef.base, spoonDef.growth, 0, 2));
     check('Clerk Pip costs 120 coins and the spoon clerk is the upstream price', P.clerkCost(0) === 120 && P.clerkCost(1) === Math.round(spoonDef.base * 90));
     check('milestones double at 25, 50 and 100', P.milestone(0) === 1 && P.milestone(24) === 1 && P.milestone(25) === 2 && P.milestone(50) === 4 && P.milestone(100) === 8);
 
@@ -89,7 +90,7 @@ document.querySelector('#run').onclick = function () {
     slipOffice.clerk[0] = true;
     slipOffice.streak = 0;
     var slip = P.slipPay(slipOffice, 1000, DAY);
-    check('a filing slip is eight seconds of clerk income', slip === Math.round(P.managedRate(slipOffice, 1000, DAY) * 8));
+    check('a filing slip is forty-five seconds of clerk income', slip === Math.round(P.managedRate(slipOffice, 1000, DAY) * 45) && slip <= Math.round(P.managedRate(slipOffice, 1000, DAY) * 60) && slip >= Math.round(P.managedRate(slipOffice, 1000, DAY) * 30));
     for (var s = 0; s < 4; s++) P.stamp(hand, 6000 + s * 1000, DAY);
     check('five stamps finish the first goal', hand.stamps === 5 && hand.goal === 1 && hand.cash === 25);
 
@@ -108,8 +109,33 @@ document.querySelector('#run').onclick = function () {
     var gap = P.fresh();
     gap.clerk[0] = true;
     P.stamp(gap, 1000, DAY);
-    P.stamp(gap, 3000, DAY);
-    check('a slow second stamp starts the combo over', gap.combo === 1 && gap.boosts === 0);
+    P.stamp(gap, 5000, DAY);
+    check('a stamp four seconds later starts the count over', gap.combo === 1 && gap.boosts === 0);
+    var meter = P.fresh();
+    meter.clerk[0] = true;
+    P.stamp(meter, 1000, DAY);
+    P.stamp(meter, 3500, DAY);
+    P.stamp(meter, 6000, DAY);
+    var paced = P.stamp(meter, 8500, DAY);
+    check('four stamps at 2.5 seconds boost the clerk', paced.boosted && meter.boosts === 1 && meter.boostUntil === 8500 + P.BOOST_MS);
+    var half = 0;
+    for (var gi = 0; gi < P.GOALS.length; gi++) if (P.GOALS[gi].id === 'halfhour') half = gi;
+    var earlyBack = P.fresh();
+    earlyBack.clerk[0] = true;
+    earlyBack.goal = half;
+    var earlyFound = P.noteReturn(earlyBack, 10 * 60, 1000, DAY);
+    check('ten minutes away does not file the twenty-minute goal', earlyFound.goals.length === 0 && earlyBack.goal === half);
+    var home = P.fresh();
+    home.clerk[0] = true;
+    home.goal = half;
+    var homeFound = P.noteReturn(home, 20 * 60, 1000, DAY);
+    check('twenty minutes away files the mid-game goal', homeFound.goals.length === 1 && homeFound.goals[0].id === 'halfhour' && home.goal === half + 1);
+    var desk = P.fresh();
+    desk.clerk[0] = true;
+    desk.cash = 40;
+    desk.owned[0] = 5;
+    var unlockedBuy = P.nextUnlock(desk, 80, 1000, DAY);
+    check('away fees name the filing they can now pay for', unlockedBuy && unlockedBuy.affordable && unlockedBuy.text.indexOf('Self-stirring Spoon') >= 0);
 
     var office = P.fresh();
     office.clerk[0] = true;
@@ -227,7 +253,7 @@ document.querySelector('#run').onclick = function () {
       { name: 'four taps a second', stampEvery: 0.25, buyEvery: 2.5, stampAfter: true, focus: false },
       { name: 'buys when it can', stampEvery: 2.5, buyEvery: 2.5, stampAfter: false, focus: false }
     ];
-    var ends = [];
+    var at20 = [];
     specs.forEach(function (spec) {
       var s = P.fresh();
       var step = 0.25;
@@ -236,6 +262,8 @@ document.querySelector('#run').onclick = function () {
       var atHire = 0;
       var at120 = null;
       var at180 = null;
+      var marks = {};
+      var waits = [];
       var sinceS = spec.stampEvery;
       var sinceB = spec.buyEvery;
       function take(next) {
@@ -243,7 +271,15 @@ document.querySelector('#run').onclick = function () {
         else if (next.kind === 'upgrade') P.buyUpgrade(s, next.id, t * 1000, DAY);
         else P.buy(s, next.index, t * 1000, DAY);
       }
-      while (t < 600) {
+      function sample(mark) {
+        if (marks[mark] != null || t + step < mark) return;
+        var rate = P.managedRate(s, mark * 1000, DAY);
+        var next = P.nextPurchase(s, mark * 1000, DAY);
+        var wait = next && rate > 0 && s.cash < next.cost ? next.cost / rate : 0;
+        marks[mark] = rate;
+        if (mark >= 300 && mark <= 1200 && wait > 0) waits.push(wait);
+      }
+      while (t < 1800) {
         P.produce(s, step, t * 1000, DAY);
         sinceS += step;
         sinceB += step;
@@ -262,38 +298,60 @@ document.querySelector('#run').onclick = function () {
         if (!first && s.clerk[0]) { first = t + step; atHire = P.managedRate(s, t * 1000, DAY); }
         if (at120 == null && t + step >= 120) at120 = P.managedRate(s, 120000, DAY);
         if (at180 == null && t + step >= 180) at180 = P.managedRate(s, 180000, DAY);
+        [300, 360, 450, 600, 900, 1200, 1800].forEach(sample);
         t += step;
       }
-      var end = P.managedRate(s, 600000, DAY);
-      ends.push(end);
+      at20.push(marks[1200]);
+      var row = '180s ' + Math.round(at180) + ', ' + [360, 600, 900, 1200, 1800].map(function (m) { return m + 's ' + Math.round(marks[m]); }).join(', ');
+      check(spec.name + ' over thirty minutes (' + row + ')', marks[1800] > 0);
       if (spec.focus) {
+        waits.sort(function (a, b) { return a - b; });
+        var midWait = waits.length ? waits[Math.floor(waits.length / 2)] : 0;
         check(spec.name + ' hires the first clerk in about a minute (saw ' + first.toFixed(0) + ')', first >= 45 && first <= 75);
         check(spec.name + ' earns at least 1 a second the moment Pip is hired (saw ' + atHire.toFixed(1) + ')', atHire >= 1);
-        check(spec.name + ' has the clerks ahead of the stamp by two minutes (saw ' + at120.toFixed(0) + ')', at120 > 2);
-        check(spec.name + ' earns at least 10 a second by three minutes (saw ' + at180.toFixed(0) + ')', at180 >= 10);
-        check(spec.name + ' earns hundreds a second by ten minutes (saw ' + end.toFixed(0) + ')', end >= 100);
+        check(spec.name + ' has the clerks ahead of the stamp by two minutes (saw ' + Math.round(at120) + ')', at120 > 2);
+        check(spec.name + ' is still the early office at three minutes (saw ' + Math.round(at180) + ')', at180 >= 500 && at180 <= 1400);
+        check(spec.name + ' is a few tens of thousands a second at six minutes (saw ' + Math.round(marks[360]) + ')', marks[360] >= 15000 && marks[360] <= 90000);
+        check(spec.name + ' is still under half a million at ten minutes (saw ' + Math.round(marks[600]) + ')', marks[600] >= 60000 && marks[600] <= 500000);
+        check(spec.name + ' is approaching a million a second at fifteen minutes (saw ' + Math.round(marks[900]) + ')', marks[900] >= 200000 && marks[900] <= 1500000);
+        check(spec.name + ' is about a million a second at twenty minutes (saw ' + Math.round(marks[1200]) + ')', marks[1200] >= 700000 && marks[1200] <= 4000000);
+        check(spec.name + ' keeps climbing at thirty minutes without running away (saw ' + Math.round(marks[1800]) + ')', marks[1800] >= 1500000 && marks[1800] <= 40000000);
+        check(spec.name + ' reaches the stamp boost', s.boosts > 0);
+        check(spec.name + ' usually saves about a minute for the next filing (median ' + Math.round(midWait) + 's)', midWait >= 45 && midWait <= 160);
       }
-      if (spec.stampEvery === 5) check(spec.name + ' hires the first clerk by 120 seconds (saw ' + first.toFixed(0) + ')', first <= 120);
+      if (spec.stampEvery === 5) {
+        check(spec.name + ' hires the first clerk by 120 seconds (saw ' + first.toFixed(0) + ')', first <= 120);
+        check(spec.name + ' does not boost from a five-second gap', s.boosts === 0);
+        check(spec.name + ' is still the early office at three minutes (saw ' + Math.round(at180) + ')', at180 >= 200 && at180 <= 500);
+      }
+      if (!spec.stampAfter) check(spec.name + ' keeps the unboosted three-minute rate (saw ' + Math.round(at180) + ')', at180 >= 500 && at180 <= 750);
     });
-    var hi = Math.max.apply(null, ends);
-    var lo = Math.min.apply(null, ends);
-    check('the four ten-minute incomes sit within five times of each other (' + Math.round(lo) + ' to ' + Math.round(hi) + ')', lo > 0 && hi / lo <= 5);
+    var hi = Math.max.apply(null, at20);
+    var lo = Math.min.apply(null, at20);
+    check('the four twenty-minute incomes sit within six times of each other (' + Math.round(lo) + ' to ' + Math.round(hi) + ')', lo > 0 && hi / lo <= 6);
   }
 
   function layout() {
-    var widths = [320, 360, 390, 1280];
+    var sizes = [
+      { w: 320, h: 568 },
+      { w: 360, h: 700 },
+      { w: 390, h: 844 },
+      { w: 1280, h: 800 }
+    ];
     var chain = Promise.resolve();
-    widths.forEach(function (width) {
-      chain = chain.then(function () { return oneWidth(width); });
+    sizes.forEach(function (size) {
+      chain = chain.then(function () { return oneWidth(size); });
     });
     return chain;
   }
 
-  function oneWidth(width) {
+  function oneWidth(size) {
+    var width = size.w;
+    var height = size.h;
     return new Promise(function (resolve, reject) {
       var frame = document.createElement('iframe');
       frame.setAttribute('title', 'Patent Pending at ' + width);
-      frame.style.cssText = 'width:' + width + 'px;height:800px;border:0;display:block';
+      frame.style.cssText = 'width:' + width + 'px;height:' + height + 'px;border:0;display:block';
       frame.src = '../games/patent-pending/index.html?width=' + width;
       var timer = null;
       frame.onload = function () {
@@ -312,10 +370,11 @@ document.querySelector('#run').onclick = function () {
             return;
           }
           open.click();
+          var fitProblems = height <= 740 ? onScreen(doc, win) : [];
           var contrastProblems = readable(doc, win);
           var shiftProblems = width === 390 ? heldStill(doc, win) : [];
           for (var i = 0; i < 8; i++) stamp.click();
-          var problems = hit(doc, win).concat(contrastProblems).concat(shiftProblems);
+          var problems = fitProblems.concat(hit(doc, win)).concat(contrastProblems).concat(shiftProblems);
           if (width === 320) problems = problems.concat(fits(doc));
           if (width === 320 || width === 390) problems = problems.concat(rapid(doc, win));
           if (width === 320) problems = problems.concat(slipFeedback(doc, win));
@@ -452,6 +511,22 @@ document.querySelector('#run').onclick = function () {
     });
     if (!seen) problems.push('no File button after the taps');
     if (problems.length) problems.unshift('after 20 stamps');
+    return problems;
+  }
+
+  function onScreen(doc, win) {
+    var problems = [];
+    ['#stamp', '[data-hire="0"]', '[data-buy="0"]', '[data-bulk="1"]', '[data-bulk="10"]', '[data-bulk="0"]', '#tab-inventions', '#tab-improvements', '#tab-charter', '#sound'].forEach(function (sel) {
+      var el = doc.querySelector(sel);
+      if (!el) { problems.push('missing ' + sel); return; }
+      var r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) { problems.push('empty ' + sel); return; }
+      if (r.top < -1 || r.left < -1 || r.bottom > win.innerHeight + 1 || r.right > win.innerWidth + 1) {
+        problems.push('partial ' + sel + ' ' + Math.round(r.left) + ',' + Math.round(r.top) + ' ' + Math.round(r.right) + ',' + Math.round(r.bottom));
+      }
+      var hit = doc.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (!hit || !el.contains(hit)) problems.push('miss ' + sel + ' hit ' + (hit ? (hit.id || hit.className || hit.tagName) : 'none'));
+    });
     return problems;
   }
 

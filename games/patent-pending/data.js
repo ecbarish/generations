@@ -82,7 +82,10 @@
   INVENTIONS[0].hire = 120;
 
   var TIERS = ['A small change', 'A better change', 'A lasting change'];
-  var TIER_MATH = [[220, 3], [2600, 3], [26000, 4]];
+  /* The first tier stays on Penny Loop's price, so the opening minutes do too.
+     The later tiers cost more, and a lasting change is ×2 rather than ×4,
+     so the next filing after the third minute takes about a minute of saving. */
+  var TIER_MATH = [[220, 3], [28000, 3], [90000, 2]];
   var UPGRADES = [];
   INVENTIONS.forEach(function (v, i) {
     TIER_MATH.forEach(function (pair, k) {
@@ -91,14 +94,16 @@
         kind: 'v',
         invention: i,
         factor: pair[1],
-        cost: v.base * pair[0],
+        cost: v.base * pair[0] * (k > 0 && i > 0 ? Math.pow(3, i) : 1),
         name: TIERS[k] + ' for the ' + v.name + ' ×' + pair[1],
         note: 'The ' + v.name + ' files ' + pair[1] + ' times as much.'
       });
     });
   });
   var BUREAU = ['A second inkwell', 'A clerk\'s lamp', 'A wider blotter', 'A second press', 'A quiet hour', 'A full cabinet', 'A brass date stamp', 'The grand seal'];
-  [[1, 6000, 2], [2, 420000, 2], [3, 3.1e7, 2], [4, 2.4e9, 2], [5, 1.9e11, 2], [6, 1.5e13, 2], [7, 1.2e15, 2], [8, 9.5e16, 2]].forEach(function (row, n) {
+  /* The first lamp stays ×2 at 6,000. Later lamps stay ×2 and are priced so each
+     one takes about a minute and a half of filing once the early drawer is full. */
+  [[1, 6000, 2], [2, 1.2e6, 2], [3, 2.8e6, 2], [4, 6.5e6, 2], [5, 2.5e7, 2], [6, 8e7, 2], [7, 2.5e8, 2], [8, 8e8, 2]].forEach(function (row, n) {
     UPGRADES.push({
       id: 'g' + row[0], kind: 'g', factor: row[2], cost: row[1],
       name: BUREAU[n] + ' ×' + row[2],
@@ -133,17 +138,18 @@
     'The night desk'
   ];
 
-  /* Goals pay the larger of a floor and some seconds of current filing.
+  /* Goals pay 30 to 60 seconds of clerk income. The floor is unused.
      The ranks goal from Penny Loop is a stamp combo here. There is no hall. */
   var GOALS = [
-    { id: 'stamp5', text: 'Stamp the desk five times', test: { kind: 'stamps', n: 5 }, seconds: 20, floor: 0.6 },
-    { id: 'spoon1', text: 'File your first Self-stirring Spoon', test: { kind: 'owned', index: 1, n: 1 }, seconds: 25, floor: 2 },
-    { id: 'spoon5', text: 'Own five Self-stirring Spoons', test: { kind: 'owned', index: 1, n: 5 }, seconds: 25, floor: 6 },
-    { id: 'clerk1', text: 'Hire your first clerk', test: { kind: 'clerks', n: 1 }, seconds: 30, floor: 30 },
-    { id: 'up1', text: 'File your first improvement', test: { kind: 'upgrades', n: 1 }, seconds: 30, floor: 60 },
-    { id: 'brolly', text: 'Open the Pocket Umbrella', test: { kind: 'owned', index: 2, n: 1 }, seconds: 30, floor: 120 },
-    { id: 'life10k', text: 'File 1M in fees', test: { kind: 'lifetime', n: 1e6 }, seconds: 30, floor: 600 },
-    { id: 'clerk3', text: 'Hire three clerks', test: { kind: 'clerks', n: 3 }, seconds: 35, floor: 1500 },
+    { id: 'stamp5', text: 'Stamp the desk five times', test: { kind: 'stamps', n: 5 }, seconds: 30, floor: 0 },
+    { id: 'spoon1', text: 'File your first Self-stirring Spoon', test: { kind: 'owned', index: 1, n: 1 }, seconds: 30, floor: 0 },
+    { id: 'spoon5', text: 'Own five Self-stirring Spoons', test: { kind: 'owned', index: 1, n: 5 }, seconds: 30, floor: 0 },
+    { id: 'clerk1', text: 'Hire your first clerk', test: { kind: 'clerks', n: 1 }, seconds: 30, floor: 0 },
+    { id: 'up1', text: 'File your first improvement', test: { kind: 'upgrades', n: 1 }, seconds: 30, floor: 0 },
+    { id: 'brolly', text: 'Open the Pocket Umbrella', test: { kind: 'owned', index: 2, n: 1 }, seconds: 30, floor: 0 },
+    { id: 'life10k', text: 'File 1M in fees', test: { kind: 'lifetime', n: 1e6 }, seconds: 30, floor: 0 },
+    { id: 'clerk3', text: 'Hire three clerks', test: { kind: 'clerks', n: 3 }, seconds: 35, floor: 0 },
+    { id: 'halfhour', text: 'Come back after the clerks have had twenty minutes', test: { kind: 'away', n: 1200 }, seconds: 45, floor: 0 },
     { id: 'own25', text: 'Own twenty-five of one invention', test: { kind: 'ownedAny', n: 25 }, seconds: 35, floor: 5e3 },
     { id: 'up5', text: 'File five improvements', test: { kind: 'upgrades', n: 5 }, seconds: 35, floor: 2e4 },
     { id: 'ladder', text: 'Open the Folding Stepladder', test: { kind: 'owned', index: 4, n: 1 }, seconds: 35, floor: 6e4 },

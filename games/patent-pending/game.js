@@ -148,9 +148,11 @@
   }
 
   var welcomeOwed = 0;
+  var welcomeCredited = 0;
 
   function showWelcome(pack, owed) {
     welcomeOwed = owed > 0 ? owed : 0;
+    welcomeCredited = pack.credited > 0 ? pack.credited : 0;
     $('welcome-time').textContent = 'You were away ' + Arcade.fmtTime(Math.round(pack.away)) + '.';
     var list = $('welcome-lines');
     list.replaceChildren();
@@ -167,6 +169,8 @@
     }
     $('welcome-total').textContent = 'Together, ' + money(pack.total) + ' in fees.';
     if (pack.capped) $('welcome-total').textContent += ' They keep at most ' + Arcade.fmtTime(pack.credited) + '.';
+    var unlock = M.nextUnlock(state, welcomeOwed, now(), day());
+    $('welcome-next').textContent = unlock ? unlock.text : '';
     $('welcome').hidden = false;
   }
 
@@ -194,7 +198,8 @@
       sub.textContent = money(5 * M.stampFactor(state)) + ' a stamp, on the ' + inv.name;
     } else if (state.owned[i] > 0 && state.clerk[i]) {
       if (now() < state.boostUntil && state.boostIndex === i) sub.textContent = inv.name + ' is boosted';
-      else sub.textContent = 'Four quick stamps boost the ' + inv.name;
+      else if (state.combo > 0 && state.combo < M.COMBO_NEED) sub.textContent = 'Stamp ' + state.combo + ' of ' + M.COMBO_NEED + ' on the ' + inv.name;
+      else sub.textContent = 'Four stamps, a few seconds apart, boost the ' + inv.name;
     } else {
       sub.textContent = 'Files the ' + selectedName();
     }
@@ -636,10 +641,13 @@
     };
     $('welcome-collect').onclick = function () {
       if (welcomeOwed > 0) M.grant(state, welcomeOwed);
+      var found = M.noteReturn(state, welcomeCredited, now(), day());
       state.leftAt = 0;
       state.cashAtLeave = state.cash;
       welcomeOwed = 0;
+      welcomeCredited = 0;
       $('welcome').hidden = true;
+      speak(found);
       saveNow();
       render();
       if (sfx) sfx.sfx('coin');
