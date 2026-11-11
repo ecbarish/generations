@@ -2,6 +2,12 @@
    phone-to-ultrawide widths, and saved-progress isolation. All contexts are fresh; no player data touched. */
 const {chromium}=require('playwright');
 const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0;function check(ok,label){if(!ok)throw Error(label);count++;}
+// SHARED-BTN-44: a.btn's 40px phone rule must not shrink a hub card's .btn-sm below 44px at 360–719px.
+async function cardButtons44(p,width,label){if(width<360||width>719)return;
+ const rows=await p.evaluate(()=>[...document.querySelectorAll('.card .btn-sm')].filter(el=>el.getClientRects().length).map(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return {text:(el.textContent||'').replace(/\s+/g,' ').trim(),w:r.width,h:r.height,minW:parseFloat(s.minWidth),minH:parseFloat(s.minHeight),game:el.closest('[data-game]')?el.closest('[data-game]').dataset.game:''};}));
+ check(rows.length>0,label+' shows hub card buttons at '+width+'px');
+ const small=rows.filter(b=>!(b.w>=43.99&&b.h>=43.99&&b.minW>=44&&b.minH>=44));
+ check(small.length===0,label+' hub card buttons stay at least 44px wide and tall at '+width+'px'+(small.length?': '+small.map(b=>(b.game||'card')+' "'+b.text+'" '+b.w.toFixed(1)+'x'+b.h.toFixed(1)+' min '+b.minW+'x'+b.minH).join('; '):''));}
 const SHELVED=['starfall-guild','diamond-career','primordial'];
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME_PATH||(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':undefined),headless:true});try{
  const WIDTHS=process.env.LAUNCHER_WIDTHS?process.env.LAUNCHER_WIDTHS.split(',').map(w=>w.split('x').map(Number)):[[360,780],[390,844],[768,1024],[1280,800],[1920,1080],[2560,1080],[3440,1440],[5120,1440]];
@@ -34,6 +40,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   check(await p.locator('a[href="lab.html"]').count()>0,'hub links to the Lab');
   const hubBare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#current .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(hubBare.length===0,'every hall card cover resolves'+(hubBare.length?': '+hubBare.join(', '):''));
+  await cardButtons44(p,width,'hub');
   check(await p.locator('footer #installArcade').count()===1&&await p.locator('footer .fb-btn').count()===1&&await p.locator('footer .arc-set-btn').count()===1&&await p.locator('footer .app-help').count()===1,'utilities live in the footer');
   check(await p.locator('.launch-view,#launchCv,.kinds-nav').count()===0,'no walk-around hall');
   check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow (hub '+width+')');
@@ -41,7 +48,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   const shot=await p.locator('.hero .shot').boundingBox();check(Math.abs(shot.width/shot.height-16/9)<0.03,'hero screenshot keeps 16:9 (not stretched)');
   if(width<=760){check(await p.locator('.foot').evaluate(e=>getComputedStyle(e).display)!=='none','footer on phones');}
   if(width===WIDTHS[0][0]){await shareOk(p,'hub');await linksOk(p,'hub');
-   await p.locator('[data-game="realmbound"] [data-reset]').click();await p.locator('[data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');}
+   await p.locator('[data-game="realmbound"] [data-reset]').click();await cardButtons44(p,width,'hub reset');await p.locator('[data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');}
   // --- lab ---
   await p.goto(origin+'/lab.html');await p.waitForFunction(()=>document.querySelector('#lab .cab'));
   const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));const expectLab=games.filter(g=>!['little-ranch','starfall-preview','realmbound'].includes(g.id)).map(g=>g.id);
@@ -49,6 +56,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
+  await cardButtons44(p,width,'lab');
   check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow (lab '+width+')');
   if(width===WIDTHS[0][0]){await shareOk(p,'lab');await linksOk(p,'lab');for(const g of games.filter(g=>g.href)){const r=await p.request.get(origin+'/'+g.href);check(r.ok(),'play target exists: '+g.id);}}
   // --- game pages ---
@@ -57,6 +65,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
    check(await p.locator('#heroPlay').getAttribute('href')===target,'game page Play: '+slug);
    check(await p.locator('.panel h2').allInnerTexts().then(t=>t.join('|').includes('Controls')&&t.join('|').includes('What’s new')),'controls and what’s new: '+slug);
    check(await p.locator('.gallery img').count()>=2,'screenshots: '+slug);
+   await cardButtons44(p,width,slug);
    check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow ('+slug+' '+width+')');
    if(width===WIDTHS[0][0]){await shareOk(p,slug);await linksOk(p,slug);}
   }
