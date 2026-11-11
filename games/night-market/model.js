@@ -304,11 +304,16 @@
 
   function quote(state, i, mode) {
     if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
-    var stall = spec(i);
     var owned = state.stalls[i].owned;
     var one = cost(i, owned, 1);
-    if (!state.stalls[i].hired) return { count: 0, cost: one, blocked: 'hire' };
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
+    /* One copy can be bought while you still work the stall. It earns only after
+       the vendor takes it, so Max cannot skip the pouring. */
+    if (!state.stalls[i].hired) {
+      if (mode !== 1 && mode !== '1') return { count: 0, cost: one, blocked: 'hire' };
+      if (!(one >= 0) || one > state.cash) return { count: 0, cost: one, blocked: 'cost' };
+      return { count: 1, cost: one, blocked: null };
+    }
     var n, priced, afford;
     if (mode === 'max') {
       var room = countToNext(owned);
@@ -345,10 +350,11 @@
   /* Spends exactly `count`, priced the same way quote() priced that many.
      The button stores that count at render; a later income tick must not buy a different number. */
   function buyExact(state, i, count) {
-    if (!spec(i) || !state.stalls[i] || !state.stalls[i].hired || !unlocked(state, i)) {
+    if (!spec(i) || !state.stalls[i] || !unlocked(state, i)) {
       return { ok: false, reason: 'closed', count: 0, cost: 0 };
     }
     count = Math.floor(count);
+    if (!state.stalls[i].hired && count !== 1) return { ok: false, reason: 'hire', count: 0, cost: 0 };
     var priced = count > 0 ? cost(i, state.stalls[i].owned, count) : 0;
     if (!(count > 0) || !(priced >= 0) || priced > state.cash) return { ok: false, reason: 'cost', count: 0, cost: priced };
     state.cash -= priced;
@@ -577,10 +583,39 @@
     if (summary.capped) lead += ' The box only holds four hours, so ' + Arcade.fmtTime(summary.credited) + ' counted.';
     else lead += ' The stalls kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
     lead += ' While away, stalls earn ' + Math.round(OFFLINE_RATE * 100) + '%.';
-    var box = summary.gained > 0
-      ? Arcade.fmt(summary.gained) + ' coins are in the box.'
-      : 'The box is empty. Nothing was earning while you were gone.';
-    return { title: 'While you were away', lead: lead, box: box };
+    var box = summary.gained === 1
+      ? '1 coin is in the box.'
+      : summary.gained > 0
+        ? Arcade.fmt(summary.gained) + ' coins are in the box.'
+        : 'The box is empty. Nothing was earning while you were gone.';
+    return {
+      title: 'While you were away',
+      lead: lead,
+      box: box,
+      payout: Arcade.fmt(summary.gained) + (summary.gained === 1 ? ' coin' : ' coins')
+    };
+  }
+
+  function goalProgress(state) {
+    var i, stall, need, bonus, owned;
+    for (i = 0; i < STALLS.length; i++) {
+      if (!unlocked(state, i) || state.stalls[i].hired) continue;
+      stall = spec(i);
+      return { value: Math.min(state.stalls[i].serves, stall.serves), max: stall.serves };
+    }
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i].hired) continue;
+      need = unlockNeed(i + 1);
+      owned = state.stalls[i].owned;
+      if (owned >= need) continue;
+      return { value: Math.min(owned, need), max: need };
+    }
+    bonus = nextBonus(state);
+    if (bonus) {
+      owned = state.stalls[bonus.i].owned;
+      return { value: owned, max: bonus.at };
+    }
+    return { value: 1, max: 1 };
   }
 
   /* Same rule as the Best tag. Max and Next only count a buy the button can make.
@@ -708,6 +743,7 @@
     paybackLabel: paybackLabel,
     awayRule: awayRule,
     goal: goal,
+    goalProgress: goalProgress,
     lookLine: lookLine,
     gossipLine: gossipLine,
     awayCopy: awayCopy,
