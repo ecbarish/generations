@@ -50,8 +50,11 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
-.action-slot{display:grid;margin-top:12px}.action-slot>.actions{grid-area:1/1;margin-top:0;width:100%}
-#replyActions{display:block}#replyActions>.actions{width:100%;margin-top:0}
+.action-slot{display:grid;margin-top:12px}.action-slot>.actions{grid-area:1/1;margin-top:0;width:100%;align-items:stretch}
+/* A hidden copy of each row keeps the taller height, so Next listing cannot shrink under the finger. */
+.action-slot>.action-hold{visibility:hidden;pointer-events:none}
+#dealActions>.actions button{align-self:stretch;height:auto}
+#replyActions{display:flex;align-items:stretch}#replyActions>.actions{width:100%;margin-top:0;flex:1;align-items:stretch}#replyActions>.actions button{flex:1;align-self:stretch}
 .give-slot{grid-column:1/-1;display:grid}.give-slot>.actions{grid-area:1/1;margin-top:0}
 .give-hold{visibility:hidden;pointer-events:none}
 .count-cue{display:grid;min-height:1.2em}.count-cue>span{grid-area:1/1}
@@ -76,11 +79,16 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .budget-slot{margin:4px 0 0}
 .finale{background:transparent;border:0;padding:0}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
+.doors li{border:1px solid var(--line);border-radius:8px;padding:0;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0;min-height:44px}
+.doors button{display:block;width:100%;min-width:0;min-height:44px;margin:0;padding:6px 1px;border:0;border-radius:7px;background:transparent;color:inherit;font-size:inherit;line-height:inherit;text-align:center;box-shadow:none}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
+.door-note{grid-column:1/-1;display:grid;margin:0;min-height:1.2em;color:var(--soft);font-size:.85rem}
+.door-note>span{grid-area:1/1}
+.doors .picked{box-shadow:0 0 0 2px var(--accent)}
 .doors .now{border-color:var(--ink);background:#fff;box-shadow:0 0 0 2px var(--gold)}
 .doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
 .doors .gone{color:var(--soft);text-decoration:line-through}
+.doors .gone button{text-decoration:line-through}
 .afford{margin:10px 0 0;color:var(--bad);font-weight:600}
 .shortcash{margin:8px 0 0;color:var(--bad);font-weight:700}
 @media (max-width:900px),(max-height:500px){
@@ -184,4 +192,4 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
  .plan-live{margin-top:2px}
  .street{gap:2px}
 }
-@media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}
+@media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0}to{opacity:1}}}

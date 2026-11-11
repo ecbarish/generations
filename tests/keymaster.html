@@ -464,9 +464,10 @@ document.querySelector('#run').onclick=async()=>{
    check(width+'×'+height+' the work plan still shows its cost',/then/.test(d.querySelector('.rehab').textContent)&&/\$/.test(d.querySelector('.rehab').textContent));
   }
   frame.style.width='320px';frame.style.height='568px';await wait(80);
-  const midWord=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return false;const s=node.textContent,range=d.createRange();let last=null;for(let i=0;i<s.length;i++){range.setStart(node,i);range.setEnd(node,i+1);const rect=range.getClientRects()[0];if(!rect)continue;if(last!==null&&rect.top>last+1&&s[i-1]!==' ')return true;last=rect.top;}return false;};
+  const labelNode=li=>{const root=li.querySelector('button')||li;return [...root.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());};
+  const midWord=li=>{const node=labelNode(li);if(!node)return false;const s=node.textContent,range=d.createRange();let last=null;for(let i=0;i<s.length;i++){range.setStart(node,i);range.setEnd(node,i+1);const rect=range.getClientRects()[0];if(!rect)continue;if(last!==null&&rect.top>last+1&&s[i-1]!==' ')return true;last=rect.top;}return false;};
   check('door labels at 320 do not split a word',![...d.querySelectorAll('#doors li')].some(midWord));
-  const wordFits=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return true;const range=d.createRange();range.selectNodeContents(node);const box=li.getBoundingClientRect();const ink=range.getBoundingClientRect();return ink.left>=box.left-0.5&&ink.right<=box.right+0.5;};
+  const wordFits=li=>{const node=labelNode(li);if(!node)return true;const range=d.createRange();range.selectNodeContents(node);const box=li.getBoundingClientRect();const ink=range.getBoundingClientRect();return ink.left>=box.left-0.5&&ink.right<=box.right+0.5;};
   check('door words fit inside the door at 320',![...d.querySelectorAll('#doors li')].some(li=>!wordFits(li)));
   const lum=c=>{const f=v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);return 0.2126*f(c[0])+0.7152*f(c[1])+0.0722*f(c[2]);};
   const rgb=s=>{const m=s.match(/\d+/g).map(Number);return [m[0]/255,m[1]/255,m[2]/255];};
@@ -612,6 +613,64 @@ document.querySelector('#run').onclick=async()=>{
   const hitGoal=d.elementFromPoint(offerNow.left+offerNow.width/2, offerNow.top+Math.min(offerNow.height/2,12));
   check('the goal stays on screen and does not cover Make this offer',goalBox.top<=4&&goalBox.bottom>8&&goalBox.height<=56&&(hitGoal===offerHit||offerHit.contains(hitGoal)));
   H.begin();await wait(20);
+  // KM-TAPS: the tap stays on the button, 20% stays chosen, the header names two streets, Birch says what is next.
+  const tapMoves=[];
+  for(const [width,height] of [[320,640],[360,740],[1280,640]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(100);
+   H.begin();await wait(40);w.scrollTo(0,0);await wait(20);
+   const pass=d.querySelector('#passBtn');
+   pass.scrollIntoView({block:'center'});await wait(30);
+   const r=pass.getBoundingClientRect();
+   const x=r.left+r.width/2, y=r.top+r.height/2;
+   const before=r.top, beforeH=r.height;
+   pass.click();await wait(320);
+   const next=d.querySelector('[data-act="next"]');
+   const n=next.getBoundingClientRect();
+   const moved=Math.max(Math.abs(n.top-before),Math.abs(n.height-beforeH));
+   const hit=d.elementFromPoint(x,y);
+   const hits=!!next&&!!hit&&(hit===next||next.contains(hit));
+   tapMoves.push(width+' '+moved.toFixed(1)+(hits?' hit':' miss'));
+   check(width+' Pass and Next listing stay under the tap ('+moved.toFixed(1)+'px, '+(hits?'hit':'miss')+')',moved<=2&&hits&&y>=-1&&y<=w.innerHeight);
+  }
+  check('Pass and Next listing stay put at 320, 360 and 1280 ('+tapMoves.join('; ')+')',tapMoves.length===3);
+  frame.style.width='390px';frame.style.height='844px';await wait(60);
+  H.begin();await wait(20);w.scrollTo(0,0);
+  click('[data-down="0.2"]');
+  check('20% down is the selected payment',d.querySelector('[data-down="0.2"]').getAttribute('aria-checked')==='true'&&/80% borrowed/.test(text('#loanLabel')));
+  click('#passBtn');await wait(30);click('[data-act="next"]');await wait(30);
+  check('20% down is still selected on the next home',d.querySelector('[data-down="0.2"]').getAttribute('aria-checked')==='true'&&/80% borrowed/.test(text('#loanLabel'))&&!/^14 Alder/.test(text('#addr')));
+  const block=H.run();
+  block.order=M.dealFor(1,0).slice();block.at=0;block.homes=[];block.cash=M.START_CASH;block.tier=0;block.offers=0;
+  H.next();await wait(30);
+  const blockHead=d.querySelector('.tag').textContent, blockGoal=text('#goal');
+  check('block 1 names this street and the next street',/Alder Street/.test(blockHead)&&/next Birch Street/.test(blockHead)&&/Alder Street/.test(blockGoal));
+  check('block 1 does not list Cedar Lane, Dock Street and Elm Court',!/Cedar/.test(blockHead)&&!/Dock/.test(blockHead)&&!/Elm/.test(blockHead)&&!/Cedar/.test(blockGoal)&&!/Dock/.test(blockGoal)&&!/Elm/.test(blockGoal));
+  const birch=H.run();
+  birch.order=M.dealFor(0,1).slice();birch.tier=1;birch.at=0;birch.homes=[];birch.cash=M.START_CASH;birch.offers=0;
+  while(!M.finished(birch)){
+   const home=M.current(birch);let best=null;
+   for(const down of [0.2,0.25])for(const rehab of Object.keys(home.plans)){
+    const choice={price:M.lowestOf(home),down,rehab};
+    if(M.respond(choice.price,home).answer!=='yes'||!M.yearOutlook(choice,home).counts)continue;
+    if(M.analyze(choice,home).cashIn>birch.cash||M.dooms(birch,choice))continue;
+    best=choice;break;
+   }
+   if(best)M.buyHome(birch,best);else M.passHome(birch);
+  }
+  H.next();await wait(40);
+  const birchWin=text('#finale');
+  check('the Birch win has a next line and one combined earnings line',/Next is another walk of Birch Street/.test(birchWin)&&/Together, your homes earn \$[\d,]+ a month/.test(birchWin)&&M.won(birch));
+  frame.style.width='320px';frame.style.height='568px';await wait(60);
+  H.begin();await wait(30);w.scrollTo(0,0);
+  const coming=[...d.querySelectorAll('#doors li')].filter(li=>/Coming up/.test(li.textContent));
+  const comingOk=coming.length>=3&&coming.every(li=>{const b=li.querySelector('button');if(!b)return false;const box=b.getBoundingClientRect();return box.height>=44&&box.width>=44;});
+  check('Coming up doors are buttons at least 44px ('+coming.length+')',comingOk);
+  const doorBtn=coming[0].querySelector('button');
+  const doorBox=doorBtn.getBoundingClientRect();
+  const doorHit=d.elementFromPoint(doorBox.left+doorBox.width/2, doorBox.top+doorBox.height/2);
+  doorBtn.click();await wait(20);
+  check('a Coming up door takes the tap and says it comes up later',(doorHit===doorBtn||doorBtn.contains(doorHit))&&/comes up later/.test(d.querySelector('#doorNote').textContent));
+  H.begin();await wait(20);
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
@@ -627,6 +686,7 @@ document.querySelector('#run').onclick=async()=>{
   check('walking the street again saved a fresh run',stored()&&stored().at===0&&stored().cash===200000&&stored().homes.length===0);
   frame.style.width='375px';frame.style.height='812px';await wait(60);
   H.begin();await wait();
+  click('[data-down="0.25"]');
   for(let i=0;i<4;i++)click('[data-offer="-2000"]');click('#offerBtn');await wait();
   check('buying saves the run: one home, $127,040 left',stored().at===1&&stored().homes[0].bought===true&&stored().cash===127040);
   const hub=JSON.parse(localStorage.getItem('arcade-index-v1')||'{}').keymaster;
