@@ -1,6 +1,5 @@
 'use strict';
 /* LR-WORLD-1: the ranch is a strip of four places. Big wooden arrows glide the camera one place at a time. */
-/* LR-WORLD-2: one ground and one fence run the whole strip. Hills lag behind the camera. Shadows fall to the right, and the moon uses the sun's upper-left place. */
 /* Little Ranch (LR1, the smallest test): a tap-and-play toy for ages 2 to 4 (docs/proposals/games-for-everyone.md).
    One baby Cindercub in a sunny corner of the ranch. Tap the bowl and it eats; drag (or tap) the sponge and it gets
    bubbly; tap the bush for peekaboo; tap the baby and it giggles. A dozen different toys, and never before about six minutes, then it yawns,
