@@ -55,22 +55,7 @@
   const head=name.split(':')[0].trim();
   return head.length<=10?head:head.split(/\s+/)[0];
  }
- function streetName(address){return String(address||'').replace(/^\d+\s+/,'');}
- // The header names the street in front of you and the next different one. It does not list the whole block.
- function streetsHere(){
-  const order=M.orderOf(R);
-  if(!order.length)return {now:'Alder Street',next:null};
-  const at=R.at|0;
-  const i=Math.min(Math.max(at,0),order.length-1);
-  const now=streetName(order[i].address)||'Alder Street';
-  let next=null;
-  for(let j=at+1;j<order.length;j++){
-   const name=streetName(order[j].address);
-   if(name&&name!==now){next=name;break;}
-  }
-  return {now,next};
- }
- function herePlace(){return streetsHere().now;}
+ function herePlace(){return M.placeOf(R.order);}
  function nextPlace(){return (R.tier||0)>=1?null:M.placeOf(M.dealFor(0,1));}
  function walkWord(){return M.won(R)&&nextPlace()?'Walk '+nextPlace():'Walk '+herePlace()+' again';}
 
@@ -93,10 +78,10 @@
   }
  }
  function street(){
-  const done=M.paying(R), b=M.streetBudget(R), here=streetsHere();
+  const done=M.paying(R), b=M.streetBudget(R);
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
-  $('#goal').textContent='Own '+M.GOAL+' homes on '+here.now+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
-  const tag=document.querySelector('header .tag'); if(tag) tag.textContent=here.now+(here.next?', next '+here.next:'')+', Millbrook';
+  $('#goal').textContent='Own '+M.GOAL+' homes on '+herePlace()+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  const tag=document.querySelector('#placeTag'); if(tag) tag.textContent=herePlace()+', Millbrook';
   const walk=document.querySelector('#giveup [data-act="again"]'); if(walk) walk.textContent='Walk '+herePlace()+' again';
   $('#budget').hidden=false;
   if(M.finished(R)) fitBudget(M.won(R)?'You have the '+done+' homes that pay.':'You can\'t reach '+M.GOAL+' homes that pay from here.');
@@ -234,8 +219,8 @@
   return '<div class="outlook-slot"><p class="outlook outlook-hold" aria-hidden="true">'+$('#outlookHold').innerHTML+'</p><p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p></div>';
  }
 
- // The reply sits in the offer row, in space that was already there. Scrolling that row
- // moves Next listing off the finger that just tapped Pass.
+ // The reply sits in the offer row, in space that was already there. Scroll only when that
+ // row is outside the screen, so a tap on a button already in view does not move it.
  function clearReply(){
   const slot=$('#replyActions'); if(slot){slot.replaceChildren();slot.hidden=true;}
   const live=$('#dealButtons'); if(live) live.hidden=false;
@@ -251,7 +236,6 @@
   parkReply(box);
   if(!reveal)return;
   const btn=$('#replyActions button')||box.querySelector('button'); if(!btn||!btn.scrollIntoView)return;
-  if(btn.closest('#dealActions'))return;
   const r=btn.getBoundingClientRect();
   if(r.top<0||r.bottom>window.innerHeight||r.left<0||r.right>window.innerWidth)
    btn.scrollIntoView({block:'nearest',inline:'nearest'});
