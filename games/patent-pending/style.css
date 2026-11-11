@@ -127,8 +127,8 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
   }
   .goal-line { font-size: 0.8rem; line-height: 1.2; }
   .step-line { height: 32px; min-height: 32px; max-height: 32px; font-size: 0.75rem; }
-  .tabs { height: 40px; flex: 0 0 40px; margin-top: 4px; }
-  .tabs button { min-height: 36px; padding: 2px 0; font-size: 0.78rem; }
+  .tabs { height: 44px; flex: 0 0 44px; margin-top: 4px; }
+  .tabs button { min-height: 44px; padding: 2px 0; font-size: 0.78rem; }
   .stamp, .stamp:hover, .stamp:focus, .stamp:active {
     height: 48px; min-height: 48px; max-height: 48px; flex: 0 0 48px; margin-top: 4px; font-size: 0.95rem; padding: 2px 8px;
   }
@@ -229,7 +229,6 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.01em; }
 .ach b { display: block; }
 .save { margin-top: 16px; }
 .credits { margin-top: 16px; }
-.credits a { color: var(--brass); }
 .intro {
   position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
   background: rgba(28, 36, 48, 0.45); z-index: 5;

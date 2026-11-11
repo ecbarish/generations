@@ -475,6 +475,13 @@ document.querySelector('#run').onclick = function () {
           var problems = [];
           if (pages.height < 24) problems.push('list is ' + Math.round(pages.height) + 'px');
           if (stamp.top < -1 || stamp.bottom > height + 1) problems.push('stamp ' + Math.round(stamp.top) + '..' + Math.round(stamp.bottom));
+          doc.querySelectorAll('.tabs button').forEach(function (b) {
+            var tabH = b.getBoundingClientRect().height;
+            if (tabH < 44) problems.push(b.textContent + ' tab is ' + Math.round(tabH) + 'px');
+          });
+          var licence = doc.querySelector('.credits a');
+          var licenceColor = licence ? frame.contentWindow.getComputedStyle(licence).color.replace(/\s/g, '') : '';
+          if (licenceColor !== 'rgb(107,78,31)') problems.push('licence link is ' + (licenceColor || 'missing'));
           frame.remove();
           try {
             check(width + 'x' + height + ' keeps the stamp on screen and the list scrollable' + (problems.length ? ' (' + problems.join('; ') + ')' : ''), problems.length === 0);
