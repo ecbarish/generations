@@ -363,7 +363,7 @@
       if (((i > 0 && sx0 < U * .2) || (i < 3 && sx1 > W - U * .2)) && y - top < laneBottom + 1) y = Math.min(H - 2, laneBottom + top + 1);
       return { x, y }; });
     L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
-    const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
+    const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.3, .68]), barn = spreadSigns(3, [.3, .72, .85]);
     L.ksign = garden[0]; L.tsign = garden[1]; L.stage = toy[0]; L.shelf = toy[1]; L.dsign = barn[0]; L.sign = barn[1]; L.wsign = barn[2];
     { // wide screens slide clear of the signs; a tall screen only drops a head that still grazes a board
       const z = L.size, fz = L.size * .95;
@@ -505,6 +505,7 @@
         if (crowded.every(([px, py, pr]) => Math.hypot(x - px, y - py) > pr + rad * 1.27 + 2) && d < bestD) { bestD = d; best = { x, y }; } }
       const pick = best || loose;
       L.item = { x: pick ? pick.x : stop + W * .5, y: pick ? pick.y : L.ground + rad, r: rad }; }
+    L.buildings = window.LRBuildings ? LRBuildings.layout(L, W, H, [0, 1, 2, 3].map(stopFor)) : [];
     pinSky(); syncHome(); refreshArrows();
     if (st && old.U && (W !== oldW || H !== oldH)) {
       const sz = L.U / old.U, sy = H / oldH;
@@ -1485,6 +1486,17 @@
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     return r;
   }
+  function drawDoorPlaque(name, x, y, scale) {
+    const fn = { ksign: drawKSign, tsign: drawTSign, stage: drawStageSign, shelf: drawShelfSign, dsign: drawDSign, sign: drawSign, wsign: drawWheelSign }[name];
+    if (!fn) return;
+    const s = L[name], r = L.R * .95;
+    cx.save();
+    cx.translate(x, y);
+    cx.scale(scale, scale);
+    cx.translate(-s.x, -(s.y - r * .45));
+    fn(st.dusk);
+    cx.restore();
+  }
   function drawStageSign(g) {
     const r = drawBoard(L.stage, st.stage.shake, 'stage', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     cx.fillStyle = dk('#c8955a'); cx.fillRect(R(-r * .7), R(r * .28), R(r * 1.4), R(r * .22));
@@ -1620,11 +1632,14 @@
     drawCloud(g);
     cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), R(worldW), H - R(L.ground));
     drawSignPosts(g);
+    if (window.LRBuildings) LRBuildings.drawBack({ cx, L, g, R, pick3, mixHex, ell, st });
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), R(worldW), Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), R(worldW), Math.max(1, R(U * .025)));
     for (let x = U * .15; x < worldW; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 80; i++) { const x = (i * 61.7) % worldW, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
+    if (window.LRBuildings) LRBuildings.drawFront({ cx, L, g, R, pick3, mixHex, ell, st, plaque: drawDoorPlaque });
     drawHint();
-    drawPuddles(); drawBasket(g); drawDSign(g); drawTSign(g); drawSign(g); drawWheelSign(g); drawKSign(g); drawStageSign(g); drawShelfSign(g);
+    drawPuddles(); drawBasket(g);
+    if (!window.LRBuildings) { drawDSign(g); drawTSign(g); drawSign(g); drawWheelSign(g); drawKSign(g); drawStageSign(g); drawShelfSign(g); }
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
     if (!hidden) drawBush(false);
     // the bowl
@@ -1671,7 +1686,9 @@
     for (const [n, q, r] of c) { let k = Math.hypot(p.x - q.x, p.y - q.y) / r;
       if (n === 'left' || n === 'right') { if (Math.hypot(p.x - q.x, p.y - q.y) <= L.U * .09) k *= .35; }
       if (DOORS[n]) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
-      if (k <= bk) { bk = k; best = n; } } return best; }
+      if (k <= bk) { bk = k; best = n; } }
+    if (window.LRBuildings && L.buildings) { const name = LRBuildings.at(L.buildings, p); if (name && .99 < bk) { bk = .99; best = name; } }
+    return best; }
   let glideTap = null, glideQueued = null;
   const onDown = e => {
     e.preventDefault(); audio(); if (st.place === 'ranch' && camGliding()) { glideTap = { id: e.pointerId }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; } const p = at(e), s = st.sponge; st.idleAt = st.t;
@@ -1718,7 +1735,7 @@
       if (!d.drag && Math.hypot(p.x - d.p.x, p.y - d.p.y) > L.shed.z * .15) { d.drag = true; paintPart(partAt(d.p), d.p); } if (d.drag) paintPart(partAt(p), p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
-  const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); return near(p, q, reach) || near(p, signFace(q), reach); };
+  const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); if (near(p, q, reach) || near(p, signFace(q), reach)) return true; if (!window.LRBuildings || !L.buildings) return false; const name = LRBuildings.at(L.buildings, p); return !!name && L[name] === q; };
   const release = e => {
     if (glideTap && glideTap.id === e.pointerId) { glideTap = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; if (camGliding()) { const pick = ranchTarget(at(e)); if ((pick === 'left' || pick === 'right') && !glideQueued) glideQueued = pick; return; } onDown(e); if (!(st.down && st.down.id === e.pointerId)) return; }
     const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
