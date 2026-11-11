@@ -86,7 +86,7 @@
   const mixHex = (a, b, k) => { const p = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16)), q = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
     return 'rgb(' + p.map((v, i) => Math.round(lerp(v, q[i], clamp(k, 0, 1)))).join(',') + ')'; };
   const pick3 = (a, b, c, k) => k < .5 ? mixHex(a, b, k * 2) : mixHex(b, c, (k - .5) * 2);
-  const duskOf = (c, g) => pick3(c, c, '#2a2a4a', g);
+  const duskOf = c => c;
   let W = 0, H = 0, S = 1, L = {};
   let prefs = { sound: true }; try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF) || '{}')); } catch (e) {}
 
@@ -148,14 +148,29 @@
     if (st.friend) { st.friend.x = cam.x + W + L.fz; fgo(L.fhome.x, null); } // wanders in from just off the meadow
   }
   const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
-  const cam = { area: 1, x: 0, from: 0, to: 0, t0: -9, dur: 0, parallax: { far: 0, near: 0 } };
+  const cam = { area: 1, x: 0, from: 0, to: 0, t0: -9, dur: 0, parallax: { far: 0, near: 0, sky: 0 } };
   function areaCentre(i) { return L.U * (1 + 1.4 * i); }
   function stopFor(i) { const x = clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W)); const f = Math.floor(x), d = x - f; return d > .5 || (d === .5 && f % 2) ? f + 1 : f; } // halves land on even pixels, matching the published stops
   function coreX(i, t) { return areaCentre(i) + L.U * (t - .5); }
   function skyLine() { return L.ground - L.U * .28; }
-  function sunRestY() { const glow = L.U * .13; return Math.min(H * .17, skyLine() - glow - 1); }
-  function pinSky() { if (!L || !L.U) return; const y = sunRestY(); L.sun = { x: cam.x + W * .22, y }; L.moon = { x: cam.x + W * .22, y }; }
-  function syncParallax() { if (reduce()) return; cam.parallax.far = Math.round(cam.x * .3); cam.parallax.near = Math.round(cam.x * .6); }
+  function sunRestY() { return H * .17; }
+  function sunRadii() {
+    const room = Math.max(2, skyLine() - sunRestY() - 1);
+    const glow = Math.min(L.U * .13, room);
+    return { glow, disc: Math.min(L.U * .09, glow * .7) };
+  }
+  function pinSky() {
+    if (!L || !L.U) return;
+    const y = sunRestY(), rad = sunRadii();
+    L.sun = { x: cam.x + W * .22, y, glow: rad.glow, disc: rad.disc };
+    L.moon = { x: cam.x + W * .22, y };
+  }
+  function syncParallax() {
+    if (reduce()) return;
+    cam.parallax.far = Math.round(cam.x * .3);
+    cam.parallax.near = Math.round(cam.x * .6);
+    cam.parallax.sky = Math.round(cam.x * .15);
+  }
   function cloudReach(r) {
     const blobs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]];
     let above = 0, below = 0, side = 0;
@@ -172,7 +187,7 @@
     const reach = cloudReach(c.r), sky = skyLine(), stop = stopFor(0);
     const yMax = sky - reach.below - 1;
     if (yMax >= c.r) c.y = Math.max(c.r, Math.min(c.y, yMax));
-    const sun = { x: stop + W * .22, y: sunRestY() }, glow = L.U * .13, need = reach.side + glow + 2;
+    const sun = { x: stop + W * .22, y: sunRestY() }, glow = sunRadii().glow, need = reach.side + glow + 2;
     if (Math.hypot(c.x - sun.x, c.y - sun.y) < need) c.x = fitX(0, sun.x + (c.x >= sun.x ? need : -need), c.r, false);
     const lock = lockCanvas(); if (!lock) return;
     const hits = () => {
@@ -960,7 +975,7 @@
       ell(x, y - r * .05, r * .1, r * .1, '#e84a5a'); ell(x - r * .32, y, r * .08, r * .08, '#4fb4ff'); ell(x + r * .32, y, r * .08, r * .08, '#5fb34a'); }
     else if (i === 3) { for (let k = 0; k < 5; k++) { const fx2 = x + (k - 2) * r * .3, fy = y + Math.abs(k - 2) * r * .1 - r * .05; ell(fx2, fy, r * .17, r * .17, ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'][k]); ell(fx2, fy, r * .07, r * .07, '#fff3a0'); } }
     else if (i === 4) { cx.fillStyle = '#8a5a34'; cx.beginPath(); cx.ellipse(R(x), R(y + r * .08), R(r * 1.2), R(r * .25), 0, 0, 7); cx.fill(); ell(x, y - r * .3, r * .55, r * .45, '#9a6a3e'); cx.fillStyle = '#5a3a24'; cx.fillRect(R(x - r * .55), R(y - r * .12), R(r * 1.1), Math.max(1, R(r * .12))); ell(x - r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); ell(x + r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); } }
-  function drawBasket(g) { const B = L.basket, r = B.r, sh = Math.sin(st.t * 30) * st.hat.shake * r * .08, bob = hintBob('basket'), x = B.x + sh, y = B.y - bob, dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+  function drawBasket(g) { const B = L.basket, r = B.r, sh = Math.sin(st.t * 30) * st.hat.shake * r * .08, bob = hintBob('basket'), x = B.x + sh, y = B.y - bob, dk = c => c;
     shadow(B.x, B.y + r * .55, r * .95);
     ell(x - r * .35, y - r * .45, r * .3, r * .14, dk('#e8c870')); ell(x + r * .05, y - r * .6, r * .2, r * .25, dk('#4fb4ff')); ell(x + r * .4, y - r * .45, r * .22, r * .12, dk('#f2c14e')); // hats peeking out
     cx.fillStyle = dk('#c8904a'); cx.beginPath(); cx.moveTo(R(x - r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .65), R(y + r * .55)); cx.lineTo(R(x - r * .65), R(y + r * .55)); cx.fill();
@@ -1216,7 +1231,7 @@
     if (!front) shadow(b.x, b.y + r * .2, r);
     const c1 = pick3('#3f9a48', '#4a7a3a', '#1e3a34', g), c2 = pick3('#5cba5a', '#6a9a48', '#2a4a40', g);
     ell(b.x + sh - r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh + r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh, b.y - r * .6, r * .75, r * .65, c2);
-    for (let i = 0; i < 4; i++) ell(b.x + sh + Math.cos(i * 1.6) * r * .6, b.y - r * (.55 + .2 * Math.sin(i * 2)), r * .08, r * .08, pick3('#ffd0e0', '#ffd0e0', '#c8c0e8', g));
+    for (let i = 0; i < 4; i++) ell(b.x + sh + Math.cos(i * 1.6) * r * .6, b.y - r * (.55 + .2 * Math.sin(i * 2)), r * .08, r * .08, '#ffd0e0');
   }
   function drawFlowers(g) { // LR3: big friendly flowers; open by day, gently closed at night
       const night = Math.max(g, st.shut), m = reduce() ? .3 : 1, hb = hintBob('flowers');
@@ -1224,9 +1239,9 @@
       const hy = q.y - bob * q.r * .35 * m - hb, hx = q.x + sway, r = q.r * (1 + bob * .18 * m);
       cx.fillStyle = pick3('#3f9a48', '#5a8a3a', '#1e3a34', g); cx.fillRect(R(q.x - Math.max(1, q.r * .07)), R(hy), Math.max(2, R(q.r * .14)), R(q.stem - hy));
       ell(q.x - q.r * .32, q.stem - q.r * .35, q.r * .3, q.r * .12, cx.fillStyle); ell(q.x + q.r * .32, q.stem - q.r * .55, q.r * .3, q.r * .12, cx.fillStyle);
-      const pc = pick3(FLOWERS[i], FLOWERS[i], '#2a2a4a', night), open = 1 - Math.min(1, night) * .45;
+      const pc = FLOWERS[i], open = 1 - Math.min(1, night) * .45;
       for (let j = 0; j < 6; j++) { const a = j / 6 * Math.PI * 2 + (night ? 0 : Math.sin(k * 10) * bob * .3); ell(hx + Math.cos(a) * r * .5 * open, hy + Math.sin(a) * r * .5 * open, r * .36, r * .3, pc); }
-      ell(hx, hy, r * .32, r * .32, pick3('#ffd84a', '#ffd84a', '#5a5040', night));
+      ell(hx, hy, r * .32, r * .32, '#ffd84a');
       if (night < .5) { cx.fillStyle = '#3a2420'; cx.fillRect(R(hx - r * .14), R(hy - r * .06), Math.max(1, R(r * .07)), Math.max(1, R(r * .09))); cx.fillRect(R(hx + r * .08), R(hy - r * .06), Math.max(1, R(r * .07)), Math.max(1, R(r * .09)));
         ell(hx, hy + r * .1, r * (bob > .2 ? .1 : .07), r * (bob > .2 ? .09 : .04), '#8a2a2a'); } }); }
   function drawRainbow(k) { // a big arch over the field, fading in and out
@@ -1516,12 +1531,12 @@
     cx.beginPath(); cx.moveTo(R(b.x - b.r * .7), R(b.y - b.r * .1)); cx.lineTo(R(b.x), R(b.y - b.r * .62)); cx.lineTo(R(b.x + b.r * .7), R(b.y - b.r * .1)); cx.fillStyle = '#8a2a24'; cx.fill();
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
   }
-  function drawBlock(x, y, s, c, a, g) {
-    const i = c % BLOCKS.length, raw = BLOCKS[i], dye = col => typeof g === 'number' && g > 0 ? duskOf(col, g) : col, col = dye(raw), cheek = typeof g === 'number' && g > 0 ? duskOf('#ff9a8a', g) : 'rgba(255,154,138,.6)';
+  function drawBlock(x, y, s, c, a) {
+    const i = c % BLOCKS.length, raw = BLOCKS[i], col = raw, cheek = 'rgba(255,154,138,.6)';
     cx.save(); cx.translate(R(x), R(y)); cx.rotate(a || 0); const h = s / 2;
     for (const s2 of [-1, 1]) { cx.fillStyle = col; cx.beginPath(); cx.moveTo(R(s2 * h * .8), R(-h * .7)); cx.lineTo(R(s2 * h * .65), R(-h * 1.25)); cx.lineTo(R(s2 * h * .25), R(-h * .85)); cx.fill(); }
-    cx.fillStyle = dye(BLOCK_SHADE[i]); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
-    cx.fillStyle = dye(BLOCK_SHINE[i]); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
+    cx.fillStyle = BLOCK_SHADE[i]; cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
+    cx.fillStyle = BLOCK_SHINE[i]; cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
     for (const s2 of [-1, 1]) ell(s2 * h * .38, -h * .1, s * .07, s * .08, '#2a1a18'); ell(-h * .55, h * .2, s * .08, s * .05, cheek); ell(h * .55, h * .2, s * .08, s * .05, cheek);
     cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore();
   }
@@ -1648,6 +1663,22 @@
     const a = 1 - k / .9, x = st.miss.x, y = st.miss.y, r = L.U * (.05 + k * .14);
     cx.strokeStyle = `rgba(58,36,32,${a})`; cx.lineWidth = Math.max(3, L.U * .018); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
   }
+  function drawFarClouds() {
+    if (H <= W || st.dusk > .55) return;
+    const offset = cam.parallax.sky || 0, step = Math.max(36, W * .62);
+    const sunX = W * .22, sunY = sunRestY(), halo = (L.sun && L.sun.glow) || L.U * .13, lock = lockCanvas();
+    cx.save(); cx.translate(-offset, 0);
+    for (let i = 0, x = offset - step; x < offset + W + step; i++, x += step) {
+      const y = skyLine() * (.22 + (i % 3) * .16), r = Math.max(8, L.U * .07);
+      if (y - r < 2 || y + r * .8 >= skyLine() - 1) continue;
+      const sx = x - offset;
+      if (Math.hypot(sx - sunX, y - sunY) < halo + r * 1.8) continue;
+      if (lock && sx + r * 1.8 > lock.x0 && sx - r * 1.8 < lock.x1 && y + r > lock.y0 && y - r < lock.y1) continue;
+      ell(x, y, r * 1.6, r * .72, '#ffffff');
+      ell(x + r * .5, y - r * .08, r * .95, r * .48, '#ffffff');
+    }
+    cx.restore();
+  }
   function drawHillLayer(offset, factor, cols, g) {
     const U = L.U, span = L.U * 6.2 * factor + W + U, step = Math.max(U * .9, W * .5);
     const ry = factor < .5 ? U * .3 : U * .18, cy = L.ground + U * (factor < .5 ? .02 : .04);
@@ -1669,8 +1700,10 @@
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', skyG)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', skyG));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
     if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5 || st.moon.song) { const sz = st.moon.song && (i % 3 === (st.moon.song.i % 3)) ? 2 : 1; cx.fillRect(R(x), R(y), sz, sz); } } }
-    const glow = st.sun.glow, sx = sun.x - cam.x;
-    ell(sx, sun.y, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(sx, sun.y, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
+    drawFarClouds();
+    const glow = st.sun.glow, sx = sun.x - cam.x, room = Math.max(2, skyLine() - sun.y - 1);
+    const halo = Math.min(U * (.13 + glow * .07), room), disc = Math.min(U * (.09 + glow * .025), halo * .7);
+    ell(sx, sun.y, halo, halo, `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(sx, sun.y, disc, disc, glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
     if (st.sun.bow) drawRainbow(st.t - st.sun.bow.at);
     if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0, mx = moon.x - cam.x;
       if (mg > 0) { ell(mx, moon.y, U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
