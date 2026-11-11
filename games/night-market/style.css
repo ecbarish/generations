@@ -275,10 +275,14 @@ button[aria-pressed="true"], button.ask, button.best {
   /* The lane goal is one more line under the picture. Pull the air above the
      lane, under the scene, and around Buying so the first pour still clears
      an 800px-tall window after Mei is hired. */
-  .scene { margin-bottom: 0.35rem; }
-  .lane { margin-top: 0.2rem; }
-  .bulk { margin: 0.25rem 0 0; }
-  .stalls { margin-top: 0.1rem; }
+  .scene { margin-bottom: 0.2rem; }
+  h1 { margin: 0.05rem 0 0.15rem; }
+  .lane { margin-top: 0.1rem; }
+  .goal-bar { padding: 0.2rem 0.55rem 0.25rem; margin: 0.15rem 0 0; }
+  .goal-meter { height: 6px; margin-top: 0.15rem; }
+  .bulk { margin: 0.15rem 0 0; }
+  .stalls { margin-top: 0; }
+  .stall { padding-top: 0.4rem; }
   .actions { flex-wrap: nowrap; }
   .actions [data-act="serve"] { flex: 1 1 0; }
   .actions [data-act="hire"],
