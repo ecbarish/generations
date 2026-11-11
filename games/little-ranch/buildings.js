@@ -48,8 +48,9 @@
     const gateX = U * 6.05, gateW = U * .22;
     const gate = { name: 'gate', door: null, anchor: gateX, x0: gateX - gateW / 2, x1: gateX + gateW / 2, y0: top + U * .08, y1: foot };
     if (wagon.x1 > gate.x0 - 4 && wagon.anchor < gate.x0) wagon.x1 = Math.max(wagon.anchor, gate.x0 - 4);
+    const picture = { hutch: .74, picnic: .8, stage: .8, shelf: .48, barn: .6, shed: .52, wagon: .48, pond: 0, gate: 0 };
     const raw = garden.concat(toys, yard, [wagon, pond, gate]).map(b => ({
-      name: b.name, door: b.door,
+      name: b.name, door: b.door, picture: picture[b.name],
       x0: Math.round(b.x0), y0: Math.round(b.y0),
       x1: Math.round(Math.max(b.x0 + 6, b.x1)), y1: Math.round(Math.max(b.y0 + 6, b.y1))
     }));
@@ -80,57 +81,66 @@
 
   function shift(b, dx) { return { x0: b.x0 + dx, x1: b.x1 + dx, y0: b.y0, y1: b.y1, name: b.name, door: b.door }; }
 
+  const INK = '#1e1a24';
+  function edge(cx, x, y, w, h) {
+    cx.strokeStyle = INK; cx.lineWidth = 1;
+    cx.strokeRect(x + .5, y + .5, Math.max(1, w - 1), Math.max(1, h - 1));
+  }
   function drawHutch(e, b) {
-    const { cx, R, pick3, g, ell } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, wall = b.y0 + h * .38;
-    const wood = paint(pick3, g, '#a87a4a', '#a06a3a', '#3a2e38'), dark = paint(pick3, g, '#5a3a24', '#5a3a24', '#1e1a24');
-    cx.fillStyle = dark; cx.beginPath(); cx.moveTo(R(b.x0), R(wall)); cx.lineTo(R(b.x0 + w / 2), R(b.y0)); cx.lineTo(R(b.x1), R(wall)); cx.fill();
-    cx.fillStyle = wood; cx.fillRect(R(b.x0 + w * .08), R(wall), R(w * .84), Math.max(1, R(b.y1 - wall)));
-    cx.fillStyle = paint(pick3, g, '#c8955a', '#a87a4a', '#2e2430'); cx.fillRect(R(b.x0 + w * .08), R(wall), Math.max(2, R(w * .12)), Math.max(1, R(b.y1 - wall)));
-    cx.fillStyle = dark; cx.fillRect(R(b.x0 + w * .38), R(wall + h * .16), R(w * .24), Math.max(1, R(b.y1 - wall - h * .16)));
-    ell(b.x0 + w * .2, b.y1 - h * .08, w * .08, h * .08, paint(pick3, g, '#3f9a48', '#4a7a3a', '#1e3a34'));
-    ell(b.x0 + w * .78, wall + h * .12, w * .05, h * .1, '#ff8a2a');
-    ell(b.x0 + w * .78, wall + h * .04, w * .06, h * .05, '#4fae4a');
+    const { cx, R, pick3, g, ell } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, top = b.y0 + h * .42;
+    const wood = paint(pick3, g, '#a87a4a', '#a06a3a', '#3a2e38'), dark = paint(pick3, g, '#5a3a24', '#5a3a24', INK);
+    const x = R(b.x0), y = R(top), bw = Math.max(4, R(w)), bh = Math.max(4, R(b.y1 - top));
+    cx.fillStyle = dark; cx.fillRect(x - 1, y, bw + 2, Math.max(2, R(h * .08)));
+    cx.fillStyle = wood; cx.fillRect(x, y + R(h * .06), bw, bh - R(h * .06));
+    cx.fillStyle = paint(pick3, g, '#c8955a', '#a87a4a', '#2e2430'); cx.fillRect(x, y + R(h * .06), Math.max(2, R(w * .14)), bh - R(h * .06));
+    cx.fillStyle = dark; cx.fillRect(R(b.x0 + w * .34), R(top + h * .22), R(w * .28), Math.max(2, R(b.y1 - top - h * .22)));
+    ell(b.x0 + w * .16, b.y1 - h * .06, w * .1, h * .07, paint(pick3, g, '#3f9a48', '#4a7a3a', '#1e3a34'));
+    ell(b.x0 + w * .82, b.y1 - h * .05, w * .08, h * .06, paint(pick3, g, '#5cba5a', '#4a7a3a', '#1e3a34'));
+    edge(cx, x, y, bw, bh);
   }
 
   function drawPicnic(e, b) {
     const { cx, R, pick3, g, ell } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, cloth = b.y0 + h * .22;
-    const post = paint(pick3, g, '#8a5a34', '#7a5030', '#1e1a24'), red = paint(pick3, g, '#c8453a', '#e8805a', '#8a2a24');
-    cx.fillStyle = post; cx.fillRect(R(b.x0 + w * .12), R(cloth), Math.max(2, R(w * .06)), Math.max(1, R(b.y1 - cloth)));
-    cx.fillRect(R(b.x1 - w * .18), R(cloth), Math.max(2, R(w * .06)), Math.max(1, R(b.y1 - cloth)));
+    const post = paint(pick3, g, '#8a5a34', '#7a5030', INK), red = paint(pick3, g, '#c8453a', '#e8805a', '#8a2a24');
+    const table = b.y1 - h * .22;
+    cx.fillStyle = post; cx.fillRect(R(b.x0 + w * .12), R(cloth), Math.max(2, R(w * .06)), Math.max(1, R(table - cloth)));
+    cx.fillRect(R(b.x1 - w * .18), R(cloth), Math.max(2, R(w * .06)), Math.max(1, R(table - cloth)));
     cx.fillStyle = red; cx.fillRect(R(b.x0), R(b.y0 + h * .08), R(w), Math.max(2, R(h * .2)));
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x0), R(b.y0 + h * .16), R(w), Math.max(1, R(h * .04)));
     for (let i = 0; i < 4; i++) ell(b.x0 + w * (i + .5) / 4, cloth + h * .06, w * .12, h * .06, red);
-    const top = b.y1 - h * .22;
-    cx.fillStyle = paint(pick3, g, '#c8955a', '#a87a4a', '#3a2e38'); cx.fillRect(R(b.x0 + w * .08), R(top), R(w * .84), Math.max(2, R(h * .08)));
-    cx.fillStyle = post; cx.fillRect(R(b.x0 + w * .16), R(top), Math.max(2, R(w * .05)), Math.max(1, R(b.y1 - top)));
-    cx.fillRect(R(b.x1 - w * .21), R(top), Math.max(2, R(w * .05)), Math.max(1, R(b.y1 - top)));
+    cx.fillStyle = paint(pick3, g, '#c8955a', '#a87a4a', '#3a2e38'); cx.fillRect(R(b.x0 + w * .06), R(table), R(w * .88), Math.max(2, R(h * .08)));
+    cx.fillStyle = post; cx.fillRect(R(b.x0 + w * .16), R(table), Math.max(2, R(w * .05)), Math.max(1, R(b.y1 - table)));
+    cx.fillRect(R(b.x1 - w * .21), R(table), Math.max(2, R(w * .05)), Math.max(1, R(b.y1 - table)));
+    edge(cx, R(b.x0), R(b.y0 + h * .08), R(w), R(h * .2));
   }
 
   function drawStage(e, b) {
-    const { cx, R, pick3, g } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, deck = b.y1 - h * .28;
-    const red = paint(pick3, g, '#c8453a', '#e8805a', '#8a2a24'), wood = paint(pick3, g, '#c8955a', '#a87a4a', '#3a2e38');
-    cx.fillStyle = paint(pick3, g, '#8a2a24', '#8a2a24', '#1e1a24'); cx.fillRect(R(b.x0), R(b.y0), R(w), Math.max(2, R(h * .1)));
-    cx.fillStyle = red; cx.fillRect(R(b.x0), R(b.y0 + h * .08), R(w * .28), Math.max(1, R(deck - b.y0)));
-    cx.fillRect(R(b.x1 - w * .28), R(b.y0 + h * .08), R(w * .28), Math.max(1, R(deck - b.y0)));
+    const { cx, R, pick3, g } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, top = b.y0 + h * .5, deck = b.y1 - h * .16;
+    const curtain = paint(pick3, g, '#e8483c', '#e8805a', '#8a2a24'), wood = paint(pick3, g, '#c8955a', '#a8703e', '#3a2e38');
+    const flags = ['#ff6fa8', '#ffd03a', '#5fd06a', '#4fa6ff'];
+    cx.fillStyle = paint(pick3, g, '#8a5a34', '#7a5030', INK);
+    for (let i = 0; i < 5; i++) {
+      const x = b.x0 + w * (i + .5) / 5;
+      cx.beginPath(); cx.moveTo(R(x - w * .08), R(top)); cx.lineTo(R(x + w * .08), R(top)); cx.lineTo(R(x), R(top + h * .1)); cx.fillStyle = flags[i % 4]; cx.fill();
+    }
+    cx.fillStyle = curtain; cx.fillRect(R(b.x0), R(top + h * .06), R(w * .16), Math.max(1, R(deck - top)));
+    cx.fillRect(R(b.x1 - w * .16), R(top + h * .06), R(w * .16), Math.max(1, R(deck - top)));
+    cx.fillStyle = paint(pick3, g, '#e8483c', '#c8453a', '#8a2a24'); cx.fillRect(R(b.x0), R(top + h * .05), R(w), Math.max(2, R(h * .06)));
     cx.fillStyle = wood; cx.fillRect(R(b.x0), R(deck), R(w), Math.max(2, R(b.y1 - deck)));
-    cx.fillStyle = paint(pick3, g, '#8a5a34', '#7a5030', '#1e1a24');
-    for (let i = 0; i < 4; i++) cx.fillRect(R(b.x0 + i * w / 4), R(deck), Math.max(1, R(w * .02)), Math.max(1, R(b.y1 - deck)));
-    cx.fillStyle = paint(pick3, g, '#5a3a24', '#5a3a24', '#1e1a24'); cx.fillRect(R(b.x0 + w * .18), R(deck), R(w * .22), Math.max(2, R(h * .08)));
-    cx.fillRect(R(b.x1 - w * .4), R(deck), R(w * .22), Math.max(2, R(h * .08)));
+    cx.fillStyle = paint(pick3, g, '#a8703e', '#8a5a34', INK);
+    for (let i = 0; i < 6; i++) cx.fillRect(R(b.x0 + i * w / 6), R(deck), Math.max(1, R(w * .015)), Math.max(1, R(b.y1 - deck)));
+    edge(cx, R(b.x0), R(top + h * .05), R(w), R(b.y1 - top - h * .05));
   }
 
   function drawShelf(e, b) {
-    const { cx, R, pick3, g, mixHex } = e, w = b.x1 - b.x0, h = b.y1 - b.y0;
-    const wood = paint(pick3, g, '#8a5a34', '#7a5030', '#1e1a24'), shelf = paint(pick3, g, '#c8955a', '#a87a4a', '#3a2e38');
-    const drip = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = wood; cx.fillRect(R(b.x0), R(b.y0), Math.max(3, R(w * .16)), Math.max(1, R(h)));
-    cx.fillStyle = shelf; cx.fillRect(R(b.x0), R(b.y0 + h * .08), R(w), Math.max(2, R(h * .7)));
-    const blocks = ['#ff6fa8', '#4fa6ff', '#ffd03a'];
-    for (let i = 0; i < 3; i++) {
-      const y = b.y0 + h * (.36 + i * .18);
-      cx.fillStyle = shelf; cx.fillRect(R(b.x0 + w * .14), R(y), R(w * .8), Math.max(2, R(h * .05)));
-      cx.fillStyle = drip(blocks[i]); cx.fillRect(R(b.x0 + w * (.32 + (i % 2) * .26)), R(y - h * .1), R(w * .18), Math.max(2, R(h * .1)));
-    }
+    const { cx, R, pick3, g } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, top = b.y0 + h * .12;
+    const post = paint(pick3, g, '#8a5a34', '#7a5030', INK), shelf = paint(pick3, g, '#c8955a', '#a8703e', '#3a2e38');
+    cx.fillStyle = post;
+    cx.fillRect(R(b.x0), R(top), Math.max(3, R(w * .12)), Math.max(1, R(b.y1 - top)));
+    cx.fillRect(R(b.x1 - w * .12), R(top), Math.max(3, R(w * .12)), Math.max(1, R(b.y1 - top)));
+    cx.fillStyle = shelf;
+    for (let i = 0; i < 3; i++) cx.fillRect(R(b.x0), R(top + (b.y1 - top) * (.22 + i * .28)), R(w), Math.max(2, R(h * .05)));
+    edge(cx, R(b.x0), R(top), R(w), R(b.y1 - top));
   }
 
   function drawBarn(e, b) {
@@ -145,6 +155,9 @@
     cx.strokeRect(R(dx), R(dy), R(dw), R(dh));
     cx.beginPath(); cx.moveTo(R(dx), R(dy)); cx.lineTo(R(dx + dw), R(dy + dh)); cx.moveTo(R(dx + dw), R(dy)); cx.lineTo(R(dx), R(dy + dh)); cx.stroke();
     cx.fillStyle = '#f2c14e'; cx.fillRect(R(b.x0 + w * .16), R(eave + h * .06), R(w * .1), R(h * .1));
+    cx.strokeStyle = INK; cx.lineWidth = 1; cx.beginPath();
+    cx.moveTo(R(b.x0), R(eave)); cx.lineTo(R(b.x0 + w / 2), R(b.y0)); cx.lineTo(R(b.x1), R(eave)); cx.closePath(); cx.stroke();
+    edge(cx, R(b.x0), R(eave), R(w), R(b.y1 - eave));
   }
 
   function drawShed(e, b) {
@@ -160,19 +173,27 @@
       cx.fillStyle = drip(c); cx.fillRect(R(x), R(eave + h * .08), Math.max(2, R(w * .06)), R(h * (.2 + (i % 2) * .12)));
       ell(x + w * .03, eave + h * (.28 + (i % 2) * .12), w * .04, h * .04, drip(c));
     });
+    edge(cx, R(b.x0), R(eave), R(w), R(b.y1 - eave));
   }
 
   function drawWagon(e, b) {
-    const { cx, R, pick3, g, ell } = e, w = b.x1 - b.x0, h = b.y1 - b.y0, bed = b.y0 + h * .35;
-    const red = paint(pick3, g, '#c8453a', '#e8805a', '#8a2a24'), wood = paint(pick3, g, '#8a5a34', '#7a5030', '#1e1a24');
-    cx.fillStyle = wood; cx.fillRect(R(b.x1 - w * .08), R(bed + h * .15), R(w * .16), Math.max(2, R(h * .08)));
-    cx.fillStyle = red; cx.fillRect(R(b.x0 + w * .08), R(bed), R(w * .7), Math.max(2, R(h * .32)));
-    cx.fillStyle = paint(pick3, g, '#e8483c', '#e8805a', '#8a2a24'); cx.fillRect(R(b.x0 + w * .08), R(bed), Math.max(2, R(w * .08)), Math.max(2, R(h * .32)));
-    cx.fillStyle = wood; cx.fillRect(R(b.x0 + w * .08), R(bed), R(w * .7), Math.max(1, R(h * .06)));
-    ell(b.x0 + w * .28, b.y1 - h * .16, h * .16, h * .16, '#5a3a24');
-    ell(b.x0 + w * .62, b.y1 - h * .16, h * .16, h * .16, '#5a3a24');
-    ell(b.x0 + w * .28, b.y1 - h * .16, h * .06, h * .06, '#f2c14e');
-    ell(b.x0 + w * .62, b.y1 - h * .16, h * .06, h * .06, '#f2c14e');
+    const { cx, R, pick3, g, ell } = e, w = b.x1 - b.x0, h = b.y1 - b.y0;
+    const wood = paint(pick3, g, '#8a5a34', '#7a5030', INK), cars = ['#e8483c', '#3f8ae8'];
+    const bed = b.y0 + h * .28, carW = w * .34, carH = h * .32;
+    cx.fillStyle = wood; cx.fillRect(R(b.x1 - w * .06), R(bed + carH * .35), R(w * .12), Math.max(2, R(h * .08)));
+    cars.forEach((c, i) => {
+      const x = b.x0 + w * (.08 + i * .4);
+      cx.fillStyle = paint(pick3, g, c, '#e8805a', '#1e1a24');
+      cx.fillRect(R(x), R(bed), R(carW), R(carH));
+      cx.fillStyle = paint(pick3, g, '#5a3a24', '#5a3a24', INK);
+      cx.fillRect(R(x), R(bed), R(carW), Math.max(1, R(carH * .16)));
+      edge(cx, R(x), R(bed), R(carW), R(carH));
+      ell(x + carW * .28, b.y1 - h * .14, h * .14, h * .14, '#3a2420');
+      ell(x + carW * .72, b.y1 - h * .14, h * .14, h * .14, '#3a2420');
+      ell(x + carW * .28, b.y1 - h * .14, h * .05, h * .05, '#f2c14e');
+      ell(x + carW * .72, b.y1 - h * .14, h * .05, h * .05, '#f2c14e');
+    });
+    cx.fillStyle = wood; cx.fillRect(R(b.x0 + w * .4), R(bed + carH * .4), R(w * .1), Math.max(1, R(h * .06)));
   }
 
   function drawPond(e, b) {
@@ -181,8 +202,10 @@
     ell(cx0 - rx * .25, cy - ry * .2, rx * .4, ry * .28, paint(pick3, g, '#9ad6f4', '#7cc0f4', '#4a4458'));
     const { cx, R } = e;
     cx.fillStyle = paint(pick3, g, '#3f9a48', '#4a7a3a', '#1e3a34');
-    cx.fillRect(R(b.x0 + rx * .2), R(b.y0 - ry * .3), Math.max(1, R(rx * .08)), R(ry * .7));
-    cx.fillRect(R(b.x1 - rx * .35), R(b.y0 - ry * .15), Math.max(1, R(rx * .08)), R(ry * .55));
+    cx.fillRect(R(b.x0 + rx * .2), R(b.y0 - ry * .35), Math.max(1, R(rx * .08)), R(ry * .7));
+    cx.fillRect(R(b.x1 - rx * .35), R(b.y0 - ry * .2), Math.max(1, R(rx * .08)), R(ry * .55));
+    ell(b.x0 + rx * .24, b.y0 - ry * .32, rx * .07, ry * .16, paint(pick3, g, '#8a5a34', '#5a3a24', INK));
+    ell(b.x1 - rx * .31, b.y0 - ry * .16, rx * .07, ry * .14, paint(pick3, g, '#8a5a34', '#5a3a24', INK));
   }
 
   function drawGate(e, b) {
@@ -232,9 +255,9 @@ function drawPlaques(e) {
     if (!b.door) continue;
     const w = b.x1 - b.x0, h = b.y1 - b.y0, dx = nudge(e.st, e.L, b.door);
     const x = (b.x0 + b.x1) / 2 + dx;
-    const y = b.name === 'wagon' ? b.y0 + h * .45 : b.y0 + h * .5;
-    const fit = Math.min(.62, (w * .7) / board);
-    const clipTop = b.y0 + (b.name === 'wagon' || b.name === 'picnic' || b.name === 'stage' ? 0 : h * .14);
+    const y = b.y0 + h * (b.picture || .5);
+    const fit = Math.min(.58, (w * .62) / board, (h * .42) / (e.L.R * 1.45));
+    const clipTop = b.y0;
     e.cx.save();
     e.cx.beginPath();
     e.cx.rect(e.R(b.x0 + dx), e.R(clipTop), Math.max(1, e.R(w)), Math.max(1, e.R(b.y1 - clipTop)));
