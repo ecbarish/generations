@@ -1,5 +1,4 @@
 'use strict';
-/* LR-WORLD-3: each doorway is a building. sillLine is local until the shared post kit lands. */
 (function (root) {
   function sillLine(L) { return L.ground + L.U * .13; }
 
