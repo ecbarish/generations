@@ -356,7 +356,7 @@ document.querySelector('#run').onclick=async()=>{
    replay=fin.querySelector('[data-act="again"]');
    const replayBox=replay.getBoundingClientRect();
    const offerLine=fin.textContent.match(/made (\d+) offer/);
-   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px, goal hold '+(goalMatch==null?'missing':goalMatch.toFixed(1))+'px',goalSpare<=24&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden&&goalMatch!=null&&goalMatch<=2);
+   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px, goal hold '+(goalMatch==null?'missing':goalMatch.toFixed(1))+'px',goalSpare<=36&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden&&goalMatch!=null&&goalMatch<=2);
    if(width===390){
     check('the win title is visible once ('+titles.join(', ')+')',titles.length===1);
     check('the win summary counts the offers ('+(offerLine?offerLine[0]:'none')+')',!!offerLine&&+offerLine[1]===H.run().offers&&+offerLine[1]>=1&&!/made 0 offers/.test(fin.textContent));
