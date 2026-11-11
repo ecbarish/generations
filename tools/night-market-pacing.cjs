@@ -425,10 +425,6 @@
     return playBuyer(M, { bulk: 'max', buyMs: 5000, durationSec: durationSec || 3600, fallback: true });
   }
 
-  /* Casual hands, then three ways of buying, for fifteen minutes.
-     The first tap is as the stall opens. A pour follows every handSec.
-     2.5s and 5s consider a purchase on that cadence. Buy-when-affordable
-     takes one copy the moment the coins cover it. Times are simulated. */
   var SESSION_POLICIES = [
     { id: '2.5s', handSec: 2.5, buySec: 2.5 },
     { id: '5s', handSec: 5, buySec: 5 },

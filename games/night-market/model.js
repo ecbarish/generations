@@ -307,8 +307,6 @@
     var owned = state.stalls[i].owned;
     var one = cost(i, owned, 1);
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
-    /* One copy can be bought while you still work the stall. It earns only after
-       the vendor takes it, so Max cannot skip the pouring. */
     if (!state.stalls[i].hired) {
       if (mode !== 1 && mode !== '1') return { count: 0, cost: one, blocked: 'hire' };
       if (!(one >= 0) || one > state.cash) return { count: 0, cost: one, blocked: 'cost' };
