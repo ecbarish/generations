@@ -219,8 +219,6 @@
   return '<div class="outlook-slot"><p class="outlook outlook-hold" aria-hidden="true">'+$('#outlookHold').innerHTML+'</p><p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p></div>';
  }
 
- // The reply sits in the offer row, in space that was already there. Scroll only when that
- // row is outside the screen, so a tap on a button already in view does not move it.
  function clearReply(){
   const slot=$('#replyActions'); if(slot){slot.replaceChildren();slot.hidden=true;}
   const live=$('#dealButtons'); if(live) live.hidden=false;

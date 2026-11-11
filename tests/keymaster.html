@@ -637,7 +637,6 @@ document.querySelector('#run').onclick=async()=>{
   const hitGoal=d.elementFromPoint(offerNow.left+offerNow.width/2, offerNow.top+Math.min(offerNow.height/2,12));
   check('the goal stays on screen and does not cover Make this offer',goalBox.top<=4&&goalBox.bottom>8&&goalBox.height<=56&&(hitGoal===offerHit||offerHit.contains(hitGoal)));
   H.begin();await wait(20);
-  // KM-TAPS: the tap stays on the button, 20% stays chosen, the header names two streets, Birch says what is next.
   const tapMoves=[];
   for(const [width,height] of [[320,640],[360,740],[1280,640]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(100);

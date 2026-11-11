@@ -54,7 +54,6 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
 .action-slot{display:grid;margin-top:12px}.action-slot>.actions{grid-area:1/1;margin-top:0;width:100%;align-items:stretch}
-/* A hidden copy of each row keeps the taller height, so Next listing cannot shrink under the finger. */
 .action-slot>.action-hold{visibility:hidden;pointer-events:none}
 #dealActions>.actions button{align-self:stretch;height:auto}
 #replyActions{display:flex;align-items:stretch}#replyActions>.actions{width:100%;margin-top:0;flex:1;align-items:stretch}#replyActions>.actions button{flex:1;align-self:stretch}
