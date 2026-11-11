@@ -1,5 +1,6 @@
 'use strict';
 /* LR-WORLD-1: the ranch is a strip of four places. Big wooden arrows glide the camera one place at a time. */
+/* LR-WORLD-2: one ground and one fence run the whole strip. Hills lag behind the camera. Shadows fall to the right, and the moon uses the sun's upper-left place. */
 /* Little Ranch (LR1, the smallest test): a tap-and-play toy for ages 2 to 4 (docs/proposals/games-for-everyone.md).
    One baby Cindercub in a sunny corner of the ranch. Tap the bowl and it eats; drag (or tap) the sponge and it gets
    bubbly; tap the bush for peekaboo; tap the baby and it giggles. A dozen different toys, and never before about six minutes, then it yawns,
@@ -85,6 +86,7 @@
   const mixHex = (a, b, k) => { const p = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16)), q = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
     return 'rgb(' + p.map((v, i) => Math.round(lerp(v, q[i], clamp(k, 0, 1)))).join(',') + ')'; };
   const pick3 = (a, b, c, k) => k < .5 ? mixHex(a, b, k * 2) : mixHex(b, c, (k - .5) * 2);
+  const duskOf = (c, g) => pick3(c, c, '#2a2a4a', g);
   let W = 0, H = 0, S = 1, L = {};
   let prefs = { sound: true }; try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF) || '{}')); } catch (e) {}
 
@@ -150,9 +152,40 @@
   function areaCentre(i) { return L.U * (1 + 1.4 * i); }
   function stopFor(i) { const x = clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W)); const f = Math.floor(x), d = x - f; return d > .5 || (d === .5 && f % 2) ? f + 1 : f; } // halves land on even pixels, matching the published stops
   function coreX(i, t) { return areaCentre(i) + L.U * (t - .5); }
-  function pinSky() { if (!L || !L.U) return; L.sun = { x: cam.x + W * .22, y: H * .17 }; L.moon = { x: cam.x + W * .8, y: H * .16 }; }
+  function skyLine() { return L.ground - L.U * .28; }
+  function sunRestY() { const glow = L.U * .13; return Math.min(H * .17, skyLine() - glow - 1); }
+  function pinSky() { if (!L || !L.U) return; const y = sunRestY(); L.sun = { x: cam.x + W * .22, y }; L.moon = { x: cam.x + W * .22, y }; }
+  function syncParallax() { if (reduce()) return; cam.parallax.far = Math.round(cam.x * .3); cam.parallax.near = Math.round(cam.x * .6); }
+  function cloudReach(r) {
+    const blobs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]];
+    let above = 0, below = 0, side = 0;
+    for (const [dx, dy, k] of blobs) {
+      const rad = r * k * 1.22;
+      above = Math.max(above, -dy * r + rad);
+      below = Math.max(below, dy * r + rad);
+      side = Math.max(side, Math.abs(dx) * r + rad);
+    }
+    return { above, below, side };
+  }
+  function clearCloud() {
+    const c = L.cloud; if (!c) return;
+    const reach = cloudReach(c.r), sky = skyLine(), stop = stopFor(0);
+    const yMax = sky - reach.below - 1;
+    if (yMax >= c.r) c.y = Math.max(c.r, Math.min(c.y, yMax));
+    const sun = { x: stop + W * .22, y: sunRestY() }, glow = L.U * .13, need = reach.side + glow + 2;
+    if (Math.hypot(c.x - sun.x, c.y - sun.y) < need) c.x = fitX(0, sun.x + (c.x >= sun.x ? need : -need), c.r, false);
+    const lock = lockCanvas(); if (!lock) return;
+    const hits = () => {
+      const x = c.x - stop;
+      return x + reach.side > lock.x0 && x - reach.side < lock.x1 && c.y + reach.below > lock.y0 && c.y - reach.above < lock.y1;
+    };
+    if (!hits()) return;
+    const dropped = lock.y1 + reach.above + 2;
+    if (dropped >= c.r && dropped + reach.below < sky - 1) c.y = Math.max(c.y, dropped);
+    else c.x = fitX(0, Math.min(c.x, stop + lock.x0 - reach.side - 2), c.r, false);
+  }
   function camGliding() { return !!(st && cam.dur > 0 && st.t - cam.t0 < cam.dur - 1e-6); }
-  function snapCamera() { cam.x = cam.from = cam.to = stopFor(cam.area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
+  function snapCamera() { cam.x = cam.from = cam.to = stopFor(cam.area); cam.dur = 0; cam.t0 = -9; pinSky(); syncParallax(); syncHome(); refreshArrows(); }
   function syncHome() { if (!L || !L.homes) return; L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
   function discPad() { return Math.max(L.U * .1, 16 / S + L.U * .09); } // both discs sit 16 CSS px in, at every width
   function arrowCenter(side) { const pad = discPad(); return cam.x + (side < 0 ? pad : W - pad); }
@@ -343,11 +376,11 @@
     const backHome = !!(st && i === 1 && cam.area !== 1);
     const dest = stopFor(i), cut = !st || instant || reduce() || Math.abs(dest - cam.x) < .5;
     cam.area = i; cam.to = dest;
-    if (cut) { cam.x = cam.from = dest; cam.dur = 0; cam.t0 = -9; glideQueued = null; pinSky(); syncHome(); refreshArrows(); if (st) sendFollowers(true); if (backHome && !backFromButton) releaseBack(); return; }
+    if (cut) { cam.x = cam.from = dest; cam.dur = 0; cam.t0 = -9; glideQueued = null; pinSky(); syncParallax(); syncHome(); refreshArrows(); if (st) sendFollowers(true); if (backHome && !backFromButton) releaseBack(); return; }
     cam.from = cam.x; cam.t0 = st.t; cam.dur = .65; syncHome(); refreshArrows(); sendFollowers(false);
     if (backHome && !backFromButton) releaseBack();
   }
-  function parkAtDoor(area) { if (cam.area === 1 && area !== 1) armBack(); cam.area = area; cam.x = cam.from = cam.to = stopFor(area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
+  function parkAtDoor(area) { if (cam.area === 1 && area !== 1) armBack(); cam.area = area; cam.x = cam.from = cam.to = stopFor(area); cam.dur = 0; cam.t0 = -9; pinSky(); syncParallax(); syncHome(); refreshArrows(); }
   function artScale(cssMin, dpr) { const fitted = Math.max(2, Math.round(cssMin / 190)); return dpr > 1 ? Math.min(fitted, 2) : fitted; }
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
@@ -397,7 +430,8 @@
       const stop = stopFor(0), meadow = stopFor(1);
       let x = Math.max(coreX(0, .62), stop + dotsRight + 4 + reach);
       x = Math.min(x, meadow - reach - 1);
-      L.cloud = { x: fitX(0, x, cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
+      L.cloud = { x: fitX(0, x, cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr };
+      clearCloud(); }
     { const pr = U * .12, py = Math.min(H - pr - 1, Math.max(pr + 1, H * .9));
       L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), pr, false), y: py, r: pr })); }
     L.basket = { x: coreX(2, wide ? .86 : .87), y: wide ? H * .885 : Math.max(H * .7, H * .56 - U * .08 + U * .175 + L.R * .9 * .95 + 2), r: L.R * (wide ? .6 : .9) };
@@ -608,7 +642,7 @@
   }
   // LR13: the sun surprise. Daytime only (no sun at night). Each tap brightens it; the fifth brings a rainbow over the
   // field and the baby looks up and cheers; after a few seconds the rainbow fades and the count starts again.
-  const sunAt = () => ({ x: cam.x + W * .22, y: lerp(H * .17, L.ground + L.U * .1, clamp(st.dusk * 1.6, 0, 1)) });
+  const sunAt = () => ({ x: cam.x + W * .22, y: lerp(sunRestY(), L.ground + L.U * .1, clamp(st.dusk * 1.6, 0, 1)) });
   const daytime = () => st.mode === 'play' && st.dusk < .3;
   function shine() {
     const u = st.sun; if (u.bow) { fx('spark', sunAt().x, sunAt().y); sfx('twinkle'); return; }
@@ -619,7 +653,7 @@
   }
   // LR14: the moon's song. At night, while the baby sleeps (and the bedtime lullaby is over), each tap on the moon makes it
   // glow a little more; the third plays Twinkle Twinkle Little Star while the stars twinkle in time. The baby sleeps on.
-  const moonAt = () => ({ x: cam.x + W * .8, y: lerp(L.ground, H * .16, clamp((st.dusk - .6) / .4, 0, 1)) });
+  const moonAt = () => ({ x: cam.x + W * .22, y: lerp(L.ground + L.U * .1, sunRestY(), clamp((st.dusk - .6) / .4, 0, 1)) });
   const moonUp = () => st.mode === 'sleep' && st.baby.act === 'sleep' && !st.dawn && st.lullabyAt !== null && st.t - st.lullabyAt > LULLABY_SECS;
   function hum() {
     const u = st.moon, m = moonAt(); fx('spark', m.x, m.y - L.U * .1);
@@ -951,17 +985,44 @@
     ell(c.x - r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x + r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x, y + r * .35, r * .12, r * (rain ? .1 : .05), '#8a8aa0'); cx.globalAlpha = 1;
     if (rain) { cx.strokeStyle = 'rgba(120,170,230,.8)'; cx.lineWidth = Math.max(1.5, L.U * .006); const top = y + r * .5, bot = L.ground + L.U * .25, span = r * 2.4, m = reduce() ? .4 : 1;
       cx.beginPath(); for (let i = 0; i < 26; i++) { const x = c.x - span / 2 + (i * 37.7 % span), k = ((st.t * 1.6 * m + i * .137) % 1), yy = top + k * (bot - top); cx.moveTo(R(x), R(yy)); cx.lineTo(R(x - L.U * .006), R(yy + L.U * .03)); } cx.stroke(); } }
-  function drawSignPosts(g) { // each picture-sign's post runs down to the back line, behind the fence
-    const foot = L.ground + L.U * .13;
+  function drawSignPosts(g) {
+    const foot = L.ground + L.U * .13, bh = L.R * 1.37, r = L.R * .95, w = Math.max(2, R(L.R * .16));
     cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g);
     const drawn = [];
     for (const name of SIGNS) {
-      const s = L[name], r = L.R * .95, bob = hintBob(name), top = s.y - r * .2 - bob, bot = Math.max(s.y + r * 1.2, foot);
-      const rect = { name, x: R(s.x - r * .08), y: R(top), w: Math.max(2, R(r * .16)), h: R(bot - top) };
+      const s = L[name], top = Math.min(s.y - r * .45 + bh / 2, foot);
+      const rect = { name, x: R(s.x) - (w >> 1), y: R(top), w, h: Math.max(1, R(foot) - R(top)) };
       drawn.push(rect);
       cx.fillRect(rect.x, rect.y, rect.w, rect.h);
     }
     L.postRects = drawn;
+    L.backLine = foot;
+  }
+  function gateGaps() {
+    const half = L.R * .9, raw = SIGNS.map(n => [L[n].x - half, L[n].x + half]).sort((a, b) => a[0] - b[0]), gaps = [];
+    for (const span of raw) {
+      const last = gaps[gaps.length - 1];
+      if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1]);
+      else gaps.push([span[0], span[1]]);
+    }
+    return gaps;
+  }
+  function drawFence(g) {
+    const U = L.U, worldW = U * 6.2, fy = L.ground + U * .02, h = Math.max(1, R(U * .025)), gaps = gateGaps();
+    cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g);
+    for (const y of [fy, fy + U * .07]) {
+      let x = 0;
+      for (const [a, b] of gaps) {
+        if (a > x) cx.fillRect(R(x), R(y), Math.max(0, R(a) - R(x)), h);
+        x = Math.max(x, b);
+      }
+      if (x < worldW) cx.fillRect(R(x), R(y), Math.max(0, R(worldW) - R(x)), h);
+    }
+    const postW = Math.max(2, R(U * .03)), postH = R(U * .14), postY = R(fy - U * .03);
+    const inGap = x => gaps.some(([a, b]) => x > a + 1 && x < b - 1);
+    for (let x = U * .15; x < worldW; x += U * .3) if (!inGap(x)) cx.fillRect(R(x), postY, postW, postH);
+    for (const [a, b] of gaps) { cx.fillRect(R(a) - postW, postY, postW, postH); cx.fillRect(R(b), postY, postW, postH); }
+    L.gates = gaps.map(([a, b]) => ({ x0: a, x1: b }));
   }
   function drawPuddles() { for (const q of st.puddles) { const P = L.puddles[q.i], dry = clamp(1 - (st.t - q.at - (PUDDLE_SECS - 6)) / 6, 0, 1), grow = clamp((st.t - q.at) / .6, 0, 1), k = dry * grow, sp2 = st.t - q.splash;
     ell(P.x, P.y, P.r * k, P.r * .36 * k, '#5aa8e0'); ell(P.x - P.r * .2, P.y - P.r * .06, P.r * .5 * k, P.r * .1 * k, '#a8dcf8');
@@ -1052,7 +1113,7 @@
     if (st.place === 'band') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); bandUpdate(dt); return; }
     if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
     if (cam.dur > 0) { const k = clamp((st.t - cam.t0) / cam.dur, 0, 1), e = k * k * (3 - 2 * k); cam.x = Math.round(lerp(cam.from, cam.to, e)); if (k >= 1) { cam.x = cam.to; cam.from = cam.to; cam.dur = 0; const next = glideQueued; glideQueued = null; if (next && st.mode === 'play' && st.place === 'ranch') goArea(cam.area + (next === 'left' ? -1 : 1)); } }
-    pinSky(); refreshArrows();
+    pinSky(); syncParallax(); refreshArrows();
     st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.tsign.shake = Math.max(0, st.tsign.shake - dt * 1.5); st.dsign.shake = Math.max(0, st.dsign.shake - dt * 1.5); st.stage.shake = Math.max(0, st.stage.shake - dt * 1.5); st.shelf.shake = Math.max(0, st.shelf.shake - dt * 1.5);
     // LR-POLISH: when nobody is touching anything the signs take turns to give one small wiggle (the same size as a tap's), so they say "tap me".
     // One every 9 seconds, and none at all with reduced motion.
@@ -1099,7 +1160,7 @@
   /* ---------------- drawing (in code, chunky pixels) ---------------- */
   const R = Math.round;
   function ell(x, y, rx, ry, col) { cx.fillStyle = col; cx.beginPath(); cx.ellipse(R(x), R(y), Math.max(1, R(rx)), Math.max(1, R(ry)), 0, 0, 7); cx.fill(); }
-  function shadow(x, y, w) { const k = st.dusk, off = lerp(-1, 1.6, k) * w * .25; ell(x + off, y, w * (1 + k * .3), w * .22, `rgba(40,30,60,${.22 * (1 - st.dusk * .6)})`); }
+  function shadow(x, y, w) { const k = st.dusk, off = lerp(.4, 1.6, k) * w * .25; ell(x + off, y, w * (1 + k * .3), w * .22, `rgba(40,30,60,${.22 * (1 - st.dusk * .6)})`); }
   function drawBaby() {
     const b = st.baby, z = L.size, t = st.t, since = t - b.at, d = b.dir, m = reduce() ? .3 : 1;
     let x = b.x, y = L.home.y, hop = 0, squash = 1, eyes = 'open', mouth = 0;
@@ -1155,17 +1216,17 @@
     if (!front) shadow(b.x, b.y + r * .2, r);
     const c1 = pick3('#3f9a48', '#4a7a3a', '#1e3a34', g), c2 = pick3('#5cba5a', '#6a9a48', '#2a4a40', g);
     ell(b.x + sh - r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh + r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh, b.y - r * .6, r * .75, r * .65, c2);
-    for (let i = 0; i < 4; i++) ell(b.x + sh + Math.cos(i * 1.6) * r * .6, b.y - r * (.55 + .2 * Math.sin(i * 2)), r * .08, r * .08, g > .6 ? '#c8c0e8' : '#ffd0e0');
+    for (let i = 0; i < 4; i++) ell(b.x + sh + Math.cos(i * 1.6) * r * .6, b.y - r * (.55 + .2 * Math.sin(i * 2)), r * .08, r * .08, pick3('#ffd0e0', '#ffd0e0', '#c8c0e8', g));
   }
   function drawFlowers(g) { // LR3: big friendly flowers; open by day, gently closed at night
-    const night = Math.max(clamp((g - .4) / .5, 0, 1), st.shut), m = reduce() ? .3 : 1, hb = hintBob('flowers');
+      const night = Math.max(g, st.shut), m = reduce() ? .3 : 1, hb = hintBob('flowers');
     L.flowers.forEach((q, i) => { const f = st.flowers[i], k = st.t - f.at, bob = f.bob * f.bob, sway = Math.sin(k * 14) * bob * q.r * .3 * m + Math.sin(st.t * 1.3 + i) * q.r * .04 * m;
       const hy = q.y - bob * q.r * .35 * m - hb, hx = q.x + sway, r = q.r * (1 + bob * .18 * m);
       cx.fillStyle = pick3('#3f9a48', '#5a8a3a', '#1e3a34', g); cx.fillRect(R(q.x - Math.max(1, q.r * .07)), R(hy), Math.max(2, R(q.r * .14)), R(q.stem - hy));
       ell(q.x - q.r * .32, q.stem - q.r * .35, q.r * .3, q.r * .12, cx.fillStyle); ell(q.x + q.r * .32, q.stem - q.r * .55, q.r * .3, q.r * .12, cx.fillStyle);
-      const pc = mixHex(FLOWERS[i], '#2a2a4a', night * .55), open = 1 - night * .45;
+      const pc = pick3(FLOWERS[i], FLOWERS[i], '#2a2a4a', night), open = 1 - Math.min(1, night) * .45;
       for (let j = 0; j < 6; j++) { const a = j / 6 * Math.PI * 2 + (night ? 0 : Math.sin(k * 10) * bob * .3); ell(hx + Math.cos(a) * r * .5 * open, hy + Math.sin(a) * r * .5 * open, r * .36, r * .3, pc); }
-      ell(hx, hy, r * .32, r * .32, mixHex('#ffd84a', '#5a5040', night * .6));
+      ell(hx, hy, r * .32, r * .32, pick3('#ffd84a', '#ffd84a', '#5a5040', night));
       if (night < .5) { cx.fillStyle = '#3a2420'; cx.fillRect(R(hx - r * .14), R(hy - r * .06), Math.max(1, R(r * .07)), Math.max(1, R(r * .09))); cx.fillRect(R(hx + r * .08), R(hy - r * .06), Math.max(1, R(r * .07)), Math.max(1, R(r * .09)));
         ell(hx, hy + r * .1, r * (bob > .2 ? .1 : .07), r * (bob > .2 ? .09 : .04), '#8a2a2a'); } }); }
   function drawRainbow(k) { // a big arch over the field, fading in and out
@@ -1191,22 +1252,16 @@
     ell(x, y - r * .35, r * .88, r * .3, '#4a2e1c'); ell(x, y - r * .33, r * .78, r * .24, col);
     for (const [dx, h] of [[-.5, .5], [.1, .75], [.55, .4]]) { cx.fillStyle = col; cx.fillRect(R(x + dx * r), R(y - r * .3), Math.max(2, R(r * .16)), R(r * h)); ell(x + dx * r + r * .08, y - r * .3 + r * h, r * .1, r * .1, col); } }
   function drawSign(g) {
-    const s = L.sign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.sign.shake * r * .06;
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - hintBob('sign'))); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#f4e2c0', '#e8c890', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
-    PAINT.forEach((c, i) => { cx.fillStyle = g > .6 ? mixHex(c, '#20203a', .6) : c; const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
-    cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore(); // a little brush
+    const r = drawBoard(L.sign, st.sign.shake, 'sign', g);
+    PAINT.forEach((c, i) => { cx.fillStyle = duskOf(c, g); const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
+    cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore();
     cx.restore(); }
   function drawWheel(x, y, r, a, col) { cx.strokeStyle = col || '#5a3a24'; cx.lineWidth = Math.max(2, r * .22); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
     cx.lineWidth = Math.max(1, r * .12); for (let k = 0; k < 4; k++) { const b = a + k * Math.PI / 4; cx.beginPath(); cx.moveTo(R(x - Math.cos(b) * r), R(y - Math.sin(b) * r)); cx.lineTo(R(x + Math.cos(b) * r), R(y + Math.sin(b) * r)); cx.stroke(); }
     ell(x, y, r * .22, r * .22, '#f2c14e'); }
   function drawWheelSign(g) { // LR10: a picture-sign with a wagon wheel and a red car
-    const s = L.wsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.wsign.shake * r * .06, bob = hintBob('wsign');
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff4e0', '#e8d890', '#3a4458', g); cx.fillRect(R(-r * .78), R(-r * .56), R(r * 1.56), R(r * 1.12));
-    cx.fillStyle = g > .6 ? mixHex(CARS[0], '#20203a', .6) : CARS[0]; cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
+    const r = drawBoard(L.wsign, st.wsign.shake, 'wsign', g);
+    cx.fillStyle = duskOf(CARS[0], g); cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
     drawWheel(-r * .4, r * .25, r * .26, st.t * 2, '#3a2420'); drawWheel(r * .2, r * .25, r * .26, st.t * 2, '#3a2420'); cx.restore(); }
   function drawMini(x, y, z, kind, wave, hop) { // a small baby riding or waiting: 0 the Cindercub, 1 its friend, a round baby Pebblit
     y -= hop; const body = kind ? '#8fa0b8' : '#e06a32', dark = kind ? '#6a7a94' : '#b4471c';
@@ -1271,17 +1326,12 @@
     else { cx.fillStyle = '#8acb6a'; cx.fillRect(R(x - r * .14), R(y), R(r * .28), R(r * .7)); for (const [dx, dy, k] of [[-.42, -.05, .34], [.42, -.05, .34], [0, -.38, .4], [-.2, -.2, .32], [.22, -.2, .32]]) ell(x + dx * r, y + dy * r, r * k, r * k, '#3f9a48');
       for (const [dx, dy] of [[-.3, -.3], [.2, -.45], [.4, -.1]]) ell(x + dx * r, y + dy * r, r * .08, r * .08, '#6cc070'); } }
   function drawKSign(g) { // LR11: a picture-sign with a bowl of berries
-    const s = L.ksign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.ksign.shake * r * .06, bob = hintBob('ksign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.ksign, st.ksign.shake, 'ksign', g), dk = c => duskOf(c, g);
     for (const [dx, dy] of [[-.3, -.08], [0, -.18], [.3, -.08], [-.15, -.3], [.15, -.3]]) ell(dx * r, dy * r, r * .17, r * .17, dk('#5a3fa8'));
     cx.fillStyle = dk('#4fa6e8'); cx.beginPath(); cx.moveTo(R(-r * .65), R(-r * .05)); cx.lineTo(R(r * .65), R(-r * .05)); cx.lineTo(R(r * .4), R(r * .45)); cx.lineTo(R(-r * .4), R(r * .45)); cx.fill();
     ell(0, -r * .05, r * .65, r * .1, dk('#7cc0f4')); cx.restore(); }
   function drawDSign(g) { // LR17: a picture-sign with a red barn door
-    const s = L.dsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.dsign.shake * r * .06, bob = hintBob('dsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.dsign, st.dsign.shake, 'dsign', g), dk = c => duskOf(c, g);
     cx.fillStyle = dk('#c8453a'); cx.fillRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.strokeStyle = dk('#fff4e0'); cx.lineWidth = Math.max(1.5, r * .09);
     cx.strokeRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.beginPath(); cx.moveTo(R(-r * .45), R(-r * .5)); cx.lineTo(R(r * .45), R(r * .54)); cx.moveTo(R(r * .45), R(-r * .5)); cx.lineTo(R(-r * .45), R(r * .54)); cx.stroke();
     ell(r * .62, -r * .38, r * .13, r * .13, dk('#ffd03a')); cx.restore(); }
@@ -1326,9 +1376,7 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
     drawFx(U); }
   function drawTSign(g) { // LR18: a picture-sign with a round lump of dough and a rolling pin
-    const s = L.tsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.tsign.shake * r * .06, bob = hintBob('tsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.tsign, st.tsign.shake, 'tsign', g), dk = c => duskOf(c, g);
     ell(-r * .2, r * .05, r * .42, r * .36, dk('#f0a070')); ell(-r * .3, -r * .08, r * .12, r * .08, dk('#ffd0b0'));
     cx.save(); cx.rotate(-.5); cx.fillStyle = dk('#c8955a'); cx.fillRect(R(r * .05), R(r * .25), R(r * .7), R(r * .2)); cx.fillStyle = dk('#8a5a34'); cx.fillRect(R(-r * .05), R(r * .29), R(r * .12), R(r * .12)); cx.fillRect(R(r * .73), R(r * .29), R(r * .12), R(r * .12)); cx.restore(); cx.restore(); }
   function drawDoughBaby(x, y, z, col, squash) { // a little dough baby: round body, round head, two pointy ears, two dot eyes
@@ -1469,7 +1517,7 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
   }
   function drawBlock(x, y, s, c, a, g) {
-    const i = c % BLOCKS.length, raw = BLOCKS[i], dye = col => g > .6 ? mixHex(col, '#20203a', .6) : col, col = dye(raw), cheek = g > .6 ? dye('#ff9a8a') : 'rgba(255,154,138,.6)';
+    const i = c % BLOCKS.length, raw = BLOCKS[i], dye = col => typeof g === 'number' && g > 0 ? duskOf(col, g) : col, col = dye(raw), cheek = typeof g === 'number' && g > 0 ? duskOf('#ff9a8a', g) : 'rgba(255,154,138,.6)';
     cx.save(); cx.translate(R(x), R(y)); cx.rotate(a || 0); const h = s / 2;
     for (const s2 of [-1, 1]) { cx.fillStyle = col; cx.beginPath(); cx.moveTo(R(s2 * h * .8), R(-h * .7)); cx.lineTo(R(s2 * h * .65), R(-h * 1.25)); cx.lineTo(R(s2 * h * .25), R(-h * .85)); cx.fill(); }
     cx.fillStyle = dye(BLOCK_SHADE[i]); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
@@ -1479,14 +1527,19 @@
   }
   function drawBoard(s, shake, name, g) {
     const r = L.R * .95, sh = Math.sin(st.t * 30) * shake * r * .06, bob = hintBob(name);
+    const bw = L.R * 1.8, bh = L.R * 1.37, edge = Math.max(2, R(L.R * .1));
     shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob));
-    cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const originY = s.y - r * .45 - bob;
+    (L.boardRects = L.boardRects || []).push({ name, top: originY - bh / 2, bottom: originY + bh / 2 });
+    cx.save(); cx.translate(R(s.x + sh), R(originY));
+    cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g);
+    cx.fillRect(R(-bw / 2), R(-bh / 2), R(bw), R(bh));
+    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g);
+    cx.fillRect(R(-bw / 2 + edge), R(-bh / 2 + edge), Math.max(1, R(bw - edge * 2)), Math.max(1, R(bh - edge * 2)));
     return r;
   }
   function drawStageSign(g) {
-    const r = drawBoard(L.stage, st.stage.shake, 'stage', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+    const r = drawBoard(L.stage, st.stage.shake, 'stage', g), dk = c => duskOf(c, g);
     cx.fillStyle = dk('#c8955a'); cx.fillRect(R(-r * .7), R(r * .28), R(r * 1.4), R(r * .22));
     cx.fillStyle = dk('#e8483c'); cx.fillRect(R(-r * .28), R(-r * .05), R(r * .56), R(r * .28));
     ell(0, -r * .05, r * .28, r * .1, dk('#fff4e0')); cx.restore();
@@ -1595,6 +1648,13 @@
     const a = 1 - k / .9, x = st.miss.x, y = st.miss.y, r = L.U * (.05 + k * .14);
     cx.strokeStyle = `rgba(58,36,32,${a})`; cx.lineWidth = Math.max(3, L.U * .018); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
   }
+  function drawHillLayer(offset, factor, cols, g) {
+    const U = L.U, span = L.U * 6.2 * factor + W + U, step = Math.max(U * .9, W * .5);
+    const ry = factor < .5 ? U * .3 : U * .18, cy = L.ground + U * (factor < .5 ? .02 : .04);
+    cx.save(); cx.translate(-offset, 0);
+    for (let x = -step; x < span + step; x += step) ell(x, cy, step * .72, ry, pick3(cols[0], cols[1], cols[2], g));
+    cx.restore();
+  }
   function draw() {
     if (st.place === 'shed') return drawShed();
     if (st.place === 'wagon') return drawWagon();
@@ -1615,13 +1675,14 @@
     if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0, mx = moon.x - cam.x;
       if (mg > 0) { ell(mx, moon.y, U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
       ell(mx, moon.y, U * .07, U * .07, '#f4f0d8'); ell(mx + U * .03, moon.y - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
-    ell(W * .25, L.ground + U * .05, W * .45, U * .22, pick3('#8acb6a', '#a0a050', '#2a4a48', g)); ell(W * .8, L.ground + U * .07, W * .4, U * .18, pick3('#7abf5c', '#909848', '#24423f', g));
+    drawHillLayer(cam.parallax.far, .3, ['#8acb6a', '#a0a050', '#2a4a48'], g);
+    drawHillLayer(cam.parallax.near, .6, ['#7abf5c', '#909848', '#24423f'], g);
     cx.save(); cx.translate(-cam.x, 0);
+    L.boardRects = [];
     drawCloud(g);
     cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), R(worldW), H - R(L.ground));
     drawSignPosts(g);
-    cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), R(worldW), Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), R(worldW), Math.max(1, R(U * .025)));
-    for (let x = U * .15; x < worldW; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
+    drawFence(g);
     for (let i = 0; i < 80; i++) { const x = (i * 61.7) % worldW, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
     drawHint();
     drawPuddles(); drawBasket(g); drawDSign(g); drawTSign(g); drawSign(g); drawWheelSign(g); drawKSign(g); drawStageSign(g); drawShelfSign(g);

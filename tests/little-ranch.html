@@ -1033,7 +1033,7 @@ document.querySelector('#run').onclick = async () => {
           const postsGrounded = drawnPosts.length === names.length && drawnPosts.every(q => q.y1 >= fence - 1);
           const face = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
           const faceClear = ['ksign', 'tsign'].every(n => !overlap(face, boardOf(n)));
-          check(`${label}: in the Kitchen Garden the cloud's face misses the doorway boards, every post reaches the fence, the sun is still the sun, and there is no pack`, faceClear && postsGrounded && LR.ranchTarget(Ls.sun) === 'sun' && !Ls.psign && !Ls.pack && !Ls.packBalloon && LR.camera.area === 0 && LR.camera.parallax.far === 0 && LR.camera.parallax.near === 0);
+          check(`${label}: in the Kitchen Garden the cloud's face misses the doorway boards, every post reaches the fence, the sun is still the sun, and there is no pack`, faceClear && postsGrounded && LR.ranchTarget(Ls.sun) === 'sun' && !Ls.psign && !Ls.pack && !Ls.packBalloon && LR.camera.area === 0 && LR.camera.parallax.far === Math.round(LR.camera.x * .3) && LR.camera.parallax.near === Math.round(LR.camera.x * .6));
         }
       } finally { restoreDpr(); }
       frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
@@ -1354,7 +1354,7 @@ document.querySelector('#run').onclick = async () => {
           frame.style.width = width + 'px'; await sleep(160);
           const mm = w.matchMedia; w.matchMedia = q => ({ matches: /reduce/.test(String(q)), addEventListener() {}, addListener() {} });
           const far = LR.camera.parallax.far, near = LR.camera.parallax.near; LR.go(0);
-          const cut = LR.camera.area === 0 && Math.abs(LR.camera.x - LR.world.areas[0].stop) < 1 && LR.camera.parallax.far === far && LR.camera.parallax.near === near && far === 0 && near === 0;
+          const cut = LR.camera.area === 0 && Math.abs(LR.camera.x - LR.world.areas[0].stop) < 1 && LR.camera.parallax.far === far && LR.camera.parallax.near === near && Number.isInteger(far) && Number.isInteger(near);
           w.matchMedia = mm;
           check(`${key} D: glide, follow, inert taps, drags, resize and a reduced-motion cut`, camOk && babyOk && friendOk && inert && dragOk && resizeOk && cut);
           LR.setFriend(false); LR.setRoutine(false); LR.newVisit(); LR.go(3); LR.advance(.85); LR.bedtime();
@@ -1374,6 +1374,43 @@ document.querySelector('#run').onclick = async () => {
             if (S().place !== 'ranch' || LR.camera.area !== area) back = false;
           }
           check(`${key} F: the seven rooms return to their own areas and the pack screen is gone`, back);
+          {
+            const U = L().U, G = L().ground, yb = G + U * .13, sky = G - U * .28, rail = G + U * .02;
+            const names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'stage', 'shelf'];
+            LR.newVisit(); LR.advance(.2); LR.redraw();
+            const posts = L().postRects || [], boards = L().boardRects || [], gates = L().gates || [];
+            const footOk = names.every(n => { const q = posts.find(p => p.name === n); return q && Math.abs(q.y + q.h - yb) <= 1; });
+            const boardOk = names.every(n => { const q = boards.find(b => b.name === n); return q && q.bottom >= G - U * .09 - .5 && q.bottom <= G - U * .02 + .5 && q.top >= sky - .5; });
+            const postLenOk = names.every(n => { const q = boards.find(b => b.name === n); return q && rail - q.bottom <= U * .15 + .5 && rail + 1 >= q.bottom; });
+            const gated = names.every(n => gates.some(gap => L()[n].x > gap.x0 && L()[n].x < gap.x1));
+            check(`${key} G: every post stands on the back line, every board clears the rails, and every doorway has a gate`, footOk && boardOk && postLenOk && gated && posts.length === names.length);
+            const sunC = L().sun, glow = U * .13, cloud = L().cloud;
+            const blobs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]];
+            let cloudBot = cloud.y, cloudTop = cloud.y;
+            for (const [dx, dy, k] of blobs) { cloudBot = Math.max(cloudBot, cloud.y + dy * cloud.r + cloud.r * k * 1.22); cloudTop = Math.min(cloudTop, cloud.y + dy * cloud.r - cloud.r * k * 1.22); }
+            LR.go(0); LR.advance(.85); LR.redraw();
+            const arrows = L().arrows, arrowOk = [arrows.left, arrows.right].filter(Boolean).every(a => a.y - arrows.r >= sky - .5);
+            const apart = Math.hypot(L().sun.x - L().cloud.x, L().sun.y - L().cloud.y) >= glow + L().cloud.r;
+            const lock = d.getElementById('lock').getBoundingClientRect(), cr = cv.getBoundingClientRect();
+            const lockBox = { x0: (lock.left - cr.left) / cr.width * cv.width, y0: (lock.top - cr.top) / cr.height * cv.height, x1: (lock.right - cr.left) / cr.width * cv.width, y1: (lock.bottom - cr.top) / cr.height * cv.height };
+            const screenCloud = { x: L().cloud.x - LR.camera.x, y: L().cloud.y }, screenSun = { x: L().sun.x - LR.camera.x, y: L().sun.y };
+            const hits = (p, rad) => p.x + rad > lockBox.x0 && p.x - rad < lockBox.x1 && p.y + rad > lockBox.y0 && p.y - rad < lockBox.y1;
+            const skyOk = sunC.y + glow < sky, cloudOk = cloudBot < sky, cloudLock = !hits(screenCloud, L().cloud.r * 1.22), sunLock = !hits(screenSun, glow);
+            check(`${key} H: the sun and the cloud stay in the sky, and in the Garden they miss each other and the lock`, skyOk && cloudOk && arrowOk && apart && cloudLock && sunLock && LR.camera.area === 0);
+            LR.newVisit(); LR.advance(.05); tap(L().arrows.right); LR.advance(.2);
+            const cam = LR.camera, cssMin = Math.min(width, height), fitted = Math.max(2, Math.round(cssMin / 190)), expectS = dpr > 1 ? Math.min(fitted, 2) : fitted;
+            check(`${key} I: the camera and both hill offsets are whole pixels, and the scale keeps the old formula`, Number.isInteger(cam.x) && Number.isInteger(cam.parallax.far) && Number.isInteger(cam.parallax.near) && cam.parallax.far === Math.round(cam.x * .3) && cam.parallax.near === Math.round(cam.x * .6) && LR.scale === expectS);
+            const pix = (x, y) => { const px = Math.max(0, Math.min(cv.width - 1, Math.round(x))), py = Math.max(0, Math.min(cv.height - 1, Math.round(y))); const d = cv.getContext('2d').getImageData(px, py, 1, 1).data; return d[0] + d[1] + d[2]; };
+            LR.newVisit(); LR.advance(.2); LR.redraw();
+            const z = L().size, bx = S().baby.x - LR.camera.x, by = L().home.y + z * .06;
+            const shadowRight = pix(bx + z * .9, by) + 20 < pix(bx - z * 1.4, by);
+            const sumAt = () => pix(Math.round(cv.width * .12), L().ground + U * .45);
+            const day = [], night = [];
+            for (let i = 0; i < 4; i++) { LR.go(i); LR.advance(.15); S().dusk = 0; S().mode = 'play'; LR.redraw(); day.push(sumAt()); S().dusk = 1; S().mode = 'sleep'; LR.redraw(); night.push(sumAt()); }
+            const moon = LR.moonAt();
+            const moonSlot = Math.abs(moon.x - LR.camera.x - cv.width * .22) < 1.5 && Math.abs(moon.y - L().sun.y) < 1.5;
+            check(`${key} J: daytime shadows fall to the right, every place dims at dusk, and the moon uses the sun's place`, shadowRight && night.every((n, i) => n < day[i] - 8) && moonSlot);
+          }
         }
       } finally {
         if (ownDpr8) Object.defineProperty(w, 'devicePixelRatio', ownDpr8); else delete w.devicePixelRatio;
