@@ -43,7 +43,7 @@ Playable and fun, the same bar as the other launch games. Further improvements d
 
 ## Must-haves (these block finish)
 
-1. **KM-HUB:** Owner: Side Games Dev Lead (bc-5b99a734). A homepage card in `launcher/games.js`, with status, goal and controls, so a newcomer can open Keymaster from the hall (KML-1). One pull. `tests/keymaster.html` already runs in `tools/run-all-checks.cjs`, and `node tools/launcher-checks.cjs` must still pass.
+1. **KM-HUB** (#596): Done. The Keymaster hall card already exists from #596. Owner: Side Games Dev Lead (bc-5b99a734). bc-5b99a734 became #663, a launcher-only phone fix that holds Keymaster's Play button at 44px. A homepage card in `launcher/games.js`, with status, goal and controls, so a newcomer can open Keymaster from the hall (KML-1). `tests/keymaster.html` already runs in `tools/run-all-checks.cjs`, and `node tools/launcher-checks.cjs` must still pass.
 2. **KM-STREET** (built: five listings on Alder Street, $200,000, own three that pay; design [keymaster-street.md](keymaster-street.md), approved 2026-10-19): a short run of listings in one five-minute session, so there is a second and third decision (KML-1, KML-5). This is the proposal's first progression step, "a few doors on one street". Requirements:
    - Each listing makes a different analyzer line matter, and at least one is a deal you should pass on.
    - A goal line names what the run is for.
