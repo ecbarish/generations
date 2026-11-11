@@ -330,16 +330,28 @@
     if (box.hidden) {
       box.style.top = '';
       box.style.bottom = '';
+      box.style.maxHeight = '';
       return;
     }
-    /* Keep the sheet on the half of the screen the finger is not on. */
-    if (view.lastY > window.innerHeight * 0.42) {
-      box.style.top = '4.2rem';
+    /* The sheet stays on the half the finger is not on, and it stops above the goal bar. */
+    var bar = document.querySelector('#goalbar');
+    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var short = window.matchMedia('(max-height: 430px)').matches;
+    var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
+    var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
+    if (fingerLow) {
+      box.style.top = topPx + 'px';
       box.style.bottom = 'auto';
     } else {
       box.style.top = 'auto';
-      box.style.bottom = '4.6rem';
+      box.style.bottom = (barH + gap) + 'px';
     }
+    var room = window.innerHeight - barH - gap - topPx;
+    var cap = room;
+    if (narrow || short) cap = Math.min(room, window.innerHeight * 0.46);
+    box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -469,7 +481,8 @@
         rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
       }
     });
-    if (waitingLine.length) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
+    /* On a phone the same price is already on the card, so the note stays one sentence. */
+    if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
       return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
@@ -671,6 +684,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
         wrap.dataset.light = spec.id;
+        wrap.dataset.stage = String(stage);
         var h = document.createElement('h3');
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');
