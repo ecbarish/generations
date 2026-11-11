@@ -1,3 +1,7 @@
+### 2026-11-11 00:05 UTC, Grok (Cursor cloud) for Evan: NM-POLISH ready for Generations Reviewer
+
+The stall pull is ready and not merged. A new player can buy one tea stall while still pouring, sees the next step on a goal bar, and gets a welcome-back card that leads with the coins. Mei still takes the stall at 25 cups. Phone sessions at 390 and 320 found no missed taps. The lane art was already drawn in code. This pull does not edit `sw.js`, the arcade `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. #647 keeps the hall card. #625 keeps the roguelite. Generations Reviewer merges.
+
 ### 2026-11-10 23:45 UTC, Grok (Cursor cloud) for Evan: claiming NM-POLISH (Night Market first session, one pull)
 
 Night Market Stalls, one pull, so a newcomer can play the stall on a desk and a phone and have a good time. This folds the stall-game rows that are still open on the launch checklist: NM-FIX-7 (a played phone session, not a separate build pull) and NM-VIS, must-have 9 (the lane strip, coin pop, lantern flicker, steam, a sale flash, and passers-by). It does not take NM-HUB. #647 owns the hall card and `launcher/`. It does not touch the roguelite work in #625.
