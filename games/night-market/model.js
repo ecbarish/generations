@@ -70,7 +70,7 @@
       id: 'dumpling', name: 'Dumpling Cart', vendor: 'Bo',
       habit: 'Bo talks while he folds, and regulars stay to listen.',
       serve: 'Fold a dumpling', left: 'dumpling', lefts: 'dumplings', hire: 'Ask Bo to take the cart',
-      base: 80, growth: 1.06, rate: 0.9, serves: 12, hand: 1,
+      base: 80, growth: 1.06, rate: 0.9, serves: 3, hand: 1,
       looks: ['One steamer', 'Two steamers', 'A cloth awning', 'A queue down the lane'],
       gossip: 'Bo says he talked the whole time, and the dumplings still sold.',
       next: 'An brings the Lantern Stand once ten carts are folding.'
@@ -79,7 +79,7 @@
       id: 'lantern', name: 'Lantern Stand', vendor: 'An',
       habit: 'An trims each wick until the flame sits still.',
       serve: 'Light a lantern', left: 'lantern', lefts: 'lanterns', hire: 'Ask An to take the stand',
-      base: 700, growth: 1.07, rate: 5, serves: 10, hand: 1,
+      base: 700, growth: 1.07, rate: 5, serves: 3, hand: 1,
       looks: ['One pole', 'A pair of poles', 'A string of lamps', 'The alley lit'],
       gossip: 'An says the wicks burned clean the whole time.',
       next: 'Qiao brings the Mooncake Table once ten stands are lit.'
@@ -88,7 +88,7 @@
       id: 'mooncake', name: 'Mooncake Table', vendor: 'Qiao',
       habit: 'Qiao counts the tins twice, then parts with the one she likes least.',
       serve: 'Wrap a mooncake', left: 'mooncake', lefts: 'mooncakes', hire: 'Ask Qiao to take the table',
-      base: 6400, growth: 1.05, rate: 40, serves: 8, hand: 1,
+      base: 6400, growth: 1.05, rate: 40, serves: 3, hand: 1,
       looks: ['One stack of tins', 'Two stacks of tins', 'A painted sign', 'Tins along the table'],
       gossip: 'Qiao says she counted the tins twice, and they still sold.',
       next: 'Ren brings the Incense Tray once twelve tables are wrapping.'
@@ -97,7 +97,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 62000, growth: 1.1, rate: 540, serves: 8, hand: 1, unlockAt: 12,
+      base: 34000, growth: 1.1, rate: 540, serves: 3, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'The Story Mat opens at 15:00, or at 10 incense trays, whichever comes first.'
@@ -144,8 +144,8 @@
       set: { lantern: { rate: 6 } } },
     { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes 40 to 48 a second.",
       set: { mooncake: { rate: 48 } } },
-    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost 15% less from now on. 62,000 to 52,700.",
-      set: { incense: { base: 52700 } } },
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost 15% less from now on. 34,000 to 28,900.",
+      set: { incense: { base: 28900 } } },
     { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost 15% less from now on. 2,200,000 to 1,870,000.",
       set: { stories: { base: 1870000 } } },
     { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea',       line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
@@ -679,6 +679,19 @@
     var trays = unlockNeed(state, STALLS.length - 1);
     return 'The Story Mat opens at 15:00, or at ' + trays + ' incense trays, whichever comes first.';
   }
+  /* Goal, ending card and locked row. The count is unlockNeed, not a fixed ten. */
+  function stallOpenLine(state, i) {
+    var stall = spec(i);
+    var prev = spec(i - 1);
+    if (!stall || !prev) return '';
+    if (i === STALLS.length - 1) return matGateLine(state);
+    var need = unlockNeed(state, i);
+    var units = { tea: 'tea stalls', dumpling: 'dumpling carts', lantern: 'lantern stands', mooncake: 'mooncake tables', incense: 'incense trays' };
+    return need + ' ' + (units[prev.id] || prev.name) + ' open the ' + stall.name;
+  }
+  function matPriceText(state) {
+    return moneyText(cost(STALLS.length - 1, 0, 1, state));
+  }
   function matByClock(state) {
     return !!(state && state.night && (state.night.wallMs || 0) >= MAT_CLOCK * 1000);
   }
@@ -880,7 +893,6 @@
     if (!origin) return stall.base * Math.pow(stall.growth, owned);
     return stall.base * Math.pow(stall.growth, 52 + owned - origin);
   }
-
   function cost(i, owned, n, state) {
     var stall = spec(i);
     n = Math.floor(n);
@@ -902,27 +914,24 @@
     /* The first tray and the first mooncake are the long saves, when nothing
        else on the table pays for itself within a minute and a half. Later
        copies stay on the catalogue curve. A charm that changes the base scales this too. */
-    if (stall.id === 'incense' && owned === 0) {
-      var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
-      total += base * ease * (34000 / 62000 - 1);
-    }
     if (stall.id === 'mooncake' && owned === 0) {
       var moonEase = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
       total += base * moonEase * (3600 / 6400 - 1);
     }
-    /* At fifteen minutes of visible play the first mat costs about twelve
-       seconds of what the lane earns then, and never outside eight to twenty.
-       A night that reached ten incense trays earlier still pays the catalogue
-       price. The pacing buyer does not advance this clock. */
-    if (stall.id === 'stories' && owned === 0 && state && state.night && earlyMatLiveQuote(state) > 0) {
-      total = Math.min(total, earlyMatLiveQuote(state));
-    } else if (stall.id === 'stories' && owned === 0 && state && state.night && matByClock(state)) {
-      if (!(state.night.matOffer > 0)) {
+    /* At fifteen minutes the first mat costs about twelve seconds of the lane,
+       unless an earlier row already named a price. That named price is what
+       every surface charges. Ten trays before the clock still pay the catalogue
+       when no price was named. The pacing buyer does not advance this clock. */
+    if (stall.id === 'stories' && owned === 0 && state && state.night) {
+      var liveQuote = earlyMatLiveQuote(state);
+      if (liveQuote > 0) total = Math.min(total, liveQuote);
+      else if (state.night.matOffer > 0) total = Math.min(total, state.night.matOffer);
+      else if (matByClock(state)) {
         var laneRate = income(state);
         var shownPrice = state.night.matShown > 0 ? state.night.matShown : (laneRate > 0 ? laneRate * 12 : 0);
         if (shownPrice > 0) state.night.matOffer = Math.min(total, shownPrice);
+        if (state.night.matOffer > 0 && state.night.matOffer < total) total = state.night.matOffer;
       }
-      if (state.night.matOffer > 0 && state.night.matOffer < total) total = state.night.matOffer;
     }
     return total;
   }
@@ -1174,7 +1183,7 @@
     if (matReady && (!body || !/Story Mat/i.test(body))) line = 'Unroll the Story Mat. That ends the night.';
     if (matReady && !/It costs /.test(line)) {
       var matPrice = cost(mat, 0, 1, state);
-      if (matPrice > 0) line += ' It costs ' + moneyText(matPrice) + '.';
+      if (matPrice > 0) line += ' It costs ' + matPriceText(state) + '.';
     }
     if (matReady && line.indexOf('twelve seconds') < 0 && (earlyMatLiveQuote(state) > 0 || (matByClock(state) && state.night && state.night.matOffer > 0 && state.night.matOffer + 1 < STALLS[mat].base))) {
       line += ' About twelve seconds of the lane.';
@@ -1182,8 +1191,10 @@
     if (state && state.night && state.night.kept && state.stalls[mat] && state.stalls[mat].owned >= 1 && line.indexOf('stayed open') < 0) {
       line = 'The lane stayed open. ' + line;
     }
-    if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 10 && line.indexOf('Ten tea stalls') !== 0) {
-      line = 'Ten tea stalls open the Dumpling Cart. ' + line;
+    if (state && state.night && state.night.n > 1 && state.stalls[0]) {
+      var cartNeed = unlockNeed(state, 1);
+      var cartLine = stallOpenLine(state, 1);
+      if (state.stalls[0].owned < cartNeed && cartLine && line.indexOf(cartLine) < 0) line = cartLine + '. ' + line;
     }
     if (state && state.night && state.night.n > 1 && state.stalls[0] && state.stalls[0].owned < 1 && state.stalls[0].serves < 3 && line.indexOf('Night ' + state.night.n) !== 0) {
       var prevNight = state.meta && state.meta.nights && state.meta.nights.length ? state.meta.nights[state.meta.nights.length - 1] : null;
@@ -2466,9 +2477,7 @@
   /* Judged when the card is shown, not when it was queued. Both sides of a pair
      must pass. A cost cut has to move the goal, not a stall you are not buying. */
   function matLivePrice(state) {
-    var rate = income(state);
-    if (!(rate > 0)) return 0;
-    return rate * 12;
+    return cost(STALLS.length - 1, 0, 1, state);
   }
   function isDealKind(kind) {
     return kind === 'focus' || kind === 'tempo' || kind === 'scale' || kind === 'commit' || kind === 'ease' || kind === 'bank' || kind === 'hurry' || kind === 'stack';
@@ -4167,10 +4176,6 @@
     var growth = stallField(state, stallId, 'growth', stall.growth);
     var total = Idle.bulkCost(base, growth, owned, 1);
     if (state && state.night && state.night.priceEase > 0 && stall.id !== 'stories') total *= Math.pow(0.95, state.night.priceEase);
-    if (stall.id === 'incense' && owned === 0) {
-      var ease = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
-      total += base * ease * (34000 / 62000 - 1);
-    }
     if (stall.id === 'mooncake' && owned === 0) {
       var moonEase = state && state.night && state.night.priceEase > 0 ? Math.pow(0.95, state.night.priceEase) : 1;
       total += base * moonEase * (3600 / 6400 - 1);
@@ -4731,7 +4736,7 @@
         state.night.matShown = quote;
         state.night.matOffer = quote;
       }
-      state.night.wallMs = Math.max(state.night.wallMs || 0, MAT_CLOCK * 1000);
+      /* Naming the price does not open Unroll. The clock or the trays do. */
     }
     if (view.kind === 'surge' && choice && stallIndex(choice) >= 0) {
       var rushRate = rushFieldRate(state, choice);
@@ -4759,6 +4764,26 @@
     }
     return recordNight(state) || froze;
   }
+  /* The price the clock charges for the first mat: twelve seconds of this lane,
+     and never more than the catalogue. Omens and charms are not part of that
+     sentence, so the card and the charge use the same plain probe. */
+  function clockMatCharge(state) {
+    var mat = STALLS.length - 1;
+    var probe = fresh();
+    if (state && state.stalls) {
+      probe.stalls = state.stalls.map(function (s) {
+        return { owned: s.owned, serves: s.serves, hired: !!s.hired };
+      });
+    }
+    probe.stalls[mat].owned = 0;
+    probe.night.wallMs = MAT_CLOCK * 1000;
+    probe.night.matShown = 0;
+    probe.night.matOffer = 0;
+    probe.night.earlyQuote = 0;
+    probe.night.omen = null;
+    probe.night.charms = [];
+    return cost(mat, 0, 1, probe);
+  }
   function dawnCopy(state) {
     var n = state.night && state.night.n > 0 ? state.night.n : 1;
     var ch = CHAPTERS[(n - 1) % CHAPTERS.length];
@@ -4772,9 +4797,11 @@
       (charms.length ? charms.join(', ') : 'No charm') + '. ' +
       (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime) : String(Math.round(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime))) + ' coins earned tonight.';
     var nextSeed = stepSeed(state.night && state.night.seed ? state.night.seed : 1);
-    var teaPrice = STALLS[0].base * seedPriceFactor(nextSeed, 0);
-    var matBase = STALLS[STALLS.length - 1].base * seedPriceFactor(nextSeed, STALLS.length - 1);
-    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + ', with ' + moneyText(NIGHT_PURSE) + ' coins in the purse. Ten tea stalls open the Dumpling Cart. The Story Mat will cost ' + moneyText(matBase) + '.';
+    var priced = fresh();
+    armNight(priced, n + 1, nextSeed);
+    var teaPrice = cost(0, 0, 1, priced);
+    var matCharge = clockMatCharge(state);
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + ', with ' + moneyText(NIGHT_PURSE) + ' coins in the purse. ' + stallOpenLine(priced, 1) + '. The Story Mat will cost ' + moneyText(matCharge) + '.';
     return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {
@@ -4899,6 +4926,9 @@
     noteWall: noteWall,
     matCountdown: matCountdown,
     matGateLine: matGateLine,
+    stallOpenLine: stallOpenLine,
+    matPriceText: matPriceText,
+    clockMatCharge: clockMatCharge,
     NIGHT_PURSE: NIGHT_PURSE,
     matSecondsLeft: matSecondsLeft,
     matByClock: matByClock,

@@ -58,9 +58,10 @@
     if (awaySec >= 60 && !awayOn) {
       var off = M.offlineOf(state);
       var credited = Math.min(awaySec, off.cap);
-      var gained = M.income(state) * credited * off.rate;
+      var rateNow = M.income(state);
+      var gained = rateNow * credited * off.rate;
       if (gained > 0) M.addCash(state, gained);
-      showAway({ away: awaySec, credited: credited, gained: gained, capped: awaySec > off.cap });
+      showAway({ away: awaySec, credited: credited, gained: gained, capped: awaySec > off.cap, rate: rateNow });
     }
   });
   var dawnAtLoad = M.dawnDue(state);
@@ -178,19 +179,23 @@
       li.querySelector('.count').textContent = '0 of ' + M.servesNeed(state, i) + ' ' + stall.lefts + ' · press and hold to keep going';
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
-      wait.textContent = i > 0 ? shutterLine(i) : '';
+      wait.textContent = '';
+      li.querySelector('.habit').textContent = '';
       serve.hidden = false;
       buy.hidden = false;
       ask.hidden = false;
-      serve.classList.add('reserved', 'keep-slot');
+      serve.classList.remove('reserved', 'keep-slot');
       buy.classList.add('reserved', 'keep-slot');
       ask.classList.add('reserved', 'keep-slot');
       ask.textContent = stall.hire;
-      serve.textContent = i > 0 ? ('This stall · ' + stall.serve) : stall.serve;
+      serve.disabled = true;
+      serve.textContent = i > 0 ? shutterLine(i) : 'Pour a cup to open the stall.';
+      serve.title = i > 0 ? (M.stallOpenLine(state, i) + (i === M.STALLS.length - 1 ? ' It costs ' + M.matPriceText(state) + '.' : '.')) : '';
       buy.textContent = 'Buy 1';
       serve.classList.remove('best');
       return;
     }
+    serve.disabled = false;
     serve.classList.remove('keep-slot', 'reserved');
     buy.classList.remove('keep-slot', 'reserved');
     ask.classList.remove('keep-slot', 'reserved');
@@ -289,14 +294,16 @@
     if (!holdingBuy) buy.dataset.count = String(offer.count);
     var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
     var slowMax = state.bulk === 'max' && offer.blocked === 'payback' && !firstMat;
-    buy.classList.toggle('unroll', firstMat);
+    buy.classList.toggle('unroll', firstMat && M.unlocked(state, i));
     buy.classList.toggle('refused', slowMax);
-    if (!holdingBuy && slowMax) {
+    if (slowMax) {
+      var oneNow = M.cost(i, st.owned, 1, state);
+      var oneCount = oneNow <= state.cash ? 1 : 0;
       buy.classList.remove('reserved', 'keep-slot');
-      buy.disabled = false;
-      buy.dataset.count = '1';
+      buy.disabled = !(oneCount > 0);
+      buy.dataset.count = String(oneCount);
       buy.title = 'A bigger batch pays for itself too slowly. Max buys one.';
-      buy.textContent = 'Max · 1 · ' + money(offer.cost);
+      buy.textContent = 'Max · 1 · ' + money(oneNow);
       wait.textContent = 'Max will not buy a slow batch. It buys one. Use 1, 10 or Next for the rest.';
     } else if (!holdingBuy) {
       buy.title = '';
@@ -304,8 +311,6 @@
         ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
         : buyLabel(i, offer);
       buy.disabled = !(offer.count > 0);
-    } else if (slowMax) {
-      wait.textContent = 'Max will not buy a slow batch. It buys one. Use 1, 10 or Next for the rest.';
     }
     var needLine = li.querySelector('.need');
     if (needLine) {
@@ -327,16 +332,10 @@
   }
   function shutterLine(i) {
     var prev = M.STALLS[i - 1];
-    var stall = M.STALLS[i];
     var need = M.unlockNeed(state, i);
-    var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
-    var line = stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
-    if (i === M.STALLS.length - 1) {
-      var preview = M.matLivePrice(state);
-      if (preview > 0 && state.night) state.night.matShown = preview;
-      line = M.matGateLine(state) + (preview > 0 ? (' Price when it opens: ' + money(preview) + ' coins.') : '');
-    }
-    return line;
+    var unit = { tea: 'teas', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
+    if (i === M.STALLS.length - 1) return '15:00 or ' + need + ' trays · ' + M.matPriceText(state);
+    return 'Opens at ' + need + ' ' + (unit[prev.id] || 'stalls');
   }
 
   function rebindIdle() {
@@ -657,17 +656,21 @@
   function showAway(summary) {
     var copy = M.awayCopy(summary, state);
     var box = $('#away');
+    var back = $('#away-backdrop');
     box.hidden = false;
+    if (back) back.hidden = false;
     awayOn = true;
-    var per = M.income(state);
-    var scale = per > 0 ? ' The lane earns ' + money(per) + ' a second now.' : '';
+    var per = summary && summary.rate > 0 ? summary.rate : M.income(state);
+    var scale = per > 0 ? ' The lane earns ' + money(per) + ' coins a second now.' : '';
     box.innerHTML = '<h2 id="away-title">' + copy.title + '</h2><p>' + copy.lead + scale + '</p><p>' + copy.box + '</p><p>' +
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     box.setAttribute('aria-labelledby', 'away-title');
     box.style.position = 'fixed';
-    box.style.zIndex = '40';
+    box.style.zIndex = '61';
+    box.style.background = '#fbf6ec';
+    box.style.opacity = '1';
     box.style.left = '0.75rem';
     box.style.right = '0.75rem';
     box.style.top = '12vh';
@@ -1095,12 +1098,19 @@
     render();
   }
   function stopHold(e) {
-    var poured = hold && hold.n > 0;
+    var active = hold && !hold.settled;
+    var alreadyPoured = !!(hold && hold.n > 0);
+    var shortTap = !!(e && e.type === 'pointerup' && active && !hold.live && hold.n === 0 && hold.b && !hold.b.disabled);
+    var tapI = shortTap ? hold.i : -1;
     if (e && e.pointerId != null && hold && hold.b && hold.b.releasePointerCapture) {
       try { if (hold.b.hasPointerCapture && hold.b.hasPointerCapture(e.pointerId)) hold.b.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
     }
     settleHold(false);
-    if (poured) swallowServeUntil = Date.now() + 400;
+    if (hold) hold.n = 0;
+    if (shortTap && tapI >= 0 && M.unlocked(state, tapI) && M.handSell(state, tapI).ok) {
+      lane('serve', tapI);
+      swallowServeUntil = Date.now() + 500;
+    } else if (alreadyPoured) swallowServeUntil = Date.now() + 400;
     renderQueued = true;
   }
   document.addEventListener('touchmove', function (e) {
@@ -1320,6 +1330,8 @@
     }
     if (b.dataset.act === 'away') {
       $('#away').hidden = true;
+      var awayBack = $('#away-backdrop');
+      if (awayBack) awayBack.hidden = true;
       awayOn = false;
       $('#away').replaceChildren();
       return;
@@ -1333,7 +1345,8 @@
     else if (b.dataset.act === 'buy') {
       if (buyDown && buyDown.i === i && buyDown.used && Date.now() - buyDown.t < 40) return;
       var had = state.stalls[i].owned;
-      var quoted = parseInt(b.dataset.count, 10);
+      var labelled = /^(?:Max|Next) · (\d+)|^Buy (\d+)/.exec(b.textContent || '');
+      var quoted = labelled ? parseInt(labelled[1] || labelled[2], 10) : parseInt(b.dataset.count, 10);
       if (M.buyExact(state, i, quoted).ok) {
         if (buyDown && buyDown.i === i) buyDown.used = true;
         lane('buy', i, had, state.stalls[i].owned);

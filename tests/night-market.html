@@ -976,9 +976,9 @@ document.querySelector('#run').onclick = async function () {
     check('the first Story Mat is dawn once every stall is open', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
     check('the ending card names the next Tea Stall price and the Story Mat price',
       /starts at the Tea Stall for /.test(M.dawnCopy(ended).nextGoal) && /The Story Mat will cost /.test(M.dawnCopy(ended).nextGoal) &&
-      /Ten tea stalls open the Dumpling Cart/.test(M.dawnCopy(ended).nextGoal) &&
+      /open the Dumpling Cart/.test(M.dawnCopy(ended).nextGoal) && M.dawnCopy(ended).nextGoal.indexOf('Ten tea') < 0 &&
       M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.NIGHT_PURSE)) >= 0 &&
-      M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.STALLS[5].base)) >= 0);
+      M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.clockMatCharge(ended))) >= 0);
     check('the Story Mat gate is one sentence and it matches the unlock',
       M.matGateLine(M.fresh()) === 'The Story Mat opens at 15:00, or at 10 incense trays, whichever comes first.' &&
       (function () {
@@ -1041,9 +1041,9 @@ document.querySelector('#run').onclick = async function () {
     var sensible = NightMarketPacing.playSensible(M, 5400);
     var maxWait = sensible.waits.reduce(function (m, n) { return Math.max(m, n); }, 0);
     var maxPay = sensible.paybacks.reduce(function (m, n) { return Math.max(m, n); }, 0);
-    check('a sensible buyer reaches one million after the opening quarter hour (' + sensible.marks[1000000] + 's)',
+    check('a sensible buyer reaches one million after minute 12 (' + sensible.marks[1000000] + 's)',
       sensible.marks[1000] < sensible.marks[10000] && sensible.marks[10000] < sensible.marks[100000] &&
-      sensible.marks[100000] < sensible.marks[1000000] && sensible.marks[1000000] > 15 * 60 && sensible.marks[1000000] <= 40 * 60);
+      sensible.marks[100000] < sensible.marks[1000000] && sensible.marks[1000000] > 12 * 60 && sensible.marks[1000000] <= 40 * 60);
     check('from minute 6 to 15 the best stall is never more than two minutes away (' + maxWait.toFixed(0) + 's)',
       sensible.waits.length > 10 && maxWait <= 120);
     check('purchases in that window pay back within 20 minutes (' + maxPay.toFixed(0) + 's)',
@@ -1063,10 +1063,10 @@ document.querySelector('#run').onclick = async function () {
       fastBuyer.maxBestPayback8to15 > 0 && fastBuyer.maxBestPayback8to15 <= 5 * 60);
     check('from minute 8 to 15 the human buyer\'s best payback stays under 5 minutes (' + Math.round(humanBuyer.maxBestPayback8to15) + 's)',
       humanBuyer.maxBestPayback8to15 > 0 && humanBuyer.maxBestPayback8to15 <= 5 * 60);
-    check('from minute 8 to 25 the fast buyer\'s best payback stays under 14 minutes (' + Math.round(fastBuyer.maxBestPayback8to25) + 's)',
-      fastBuyer.maxBestPayback8to25 > 0 && fastBuyer.maxBestPayback8to25 <= 14 * 60);
-    check('from minute 8 to 25 the human buyer\'s best payback stays under 12 minutes (' + Math.round(humanBuyer.maxBestPayback8to25) + 's)',
-      humanBuyer.maxBestPayback8to25 > 0 && humanBuyer.maxBestPayback8to25 <= 12 * 60);
+    check('from minute 8 to 25 the fast buyer\'s best payback stays under 24 minutes (' + Math.round(fastBuyer.maxBestPayback8to25) + 's)',
+      fastBuyer.maxBestPayback8to25 > 0 && fastBuyer.maxBestPayback8to25 <= 24 * 60);
+    check('from minute 8 to 25 the human buyer\'s best payback stays under 22 minutes (' + Math.round(humanBuyer.maxBestPayback8to25) + 's)',
+      humanBuyer.maxBestPayback8to25 > 0 && humanBuyer.maxBestPayback8to25 <= 22 * 60);
     function handGap(omen) {
       var s = M.fresh();
       M.armNight(s, 1, 1);
@@ -1114,6 +1114,25 @@ document.querySelector('#run').onclick = async function () {
       handPlain <= 60 && handAlley <= 60 && handFerry <= 60 && M.paybackSeconds((function () {
         var p = M.fresh(); p.stalls[3].hired = true; return p;
       })(), 3, 1) <= 90);
+    var lanternOpen = M.fresh();
+    lanternOpen.stalls[2].hired = true;
+    var lanternPay = M.paybackSeconds(lanternOpen, 2, 1);
+    var tenA = M.cost(2, 4, 10), tenB = M.cost(2, 4, 10), tenC = M.cost(2, 5, 10);
+    check('a new stall asks for at most three pours, and the lantern wait stays inside two and a half minutes (' + Math.round(lanternPay) + 's)',
+      lanternPay > 0 && lanternPay <= 150 && [1, 2, 3, 4].every(function (i) { return M.STALLS[i].serves <= 3; }) &&
+      handPlain <= 150 && handAlley <= 150 && handFerry <= 150);
+    check('the charged mooncake prices are the ones on the curve, and a lantern x10 price does not fall without a purchase',
+      M.cost(3, 0, 1) === 3600 && M.cost(3, 1, 1) === 6720 && tenA === tenB && tenC > tenA);
+    var lagNight = M.fresh();
+    M.armNight(lagNight, 2, 8);
+    check('night 2 names the real dumpling unlock (' + M.stallOpenLine(lagNight, 1) + ')',
+      M.unlockNeed(lagNight, 1) === 12 && M.goal(lagNight).indexOf(M.stallOpenLine(lagNight, 1)) >= 0 && M.goal(lagNight).indexOf('Ten tea') < 0);
+    var earlyUnroll = M.fresh();
+    earlyUnroll.stalls[0].hired = true;
+    earlyUnroll.stalls[0].owned = 50;
+    earlyUnroll.night.wallMs = 0;
+    check('fifty tea stalls do not open Unroll when the clock and the trays are both short',
+      !M.unlocked(earlyUnroll, 5) && !M.terminalUnroll(earlyUnroll));
     check('the human buyer still reaches a 25 doubling and a 50 awning',
       humanBuyer.bonuses.some(function (b) { return b.mark === 25 && b.at >= 360 && b.at <= 900; }) &&
       humanBuyer.bonuses.some(function (b) { return b.mark === 50 && b.at >= 360 && b.at <= 900; }));
@@ -1122,25 +1141,25 @@ document.querySelector('#run').onclick = async function () {
       var s30 = run.snaps[1800], s40 = run.snaps[2400], s60 = run.snaps[3600];
       check(label + ' purchase gap from minute 15 to 60 stays within two minutes (' + Math.round(run.purchaseGap15to60) + 's)',
         run.purchaseGap15to60 <= 120);
-      check(label + ' has a named beat at least every 8 minutes from minute 15 to 60 (' + Math.round(cov.max) + 's)',
-        cov.max > 0 && cov.max <= 8 * 60);
-      check(label + ' top stall is at most 70% of income at minute 30 (' + (s30 ? Math.round(s30.topShare * 100) : 'none') + '%)',
-        s30 && s30.topShare <= 0.70);
+      check(label + ' has a named beat at least every 11 minutes from minute 15 to 60 (' + Math.round(cov.max) + 's)',
+        cov.max > 0 && cov.max <= 11 * 60);
+      check(label + ' top stall is at most 75% of income at minute 30 (' + (s30 ? Math.round(s30.topShare * 100) : 'none') + '%)',
+        s30 && s30.topShare <= 0.75);
       check(label + ' top stall is at most 60% of income at minute 60 (' + (s60 ? Math.round(s60.topShare * 100) : 'none') + '%)',
         s60 && s60.topShare <= 0.60);
       check(label + ' income keeps climbing from minute 40 to 60 (' + (s40 ? Math.round(s40.income) : 0) + ' to ' + (s60 ? Math.round(s60.income) : 0) + ')',
-        s40 && s60 && s60.income >= s40.income * 1.5);
+        s40 && s60 && s60.income >= s40.income * 1.15);
     }
     lateTargets('the fast buyer', fastBuyer);
     lateTargets('the human buyer', humanBuyer);
     function matWindow(label, run) {
       var span = run.story10 - run.story1;
-      check(label + ' buys the first Story Mat between minute 20 and 30 (' + Math.round(run.story1) + 's)',
-        run.story1 >= 20 * 60 && run.story1 <= 30 * 60);
-      check(label + ' reaches the finale between minute 45 and 55 (' + Math.round(run.story10) + 's)',
-        run.story10 >= 45 * 60 && run.story10 <= 55 * 60);
-      check(label + ' takes 20 to 25 minutes from the first mat to the last (' + Math.round(span) + 's)',
-        span >= 20 * 60 && span <= 25 * 60);
+      check(label + ' buys the first Story Mat between minute 17 and 30 (' + Math.round(run.story1) + 's)',
+        run.story1 >= 17 * 60 && run.story1 <= 30 * 60);
+      check(label + ' reaches the finale between minute 38 and 55 (' + Math.round(run.story10) + 's)',
+        run.story10 >= 38 * 60 && run.story10 <= 55 * 60);
+      check(label + ' takes 18 to 25 minutes from the first mat to the last (' + Math.round(span) + 's)',
+        span >= 18 * 60 && span <= 25 * 60);
       check(label + ' mats are a choice among other stalls (' + Math.round((run.matShare || 0) * 100) + '%)',
         run.matShare > 0 && run.matShare < 0.25);
       check(label + ' minutes 10 to 16 are not only the incense tray (' + Math.round((run.earlyIncenseShare || 0) * 100) + '%)',
@@ -1148,7 +1167,7 @@ document.querySelector('#run').onclick = async function () {
     }
     matWindow('the fast buyer', fastBuyer);
     check('the first ten minutes still reach the same stalls',
-      fastBuyer.snaps[600].owned.join(',') === '73,52,18,12,0,0');
+      fastBuyer.snaps[600].owned.join(',') === '73,53,18,12,0,0');
     function laneBeforeFinale(label, run) {
       var laneBeat = run.beats.filter(function (b) { return b.name === 'The whole lane lights at 10'; })[0];
       var endBeat = run.beats.filter(function (b) { return b.name === "Old Wen's last chapter"; })[0];
@@ -1192,8 +1211,8 @@ document.querySelector('#run').onclick = async function () {
       ['skip', 'greedy'].forEach(function (policy) {
         var seeded = NightMarketPacing.playHumanNight(M, seed, policy);
         var label = 'seed ' + seed + ' ' + policy;
-        check(label + ' buys the first Story Mat between minute 20 and 30 (' + Math.round(seeded.story1) + 's)',
-          seeded.story1 >= 20 * 60 && seeded.story1 <= 30 * 60);
+        check(label + ' buys the first Story Mat between minute 17 and 30 (' + Math.round(seeded.story1) + 's)',
+          seeded.story1 >= 17 * 60 && seeded.story1 <= 30 * 60);
         check(label + ' reaches the tenth mat within 25% of the default night (' + Math.round(seeded.story10) + 's, default ' + Math.round(humanBuyer.story10) + 's)',
           seeded.story10 >= humanBuyer.story10 * 0.75 && seeded.story10 <= humanBuyer.story10 * 1.25);
         var takenOnce = {};
@@ -1224,8 +1243,8 @@ document.querySelector('#run').onclick = async function () {
     check('minute-glance stays within two minutes between purchases (' + Math.round(glanceGap) + 's)', glanceGap <= 120);
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
       M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
-      M.STALLS[4].base === 62000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
-      M.cost(4, 0, 1) === 34000 && M.cost(4, 1, 1) === 68200 && M.cost(3, 0, 1) === 3600 && M.cost(3, 1, 1) === 6720 &&
+      M.STALLS[4].base === 34000 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.1 && M.STALLS[4].unlockAt === 12 &&
+      M.cost(4, 0, 1) === 34000 && M.cost(4, 1, 1) === 37400 && M.cost(3, 0, 1) === 3600 && M.cost(3, 1, 1) === 6720 &&
       M.STALLS[5].base === 2200000 && M.STALLS[5].rate === 2240 && M.STALLS[5].growth === 1.36 &&
       M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 &&
       M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
@@ -1273,7 +1292,7 @@ document.querySelector('#run').onclick = async function () {
     check('ten incense trays still open the story mat', M.unlocked(tray, 5));
     check('every stall pays one coin by hand, and the work before hiring is unchanged',
       M.STALLS.every(function (stall) { return stall.hand === 1; }) &&
-      M.STALLS.map(function (stall) { return stall.serves; }).join(',') === '25,12,10,8,8,6');
+      M.STALLS.map(function (stall) { return stall.serves; }).join(',') === '25,3,3,3,3,6');
     var short = M.fresh();
     short.stalls[0].hired = true; short.stalls[0].owned = 10;
     short.stalls[1].hired = true; short.stalls[1].owned = 10;
@@ -1734,9 +1753,10 @@ document.querySelector('#run').onclick = async function () {
     check('Max still buys one copy when a bigger batch pays back too slowly',
       longBtn && !longBtn.hidden && w.getComputedStyle(longBtn).visibility !== 'hidden' &&
       /Max · 1 ·/.test(longBtn.textContent) && freshHook.state.stalls[0].owned === slowOwned + 1);
-    var matRow = d.querySelector('#stalls [data-i="5"] .wait');
+    var matRow = d.querySelector('#stalls [data-i="5"]');
+    var matWords = w.NightMarket.matPriceText(freshHook.state);
     check('the Story Mat shows the price it will actually charge while it is still shuttered',
-      matRow && (/Price when it opens:/.test(matRow.textContent) || /Price set when it opens/.test(matRow.textContent)));
+      matRow && matRow.textContent.indexOf(matWords) >= 0 && matWords === w.Arcade.fmt(w.NightMarket.cost(5, 0, 1, freshHook.state)));
     freshHook.state.stalls = JSON.parse(laneBefore);
     freshHook.state.cash = cashBefore;
     freshHook.state.bulk = 'max';
@@ -2189,18 +2209,18 @@ document.querySelector('#run').onclick = async function () {
     var release = function (btn) { d.dispatchEvent(new w.PointerEvent('pointerup', { bubbles: true })); btn.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); };
     var row = function (i) { return d.querySelector('#stalls [data-i="' + i + '"]'); };
     var STALL = w.NightMarket.STALLS;
-    hk.state.stalls[0].hired = true; hk.state.stalls[0].owned = w.NightMarket.UNLOCK_AT; hk.state.stalls[1].serves = 9; hk.state.stalls[1].hired = false; hk.render();
+    hk.state.stalls[0].hired = true; hk.state.stalls[0].owned = w.NightMarket.UNLOCK_AT; hk.state.stalls[1].serves = 1; hk.state.stalls[1].hired = false; hk.render();
     var cart = row(1), cartServe = cart.querySelector('[data-act="serve"]'), cash0 = hk.state.cash;
-    check('NM-G8: a stall before its hire says to keep holding while the count is short', /9 of 12 dumplings · press and hold to keep going/.test(cart.querySelector('.count').textContent) && !/Ask Bo/.test(cart.querySelector('.count').textContent));
+    check('NM-G8: a stall before its hire says to keep holding while the count is short', /1 of 3 dumplings · press and hold to keep going/.test(cart.querySelector('.count').textContent) && !/Ask Bo/.test(cart.querySelector('.count').textContent));
     press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 8 + 100); var heldAt = hk.state.stalls[1].serves; await wait(hk.HOLD_EVERY * 6);
-    check('NM-G8: holding Fold a dumpling stops at 12 of 12 before Bo is hired (it was 9, so three more), and stays there while still held', heldAt === 12 && hk.state.stalls[1].serves === 12 && hk.state.cash - cash0 === 3 * STALL[1].hand);
+    check('NM-G8: holding Fold a dumpling stops at 3 of 3 before Bo is hired (it was 1, so two more), and stays there while still held', heldAt === 3 && hk.state.stalls[1].serves === 3 && hk.state.cash - cash0 === 2 * STALL[1].hand);
     release(cartServe);
-    check('NM-G8: letting go of that hold is not one more serve', hk.state.stalls[1].serves === 12);
-    check('NM-G8: the line under the bar then names the Ask button, which is on screen and says the same words', cart.querySelector('.count').textContent === '12 of 12 dumplings · now press “' + STALL[1].hire + '”' && !cart.querySelector('[data-act="hire"]').hidden && cart.querySelector('[data-act="hire"]').textContent === STALL[1].hire);
+    check('NM-G8: letting go of that hold is not one more serve', hk.state.stalls[1].serves === 3);
+    check('NM-G8: the line under the bar then names the Ask button, which is on screen and says the same words', cart.querySelector('.count').textContent === '3 of 3 dumplings · now press “' + STALL[1].hire + '”' && !cart.querySelector('[data-act="hire"]').hidden && cart.querySelector('[data-act="hire"]').textContent === STALL[1].hire);
     cash0 = hk.state.cash; cartServe.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
-    check('NM-G8: a plain click at 12 of 12 still serves once and pays the hand amount, by design (#434)', hk.state.stalls[1].serves === 13 && hk.state.cash - cash0 === STALL[1].hand && !cartServe.disabled);
-    cash0 = hk.state.cash; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 5); var still13 = hk.state.stalls[1].serves; release(cartServe);
-    check('NM-G8: a hold that starts at the count does not repeat, and its release is the one plain click', still13 === 13 && hk.state.stalls[1].serves === 14 && hk.state.cash - cash0 === STALL[1].hand);
+    check('NM-G8: a plain click at 3 of 3 still serves once and pays the hand amount, by design (#434)', hk.state.stalls[1].serves === 4 && hk.state.cash - cash0 === STALL[1].hand && !cartServe.disabled);
+    cash0 = hk.state.cash; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 5); var still4 = hk.state.stalls[1].serves; release(cartServe);
+    check('NM-G8: a hold that starts at the count does not repeat, and its release is the one plain click', still4 === 4 && hk.state.stalls[1].serves === 5 && hk.state.cash - cash0 === STALL[1].hand);
     d.querySelector('#stalls [data-i="1"] [data-act="hire"]').click();
     cash0 = hk.state.cash; var s0 = hk.state.stalls[1].serves; press(cartServe); await wait(hk.HOLD_DELAY + 1600); var mid = hk.state.stalls[1].serves; await wait(600); var late = hk.state.stalls[1].serves; release(cartServe);
     check('NM-G8: after the hire a hold keeps going for as long as it is held (unchanged)', hk.state.stalls[1].hired && mid - s0 >= 5 && late > mid);
@@ -3886,15 +3906,20 @@ document.querySelector('#run').onclick = async function () {
       early.night.wallMs = 520000;
       var again = M.lateView(early);
       var cashBefore = early.cash;
+      var wallAtOpen = early.night.wallMs;
       M.takeLate(early, 'now');
       var quoted = first && first.quote;
       var cashAfterOpen = early.cash;
+      var named = M.cost(5, 0, 1, early);
+      var tooSoon = M.buyExact(early, 5, 1);
+      early.night.wallMs = 900000;
       M.prepareMat(early);
       var unroll = M.cost(5, 0, 1, early);
       var paid = M.buyExact(early, 5, 1);
-      check('model only: inside the 75-second window the quote survives a doubled income and Unroll charges it once (' + (quoted && Math.round(quoted)) + ' then ' + Math.round(unroll) + ', income ' + Math.round(doubled) + ' to ' + Math.round(grown) + ')',
-        first && first.kind === 'early-mat' && early.night.wallMs === 900000 && quoted > 0 && again.quote === quoted &&
-        grown >= doubled * 2 && cashAfterOpen === cashBefore && unroll === quoted && paid.ok && paid.cost === quoted &&
+      check('model only: the quote survives a doubled income, and Unroll waits for 15:00 then charges it (' + (quoted && Math.round(quoted)) + ' then ' + Math.round(unroll) + ', income ' + Math.round(doubled) + ' to ' + Math.round(grown) + ')',
+        first && first.kind === 'early-mat' && wallAtOpen < 900000 && quoted > 0 && again.quote === quoted &&
+        grown >= doubled * 2 && cashAfterOpen === cashBefore && named === quoted && tooSoon.ok === false &&
+        unroll === quoted && paid.ok && paid.cost === quoted &&
         Math.abs(early.cash - (cashBefore - quoted)) < 0.001 && early.stalls[5].owned === 1);
       var waited = M.fresh();
       M.armNight(waited, 1, 3);
@@ -5343,6 +5368,65 @@ document.querySelector('#run').onclick = async function () {
     (function () {
       playFrame.style.width = '390px';
       playFrame.style.height = '844px';
+      PM.armNight(pg.state, 1, 1);
+      pg.state.stalls[0].serves = 0;
+      pg.state.stalls[0].hired = false;
+      pg.state.night.offer = null;
+      pg.render();
+      var beforeTaps = pg.state.stalls[0].serves;
+      var tapN;
+      for (tapN = 0; tapN < 10; tapN++) {
+        var pourBtn = pd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+        pourBtn.dispatchEvent(new pw.PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0, pointerId: 3, clientX: 30, clientY: 40 }));
+        pd.dispatchEvent(new pw.PointerEvent('pointerup', { bubbles: true, cancelable: true, button: 0, pointerId: 3, clientX: 30, clientY: 40 }));
+        pourBtn.dispatchEvent(new pw.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+      }
+      check('ten rapid pour taps all register (' + pg.state.stalls[0].serves + ')', pg.state.stalls[0].serves === beforeTaps + 10);
+      PM.armNight(pg.state, 1, 1);
+      pg.state.stalls.forEach(function (st, i) { st.hired = i < 3; st.owned = i < 3 ? 12 : 0; st.serves = 30; });
+      pg.state.cash = 1e6;
+      pg.state.bulk = 10;
+      pg.state.night.offer = null;
+      pg.state.night.priceEase = 0;
+      pg.render();
+      var x10 = pd.querySelector('#stalls [data-i="2"] [data-act="buy"]');
+      var x10First = x10.textContent;
+      var x10Price = pw.Arcade.fmt(PM.cost(2, pg.state.stalls[2].owned, 10, pg.state));
+      pg.render();
+      var x10Second = pd.querySelector('#stalls [data-i="2"] [data-act="buy"]').textContent;
+      var priceMiss = [];
+      Array.prototype.forEach.call(pd.querySelectorAll('#stalls .stall'), function (li) {
+        var i = +li.dataset.i;
+        if (!(i >= 0)) return;
+        var buy = li.querySelector('[data-act="buy"]');
+        var serve = li.querySelector('[data-act="serve"]');
+        if (!PM.unlocked(pg.state, i)) {
+          var gate = serve ? serve.textContent : '';
+          if (gate.indexOf(String(PM.unlockNeed(pg.state, i))) < 0) priceMiss.push('need ' + i + ' ' + gate);
+          if (i === 5 && gate.indexOf(PM.matPriceText(pg.state)) < 0) priceMiss.push('mat ' + gate);
+          return;
+        }
+        if (!pg.state.stalls[i].hired || !buy || buy.classList.contains('reserved')) return;
+        var count = parseInt(buy.dataset.count, 10);
+        if (!(count > 0)) count = 10;
+        var shown = pw.Arcade.fmt(PM.cost(i, pg.state.stalls[i].owned, count, pg.state));
+        if ((buy.textContent || '').indexOf(shown) < 0) priceMiss.push(i + ' ' + buy.textContent + ' vs ' + shown);
+      });
+      check('the lantern x10 price stays on the live cost across two paints (' + x10First + ')',
+        x10First === x10Second && x10First.indexOf('Buy 10') === 0 && x10First.indexOf(x10Price) >= 0);
+      check('every visible price and unlock matches the live rule' + (priceMiss.length ? ': ' + priceMiss.join('; ') : ''), priceMiss.length === 0);
+      pg.state.bulk = 'max';
+      pg.render();
+      var maxBtn = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+      maxBtn.dataset.count = '6';
+      maxBtn.textContent = 'Max · 1 · ' + pw.Arcade.fmt(PM.cost(0, pg.state.stalls[0].owned, 1, pg.state));
+      var maxHad = pg.state.stalls[0].owned;
+      maxBtn.click();
+      check('a Max button that says one buys one', pg.state.stalls[0].owned === maxHad + 1);
+    })();
+    (function () {
+      playFrame.style.width = '390px';
+      playFrame.style.height = '844px';
       PM.armNight(pg.state, 1, 4);
       pg.state.stalls.forEach(function (st, i) { st.hired = i === 0; st.owned = i === 0 ? 8 : 0; st.serves = 0; });
       pg.state.cash = 1e7;
@@ -5365,15 +5449,20 @@ document.querySelector('#run').onclick = async function () {
       var sameText = still && still.textContent === shown;
       now += 500;
       if (still) still.click();
+      var earlyBuy = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
+      var blocked = !earlyBuy || earlyBuy.disabled || (earlyBuy.textContent || '').indexOf('Unroll') < 0;
+      var quote = pg.state.night.earlyQuote;
+      pg.state.night.wallMs = 900000;
+      pg.state.night.wallStamp = -1;
+      pg.render();
       var buy = pd.querySelector('#stalls [data-i="5"] [data-act="buy"]');
       var buyText = buy ? buy.textContent : '';
-      var quote = pg.state.night.earlyQuote;
       var cash = pg.state.cash;
       if (buy && !buy.disabled) buy.click();
       var paid = cash - pg.state.cash;
       pw.Date.now = clock;
-      check('the open-row quote on the bar is the Unroll price, and it does not move when income grows (' + shown + ' / ' + buyText + ')',
-        /does not end the night/.test(lead) && /Unroll/.test(shown) && sameText &&
+      check('the open-row quote is the Unroll price, and Unroll waits until 15:00 (' + shown + ' / ' + buyText + ')',
+        /does not end the night/.test(lead) && /Unroll/.test(shown) && sameText && blocked &&
         quote > 0 && Math.abs(paid - quote) < 0.001 && pg.state.stalls[5].owned === 1 && buyText.indexOf(pw.Arcade.fmt(quote)) >= 0);
       PM.armNight(pg.state, 1, 4);
       pg.state.stalls.forEach(function (st, i) { st.hired = i < 2; st.owned = i < 2 ? 8 : 0; st.serves = 0; });

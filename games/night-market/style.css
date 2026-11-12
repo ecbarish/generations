@@ -375,13 +375,22 @@ button[aria-pressed="true"], button.ask, button.best {
   text-overflow: clip;
 }
 .closed h2, .closed .habit { color: var(--mute); }
+#away-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #161326;
+  opacity: 1;
+  z-index: 60;
+}
+#away-backdrop[hidden] { display: none !important; }
 .away {
   border: 1px solid var(--amber);
   background: #fbf6ec;
+  opacity: 1;
   padding: 0.8rem 0.85rem 0.9rem;
   margin: 0 auto;
   position: fixed;
-  z-index: 40;
+  z-index: 61;
   left: 0.75rem;
   right: 0.75rem;
   top: 12vh;
@@ -390,13 +399,7 @@ button[aria-pressed="true"], button.ask, button.best {
   overflow: auto;
   box-shadow: 0 12px 40px rgba(22, 19, 38, 0.45);
 }
-.away::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(22, 19, 38, 0.62);
-  z-index: -1;
-}
+.away[hidden] { display: none !important; }
 .away h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
 .away p { margin: 0.3rem 0; }
 .save { margin-top: 1.1rem; color: var(--mute); }
@@ -414,6 +417,11 @@ button[aria-pressed="true"], button.ask, button.best {
 .actions [data-act="hire"],
 .pick button,
 .bulk [data-bulk] { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* At a middling width the pour shares a row, and "This stall" wraps.
+   Reserve that second line so opening the stall does not drop the rows under it. */
+@media (min-width: 1001px) and (max-width: 1199px) {
+  .actions [data-act="serve"] { min-height: 4rem; }
+}
 .save summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }
 .save > summary::before { content: "▸"; display: inline-block; width: 1.1em; }
 .save[open] > summary::before { content: "▾"; }
@@ -694,6 +702,10 @@ button[aria-pressed="true"], button.ask, button.best {
     align-items: stretch;
   }
   #stalls .stall .actions [data-act="serve"] { grid-column: 1; grid-row: 1; }
+  #stalls .stall.closed .actions [data-act="serve"] {
+    grid-column: 1 / -1;
+    visibility: visible;
+  }
   #stalls .stall .actions [data-act="hire"],
   #stalls .stall .actions [data-act="buy"] { grid-column: 2; grid-row: 1; }
   #stalls .stall .actions button,
