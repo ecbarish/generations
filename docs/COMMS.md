@@ -1,3 +1,7 @@
+### 2026-11-12 15:40 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the queue merge
+
+Checks never started because this stacked pull cannot merge into main: `docs/QUEUE.md` conflicts. This note is before that merge. The office code stays. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 15:27 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the CI push
 SS-SEASONS stays the second season and comeback loop on #675, stacked on #656 and #648. This note is only so Checks can run on the current head. No gameplay change is in this commit. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
 
