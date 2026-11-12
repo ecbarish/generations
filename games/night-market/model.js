@@ -384,19 +384,13 @@
     return 1;
   }
 
-  function paybackLabel(seconds) {
-    if (!(seconds > 0) || !isFinite(seconds)) return '';
-    if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
-    return Math.max(1, Math.round(seconds)) + 's'; // whole seconds: "22s", never "22.0s" (playtest fix)
-  }
-
   function paybackLine(state, i) {
     var stall = spec(i);
     if (!stall) return '';
     var owned = state.stalls[i] ? state.stalls[i].owned : 0;
     var n = buyCount(state, i);
     var seconds = paybackSeconds(state, i, n);
-    var label = paybackLabel(seconds);
+    var label = PaybackLabel(seconds);
     if (!label) return stall.vendor + ' is running this stall.';
     var line = n === 1 ? 'The next one pays for itself in ' + label + '.' : n + ' more pay for themselves in ' + label + '.';
     /* The copy after a doubling adds one stall. The doubling added the whole row.
@@ -705,7 +699,7 @@
     stallMult: stallMult,
     paybackSeconds: paybackSeconds,
     paybackLine: paybackLine,
-    paybackLabel: paybackLabel,
+    paybackLabel: PaybackLabel,
     awayRule: awayRule,
     goal: goal,
     lookLine: lookLine,

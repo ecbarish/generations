@@ -2,7 +2,7 @@
    Exports { run, checks, validate, malformed }. With no `module` it sets window.NightMarketTaleChecks; there the caller passes
    { data, stalls, milestones } to checks(), because a page has no file system. validate(data, model) returns a list of problems
    (empty = fine). `model` is { stalls: [{ id, vendor }], milestones: [25, 50, 100] }; in Node it is read from the real
-   games/night-market/model.js and shared/idle-core.js in a throw-away vm context, so nothing in the game is changed or loaded. */
+   games/night-market/model.js, shared/idle-core.js and shared/payback-label.js in a throw-away vm context, so nothing in the game is changed or loaded. */
 (function (root, factory) {
   const api = factory(typeof require === 'function' ? require : null);
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -42,7 +42,7 @@
   /* The real stall ids, vendors and milestone counts, from the game's own files, read and never changed. */
   function loadModel() {
     const ctx = { console: console, window: null, Arcade: {} }; ctx.window = ctx; vm.createContext(ctx);
-    ['shared/idle-core.js', 'games/night-market/model.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f }));
+    ['shared/idle-core.js', 'shared/payback-label.js', 'games/night-market/model.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f }));
     const milestones = [];
     for (let n = 1; n <= 400; n++) if (ctx.Idle.milestoneMult(n) !== ctx.Idle.milestoneMult(n - 1)) milestones.push(n);
     return { stalls: ctx.NightMarket.STALLS.map(s => ({ id: s.id, vendor: s.vendor })), milestones: milestones };

@@ -340,7 +340,7 @@ if (typeof module !== 'undefined' && require.main === module) {
   const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), assert = require('node:assert/strict');
   const base = path.resolve(__dirname, '..'), api = module.exports, P = require('./night-market-pacing.cjs');
   const context = { console: console, Arcade: {} }; context.window = context; vm.createContext(context);
-  for (const file of ['shared/idle-core.js', 'games/night-market/model.js']) vm.runInContext(fs.readFileSync(path.join(base, file), 'utf8'), context, { filename: file });
+  for (const file of ['shared/idle-core.js', 'shared/payback-label.js', 'games/night-market/model.js']) vm.runInContext(fs.readFileSync(path.join(base, file), 'utf8'), context, { filename: file });
   const firstStalls = JSON.parse(JSON.stringify(context.NightMarket.STALLS)), Idle = context.Idle;
   const input = process.argv[2] ? path.resolve(process.argv[2]) : path.join(base, 'games/night-market/districts.json');
   assert(process.argv.length <= 3, 'Usage: node tools/night-market-district-sim.cjs [districts.json]');
