@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Little Ranch world feel checks</title>
+<style>body{font:16px system-ui;background:#1d3a2a;color:#f2eedb;padding:20px}.pass{color:#9ee7ba}.fail{color:#ffaaa6}button{min-height:44px}iframe{border:0;display:block}</style></head>
+<body><h1>Little Ranch world feel checks</h1>
+<p>One animal and one prop in each place. A tap hops them by day, stirs them at bedtime, and never moves the view by itself.</p>
+<button id="run">Run checks</button><p id="summary" role="status">Ready.</p><ol id="results"></ol><div id="game"></div>
+<script>
+'use strict';
+document.querySelector('#run').onclick = async () => {
+  const sum = document.querySelector('#summary'), list = document.querySelector('#results'), button = document.querySelector('#run');
+  button.disabled = true; list.replaceChildren(); sum.textContent = 'Running…'; let n = 0, frame;
+  const check = (name, ok) => { n++; const li = document.createElement('li'); li.className = ok ? 'pass' : 'fail'; li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name; list.appendChild(li); if (!ok) throw Error(name); };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    frame = document.createElement('iframe'); frame.title = 'Little Ranch world feel'; frame.style.cssText = 'width:1280px;height:800px';
+    frame.src = '../games/little-ranch/index.html';
+    await new Promise((ok, no) => { const t = setTimeout(() => no(Error('load timed out')), 20000); frame.onload = () => { clearTimeout(t); ok(); }; document.querySelector('#game').appendChild(frame); });
+    const w = frame.contentWindow, d = frame.contentDocument;
+    for (let i = 0; i < 50 && !(w.LR && w.LRFeel); i++) await sleep(100);
+    const LR = w.LR, cv = d.querySelector('#ranch'); let pid = 40;
+    const ev = (type, p) => cv.dispatchEvent(new w.PointerEvent(type, { pointerId: pid, clientX: p.x, clientY: p.y, bubbles: true, cancelable: true, isPrimary: true }));
+    const tap = q => { const p = LR.toScreen(q); pid++; ev('pointerdown', p); ev('pointerup', p); };
+    const drag = (a, b, steps) => { pid++; ev('pointerdown', LR.toScreen(a)); for (let i = 1; i <= steps; i++) ev('pointermove', LR.toScreen({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps })); ev('pointerup', LR.toScreen(b)); };
+    check('The world feel is part of the ranch', !!(LR && w.LRFeel));
+    LR.setFriend(false); LR.setRoutine(false); LR.newVisit(); LR.advance(.2);
+    const names = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
+    for (const [width, height] of [[1280, 800], [844, 390], [820, 1180], [390, 844], [375, 812]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(160);
+      for (let area = 0; area < 4; area++) {
+        LR.go(area); LR.advance(.85);
+        const spot = w.LRFeel.spot(area);
+        const css = spot ? spot.r * 2 * LR.scale : 0;
+        check(`${width}×${height} ${names[area]}: the animal is there and the tap is at least 44 px`, !!spot && css >= 44 && LR.camera.area === area);
+      }
+    }
+    for (const [width, height] of [[1024, 768], [320, 480], [667, 375], [1280, 800], [375, 812]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(160);
+      for (const area of [1, 3]) {
+        LR.go(area); LR.advance(.4);
+        const spot = w.LRFeel.spot(area);
+        const span = spot ? spot.s : 0;
+        check(`${width}×${height} ${names[area]}: the animal stays big enough to read`, !!spot && span >= 24 && span * LR.scale >= 56);
+      }
+    }
+    frame.style.width = '1280px'; frame.style.height = '800px'; await sleep(160);
+    LR.newVisit(); LR.advance(.2);
+    const home = w.LRFeel.rows()[1];
+    check('Arriving in the Meadow is answered', home.greeted && home.animal === 'bunny' && home.prop === 'clover');
+    const spot = w.LRFeel.spot(1), fx = LR.state.fx.length, area = LR.camera.area;
+    tap(spot); LR.advance(.15);
+    const hopped = w.LRFeel.rows()[1];
+    check('A daytime tap hops the bunny and the clover, and the view stays', hopped.pose === 'hop' && hopped.lift > 1 && LR.state.fx.length > fx && LR.camera.area === area);
+    const held = LR.camera.area;
+    drag(spot, { x: spot.x + LR.layout.U * .5, y: spot.y }, 8);
+    check('A long drag that starts on the animal never moves the view', LR.camera.area === held);
+    LR.go(2); LR.advance(.9);
+    const yard = w.LRFeel.rows()[2];
+    check('Arriving in the Toy Yard is its own hello', yard.greeted && yard.animal === 'chick' && yard.prop === 'block' && LR.camera.area === 2);
+    LR.go(0); LR.advance(.9);
+    check('The Garden bird keeps a berry', w.LRFeel.rows()[0].animal === 'bird' && w.LRFeel.rows()[0].prop === 'berry' && w.LRFeel.rows()[0].greeted);
+    LR.go(3); LR.advance(.9);
+    check('The Barn Yard woolly keeps a pail', w.LRFeel.rows()[3].animal === 'woolly' && w.LRFeel.rows()[3].prop === 'pail' && w.LRFeel.rows()[3].greeted);
+    LR.newVisit(); LR.advance(.2); LR.bedtime(); LR.advance(.2);
+    tap(w.LRFeel.spot(1));
+    const stirred = w.LRFeel.rows()[1];
+    check('At bedtime a tap only stirs the animal, and home stays home', stirred.pose === 'stir' && LR.camera.area === 1 && LR.state.place === 'ranch' && LR.state.mode !== 'play');
+    const mm = w.matchMedia;
+    w.matchMedia = q => ({ matches: /reduce/.test(String(q)), addEventListener() {}, addListener() {} });
+    LR.newVisit(); LR.go(3); LR.advance(.2);
+    const still = w.LRFeel.rows()[3];
+    check('Reduced motion still marks the arrival and does not bounce', still.greeted && still.lift === 0 && Math.abs(LR.camera.x - LR.world.areas[3].stop) < 1);
+    w.matchMedia = mm;
+    const visible = el => { const s = w.getComputedStyle(el); return !el.closest('[hidden]') && s.display !== 'none' && s.visibility !== 'hidden'; };
+    const text = [...d.body.querySelectorAll('*')].filter(el => visible(el) && !['SCRIPT', 'STYLE'].includes(el.tagName)).map(el => [...el.childNodes].filter(c => c.nodeType === 3).map(c => c.textContent.trim()).join('')).join('');
+    check('The animals add no words', text === '');
+    sum.className = 'pass'; sum.textContent = 'PASS — ' + n + ' world feel checks.';
+  } catch (e) { sum.className = 'fail'; sum.textContent = 'FAIL — ' + e.message; }
+  finally { if (frame) frame.remove(); button.disabled = false; }
+};
+</script></body></html>

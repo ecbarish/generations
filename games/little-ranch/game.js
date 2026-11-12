@@ -37,6 +37,8 @@
   const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 9, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
   const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
+  // The finger points the same way as the wooden arrows.
+  const SWIPE_TRAVEL = .35, SWIPE_SLANT = 3;
   // LR16: the meadow ball. Tap it and it rolls to the other side of the grass; the baby runs over and kicks. Every third kick is one happy thing. Nothing to miss. At night a tap only boings.
   const FRIEND_ODDS = .5, NUZZLE_SECS = 1.6, FRIEND_EAT_SECS = 2.4; let forceFriend = null;
   const FOODS = ['berries', 'carrot', 'lemon', 'broccoli'], FOOD_FACES = ['yum', 'puff', 'sour', 'tongue'], KITCHEN_BERRIES = 3, FLY_SECS = .5, EAT_SECS = .9, FACE_SECS = 1.6, KITCHEN_END_SECS = 2.6;
@@ -143,7 +145,7 @@
       bowl: { food: 0, pop: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
       place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, stage: { shake: 0 }, shelf: { shake: 0 }, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 0, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1, hurry: false, lag: 0 };
-    cam.area = 1; cam.dur = 0; glideQueued = null; releaseBack(); layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
+    cam.area = 1; cam.dur = 0; glideQueued = null; swipe = null; releaseBack(); layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
     if (st.friend) { st.friend.x = cam.x + W + L.fz; fgo(L.fhome.x, null); } // wanders in from just off the meadow
   }
   const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
@@ -1765,7 +1767,13 @@
       if (n === 'left' || n === 'right') { if (Math.hypot(p.x - q.x, p.y - q.y) <= L.U * .09) k *= .35; }
       if (DOORS[n]) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
       if (k <= bk) { bk = k; best = n; } } return best; }
-  let glideTap = null, glideQueued = null;
+  let glideTap = null, glideQueued = null, swipe = null;
+  function swipeWay(g) {
+    const dx = Math.abs(g.dx), dy = Math.abs(g.dy);
+    if (dx < L.U * SWIPE_TRAVEL || dx < dy * SWIPE_SLANT) return null;
+    const dir = g.dx > 0 ? 1 : -1, next = cam.area + dir;
+    return next < 0 || next > 3 ? 0 : dir;
+  }
   const onDown = e => {
     e.preventDefault(); audio(); if (st.place === 'ranch' && camGliding()) { glideTap = { id: e.pointerId }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; } const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
@@ -1803,9 +1811,16 @@
     if (pick === 'basket') return hatTap();
     if (/^puddle/.test(pick)) return puddleTap(+pick.slice(6));
     if (pick === 'ball') return kickBall();
+    if (!pick && st.place === 'ranch' && e.type === 'pointerdown') {
+      swipe = { id: e.pointerId, x: p.x, y: p.y, dx: 0, dy: 0 };
+      try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+      return;
+    }
     act.sparkle(p);
   };
-  const onMove = e => { const d = st.down;
+  const onMove = e => {
+    if (swipe && swipe.id === e.pointerId) { const p = at(e); swipe.dx = p.x - swipe.x; swipe.dy = p.y - swipe.y; return; }
+    const d = st.down;
     if (d && d.id === e.pointerId && st.place === 'dough') { const p = at(e), k = Math.hypot(p.x - d.last.x, p.y - d.last.y); d.moved += k; d.last = p; if (d.moved > L.dough.lr * .3 && st.dough.phase === 'play') rollDough(k); return; }
     if (d && d.id === e.pointerId && d.flower !== undefined) { const i = flowerAt(at(e)); if (i >= 0 && i !== d.flower) { d.flower = i; sing(i); } return; }     if (d && d.id === e.pointerId && st.place === 'shed') { if (d.pot >= 0) return; const p = at(e);
       if (!d.drag && Math.hypot(p.x - d.p.x, p.y - d.p.y) > L.shed.z * .15) { d.drag = true; paintPart(partAt(d.p), d.p); } if (d.drag) paintPart(partAt(p), p); return; }
@@ -1813,6 +1828,15 @@
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
   const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); return near(p, q, reach) || near(p, signFace(q), reach); };
   const release = e => {
+    if (swipe && swipe.id === e.pointerId) {
+      const g = swipe; swipe = null;
+      if (e.type === 'pointercancel' || e.type === 'touchcancel') return;
+      if (st.place !== 'ranch' || st.mode !== 'play' || camGliding()) return;
+      const way = swipeWay(g);
+      if (way) goArea(cam.area + way);
+      else if (way === null) act.sparkle({ x: g.x, y: g.y });
+      return;
+    }
     if (glideTap && glideTap.id === e.pointerId) { glideTap = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; if (camGliding()) { const pick = ranchTarget(at(e)); if ((pick === 'left' || pick === 'right') && !glideQueued) glideQueued = pick; return; } onDown(e); if (!(st.down && st.down.id === e.pointerId)) return; }
     const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
       if (d.arrow) { const a = L.arrows && L.arrows[d.arrow]; if (!camGliding() && a && Math.hypot(p.x - a.x, p.y - a.y) <= L.arrows.tap) goArea(cam.area + (d.arrow === 'left' ? -1 : 1)); return; }
@@ -1911,4 +1935,9 @@
     redraw() { draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); const x = st.place === 'ranch' ? p.x - cam.x : p.x; return { x: r.left + x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
+if (!/\/baseline\//.test(location.pathname)) {
+  const feel = document.createElement('script');
+  feel.src = 'feel.js';
+  document.body.appendChild(feel);
+}
 
