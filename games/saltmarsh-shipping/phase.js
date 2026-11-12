@@ -318,6 +318,19 @@
       });
       return best;
     }
+    if (M.yearOf && M.yearOf(state) === 2) {
+      var winterRoute = null;
+      var winterLight = null;
+      var winterPrep = null;
+      steps.forEach(function (step) {
+        if (step.kind === 'route' && step.id === 'frost') winterRoute = step;
+        if (step.kind === 'light' && step.id === 'glass') winterLight = step;
+        if (step.kind === 'prep' && !winterPrep) winterPrep = step;
+      });
+      if (winterRoute) return winterRoute;
+      if (winterLight) return winterLight;
+      if (M.glassBurning(state) && winterPrep) return winterPrep;
+    }
     var soon = steps.filter(function (step) { return step.wait <= 90; });
     var pool = soon.length ? soon : steps;
     var affordLights = pool.filter(function (step) { return step.kind === 'light' && step.affordable; });
@@ -371,6 +384,8 @@
       return 'Row ' + left + ' cargoes yourself. Then a second boat can tie up.';
     }
     if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'partner') return choiceGoal(state);
+    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return 'Sign Frost Lane. The winter crossing is this year\'s new run.';
+    if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'winter') return choiceGoal(state);
     if (state.boats[0].owned < M.WREN_AT && !(state.captains[0] && state.captains[0].hired)) {
       left = M.WREN_AT - state.boats[0].owned;
       return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then Capt. Wren takes the pier.';

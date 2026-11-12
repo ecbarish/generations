@@ -849,7 +849,7 @@
     if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
     $('#provision-note').textContent = offers.length
       ? 'These prices don\'t go up as your fleet grows.'
-      : 'All ' + M.PREPARATIONS.length + ' are packed.';
+      : 'Everything for the voyage is aboard. Set sail when you want.';
     var host = $('#provision-cards');
     var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
@@ -860,10 +860,7 @@
       if (!offers.length) {
         host.style.minHeight = '';
         host.dataset.heldHeight = '';
-        var packed = document.createElement('p');
-        packed.className = 'habit';
-        packed.textContent = 'All ' + M.PREPARATIONS.length + ' are packed.';
-        host.appendChild(packed);
+        host.textContent = '';
       } else {
         var item = null;
         M.PREPARATIONS.forEach(function (row) { if (row.id === offers[0].id) item = row; });
@@ -912,7 +909,7 @@
       main.textContent = opt.name;
       var price = document.createElement('span');
       price.className = 'take-need';
-      price.textContent = money(opt.cost) + (opt.effect ? ' · ' + opt.effect : '');
+      price.textContent = '· ' + money(opt.cost) + (opt.effect ? ' · ' + opt.effect : '');
       node.appendChild(main);
       node.appendChild(price);
       node.disabled = !(state.cash >= opt.cost);
@@ -1092,6 +1089,7 @@
     var sec = Math.floor(Date.now() / 1000);
     view.allowPrices = !fromClock || view.priceSec !== sec;
     if (view.allowPrices) view.priceSec = sec;
+    if (M.markWaited) M.markWaited(state);
     var phase = P.read(state);
     $('#office').dataset.phase = P.name(state);
     $('#coins').textContent = money(state.cash);
@@ -1101,8 +1099,18 @@
     var routeRate = M.routeIncome(state);
     var rateLine = $('#rate');
     var totalRate = boatsRate + captainsRate + routeRate;
+    var haulLine = '';
+    if (captainsRate > 0 && M.CAPTAINS && M.haulCoins) {
+      var biggest = 0;
+      M.CAPTAINS.forEach(function (cap, index) {
+        if (!state.captains[index] || !state.captains[index].hired) return;
+        var lump = M.haulCoins(cap, 1, 1);
+        if (lump > biggest) biggest = lump;
+      });
+      if (biggest > 0) haulLine = ' Landings run up to ' + money(biggest) + '.';
+    }
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
-    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
+    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.' + haulLine);
     else showLine(rateLine, M.rateWords(totalRate));
     if (M.yearOf && M.yearOf(state) === 2 && M.glassBurning && !M.glassBurning(state) && !state.ended) {
       rateLine.textContent = rateLine.textContent + ' A winter storm is on the water until the Glass Lighthouse is burning.';
@@ -1930,6 +1938,11 @@
     if (/^Send /.test(goal)) {
       var send = $('#finale-go');
       if (usableControl(send)) { press(send); return true; }
+      return false;
+    }
+    if (/Frost Lane/.test(goal)) {
+      var frostBtn = document.querySelector('#route-cards [data-route="frost"] [data-act="route"]');
+      if (usableControl(frostBtn)) { press(frostBtn); return true; }
       return false;
     }
     if (/^Sign /.test(goal) && act && act.kind === 'route') {

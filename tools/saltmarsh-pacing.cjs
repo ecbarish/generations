@@ -356,6 +356,16 @@
     if (/^Run the errand/.test(goal) && act && act.kind === 'errand') {
       return { id: 'errand', affordable: state.cash >= act.cost, buy: function () { M.buyErrand(state, now); } };
     }
+    if (/Frost Lane/.test(goal)) {
+      var frostOffers = M.routeOffers(state, false) || [];
+      var frost = null;
+      frostOffers.forEach(function (row) { if (row.id === 'frost') frost = row; });
+      return {
+        id: 'route:frost:' + ((state.routes && state.routes.frost) || 0),
+        affordable: !!(frost && state.cash >= frost.cost),
+        buy: function () { if (frost) M.signRoute(state, 'frost', now); }
+      };
+    }
     if (/^Sign /.test(goal) && act && act.kind === 'route') {
       return { id: 'route:' + act.id + ':' + ((state.routes && state.routes[act.id]) || 0), affordable: state.cash >= act.cost, buy: function () { M.signRoute(state, act.id, now); } };
     }
@@ -684,6 +694,7 @@ if (typeof module !== 'undefined' && require.main === module) {
     console.log(seasonLines.join('\n'));
     assert(years.first.firstLight >= 250 && years.first.firstLight <= 400, 'season 1 first light about 5 min, was ' + years.first.firstLight);
     assert(years.first.endingAt >= 720 && years.first.endingAt <= 840, 'season 1 ending between 12 and 14 min, was ' + years.first.endingAt);
+    assert(years.second && years.second.endingAt >= 720 && years.second.endingAt <= 840, 'year 2 ending between 12 and 14 min, was ' + (years.second && years.second.endingAt));
     assert(years.second && years.second.state.partner === 'ives', 'year 2 meets Ives');
     assert(years.second.state.routes.frost >= 1 && years.second.state.lights.glass >= 2, 'season 2 signs Frost Lane and lights the Glass Lighthouse');
     assert(years.second.state.ledger.length >= 1, 'the ledger keeps the first year');
