@@ -358,7 +358,8 @@
     var M = window.Saltmarsh;
     var phase = read(state);
     var left, i, owned, nextAt, choice, sailing, lit;
-    if (state.ended) return 'The last voyage is home. Open a new harbour when you want one.';
+    if (state.ended && state.year === 2) return 'The winter year is closed. The season ledger keeps this watch.';
+    if (state.ended) return 'The last voyage is home. Begin a new year at the office when you want one.';
     if (!phase.boats) {
       left = M.HAND_TRIPS - state.trips;
       if (left === 1) return 'Row one more cargo yourself. Then a second boat can tie up.';

@@ -569,6 +569,48 @@ document.querySelector('#run').onclick = async function () {
     check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
     var organic = SaltmarshPacing.organicRun(M, P);
     check('a normal office lights the first tower within 8 minutes and still reaches the ending (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, gap ' + organic.voyageGap + 's, misses ' + organic.missedCheap + ')', organic.firstLight > 0 && organic.firstLight <= 480 && organic.fourLights > organic.firstLight && organic.endingAt >= 720 && organic.endingAt <= 1560 && organic.voyageGap <= 90 && organic.missedCheap === 0);
+    check('season 1 keeps the first light near 5 minutes and the ending near 12 (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight >= 250 && organic.firstLight <= 400 && organic.endingAt >= 720 && organic.endingAt <= 900);
+    var years = SaltmarshPacing.seasonRun(M, P);
+    var secondEnd = years.second && years.second.endingAt;
+    var secondOffice = years.second && years.second.state;
+    check('season 2 ends between 12 and 18 minutes (' + secondEnd + 's) after Frost Lane, the Glass Lighthouse, and Ives', years.began && secondEnd >= 720 && secondEnd <= 1080 && secondOffice.routes.frost >= 1 && secondOffice.lights.glass >= 2 && (secondOffice.partner === 'ives' || secondOffice.partner === 'closed') && secondOffice.ledger.length === 2);
+    var firstChart = M.fresh();
+    firstChart.trips = 3;
+    firstChart.boats[2].owned = 10;
+    var frostEarly = false;
+    M.routeOffers(firstChart, false).forEach(function (row) { if (row.id === 'frost') frostEarly = true; });
+    check('the first year does not put Frost Lane on the chart', frostEarly === false && M.yearOf(firstChart) === 1);
+    var closedYear = M.fresh();
+    closedYear.ended = true;
+    closedYear.played = 790;
+    closedYear.ending = { elapsed: 790, lights: 4, lifetime: 1, boats: 12, voyages: 4, hauls: 2, charts: 0 };
+    ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { closedYear.lights[id] = 2; });
+    closedYear.captains[0].hired = true;
+    closedYear.captains[3].hired = true;
+    var beganYear = M.beginYear(closedYear, 50);
+    closedYear.trips = 3;
+    closedYear.boats[2].owned = 10;
+    var frostOpen = false;
+    M.routeOffers(closedYear, false).forEach(function (row) { if (row.id === 'frost') frostOpen = true; });
+    var names = M.CAPTAINS.map(function (cap) { return cap.name; }).join(' ');
+    check('a new year keeps the harbour\'s regard, clears the chest, and still has Capt. Wren and Capt. Pell', beganYear.ok && closedYear.cash === 0 && closedYear.boats[0].owned === 0 && closedYear.captains[0].hired === false && closedYear.reputation >= 4 && frostOpen && /Wren/.test(names) && /Pell/.test(names) && closedYear.ledger[0].title === 'The first year' && closedYear.ledger[0].lights.length === 4);
+    var stormOffice = M.fresh();
+    stormOffice.year = 2;
+    stormOffice.reputation = 4;
+    stormOffice.routeGross = { kelp: 1000 };
+    stormOffice.routeCut = { kelp: 0 };
+    var duringStorm = M.routeIncome(stormOffice);
+    stormOffice.lights.glass = 2;
+    var afterStorm = M.routeIncome(stormOffice);
+    check('the winter storm cuts every route until the Glass Lighthouse is burning', duringStorm > 0 && duringStorm < afterStorm);
+    var waitedOffice = M.fresh();
+    waitedOffice.trips = 3;
+    waitedOffice.boats[2].owned = 10;
+    waitedOffice.routes.kelp = 1;
+    var welcome = M.awayCopy(waitedOffice, { away: 120, gained: 40, capped: true }, { before: 10, after: 50, boatGain: 40, captains: ['Capt. Wren: 1 haul, 12 coins.'] });
+    check('coming back names the boats, a squall that waited, and the next step', welcome.title === 'While you were away' && /boats came back/.test(welcome.box) && /squall waited/.test(welcome.box) && /Next: /.test(welcome.box) && /50%/.test(welcome.lead) && M.offlineCap(waitedOffice) === 2 * 3600);
+    var book = M.ledgerView(secondOffice);
+    check('the season ledger keeps both years and the best watch', book.rows.length === 2 && book.best > 0 && book.best <= book.rows[0].elapsed && book.best <= book.rows[1].elapsed);
     var tide = ready();
     tide.trips = 3;
     tide.boats[0].owned = M.SLOOP_AT;
@@ -2557,6 +2599,66 @@ document.querySelector('#run').onclick = async function () {
     }
     await voyageNear(320, 568);
     await voyageNear(390, 844);
+    async function seasonScreen(width, height) {
+      var box = await loadFrame('season ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var st = win.__saltmarsh.state;
+      st.ended = true;
+      st.year = 1;
+      st.played = 790;
+      st.cash = 0;
+      st.ending = { elapsed: 790, lights: 4, lifetime: 1000, boats: 20, voyages: 6, hauls: 3, charts: 0 };
+      st.lights = { pier: 2, headland: 2, reed: 2, quay: 2 };
+      st.ledger = [{ year: 1, title: 'The first year', elapsed: 790, lights: ['Pier Lighthouse', 'Headland Lighthouse', 'Reed Lighthouse', 'Quay Lighthouse'], lightCount: 4 }];
+      st.reputation = 4;
+      var shifts = [];
+      if (win.PerformanceObserver) {
+        try {
+          var obs = new win.PerformanceObserver(function (list) {
+            list.getEntries().forEach(function (entry) {
+              if (!entry.hadRecentInput) shifts.push(entry.value);
+            });
+          });
+          obs.observe({ type: 'layout-shift', buffered: true });
+        } catch (e) { /* this browser does not report layout shift */ }
+      }
+      win.__saltmarsh.render();
+      var h1 = doc.querySelector('h1');
+      var before = h1.getBoundingClientRect().top;
+      win.__saltmarsh.render();
+      var moved = Math.abs(h1.getBoundingClientRect().top - before);
+      function tapTarget(el) {
+        el.scrollIntoView({ block: 'start', inline: 'nearest' });
+        var rect = el.getBoundingClientRect();
+        var bar = doc.querySelector('.goalbar').getBoundingClientRect();
+        var top = Math.max(rect.top + 2, 2);
+        var bottom = Math.min(rect.bottom - 2, bar.top - 2);
+        var y = bottom > top ? (top + bottom) / 2 : rect.top + 8;
+        var x = Math.min(width - 4, Math.max(4, rect.left + Math.min(rect.width / 2, 40)));
+        var hit = doc.elementFromPoint(x, y);
+        return {
+          ok: !!(hit && (hit === el || el.contains(hit))),
+          text: hit ? (hit.textContent || '').replace(/\s+/g, ' ').slice(0, 40) : 'none',
+          height: rect.height,
+          y: Math.round(y)
+        };
+      }
+      var yearBtn = doc.querySelector('[data-act="year"]');
+      var yearTap = tapTarget(yearBtn);
+      doc.querySelector('[data-act="ledger"]').click();
+      var book = doc.querySelector('#ledger');
+      var row = doc.querySelector('#ledger-rows li');
+      var rowTap = tapTarget(row);
+      var shiftSum = shifts.reduce(function (n, v) { return n + v; }, 0);
+      check('at ' + width + ' the new year can be tapped (hit ' + yearTap.text + ', ' + Math.round(yearTap.height) + 'px), the ledger names the first year (hit ' + rowTap.text + '), and a second render shifts the title ' + moved.toFixed(1) + 'px (cls ' + shiftSum.toFixed(3) + ')', yearTap.ok && yearTap.height >= 44 && book.hidden === false && rowTap.ok && /The first year/.test(row.textContent) && /Pier Lighthouse/.test(row.textContent) && moved <= 2);
+    }
+    await seasonScreen(320, 568);
+    await seasonScreen(390, 844);
+    await seasonScreen(1280, 800);
     async function buttonsShow(width, height) {
       wipe();
       var box = await loadFrame('buttons ' + width + 'x' + height);

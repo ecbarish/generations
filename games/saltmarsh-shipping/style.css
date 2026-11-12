@@ -263,7 +263,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   font-variant-numeric: tabular-nums;
 }
 .closed h2, .closed .habit { color: var(--hull); font-style: italic; }
-.away, .log, .fleet, .sheds, .choice, .settled, .routes, .lights, .finale, .ending {
+.away, .log, .fleet, .sheds, .choice, .settled, .routes, .lights, .finale, .ending, .ledger {
   border: 1px solid var(--sky);
   background: var(--panel);
   padding: 0.8rem 0.85rem;
@@ -399,6 +399,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #lights { order: 7; }
   #provision { order: 8; }
   #finale { order: 9; }
+  #ledger { order: 10; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
   #route-cards, #light-cards {
     display: flex;
@@ -521,7 +522,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .goalbar { width: min(60rem, 100%); }
   #choice.choice { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending { grid-column: 1 / -1; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending, .ledger { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {

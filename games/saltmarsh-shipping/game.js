@@ -10,7 +10,7 @@
   var VERSION = '0.3.0';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
-  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
+  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0, ledgerOn: false };
   var taps = [];
   var idle = null;
   var awayOn = false;
@@ -503,7 +503,7 @@
     /* Only the contracts on the desk. A signed route stays in its card,
        so a new name is not inserted above a button the player can already see. */
     var waitingLine = [];
-    M.ROUTES.forEach(function (spec) {
+    (M.shownRoutes ? M.shownRoutes(state) : M.ROUTES).forEach(function (spec) {
       var offer = offerById[spec.id] || null;
       var signed = (state.routes && state.routes[spec.id]) || 0;
       if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
@@ -583,7 +583,7 @@
     });
     Array.prototype.forEach.call(host.querySelectorAll('button[disabled][data-route]'), function (button) {
       var spec = null;
-      M.ROUTES.forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
+      (M.shownRoutes ? M.shownRoutes(state) : M.ROUTES).forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
       if (!spec) return;
       var signedNow = (state.routes && state.routes[spec.id]) || 0;
       if (signedNow <= 0) return;
@@ -694,9 +694,15 @@
     if (box.hidden) return;
     var offers = M.lightOffers(state, true);
     var burning = M.lightsLit(state);
-    $('#lights-note').textContent = burning >= 4
+    var lightNote = burning >= 4
       ? '4 lit. Every lighthouse on the coast is burning.'
       : burning + ' lit. Four lighthouses. Each one changes the routes.';
+    if (M.yearOf && M.yearOf(state) === 2) {
+      lightNote += M.glassBurning(state)
+        ? ' The Glass Lighthouse is burning, and the winter storm has lifted.'
+        : ' The Glass Lighthouse is still dark, so the winter storm takes a cut from every route.';
+    }
+    $('#lights-note').textContent = lightNote;
     var host = $('#light-cards');
     if (M.allLightsLit(state) && M.finaleOffer && M.finaleOffer(state)) {
       if (host.dataset.sig !== 'folded') {
@@ -709,7 +715,7 @@
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
-      M.LIGHTS.forEach(function (spec) {
+      (M.shownLights ? M.shownLights(state) : M.LIGHTS).forEach(function (spec) {
         var stage = state.lights[spec.id] || 0;
         var offer = null;
         for (var i = 0; i < offers.length; i++) if (offers[i].id === spec.id) offer = offers[i];
@@ -742,7 +748,8 @@
     }
     Array.prototype.forEach.call(host.querySelectorAll('button'), function (button) {
       var spec = null;
-      for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
+      var lightList = M.shownLights ? M.shownLights(state) : M.LIGHTS;
+      for (var s = 0; s < lightList.length; s++) if (lightList[s].id === button.dataset.light) spec = lightList[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
       if (spec && spec.id === 'quay' && (state.lights.quay || 0) < 2) {
@@ -910,13 +917,16 @@
   function fillEnding() {
     var box = $('#ending');
     if (!box) return;
-    box.hidden = !state.ended;
+    box.hidden = !state.ended || view.ledgerOn;
     if (box.hidden) return;
     var stats = state.ending || M.statsOf(state, Date.now());
     var voyageHow = '';
     if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot brought the risky cargo back in.';
     if (state.prepDone && state.prepDone.pilot === 'chart') voyageHow = ' The bought chart stayed in the cabin, and the boats earned a little more.';
-    $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.' + voyageHow;
+    var yearLead = state.year === 2
+      ? 'The winter year is home. Frost Lane and the Glass Lighthouse stay on the chart.'
+      : 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.';
+    $('#ending-lead').textContent = yearLead + voyageHow;
     var list = $('#ending-stats');
     var watch = stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch';
     var chartLine = stats.charts > 0
@@ -957,28 +967,82 @@
       });
     }
     var again = $('#new-harbour');
-    if (!again.childElementCount) {
+    var harbourSig = (state.year === 2 ? '2' : '1') + ':' + ((state.ledger && state.ledger.length) || 0);
+    if (again.dataset.sig !== harbourSig) {
+      again.dataset.sig = harbourSig;
+      again.replaceChildren();
       var lead = document.createElement('p');
-      lead.textContent = 'Open a new harbour. You may ask one captain to come across.';
+      lead.textContent = state.year === 2
+        ? 'This year is in the season ledger.'
+        : 'Begin a new year at the office, or open a new harbour. You may ask one captain to come across.';
       again.appendChild(lead);
       var actions = document.createElement('div');
       actions.className = 'actions';
-      M.CAPTAINS.forEach(function (cap, i) {
-        var button = document.createElement('button');
-        button.type = 'button';
-        button.dataset.act = 'anew';
-        button.dataset.captain = String(i);
-        button.textContent = 'Ask ' + cap.name + ' to come. ' + (cap.harbour || cap.habit);
-        actions.appendChild(button);
-      });
-      var empty = document.createElement('button');
-      empty.type = 'button';
-      empty.dataset.act = 'anew';
-      empty.dataset.captain = '-1';
-      empty.textContent = 'Open it with an empty pier';
-      actions.appendChild(empty);
+      if (state.year !== 2) {
+        var yearBtn = document.createElement('button');
+        yearBtn.type = 'button';
+        yearBtn.dataset.act = 'year';
+        yearBtn.textContent = 'Begin a new year at the office';
+        actions.appendChild(yearBtn);
+      }
+      var bookBtn = document.createElement('button');
+      bookBtn.type = 'button';
+      bookBtn.dataset.act = 'ledger';
+      bookBtn.textContent = 'Read the season ledger';
+      actions.appendChild(bookBtn);
+      if (state.year !== 2) {
+        M.CAPTAINS.forEach(function (cap, i) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.act = 'anew';
+          button.dataset.captain = String(i);
+          button.textContent = 'Ask ' + cap.name + ' to come. ' + (cap.harbour || cap.habit);
+          actions.appendChild(button);
+        });
+        var empty = document.createElement('button');
+        empty.type = 'button';
+        empty.dataset.act = 'anew';
+        empty.dataset.captain = '-1';
+        empty.textContent = 'Open it with an empty pier';
+        actions.appendChild(empty);
+      }
       again.appendChild(actions);
     }
+  }
+
+  function fillLedger() {
+    var box = $('#ledger');
+    if (!box) return;
+    var viewBook = M.ledgerView ? M.ledgerView(state) : { rows: [], best: null, year: 1, reputation: 0, storm: false };
+    box.hidden = !(viewBook.rows.length || viewBook.year === 2);
+    if (box.hidden) return;
+    var note = $('#ledger-note');
+    var best = viewBook.best > 0 ? Arcade.fmtTime(Math.round(viewBook.best)) : 'not yet';
+    var regard = viewBook.reputation > 0
+      ? 'Harbour regard is ' + viewBook.reputation + '. It keeps Frost Lane on the chart in a new year, and it does not fill the chest.'
+      : 'Harbour regard has not been written yet.';
+    var storm = viewBook.storm ? ' The winter storm is still on the routes.' : '';
+    note.textContent = 'Best watch: ' + best + '. ' + regard + storm;
+    var list = $('#ledger-rows');
+    var sig = viewBook.rows.map(function (row) {
+      return row.year + ':' + row.elapsed + ':' + (row.lights || []).join(',');
+    }).join('|');
+    if (list.dataset.sig === sig) return;
+    list.dataset.sig = sig;
+    list.replaceChildren();
+    if (!viewBook.rows.length) {
+      var empty = document.createElement('li');
+      empty.textContent = 'No year has been closed yet.';
+      list.appendChild(empty);
+      return;
+    }
+    viewBook.rows.forEach(function (row) {
+      var li = document.createElement('li');
+      var watch = row.elapsed > 0 ? Arcade.fmtTime(Math.round(row.elapsed)) : 'a short watch';
+      var lights = row.lights && row.lights.length ? row.lights.join(', ') : 'no light burning';
+      li.textContent = row.title + '. ' + watch + '. Lights lit: ' + lights + '.';
+      list.appendChild(li);
+    });
   }
 
   function scrollTo(el) {
@@ -1098,6 +1162,7 @@
     fillProvision();
     fillFinale();
     fillEnding();
+    fillLedger();
     fillSheds();
     fillLog();
     if (state.ended && !view.endingOn) {
@@ -1476,11 +1541,31 @@
       }
       return;
     }
+    if (b.dataset.act === 'year') {
+      if (M.beginYear(state, Date.now()).ok) {
+        view.choice = '';
+        view.routes = false;
+        view.endingOn = false;
+        view.ledgerOn = false;
+        bootIdle(null);
+        persist();
+        render();
+        window.scrollTo(0, 0);
+      }
+      return;
+    }
+    if (b.dataset.act === 'ledger') {
+      view.ledgerOn = true;
+      render();
+      scrollTo($('#ledger'));
+      return;
+    }
     if (b.dataset.act === 'anew') {
       M.newHarbour(state, +b.dataset.captain, Date.now());
       view.choice = '';
       view.routes = false;
       view.endingOn = false;
+      view.ledgerOn = false;
       bootIdle(null);
       persist();
       render();

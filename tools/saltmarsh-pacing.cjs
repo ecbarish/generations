@@ -538,9 +538,9 @@
 
   /* A person reading the goal bar: the same decisions, two seconds after the coins are there.
      Starts from a new office. No preset. */
-  function organicRun(M, P) {
+  function organicRun(M, P, existing) {
     P = P || root.SaltmarshPhase;
-    var state = M.fresh();
+    var state = existing || M.fresh();
     var sim = 1700000000000;
     var firstLight = null;
     var fourLights = null;
@@ -586,11 +586,21 @@
       voyageGap: voyageGap,
       missedCheap: missedCheap,
       played: state.played,
-      hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0)
+      hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0),
+      state: state
     };
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction, organicRun: organicRun };
+  /* Season 1, then a new year on the same decisions. Times are simulated seconds, not a watched sitting. */
+  function seasonRun(M, P) {
+    var first = organicRun(M, P);
+    if (!first.endingAt || !M.beginYear) return { first: first, second: null, began: false };
+    var began = M.beginYear(first.state, 1700000000000);
+    var second = organicRun(M, P, first.state);
+    return { first: first, second: second, began: !!began.ok };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction, organicRun: organicRun, seasonRun: seasonRun };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SaltmarshPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -651,6 +661,22 @@ if (typeof module !== 'undefined' && require.main === module) {
     assert(early.owned[3] >= (M.BARK_QUAY || 12), 'the quay is reached inside 20 min, barks ' + early.owned[3]);
     const handRun = pacing.handPlay(M, context.SaltmarshPhase, 1800);
     assert(handRun.max <= 90, 'hand waits in minutes 4 to 30 stay within about 90s, was ' + handRun.max + ' (' + handRun.waits.map(function (w) { return Math.round(w.t) + 's ' + w.id; }).join(', ') + ')');
+    const years = pacing.seasonRun(M, context.SaltmarshPhase);
+    const seasonLines = [
+      'Season ledger (one deterministic run of the goal follower, simulated seconds)',
+      '  season 1 first light: ' + years.first.firstLight + 's',
+      '  season 1 four lights: ' + years.first.fourLights + 's',
+      '  season 1 ending: ' + years.first.endingAt + 's',
+      '  season 2 first light: ' + (years.second && years.second.firstLight) + 's',
+      '  season 2 ending: ' + (years.second && years.second.endingAt) + 's',
+      '  limiter: the same boat, route, light, and voyage chain. Season 2 adds the winter storm until the Glass Lighthouse, Frost Lane, and Ives. Spread is 0 because the run does not sample.'
+    ];
+    console.log(seasonLines.join('\n'));
+    assert(years.first.firstLight >= 250 && years.first.firstLight <= 400, 'season 1 first light about 5 min, was ' + years.first.firstLight);
+    assert(years.first.endingAt >= 720 && years.first.endingAt <= 900, 'season 1 ending about 12 min, was ' + years.first.endingAt);
+    assert(years.second && years.second.endingAt >= 720 && years.second.endingAt <= 1080, 'season 2 ending from 12 to 18 min, was ' + (years.second && years.second.endingAt));
+    assert(years.second.state.routes.frost >= 1 && years.second.state.lights.glass >= 2, 'season 2 signs Frost Lane and lights the Glass Lighthouse');
+    assert(years.second.state.ledger.length === 2, 'the ledger keeps both years');
     const nodeRun = model;
     browserGreedy().then(function (browser) {
       const browserEnding = browser.ending || 0;

@@ -144,6 +144,11 @@
       finaleCost: null,
       voyages: 0,
       ended: false,
+      year: 1,
+      reputation: 0,
+      ledger: [],
+      partner: null,
+      waited: {},
       born: null,
       charts: 0,
       keptCaptain: null,
@@ -727,7 +732,25 @@
     if (lit === 1) lines.push('One lighthouse is burning.');
     else if (lit > 1) lines.push(lit + ' lighthouses are burning.');
     if (window.SaltmarshPhase && window.SaltmarshPhase.goal) lines.push('Next: ' + window.SaltmarshPhase.goal(state));
+    markWaited(state);
+    var waitedLine = waitedCopy(state);
+    if (waitedLine) lines.push(waitedLine);
+    var cameBack = false;
+    (detail.captains || []).forEach(function (row) {
+      if (/coins/.test(row) && /no haul/.test(row) === false && /was out/.test(row) === false) cameBack = true;
+    });
+    if (cameBack) lines.unshift('The boats came back to the pier.');
+    var near = nextAffordLine(state);
+    if (near) lines.push(near);
     return { title: 'While you were away', lead: lead, lines: lines, box: lines.join(' ') };
+  }
+  function nextAffordLine(state) {
+    var phase = window.SaltmarshPhase;
+    if (!phase || !phase.bestStep) return '';
+    var step = phase.bestStep(state);
+    if (!step || !step.sentence) return '';
+    if (step.affordable) return 'Next you can afford: ' + step.sentence;
+    return 'Next, nearly in reach: ' + step.sentence;
   }
 
   function captainBooks(state) {
@@ -786,16 +809,38 @@
     { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
     { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
+  /* Season 2 only. These stay off the first year's chart, so the first sitting does not grow. */
+  var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 22, mid: 22, later: 22, payback: 48, time: 'a winter crossing', line: 'Wool from the Glass Wharf. The winter storm takes a cut until the Glass Lighthouse is burning.', perk: 'The harbour\'s regard opens this lane.' };
+  var GLASS = { id: 'glass', name: 'Glass Lighthouse', needRoutes: 2, wait: 10, lines: ['Still dark. Raising the Glass Lighthouse starts to hold the winter storm.', 'The Glass Lighthouse\'s tower is up. Lighting it lifts the winter storm.', 'The Glass Lighthouse is burning. The winter storm has lifted.'] };
+  var STORM_RATE = 0.84;
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
   var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });
 
   function routeById(id) {
+    if (id === 'frost') return FROST;
     for (var i = 0; i < ROUTES.length; i++) if (ROUTES[i].id === id) return ROUTES[i];
     return null;
   }
   function lightById(id) {
+    if (id === 'glass') return GLASS;
     for (var i = 0; i < LIGHTS.length; i++) if (LIGHTS[i].id === id) return LIGHTS[i];
     return null;
+  }
+  function yearOf(state) {
+    return state && state.year === 2 ? 2 : 1;
+  }
+  function glassBurning(state) {
+    return !!((state && state.lights && state.lights.glass) >= 2);
+  }
+  function shownRoutes(state) {
+    var list = ROUTES.slice();
+    if (yearOf(state) === 2 && (state.reputation || 0) >= 1) list.push(FROST);
+    return list;
+  }
+  function shownLights(state) {
+    var list = LIGHTS.slice();
+    if (yearOf(state) === 2) list.push(GLASS);
+    return list;
   }
   function routesUnlocked(state) {
     return !!(state && !state.ended && state.trips >= HAND_TRIPS && state.boats && state.boats[2] && state.boats[2].owned >= UNLOCK_AT);
@@ -856,7 +901,9 @@
   function routeIncome(state) {
     if (!state || !state.routeGross) return 0;
     var n = 0;
-    ROUTES.forEach(function (spec) {
+    var specs = ROUTES.slice();
+    if (yearOf(state) === 2) specs.push(FROST);
+    specs.forEach(function (spec) {
       var gross = state.routeGross[spec.id] || 0;
       if (!(gross > 0)) return;
       var cut = (state.routeCut && state.routeCut[spec.id]) || 0;
@@ -869,16 +916,20 @@
       if (spec.wren && state.events && state.events.request === 'grant') g *= 1.35;
       if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') g += (state.routeCut && state.routeCut[spec.id]) || 0;
       if (spec.bramble) g *= (1 + brambleHaste(state));
+      if (spec.id === 'frost' && state.partner === 'ives') g *= 1.2;
       if (state.routeGear && state.routeGear[spec.id]) g *= 1.2;
       n += g;
     });
-    return n * headMult(state) * prepRouteFactor(state);
+    var total = n * headMult(state) * prepRouteFactor(state);
+    if (yearOf(state) === 2 && !glassBurning(state)) total *= STORM_RATE;
+    return total;
   }
   function officeRate(state) {
     return income(state) + captainRate(state) + routeIncome(state);
   }
   function routeVisible(state, spec) {
     if (!routesUnlocked(state)) return false;
+    if (spec.id === 'frost') return yearOf(state) === 2 && (state.reputation || 0) >= 1;
     var charts = state.charts || 0;
     if (spec.id === 'headland') return (state.marks || 0) >= 4 || routesSailing(state) >= 2 || charts >= 1;
     if (spec.id === 'reed') {
@@ -945,7 +996,7 @@
     /* Later contracts are offered one at a time, so each one is a full step.
        While an earlier contract is still on the desk, the later ones wait for it. */
     var list = early.length ? early.slice(0, 3) : late.slice(0, 1);
-    return list.map(function (spec) {
+    var mapped = list.map(function (spec) {
       var quote = quoteRoute(state, spec, !!lock);
       return {
         id: spec.id, name: spec.name, depth: quote.depth, depths: spec.depths,
@@ -954,6 +1005,20 @@
         affordable: state.cash >= quote.cost
       };
     });
+    if (routeVisible(state, FROST) && ((state.routes && state.routes.frost) || 0) < FROST.depths) {
+      var seenFrost = false;
+      mapped.forEach(function (row) { if (row.id === 'frost') seenFrost = true; });
+      if (!seenFrost) {
+        var frostQuote = quoteRoute(state, FROST, !!lock);
+        mapped.push({
+          id: FROST.id, name: FROST.name, depth: frostQuote.depth, depths: FROST.depths,
+          cost: frostQuote.cost, gain: offerGain(state, frostQuote, FROST), risk: frostQuote.risk,
+          time: FROST.time, line: FROST.line, perk: FROST.perk,
+          affordable: state.cash >= frostQuote.cost
+        });
+      }
+    }
+    return mapped;
   }
   function signRoute(state, id, now) {
     var spec = routeById(id);
@@ -1133,6 +1198,17 @@
         affordable: !blocked && state.cash >= quote.cost
       });
     });
+    if (yearOf(state) === 2 && lightReady(state, GLASS)) {
+      var glassQuote = quoteLight(state, GLASS, !!lock);
+      if (glassQuote) {
+        out.push({
+          id: GLASS.id, name: GLASS.name, stage: glassQuote.stage, cost: glassQuote.cost, line: glassQuote.line,
+          verb: glassQuote.stage === 0 ? 'Raise the' : 'Light the',
+          blocked: '',
+          affordable: state.cash >= glassQuote.cost
+        });
+      }
+    }
     return out;
   }
   function buildLight(state, id, now) {
@@ -1147,6 +1223,7 @@
     state.lights[id] = prevStage + 1;
     if (state.lightQuotes) delete state.lightQuotes[id + ':' + prevStage];
     pushLog(state, quote.line, now);
+    if (id === 'glass' && state.lights.glass >= 2) pushLog(state, 'The Glass Lighthouse is burning. The winter storm lifts off the routes.', now);
     if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. Pack the voyage list, then set sail.', now);
     commitGoal(state, 'light');
     return { ok: true, stage: state.lights[id] };
@@ -1395,8 +1472,13 @@
     if (!state || at < 0) return;
     state.goalCursor = (at + 1) % GOAL_ORDER.length;
   }
+  function yearTwoReady(state) {
+    if (yearOf(state) !== 2) return true;
+    return glassBurning(state) && ((state.routes && state.routes.frost) || 0) >= 1 && (state.partner === 'ives' || state.partner === 'closed');
+  }
   function finaleOffer(state) {
-    if (!state || state.ended || !preparationsComplete(state)) return null;
+    if (!state || state.ended || !preparationsComplete(state) || !yearTwoReady(state)) return null;
+    if (yearOf(state) === 2) return { cost: 0, affordable: true, line: 'The winter list is complete. Set sail.' };
     return { cost: 0, affordable: true, line: 'The list is complete. Set sail.' };
   }
   function chartCount(lifetime) {
@@ -1423,7 +1505,10 @@
     if (state.cash < 1e-6) state.cash = 0;
     state.ended = true;
     state.ending = statsOf(state, finiteNum(now) ? now : Date.now());
-    pushLog(state, 'The last voyage goes out past the lights. The office grows quiet.', now);
+    recordSeason(state);
+    pushLog(state, yearOf(state) === 2
+      ? 'The winter year closes. The season ledger keeps this watch.'
+      : 'The last voyage goes out past the lights. The office grows quiet.', now);
     return { ok: true, ending: state.ending };
   }
   function quayOffer(state) {
@@ -1535,6 +1620,26 @@
     };
     return null;
   }
+  var WAIT_LINES = {
+    squall: 'A squall waited on the desk.',
+    request: 'Capt. Wren\'s request waited for you.',
+    windfall: 'A crate waited on the quay.'
+  };
+  function markWaited(state) {
+    if (!state) return;
+    if (!state.waited || typeof state.waited !== 'object') state.waited = {};
+    EVENT_IDS.forEach(function (id) {
+      if (eventWindow(state, id)) state.waited[id] = true;
+    });
+  }
+  function waitedCopy(state) {
+    if (!state || !state.waited) return '';
+    var lines = [];
+    EVENT_IDS.forEach(function (id) {
+      if (state.waited[id] && !eventDone(state, id)) lines.push(WAIT_LINES[id]);
+    });
+    return lines.join(' ');
+  }
   function eventOffer(state) {
     if (!state || state.ended) return null;
     var i;
@@ -1626,13 +1731,44 @@
     }
     var quay = quayOffer(state);
     if (quay) return { id: 'quay', goal: quay.goal, cards: [quay.lamp, quay.hold] };
+    var partner = partnerOffer(state);
+    if (partner) return partner;
     var tide = eventOffer(state);
     if (tide) return tide;
     var pilot = pilotOffer(state);
     if (!pilot) return null;
     return { id: 'pilot', goal: pilot.goal, cards: pilot.cards };
   }
+  function partnerOffer(state) {
+    if (yearOf(state) !== 2 || state.partner || state.ended) return null;
+    if (routesSailing(state) < 1) return null;
+    if (!finiteNum(state.partnerQuote)) state.partnerQuote = Math.round(Math.max(1, officeRate(state)) * 8);
+    var cost = state.partnerQuote;
+    return {
+      id: 'partner',
+      goal: 'Meet Ives of the Glass Wharf, or leave the chest closed.',
+      cards: [
+        { which: 'meet', name: 'Meet Ives', cost: cost, line: 'Ives sends wool down Frost Lane. That run pays more.', affordable: state.cash >= cost },
+        { which: 'later', name: 'Leave the chest closed', cost: cost, line: 'Ives stays at the Glass Wharf. Frost Lane still pays, without the wool.', affordable: state.cash >= cost }
+      ]
+    };
+  }
+  function choosePartner(state, which, now) {
+    var offer = partnerOffer(state);
+    if (!offer) return { ok: false, reason: 'closed' };
+    var card = null;
+    offer.cards.forEach(function (row) { if (row.which === which) card = row; });
+    if (!card) return { ok: false, reason: 'closed' };
+    if (!(state.cash >= card.cost)) return { ok: false, reason: 'cost', cost: card.cost };
+    state.cash -= card.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.partner = which === 'meet' ? 'ives' : 'closed';
+    if (state.partner === 'ives') pushLog(state, 'Ives of the Glass Wharf sends wool down Frost Lane.', now);
+    else pushLog(state, 'The chest stays closed. Ives remains at the Glass Wharf.', now);
+    return { ok: true, which: state.partner };
+  }
   function chooseDesk(state, id, which, now) {
+    if (id === 'partner') return choosePartner(state, which, now);
     if (id === 'quay') return chooseQuay(state, which, now);
     if (id === 'squall' || id === 'request' || id === 'windfall') return chooseEvent(state, id, which, now);
     if (id === 'pilot') return choosePilot(state, which, now);
@@ -1712,11 +1848,71 @@
     Object.keys(state).forEach(function (key) { delete state[key]; });
     Object.keys(next).forEach(function (key) { state[key] = next[key]; });
   }
+  function lightNames(state) {
+    var names = [];
+    LIGHTS.forEach(function (spec) {
+      if ((state.lights && state.lights[spec.id] || 0) >= 2) names.push(spec.name);
+    });
+    if (glassBurning(state)) names.push(GLASS.name);
+    return names;
+  }
+  function seasonRow(state) {
+    var stats = state.ending || statsOf(state, Date.now());
+    var year = yearOf(state);
+    var names = lightNames(state);
+    return {
+      year: year,
+      title: year === 2 ? 'A new year at the office' : 'The first year',
+      elapsed: stats.elapsed || 0,
+      lights: names,
+      lightCount: names.length
+    };
+  }
+  function recordSeason(state) {
+    if (!state) return;
+    if (!Array.isArray(state.ledger)) state.ledger = [];
+    var year = yearOf(state);
+    var i;
+    for (i = 0; i < state.ledger.length; i++) if (state.ledger[i] && state.ledger[i].year === year) return;
+    state.ledger.push(seasonRow(state));
+    var lit = lightsLit(state);
+    if (lit > (state.reputation || 0)) state.reputation = lit;
+  }
+  function ledgerView(state) {
+    var rows = state && Array.isArray(state.ledger) ? state.ledger : [];
+    var best = null;
+    rows.forEach(function (row) {
+      if (row && row.elapsed > 0 && (best == null || row.elapsed < best)) best = row.elapsed;
+    });
+    return { rows: rows, best: best, year: yearOf(state), reputation: (state && state.reputation) || 0, storm: yearOf(state) === 2 && !glassBurning(state) };
+  }
+  function beginYear(state, now) {
+    if (!state || !state.ended || yearOf(state) !== 1) return { ok: false, reason: 'closed' };
+    recordSeason(state);
+    var ledger = state.ledger.slice();
+    var reputation = state.reputation || 0;
+    var charts = state.charts || 0;
+    var when = finiteNum(now) ? now : Date.now();
+    copyOnto(state, fresh());
+    state.year = 2;
+    state.ledger = ledger;
+    state.reputation = reputation;
+    state.charts = charts;
+    state.born = when;
+    state.routes.frost = 0;
+    state.lights.glass = 0;
+    pushLog(state, 'A new year at the office. The harbour remembers this desk, and Frost Lane is on the chart.', when);
+    return { ok: true, reputation: reputation };
+  }
   function newHarbour(state, captainIndex, now) {
     var charts = chartCount(state && state.lifetime);
+    var ledger = state && Array.isArray(state.ledger) ? state.ledger.slice() : [];
+    var reputation = state && state.reputation || 0;
     var when = finiteNum(now) ? now : Date.now();
     copyOnto(state, fresh());
     state.charts = charts;
+    state.ledger = ledger;
+    state.reputation = reputation;
     state.born = when;
     if (captainIndex >= 0 && captainIndex < CAPTAINS.length) {
       state.captains[captainIndex].hired = true;
@@ -1804,6 +2000,14 @@
     if (o.routeGross != null && typeof o.routeGross !== 'object') return false;
     if (o.routeCut != null && typeof o.routeCut !== 'object') return false;
     if (o.routePaid != null && typeof o.routePaid !== 'object') return false;
+    if (o.year != null && o.year !== 1 && o.year !== 2) return false;
+    if (o.reputation != null && (!finiteNum(o.reputation) || o.reputation < 0)) return false;
+    if (o.ledger != null && !Array.isArray(o.ledger)) return false;
+    if (o.partner != null && o.partner !== 'ives' && o.partner !== 'closed') return false;
+    if (o.waited != null && typeof o.waited !== 'object') return false;
+    if (o.frost != null && (!finiteNum(o.frost) || o.frost < 0 || o.frost > 4)) return false;
+    if (o.glass != null && (!finiteNum(o.glass) || o.glass < 0 || o.glass > 2)) return false;
+    if (o.partnerQuote != null && (!finiteNum(o.partnerQuote) || o.partnerQuote < 0)) return false;
     return true;
   }
 
@@ -1845,6 +2049,14 @@
       played: state.played || 0,
       ended: !!state.ended,
       ending: state.ending || null,
+      year: state.year === 2 ? 2 : 1,
+      reputation: state.reputation > 0 ? state.reputation : 0,
+      ledger: Array.isArray(state.ledger) ? state.ledger : [],
+      partner: state.partner === 'ives' || state.partner === 'closed' ? state.partner : null,
+      partnerQuote: finiteNum(state.partnerQuote) ? state.partnerQuote : null,
+      waited: state.waited && typeof state.waited === 'object' ? state.waited : {},
+      frost: (state.routes && state.routes.frost) || 0,
+      glass: (state.lights && state.lights.glass) || 0,
       born: finiteNum(state.born) ? state.born : null,
       charts: state.charts || 0,
       keptCaptain: state.keptCaptain || null,
@@ -1917,6 +2129,17 @@
     state.played = finiteNum(o.played) ? o.played : 0;
     state.ended = !!o.ended;
     state.ending = o.ending || null;
+    state.year = o.year === 2 ? 2 : 1;
+    state.reputation = finiteNum(o.reputation) && o.reputation > 0 ? o.reputation : 0;
+    state.ledger = Array.isArray(o.ledger) ? o.ledger : [];
+    state.partner = o.partner === 'ives' || o.partner === 'closed' ? o.partner : null;
+    state.partnerQuote = finiteNum(o.partnerQuote) ? o.partnerQuote : null;
+    state.waited = {};
+    if (o.waited && typeof o.waited === 'object') {
+      EVENT_IDS.forEach(function (id) { if (o.waited[id]) state.waited[id] = true; });
+    }
+    if (finiteNum(o.frost) && o.frost > 0) state.routes.frost = Math.min(4, Math.floor(o.frost));
+    if (finiteNum(o.glass) && o.glass > 0) state.lights.glass = Math.min(2, Math.floor(o.glass));
     state.born = finiteNum(o.born) ? o.born : null;
     state.charts = finiteNum(o.charts) ? Math.floor(o.charts) : 0;
     state.keptCaptain = typeof o.keptCaptain === 'string' ? o.keptCaptain : null;
@@ -2174,6 +2397,12 @@
     wrenPerkLine: wrenPerkLine,
     bramblePerkLine: bramblePerkLine,
     newHarbour: newHarbour,
+    beginYear: beginYear,
+    ledgerView: ledgerView,
+    yearOf: yearOf,
+    shownRoutes: shownRoutes,
+    shownLights: shownLights,
+    glassBurning: glassBurning,
     statsOf: statsOf,
     chartCount: chartCount,
     lookLine: lookLine,
