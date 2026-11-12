@@ -256,14 +256,9 @@ html { scroll-padding-top: 6.5rem; }
 .rate {
   white-space: nowrap;
 }
-/* The season line lives in the sticky purse. Two lines are reserved so the
-   storm and the captain landing do not grow the bar or shove the shop. */
+/* The season line lives in the sticky purse and wraps instead of widening the page. */
 #purse .rate {
   white-space: normal;
-  min-height: 2.9em;
-  max-height: 2.9em;
-  overflow: hidden;
-  line-height: 1.35;
 }
 #away-rule {
   white-space: normal;

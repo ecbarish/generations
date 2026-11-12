@@ -681,7 +681,7 @@
     var next = price == null ? 'none' : coins(price);
     var sloop = state.forks && state.forks.sloop === 'fit' ? 'done' : 'open';
     var schooner = state.forks && state.forks.schooner === 'fit' ? 'done' : 'open';
-    return ' The lighter sloop hulls are ' + sloop + '. The deeper schooner holds are ' + schooner + '. The next shed is ' + next + ' coins. Taking the fitting forgoes the shed at that price.';
+    return ' The lighter sloop hulls are ' + sloop + '. The deeper schooner holds are ' + schooner + '. The list is 480, then 8.40K, then 125K. The next shed is ' + next + ' coins. Taking the fitting forgoes the shed at that price.';
   }
 
   function needMore(state, cost) {

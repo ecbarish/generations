@@ -1,3 +1,7 @@
+### 2026-11-12 17:10 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS merged the clean office
+
+#675 now contains #656 at 281a3a95, which contains #648 at 8cd110a7, by a merge commit. No rebase and no force-push. The floating cards and the sticky purse stay. The rate line sits inside that bar: captains, the largest landing, and "Storm until Glass burns." Buy, Raise, Light and Sign take the pointer at 1280, 390 and 320, and a second render moves them 0px. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 16:40 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before merging #656
 
 #656 is clean at 281a3a95 and includes #648 at 8cd110a7. This note is before that merge. The season, the choice balance, and the year-2 work stay. The floating cards and the sticky coin and rate bar stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.

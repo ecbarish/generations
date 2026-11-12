@@ -1114,13 +1114,13 @@
         var lump = M.haulCoins(cap, 1, 1);
         if (lump > biggest) biggest = lump;
       });
-      if (biggest > 0) haulLine = ' Landings run up to ' + money(biggest) + '.';
+      if (biggest > 0) haulLine = ' Landings to ' + money(biggest) + '.';
     }
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
     else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.' + haulLine);
     else showLine(rateLine, M.rateWords(totalRate));
     if (M.yearOf && M.yearOf(state) === 2 && M.glassBurning && !M.glassBurning(state) && !state.ended) {
-      rateLine.textContent = rateLine.textContent + ' A winter storm is on the water until the Glass Lighthouse is burning.';
+      rateLine.textContent = rateLine.textContent + ' Storm until Glass burns.';
     }
     var goalEl = $('#goal');
     var focusStep = P.bestStep ? P.bestStep(state) : null;
