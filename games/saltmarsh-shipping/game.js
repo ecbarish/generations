@@ -43,7 +43,13 @@
 
   function bootIdle(seen) {
     if (idle) idle.stop();
+    state._quiet = false;
     idle = M.createIdle(state, persist);
+    var rawStop = idle.stop;
+    idle.stop = function () {
+      state._quiet = true;
+      rawStop();
+    };
     return idle.start(seen);
   }
 
@@ -83,7 +89,7 @@
         var one = M.quote(state, i, 1);
         return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
       }
-      if (q.toGoal) return 'To the goal · ' + q.count + ' · ' + money(q.cost);
+      if (q.toGoal) return 'Buy ' + q.count + ' for the next step · ' + money(q.cost);
       return 'Buy up to ' + q.count + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
@@ -379,7 +385,34 @@
     /* A short phone keeps the sheet to the office cap, above the goal bar. */
     var narrowSheet = window.matchMedia('(max-width: 899px)').matches;
     var shortSheet = window.matchMedia('(max-height: 430px)').matches;
-    if (narrowSheet || shortSheet) {
+    if (view.choiceFor !== offer.id) {
+      view.choiceFor = offer.id;
+      view.choiceShut = true;
+    }
+    if (!narrowSheet) view.choiceShut = false;
+    var fold = $('#choice-fold');
+    var title = $('#choice-title');
+    if (title) title.textContent = offer.goal || 'A choice on the desk';
+    if (narrowSheet) {
+      if (!fold) {
+        fold = document.createElement('button');
+        fold.type = 'button';
+        fold.id = 'choice-fold';
+        fold.dataset.act = 'choice-fold';
+        var bar = box.querySelector('.choice-bar') || box;
+        bar.appendChild(fold);
+      }
+      fold.textContent = view.choiceShut ? 'Open the choice' : 'Hide the choice';
+    } else if (fold) {
+      fold.remove();
+    }
+    var shut = !!(narrowSheet && view.choiceShut);
+    box.classList.toggle('is-shut', shut);
+    if (shut) {
+      box.style.top = 'auto';
+      box.style.bottom = '4.6rem';
+      box.style.maxHeight = '';
+    } else if (narrowSheet || shortSheet) {
       var sheetCap = Math.floor(window.innerHeight * 0.46);
       var sheetNow = parseFloat(box.style.maxHeight);
       if (!sheetNow || sheetNow > sheetCap) box.style.maxHeight = Math.max(140, sheetCap) + 'px';
@@ -414,14 +447,14 @@
   }
 
   function settledSentence(row) {
-    if (row.id === 'sloop' && row.lockedName === 'Another shed') return 'Sloop hulls taken. Not built.';
-    if (row.id === 'sloop') return 'Shed taken. Hulls not built.';
-    if (row.id === 'schooner' && row.lockedName === 'Another shed') return 'Holds taken. Shed not built.';
-    if (row.id === 'schooner') return 'Shed taken. Holds not built.';
-    if (row.id === 'quay' && row.takenName === 'A lamp on the quay') return 'Quay lamp taken. Holds unbuilt.';
-    if (row.id === 'quay') return 'Holds taken. Quay lamp unbuilt.';
-    if (row.id === 'pilot' && row.takenName === 'A bell on the pier') return 'Pier bell taken. Coal unbuilt.';
-    return 'Coal taken. Pier bell unbuilt.';
+    if (row.id === 'sloop' && row.lockedName === 'Another shed') return 'You took the lighter sloop hulls. The extra shed was not built.';
+    if (row.id === 'sloop') return 'You built the shed. The lighter sloop hulls were not taken.';
+    if (row.id === 'schooner' && row.lockedName === 'Another shed') return 'You took the deeper schooner holds. The extra shed was not built.';
+    if (row.id === 'schooner') return 'You built the shed. The deeper schooner holds were not taken.';
+    if (row.id === 'quay' && row.takenName === 'A lamp on the quay') return 'You took the quay lamp. The deeper holds were not built.';
+    if (row.id === 'quay') return 'You took the deeper holds. The quay lamp was not built.';
+    if (row.id === 'pilot' && row.takenName === 'A bell on the pier') return 'You took the pier bell. The coal for the night runs was not taken.';
+    return 'You took the coal for the night runs. The pier bell was not taken.';
   }
 
   /* One visible line, the same height as the line left after the choice. */
@@ -929,18 +962,15 @@
     $('#ending-lead').textContent = yearLead + voyageHow;
     var list = $('#ending-stats');
     var watch = stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch';
-    var chartLine = stats.charts > 0
-      ? 'Charts for a new harbour: ' + stats.charts + '. Each chart shows a route before its season on the next harbour.'
-      : 'Charts for a new harbour: none yet. A long watch draws one, and it shows a route before its season.';
     var lines = [
       'Time at the office: ' + watch + '. This is the whole watch, across every visit, not only the page open now.',
       'Coins earned: ' + money(stats.lifetime),
       'Boats tied up: ' + stats.boats,
       'Routes signed: ' + stats.voyages,
       'Captain hauls: ' + (stats.hauls > 0 ? stats.hauls : 'none yet'),
-      'Lighthouses burning: ' + stats.lights + ' of four',
-      chartLine
+      'Lighthouses burning: ' + stats.lights + ' of four'
     ];
+    if (stats.charts > 0) lines.push('You carry ' + stats.charts + (stats.charts === 1 ? ' chart' : ' charts') + ' into the next year.');
     if (list.dataset.sig !== lines.join('|')) {
       list.dataset.sig = lines.join('|');
       list.replaceChildren();
@@ -967,22 +997,37 @@
       });
     }
     var again = $('#new-harbour');
-    var harbourSig = (state.year === 2 ? '2' : '1') + ':' + ((state.ledger && state.ledger.length) || 0);
+    var harbourSig = (state.year === 2 ? '2' : '1') + ':' + (view.yearCaptain || 0) + ':' + ((state.ledger && state.ledger.length) || 0);
     if (again.dataset.sig !== harbourSig) {
       again.dataset.sig = harbourSig;
       again.replaceChildren();
+      var picked = view.yearCaptain >= 0 && view.yearCaptain < M.CAPTAINS.length ? view.yearCaptain : 0;
       var lead = document.createElement('p');
       lead.textContent = state.year === 2
         ? 'This year is in the season ledger.'
-        : 'Begin a new year at the office, or open a new harbour. You may ask one captain to come across.';
+        : 'The next year keeps the harbour\'s regard. Choose who comes with you, then begin.';
       again.appendChild(lead);
       var actions = document.createElement('div');
-      actions.className = 'actions';
+      actions.className = 'actions year-actions';
       if (state.year !== 2) {
+        var names = document.createElement('div');
+        names.className = 'year-names';
+        M.CAPTAINS.forEach(function (cap, i) {
+          var name = document.createElement('button');
+          name.type = 'button';
+          name.dataset.act = 'year-cap';
+          name.dataset.captain = String(i);
+          name.setAttribute('aria-pressed', i === picked ? 'true' : 'false');
+          name.textContent = cap.name;
+          names.appendChild(name);
+        });
+        actions.appendChild(names);
         var yearBtn = document.createElement('button');
         yearBtn.type = 'button';
+        yearBtn.className = 'year-primary';
         yearBtn.dataset.act = 'year';
-        yearBtn.textContent = 'Begin a new year at the office';
+        yearBtn.dataset.captain = String(picked);
+        yearBtn.textContent = 'Begin year 2 with ' + M.CAPTAINS[picked].name;
         actions.appendChild(yearBtn);
       }
       var bookBtn = document.createElement('button');
@@ -990,22 +1035,6 @@
       bookBtn.dataset.act = 'ledger';
       bookBtn.textContent = 'Read the season ledger';
       actions.appendChild(bookBtn);
-      if (state.year !== 2) {
-        M.CAPTAINS.forEach(function (cap, i) {
-          var button = document.createElement('button');
-          button.type = 'button';
-          button.dataset.act = 'anew';
-          button.dataset.captain = String(i);
-          button.textContent = 'Ask ' + cap.name + ' to come. ' + (cap.harbour || cap.habit);
-          actions.appendChild(button);
-        });
-        var empty = document.createElement('button');
-        empty.type = 'button';
-        empty.dataset.act = 'anew';
-        empty.dataset.captain = '-1';
-        empty.textContent = 'Open it with an empty pier';
-        actions.appendChild(empty);
-      }
       again.appendChild(actions);
     }
   }
@@ -1070,6 +1099,9 @@
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
     else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
     else showLine(rateLine, M.rateWords(totalRate));
+    if (M.yearOf && M.yearOf(state) === 2 && M.glassBurning && !M.glassBurning(state) && !state.ended) {
+      rateLine.textContent = rateLine.textContent + ' A winter storm is on the water until the Glass Lighthouse is burning.';
+    }
     var goalEl = $('#goal');
     var focusStep = P.bestStep ? P.bestStep(state) : null;
     goalEl.textContent = P.goal(state);
@@ -1541,8 +1573,20 @@
       }
       return;
     }
+    if (b.dataset.act === 'year-cap') {
+      view.yearCaptain = +b.dataset.captain;
+      var harbour = $('#new-harbour');
+      if (harbour) harbour.dataset.sig = '';
+      render();
+      return;
+    }
+    if (b.dataset.act === 'choice-fold') {
+      view.choiceShut = !view.choiceShut;
+      render();
+      return;
+    }
     if (b.dataset.act === 'year') {
-      if (M.beginYear(state, Date.now()).ok) {
+      if (M.beginYear(state, Date.now(), +b.dataset.captain).ok) {
         view.choice = '';
         view.routes = false;
         view.endingOn = false;
@@ -1634,7 +1678,9 @@
   var cashBeforeAway = state.cash;
   var booksBeforeAway = M.captainBooks(state);
   var haulsBeforeAway = M.captainHauls(state);
-  var summary = bootIdle(typeof state.seen === 'number' ? state.seen : null);
+  var bootMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : 0;
+  var stamp = M.awayStamp ? M.awayStamp(state.seen, state.leftAt, bootMs, Date.now()) : state.seen;
+  var summary = bootIdle(typeof stamp === 'number' ? stamp : null);
   var cashAfterBoats = state.cash;
   if (summary) M.collectCaptains(state, Date.now(), M.OFFLINE_RATE);
   state.seen = Date.now();
@@ -1660,6 +1706,9 @@
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') {
       hiddenAt = Date.now();
+      state.leftAt = hiddenAt;
+      state.seen = hiddenAt;
+      if (!state._quiet) persist();
       cashAtHide = state.cash;
       booksAtHide = M.captainBooks(state);
       haulsAtHide = M.captainHauls(state);
@@ -1764,7 +1813,11 @@
     if (cheap && goal === cheap.sentence) {
       if (!cheap.affordable) return false;
       if (cheap.kind === 'choice') {
-        var whichBtn = cheap.which ? document.querySelector('#choice [data-which="' + cheap.which + '"]') : document.querySelector('#choice button');
+        if (view.choiceShut) {
+          view.choiceShut = false;
+          render();
+        }
+        var whichBtn = cheap.which ? document.querySelector('#choice [data-which="' + cheap.which + '"]') : document.querySelector('#choice-cards button');
         if (usableControl(whichBtn)) { press(whichBtn); return true; }
         return false;
       }
@@ -1806,7 +1859,7 @@
       return false;
     }
     if (/^Pick bell or coal/.test(goal)) {
-      var bellBtn = document.querySelector('#choice button');
+      var bellBtn = document.querySelector('#choice-cards button');
       if (usableControl(bellBtn)) { press(bellBtn); return true; }
       return false;
     }
@@ -1818,7 +1871,11 @@
       return false;
     }
     if (/^Choose /.test(goal)) {
-      var choice = document.querySelector('#choice button');
+      if (view.choiceShut) {
+        view.choiceShut = false;
+        render();
+      }
+      var choice = document.querySelector('#choice-cards button');
       if (usableControl(choice)) { press(choice); return true; }
       return false;
     }
@@ -1870,6 +1927,12 @@
       return false;
     }
     if (/^Buy |^Tie up /.test(goal)) {
+      if (state.year === 2) {
+        var namedTier = /rowboat/.test(goal) ? 0 : /sloop/.test(goal) ? 1 : /schooner/.test(goal) ? 2 : /bark/.test(goal) ? 3 : -1;
+        var namedBtn = namedTier < 0 ? null : document.querySelector('#boats [data-i="' + namedTier + '"] [data-act="buy"]');
+        if (namedBtn) namedBtn.dataset.count = '1';
+        if (usableControl(namedBtn)) { press(namedBtn); return true; }
+      }
       var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
       var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
       if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);

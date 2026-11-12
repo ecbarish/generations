@@ -10,7 +10,7 @@
     var M = window.Saltmarsh;
     var boats = state && state.boats;
     var owned = function (i) { return boats && boats[i] ? boats[i].owned : 0; };
-    var routesReady = owned(2) >= M.UNLOCK_AT;
+    var routesReady = owned(2) >= M.UNLOCK_AT || (state.year === 2 && state.trips >= M.HAND_TRIPS);
     var hauled = false;
     if (state && state.captains) {
       for (var i = 0; i < state.captains.length; i++) {
@@ -326,7 +326,12 @@
       return affordLights[0];
     }
     var anyPrep = pool.filter(function (step) { return step.kind === 'prep'; })[0];
-    if (anyPrep && M.allLightsLit(state)) return anyPrep;
+    if (anyPrep && M.allLightsLit(state)) {
+      if (anyPrep.affordable) return anyPrep;
+      var filling = pool.filter(function (step) { return step.kind === 'boat' && step.affordable; })[0];
+      if (filling) return filling;
+      return anyPrep;
+    }
     var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
     if (affordPrep) return affordPrep;
     var lampBark = pool.filter(function (step) { return step.id === 'bark'; })[0];
@@ -365,7 +370,8 @@
       if (left === 1) return 'Row one more cargo yourself. Then a second boat can tie up.';
       return 'Row ' + left + ' cargoes yourself. Then a second boat can tie up.';
     }
-    if (state.boats[0].owned < M.WREN_AT) {
+    if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'partner') return choiceGoal(state);
+    if (state.boats[0].owned < M.WREN_AT && !(state.captains[0] && state.captains[0].hired)) {
       left = M.WREN_AT - state.boats[0].owned;
       return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then Capt. Wren takes the pier.';
     }

@@ -469,7 +469,7 @@
       shed: {
         name: 'Another shed',
         cost: price,
-        line: (price == null ? 'The yard is full.' : coins(price) + ' coins. Another shed keeps two more hours while the game is closed.') + ' The fitting leaves this price.',
+        line: (price == null ? 'The yard is full.' : 'The shed costs ' + coins(price) + ' coins and keeps two more hours while the game is closed.') + ' The fitting leaves this price.',
         affordable: price != null && state.cash >= price
       }
     };
@@ -725,14 +725,17 @@
     var boatGain = typeof detail.boatGain === 'number' ? detail.boatGain : (summary.gained || 0);
     lines.push('The boats added ' + coins(boatGain) + ' coins.');
     var captains = detail.captains || [];
-    if (!captains.length) lines.push('No captain was at the pier.');
-    captains.forEach(function (row) { lines.push(row); });
+    captains.forEach(function (row) {
+      if (/No captain was at the pier/.test(row)) return;
+      lines.push(row);
+    });
     if (typeof detail.after === 'number') lines.push('You came back to ' + coins(detail.after) + ' coins.');
     var lit = lightsLit(state);
     if (lit === 1) lines.push('One lighthouse is burning.');
     else if (lit > 1) lines.push(lit + ' lighthouses are burning.');
     if (window.SaltmarshPhase && window.SaltmarshPhase.goal) lines.push('Next: ' + window.SaltmarshPhase.goal(state));
-    markWaited(state);
+    if ((summary.away || 0) >= 60) ensureReturn(state);
+    else markWaited(state);
     var waitedLine = waitedCopy(state);
     if (waitedLine) lines.push(waitedLine);
     var cameBack = false;
@@ -777,7 +780,6 @@
         lines.push(CAPTAINS[i].name + ': ' + hauls + ' ' + word + ', ' + coins(added) + ' coins.');
       } else lines.push(CAPTAINS[i].name + ' was out, and no haul landed in this stretch.');
     }
-    if (!any) lines.push('No captain was at the pier.');
     return lines;
   }
 
@@ -843,7 +845,9 @@
     return list;
   }
   function routesUnlocked(state) {
-    return !!(state && !state.ended && state.trips >= HAND_TRIPS && state.boats && state.boats[2] && state.boats[2].owned >= UNLOCK_AT);
+    if (!state || state.ended || state.trips < HAND_TRIPS) return false;
+    if (yearOf(state) === 2) return true;
+    return !!(state.boats && state.boats[2] && state.boats[2].owned >= UNLOCK_AT);
   }
   function routesSailing(state) {
     var n = 0;
@@ -1582,8 +1586,27 @@
   function eventDone(state, id) {
     return !!(state && state.events && state.events[id]);
   }
+  function ensureReturn(state) {
+    markWaited(state);
+    if (!state.waited || typeof state.waited !== 'object') state.waited = {};
+    var open = false;
+    EVENT_IDS.forEach(function (id) {
+      if (state.waited[id] && !eventDone(state, id)) open = true;
+    });
+    if (open) return;
+    var i;
+    for (i = 0; i < EVENT_IDS.length; i++) {
+      if (!eventDone(state, EVENT_IDS[i])) {
+        state.waited[EVENT_IDS[i]] = true;
+        return;
+      }
+    }
+    state.waited.home = true;
+  }
   function eventWindow(state, id) {
-    if (!state || state.ended || eventDone(state, id) || !routesUnlocked(state)) return false;
+    if (!state || state.ended || eventDone(state, id)) return false;
+    if (state.waited && state.waited[id]) return true;
+    if (!routesUnlocked(state)) return false;
     var sailing = routesSailing(state);
     var lit = lightsLit(state);
     if (id === 'squall') return sailing === 1 && lit === 0;
@@ -1623,7 +1646,8 @@
   var WAIT_LINES = {
     squall: 'A squall waited on the desk.',
     request: 'Capt. Wren\'s request waited for you.',
-    windfall: 'A crate waited on the quay.'
+    windfall: 'A crate waited on the quay.',
+    home: 'A letter from the harbour waited on the desk.'
   };
   function markWaited(state) {
     if (!state) return;
@@ -1638,6 +1662,7 @@
     EVENT_IDS.forEach(function (id) {
       if (state.waited[id] && !eventDone(state, id)) lines.push(WAIT_LINES[id]);
     });
+    if (state.waited.home) lines.push(WAIT_LINES.home);
     return lines.join(' ');
   }
   function eventOffer(state) {
@@ -1741,12 +1766,12 @@
   }
   function partnerOffer(state) {
     if (yearOf(state) !== 2 || state.partner || state.ended) return null;
-    if (routesSailing(state) < 1) return null;
+    if (state.trips < HAND_TRIPS) return null;
     if (!finiteNum(state.partnerQuote)) state.partnerQuote = Math.round(Math.max(1, officeRate(state)) * 8);
     var cost = state.partnerQuote;
     return {
       id: 'partner',
-      goal: 'Meet Ives of the Glass Wharf, or leave the chest closed.',
+      goal: 'Choose to meet Ives of the Glass Wharf, or leave the chest closed.',
       cards: [
         { which: 'meet', name: 'Meet Ives', cost: cost, line: 'Ives sends wool down Frost Lane. That run pays more.', affordable: state.cash >= cost },
         { which: 'later', name: 'Leave the chest closed', cost: cost, line: 'Ives stays at the Glass Wharf. Frost Lane still pays, without the wool.', affordable: state.cash >= cost }
@@ -1886,23 +1911,37 @@
     });
     return { rows: rows, best: best, year: yearOf(state), reputation: (state && state.reputation) || 0, storm: yearOf(state) === 2 && !glassBurning(state) };
   }
-  function beginYear(state, now) {
+  function awayStamp(seen, leftAt, bootMs, now) {
+    var stamp = typeof leftAt === 'number' && isFinite(leftAt) && leftAt > 0 ? leftAt : seen;
+    if (typeof stamp !== 'number' || !isFinite(stamp)) return null;
+    if (bootMs > 0 && bootMs < 15000) stamp += bootMs;
+    if (typeof now === 'number' && stamp > now) stamp = now;
+    return stamp;
+  }
+  function beginYear(state, now, captainIndex) {
     if (!state || !state.ended || yearOf(state) !== 1) return { ok: false, reason: 'closed' };
     recordSeason(state);
     var ledger = state.ledger.slice();
     var reputation = state.reputation || 0;
     var charts = state.charts || 0;
     var when = finiteNum(now) ? now : Date.now();
+    var invite = captainIndex >= 0 && captainIndex < CAPTAINS.length ? captainIndex : 0;
     copyOnto(state, fresh());
     state.year = 2;
     state.ledger = ledger;
     state.reputation = reputation;
     state.charts = charts;
     state.born = when;
+    state.trips = HAND_TRIPS;
+    state.boats[0].owned = 12;
+    state.cash = 240 + reputation * 50;
     state.routes.frost = 0;
     state.lights.glass = 0;
-    pushLog(state, 'A new year at the office. The harbour remembers this desk, and Frost Lane is on the chart.', when);
-    return { ok: true, reputation: reputation };
+    state.captains[invite].hired = true;
+    state.keptCaptain = CAPTAINS[invite].id;
+    state.jobs[CAPTAINS[invite].id] = { job: 'haul', since: when };
+    pushLog(state, 'A new year at the office. ' + CAPTAINS[invite].name + ' is already on the water, and Frost Lane is open. A winter storm sits on the coast until the Glass Lighthouse is burning.', when);
+    return { ok: true, reputation: reputation, captain: CAPTAINS[invite].id };
   }
   function newHarbour(state, captainIndex, now) {
     var charts = chartCount(state && state.lifetime);
@@ -2398,6 +2437,8 @@
     bramblePerkLine: bramblePerkLine,
     newHarbour: newHarbour,
     beginYear: beginYear,
+    awayStamp: awayStamp,
+    ensureReturn: ensureReturn,
     ledgerView: ledgerView,
     yearOf: yearOf,
     shownRoutes: shownRoutes,

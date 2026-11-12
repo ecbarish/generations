@@ -402,6 +402,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #finale { order: 9; }
   #ledger { order: 10; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
+  #route-cards, #light-cards, #boats {
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 0.2rem;
+  }
   #route-cards, #light-cards {
     display: flex;
     flex-direction: row;
@@ -412,11 +417,14 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
     height: auto;
   }
   #route-cards .route-card, #light-cards .light-card {
-    flex: 0 0 88%;
+    flex: 0 0 calc(100% - 1.6rem);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     height: auto;
     min-height: 0;
     overflow: visible;
   }
+  #boats > li { scroll-snap-align: start; scroll-snap-stop: always; }
   #sheds { order: 20; }
   #settled { order: 21; }
   #fleet { order: 22; }
@@ -474,7 +482,20 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 /* Later than the base rule, so a phone actually keeps this cap. */
 @media (max-width: 899px) {
   #choice.choice { max-height: 46vh; }
+  #choice.choice.is-shut {
+    max-height: 4.6rem;
+    overflow: hidden;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+  #choice.choice.is-shut #choice-cards { display: none; }
+  #choice .choice-bar { display: flex; align-items: center; gap: 0.45rem; }
+  #choice .choice-bar h2 { flex: 1 1 auto; margin: 0; font-size: 1rem; }
+  #choice-fold { flex: 0 0 auto; min-height: 44px; }
 }
+.year-primary { min-height: 52px; font-weight: 600; width: 100%; }
+.year-names { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.45rem; }
+.year-names button[aria-pressed="true"] { background: var(--sand); }
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
 body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
 #choice-cards { display: flex; gap: 0.45rem; align-items: stretch; }

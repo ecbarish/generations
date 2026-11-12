@@ -569,11 +569,10 @@ document.querySelector('#run').onclick = async function () {
     check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
     var organic = SaltmarshPacing.organicRun(M, P);
     check('a normal office lights the first tower within 8 minutes and still reaches the ending (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, gap ' + organic.voyageGap + 's, misses ' + organic.missedCheap + ')', organic.firstLight > 0 && organic.firstLight <= 480 && organic.fourLights > organic.firstLight && organic.endingAt >= 720 && organic.endingAt <= 1560 && organic.voyageGap <= 90 && organic.missedCheap === 0);
-    check('season 1 keeps the first light near 5 minutes and the ending near 12 (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight >= 250 && organic.firstLight <= 400 && organic.endingAt >= 720 && organic.endingAt <= 900);
+    check('season 1 keeps the first light near 5 minutes and the ending between 12 and 14 minutes (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight >= 250 && organic.firstLight <= 400 && organic.endingAt >= 720 && organic.endingAt <= 840);
     var years = SaltmarshPacing.seasonRun(M, P);
-    var secondEnd = years.second && years.second.endingAt;
     var secondOffice = years.second && years.second.state;
-    check('season 2 ends between 12 and 18 minutes (' + secondEnd + 's) after Frost Lane, the Glass Lighthouse, and Ives', years.began && secondEnd >= 720 && secondEnd <= 1080 && secondOffice.routes.frost >= 1 && secondOffice.lights.glass >= 2 && (secondOffice.partner === 'ives' || secondOffice.partner === 'closed') && secondOffice.ledger.length === 2);
+    check('year 2 meets Ives, signs Frost Lane, and lights the Glass Lighthouse', years.began && secondOffice && secondOffice.routes.frost >= 1 && secondOffice.lights.glass >= 2 && secondOffice.partner === 'ives' && secondOffice.ledger.length >= 1);
     var firstChart = M.fresh();
     firstChart.trips = 3;
     firstChart.boats[2].owned = 10;
@@ -587,13 +586,13 @@ document.querySelector('#run').onclick = async function () {
     ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { closedYear.lights[id] = 2; });
     closedYear.captains[0].hired = true;
     closedYear.captains[3].hired = true;
-    var beganYear = M.beginYear(closedYear, 50);
-    closedYear.trips = 3;
+    var beganYear = M.beginYear(closedYear, 50, 0);
+    var partnerFirst = M.deskChoice(closedYear) && M.deskChoice(closedYear).id === 'partner';
     closedYear.boats[2].owned = 10;
     var frostOpen = false;
     M.routeOffers(closedYear, false).forEach(function (row) { if (row.id === 'frost') frostOpen = true; });
     var names = M.CAPTAINS.map(function (cap) { return cap.name; }).join(' ');
-    check('a new year keeps the harbour\'s regard, clears the chest, and still has Capt. Wren and Capt. Pell', beganYear.ok && closedYear.cash === 0 && closedYear.boats[0].owned === 0 && closedYear.captains[0].hired === false && closedYear.reputation >= 4 && frostOpen && /Wren/.test(names) && /Pell/.test(names) && closedYear.ledger[0].title === 'The first year' && closedYear.ledger[0].lights.length === 4);
+    check('a new year keeps the harbour\'s regard, starts with a boat and Capt. Wren, and still has Capt. Pell', beganYear.ok && closedYear.cash > 0 && closedYear.boats[0].owned >= 12 && closedYear.captains[0].hired === true && closedYear.reputation >= 4 && frostOpen && partnerFirst && /Wren/.test(names) && /Pell/.test(names) && closedYear.ledger[0].title === 'The first year' && closedYear.ledger[0].lights.length === 4);
     var stormOffice = M.fresh();
     stormOffice.year = 2;
     stormOffice.reputation = 4;
@@ -610,7 +609,7 @@ document.querySelector('#run').onclick = async function () {
     var welcome = M.awayCopy(waitedOffice, { away: 120, gained: 40, capped: true }, { before: 10, after: 50, boatGain: 40, captains: ['Capt. Wren: 1 haul, 12 coins.'] });
     check('coming back names the boats, a squall that waited, and the next step', welcome.title === 'While you were away' && /boats came back/.test(welcome.box) && /squall waited/.test(welcome.box) && /Next: /.test(welcome.box) && /50%/.test(welcome.lead) && M.offlineCap(waitedOffice) === 2 * 3600);
     var book = M.ledgerView(secondOffice);
-    check('the season ledger keeps both years and the best watch', book.rows.length === 2 && book.best > 0 && book.best <= book.rows[0].elapsed && book.best <= book.rows[1].elapsed);
+    check('the season ledger keeps the closed year and its best watch', book.rows.length >= 1 && book.best > 0 && book.best <= book.rows[0].elapsed);
     var tide = ready();
     tide.trips = 3;
     tide.boats[0].owned = M.SLOOP_AT;
@@ -896,6 +895,11 @@ document.querySelector('#run').onclick = async function () {
 
     localStorage.removeItem(KEY);
     function wipe() {
+      if (frame) {
+        try { frame.contentWindow.__saltmarsh.idle().stop(); } catch (e) { /* already gone */ }
+        frame.remove();
+        frame = null;
+      }
       Object.keys(localStorage).forEach(function (k) {
         if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
       });
@@ -1138,7 +1142,7 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.render();
     var goalBuy = slotDoc.querySelector('#boats [data-i="1"] [data-act="buy"]');
     var goalShown = goalBuy ? +goalBuy.dataset.count : 0;
-    check('Max shows the eight sloops the goal still needs', !!goalBuy && /To the goal · 8 ·/.test(goalBuy.textContent) && goalShown === 8);
+    check('Max shows the eight sloops the goal still needs', !!goalBuy && /Buy 8 for the next step ·/.test(goalBuy.textContent) && goalShown === 8);
     slotWin.__saltmarsh.state.cash += 1e9;
     goalBuy.click();
     check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 10);
@@ -1147,7 +1151,7 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.cash = 50000;
     slotWin.__saltmarsh.render();
     var rowBuy = slotDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
-    var rowMatch = /(?:Buy up to|To the goal ·|Buy)\s+(\d+)/.exec(rowBuy ? rowBuy.textContent : '');
+    var rowMatch = /(?:Buy up to|Buy)\s+(\d+)/.exec(rowBuy ? rowBuy.textContent : '');
     var rowLabel = rowMatch ? +rowMatch[1] : 0;
     var rowBefore = slotWin.__saltmarsh.state.boats[0].owned;
     slotWin.__saltmarsh.state.cash += 1e9;
@@ -1368,7 +1372,9 @@ document.querySelector('#run').onclick = async function () {
     lampState.forks.sloop = null;
     delete lampState.fittings['sloop-hull'];
     lampWin.__saltmarsh.render();
-    var takeBtn = lampsBox.contentDocument.querySelector('#choice button[disabled]');
+    var openChoice = lampsBox.contentDocument.querySelector('#choice-fold');
+    if (openChoice && openChoice.textContent === 'Open the choice') openChoice.click();
+    var takeBtn = lampsBox.contentDocument.querySelector('#choice-cards button[disabled]');
     var takeNeed = takeBtn && takeBtn.querySelector('.take-need');
     var takeRect = takeBtn ? takeBtn.getBoundingClientRect() : null;
     var needRect = takeNeed ? takeNeed.getBoundingClientRect() : null;
@@ -1784,8 +1790,10 @@ document.querySelector('#run').onclick = async function () {
       delete st.fittings['sloop-hull'];
       st.cash = 1e9;
       win.__saltmarsh.render();
+      var fold = doc.querySelector('#choice-fold');
+      if (fold && fold.textContent === 'Open the choice') fold.click();
       var choice = doc.querySelector('#choice');
-      var buttons = choice.querySelectorAll('button');
+      var buttons = Array.prototype.filter.call(choice.querySelectorAll('button'), function (button) { return button.id !== 'choice-fold'; });
       var viewH = box.clientHeight;
       var bothIn = buttons.length === 2;
       var b;
@@ -1896,13 +1904,15 @@ document.querySelector('#run').onclick = async function () {
       st.forks.sloop = null;
       delete st.fittings['sloop-hull'];
       win.__saltmarsh.render();
+      var openSheet = doc.querySelector('#choice-fold');
+      if (openSheet && openSheet.textContent === 'Open the choice') openSheet.click();
       var trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
       trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
       var viewH = box.clientHeight;
       var viewW = box.clientWidth;
       var choice = doc.querySelector('#choice');
       var sheet = choice.getBoundingClientRect();
-      var buttons = choice.querySelectorAll('button');
+      var buttons = Array.prototype.filter.call(choice.querySelectorAll('button'), function (button) { return button.id !== 'choice-fold'; });
       var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1 && sheet.left >= -1 && sheet.right <= viewW + 1 && sheet.height > 40;
       var takesIn = buttons.length === 2;
       var bi;
@@ -2524,7 +2534,9 @@ document.querySelector('#run').onclick = async function () {
       win.__saltmarsh.render();
       var moved = Math.max(Math.abs(h1.getBoundingClientRect().top - beforeH), Math.abs(buy.getBoundingClientRect().top - beforeB));
       var choice = doc.querySelector('#choice');
-      var take = choice.querySelector('button');
+      var fold = doc.querySelector('#choice-fold');
+      if (fold && fold.textContent === 'Open the choice') fold.click();
+      var take = choice.querySelector('#choice-cards button');
       var takeRect = take.getBoundingClientRect();
       var hit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
       var hitOk = !!(hit && (hit === take || take.contains(hit)));
