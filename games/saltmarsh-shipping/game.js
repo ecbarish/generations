@@ -375,7 +375,15 @@
     placeChoice(box, offer);
     box.hidden = false;
     if (back) back.hidden = false;
-    if (placeChoice) placeChoice(box, offer);
+    placeChoice(box, offer);
+    /* A short phone keeps the sheet to the office cap, above the goal bar. */
+    var narrowSheet = window.matchMedia('(max-width: 899px)').matches;
+    var shortSheet = window.matchMedia('(max-height: 430px)').matches;
+    if (narrowSheet || shortSheet) {
+      var sheetCap = Math.floor(window.innerHeight * 0.46);
+      var sheetNow = parseFloat(box.style.maxHeight);
+      if (!sheetNow || sheetNow > sheetCap) box.style.maxHeight = Math.max(140, sheetCap) + 'px';
+    }
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -505,7 +513,8 @@
         rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
       }
     });
-    if (waitingLine.length) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
+    /* On a phone the same price is already on the card, so the note stays one sentence. */
+    if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
       return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
@@ -707,6 +716,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
         wrap.dataset.light = spec.id;
+        wrap.dataset.stage = String(stage);
         var h = document.createElement('h3');
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');

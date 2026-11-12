@@ -392,11 +392,29 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #ask, #crew { order: 2; }
   #away { order: 3; }
   #bulk { order: 4; }
+  #routes, #lights, #provision { padding: 0.3rem 0.65rem 0.15rem; margin: 0.2rem 0; }
+  #routes h2, #lights h2, #provision h2 { margin: 0.1rem 0 0.2rem; }
   #boats { order: 5; }
   #routes { order: 6; }
   #lights { order: 7; }
   #provision { order: 8; }
   #finale { order: 9; }
+  /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
+  #route-cards, #light-cards {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.65rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    height: auto;
+  }
+  #route-cards .route-card, #light-cards .light-card {
+    flex: 0 0 88%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
   #sheds { order: 20; }
   #settled { order: 21; }
   #fleet { order: 22; }
@@ -406,11 +424,19 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .boat .habit,
   .boat .facts,
   .boat .wait { display: none; }
+  #boats {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.55rem;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  #boats > li { flex: 0 0 78%; min-width: 0; }
+  .light-card[data-stage="2"] .habit { display: none; }
   #fleet, #sheds, #settled { display: none; }
-  #route-cards { display: block; height: auto; min-height: 0; overflow: visible; }
   .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
   #route-gear { height: auto; min-height: 12rem; overflow: visible; }
-  #choice.choice { max-height: 46vh; }
 }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }
@@ -443,6 +469,10 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   overflow: auto;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
+/* Later than the base rule, so a phone actually keeps this cap. */
+@media (max-width: 899px) {
+  #choice.choice { max-height: 46vh; }
+}
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
 body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
 #choice-cards { display: flex; gap: 0.45rem; align-items: stretch; }
@@ -455,7 +485,13 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   flex-direction: column;
 }
 #choice .choice-card .habit { white-space: normal; line-height: 1.25; margin: 0.1rem 0; }
-#choice .choice-card .actions { margin-top: auto; }
+#choice .choice-card .actions {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  background: var(--panel);
+  z-index: 1;
+}
 .goalbar .aim {
   margin: 0;
   padding: 0.55rem 1rem 0;
@@ -505,7 +541,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
-  #choice.choice { max-height: calc(100vh - 5rem); bottom: 3.4rem; }
+  #choice.choice { max-height: 46vh; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }
