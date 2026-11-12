@@ -139,11 +139,18 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   overflow: auto;
 }
 #ask.ask:not([hidden]) {
-  position: sticky;
-  top: 0.4rem;
-  z-index: 4;
-  box-shadow: 0 0 0 3px var(--ink);
+  position: static;
+  z-index: auto;
+  box-shadow: none;
 }
+.purse {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+  padding-bottom: 0.2rem;
+}
+html { scroll-padding-top: 6.5rem; }
 .crew {
   display: flex;
   align-items: center;
@@ -289,7 +296,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   visibility: hidden;
 }
 #sheds .shed-hold { margin: 0.15rem 0 0; }
-.shed-price { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; }
+.shed-price { display: inline; font-variant-numeric: tabular-nums; }
 #route-gear { min-height: 12rem; }
 .route-card,
 .route-card.is-wait,
@@ -400,20 +407,38 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #provision { order: 8; }
   #finale { order: 9; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
-  #route-cards, #light-cards {
+  #route-cards, #light-cards, #boats {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: 0.65rem;
+    gap: 0;
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
     height: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0;
   }
-  #route-cards .route-card, #light-cards .light-card {
-    flex: 0 0 88%;
+  #route-cards .route-card, #light-cards .light-card, #boats > li {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     height: auto;
     min-height: 0;
     overflow: visible;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .route-card .actions button,
+  .light-card .actions button,
+  .boat .actions button {
+    white-space: normal;
+    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    scroll-margin-top: 5rem;
+    scroll-margin-bottom: 6rem;
   }
   #sheds { order: 20; }
   #settled { order: 21; }
@@ -424,15 +449,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .boat .habit,
   .boat .facts,
   .boat .wait { display: none; }
-  #boats {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0.55rem;
-    overflow-x: auto;
-    overflow-y: visible;
+  #choice.choice {
+    max-height: 11rem;
+    overflow: hidden;
   }
-  #boats > li { flex: 0 0 78%; min-width: 0; }
+  #choice .choice-card .habit { display: none; }
+  #choice h2 { font-size: 1rem; margin: 0 0 0.25rem; }
   .light-card[data-stage="2"] .habit { display: none; }
   #fleet, #sheds, #settled { display: none; }
   .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
@@ -462,11 +484,23 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   left: 50%;
   bottom: 4.6rem;
   transform: translateX(-50%);
-  width: min(40rem, 100%);
+  width: min(40rem, calc(100% - 1rem));
   max-height: calc(100vh - 7.2rem);
   margin: 0;
   padding: 0.45rem 0.7rem 0.4rem;
   overflow: auto;
+  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+}
+#away.away:not([hidden]) {
+  position: fixed;
+  z-index: 8;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 1rem));
+  margin: 0;
+  max-height: 34vh;
+  overflow: auto;
+  bottom: 12rem;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 /* Later than the base rule, so a phone actually keeps this cap. */
@@ -523,6 +557,12 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
+  #row.row {
+    position: sticky;
+    top: 6.6rem;
+    z-index: 4;
+    background: var(--sand);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .float, #cheer, .fleet.reveal { animation: none; }
@@ -541,6 +581,8 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
+  #row.row { margin-top: 0; }
+  .purse { padding-bottom: 0; }
   #choice.choice { max-height: 46vh; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
