@@ -98,7 +98,8 @@
       return 'Buy ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
-    var label = hullTitle(i, n) + ' · ' + money(q.cost);
+    var bought = q.count > 0 ? q.count : n;
+    var label = 'Buy ' + bought + ' · ' + hullTitle(i, bought) + ' · ' + money(q.cost);
     if (!(q.count > 0)) label += ' · ' + M.needMore(state, q.cost);
     return label;
   }
@@ -146,10 +147,11 @@
     buy.hidden = false;
     var priced = boatQuote(i);
     var boatGoal = P.nextAct(state);
-    if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
+    if (state.bulk === 'max' || !(boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i)) buy.textContent = buyLabel(i);
+    else {
       priced = { count: boatGoal.count, cost: boatGoal.cost };
-      buy.textContent = hullTitle(i, boatGoal.count) + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
-    } else buy.textContent = buyLabel(i);
+      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + hullTitle(i, boatGoal.count) + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
+    }
     buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
     buy.dataset.count = String(priced.count || 0);
     buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
@@ -350,44 +352,24 @@
       box.style.maxHeight = '';
       return;
     }
+    box.style.top = '';
+    box.style.bottom = '';
+    box.style.maxHeight = '';
+    box.style.left = '';
+    box.style.right = '';
+    if (box.parentElement !== document.body) document.body.appendChild(box);
+    box.style.transform = '';
+    box.style.width = '';
+    box.style.position = '';
+    if (back) back.hidden = true;
+    var title = $('#choice-title');
+    if (title) title.textContent = offer.goal || 'A choice on the desk';
     if (view.choiceShut) {
       box.hidden = true;
       box.classList.remove('is-shut');
-      if (back) back.hidden = true;
       return;
     }
-    /* The sheet floats above the goal bar. placeStack moves it if it would cover a buy. */
-    var title = $('#choice-title');
-    if (title) title.textContent = offer.goal || 'A choice on the desk';
-    var bar = document.querySelector('#goalbar');
-    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
-    var gap = 8;
-    var narrow = window.matchMedia('(max-width: 899px)').matches;
-    var short = window.matchMedia('(max-height: 430px)').matches;
-    var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
-    var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
-    if (narrow) {
-      box.style.top = 'auto';
-      box.style.bottom = (barH + gap) + 'px';
-      box.style.maxHeight = '';
-      box.style.left = '0';
-      box.style.transform = 'none';
-      box.style.width = '100%';
-    } else if (fingerLow) {
-      box.style.top = topPx + 'px';
-      box.style.bottom = 'auto';
-      var room = window.innerHeight - barH - gap - topPx;
-      var cap = short ? Math.min(room, window.innerHeight * 0.46) : room;
-      box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
-    } else {
-      box.style.top = 'auto';
-      box.style.bottom = (barH + gap) + 'px';
-      var roomBottom = window.innerHeight - barH - gap;
-      var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
-      box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
-    }
     box.hidden = false;
-    if (back) back.hidden = false;
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -408,12 +390,10 @@
       main.className = 'take-main';
       main.textContent = card.gain > 0 && !(card.cost > 0) ? 'Gain · ' + money(card.gain) : 'Pay · ' + money(card.cost);
       button.appendChild(main);
-      if (!card.affordable && card.cost > 0) {
-        var sub = document.createElement('span');
-        sub.className = 'take-need';
-        sub.textContent = M.needMore(state, card.cost);
-        button.appendChild(sub);
-      }
+      var sub = document.createElement('span');
+      sub.className = 'take-need';
+      sub.textContent = !card.affordable && card.cost > 0 ? M.needMore(state, card.cost) : '';
+      button.appendChild(sub);
     });
   }
 
@@ -575,7 +555,9 @@
           : offer.name + ' · contract ' + contractNow.next + ' of ' + contractNow.depths;
       }
       button.disabled = !offer.affordable;
-      var label = 'Sign · ' + money(offer.cost);
+      var signedNow = (state.routes && state.routes[id]) || 0;
+      var rest = offer.depths - signedNow;
+      var label = (signedNow >= 2 && rest > 1 ? ('Sign the last ' + rest + ' · ') : 'Sign · ') + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
     });
     Array.prototype.forEach.call(host.querySelectorAll('button[disabled][data-route]'), function (button) {
@@ -766,13 +748,22 @@
         var habit = button.closest('.light-card') && button.closest('.light-card').querySelector('.habit');
         var needs = M.lightClosed(state, spec);
         var story = spec.lines[(state.lights.quay || 0)] || spec.lines[0];
-        if (habit) habit.textContent = needs && needs !== 'Not yet' && needs !== 'Burning' ? needs : story;
+        var haveBarks = (state.boats[3] && state.boats[3].owned) || 0;
+        var lampLine = 'The house lamp is ' + M.BARK_LAMP + ' barks. You have ' + haveBarks + '.';
+        if (habit) habit.textContent = lampLine + ' ' + (needs && needs !== 'Not yet' && needs !== 'Burning' ? needs : story);
       }
       if (!offer || offer.blocked) {
         button.disabled = true;
-        var closed = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
-        var stop = closed.indexOf('. ');
-        button.textContent = stop > 0 ? closed.slice(0, stop + 1) : closed;
+        if (spec && spec.id === 'quay' && offer && offer.blocked) {
+          button.textContent = 'Choose the quay lamp on the desk.';
+        } else if (offer && offer.cost > 0) {
+          var heldVerb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
+          button.textContent = heldVerb + ' · ' + money(offer.cost);
+        } else {
+          var closed = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
+          var stop = closed.indexOf('. ');
+          button.textContent = stop > 0 ? closed.slice(0, stop + 1) : closed;
+        }
         return;
       }
       button.dataset.act = 'light';
@@ -781,7 +772,10 @@
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
     });
-    Array.prototype.forEach.call(host.querySelectorAll('.light-card'), holdCard);
+    Array.prototype.forEach.call(host.querySelectorAll('.light-card'), function (card) {
+      card.style.minHeight = '';
+      card.dataset.holdH = '';
+    });
   }
 
   function fillWork() {
@@ -1103,63 +1097,57 @@
   }
   /* Choice and the welcome-back card float, so opening one does not move a button.
      They stack above the goal, and move under the purse if that stack would cover a buy. */
-  function placeStack() {
-    var choice = $('#choice');
+  function deskWaiting() {
+    var n = 0;
+    if (M.deskChoice(state)) n += 1;
     var away = $('#away');
+    if (away && away.hidden === false && away.childElementCount > 0) n += 1;
+    var pell = $('#pell-banner');
+    if (pell && pell.hidden === false) n += 1;
+    return n;
+  }
+
+  function syncDesk() {
+    var pill = $('#desk-pill');
+    var waiting = deskWaiting();
+    var shut = !!view.choiceShut && waiting > 0;
+    if (pill) {
+      pill.hidden = !shut;
+      pill.textContent = waiting + (waiting === 1 ? ' choice waiting · open' : ' choices waiting · open');
+    }
+    var desk = $('#desk');
+    if (desk) desk.classList.toggle('is-shut', shut);
+  }
+
+  function placeStack() {
     var goal = $('#goalbar');
     var purse = $('#purse');
     var goalH = goal ? Math.ceil(goal.getBoundingClientRect().height) : 64;
     var gap = 8;
     var narrow = window.matchMedia('(max-width: 899px)').matches;
-    var choiceOpen = choice && !choice.hidden;
-    var awayOpen = away && !away.hidden;
     var purseH = purse ? Math.ceil(purse.getBoundingClientRect().height) : 0;
     var back = $('#away-back');
-    if (choiceOpen) {
-      choice.style.position = '';
-      choice.style.top = 'auto';
-      choice.style.bottom = (goalH + gap) + 'px';
-      choice.style.maxHeight = awayOpen ? '4.4rem' : (narrow ? '11rem' : '');
-      choice.style.zIndex = '7';
-      if (narrow) {
-        choice.style.left = '0';
-        choice.style.right = '0';
-        choice.style.transform = 'none';
-        choice.style.width = '100%';
-      }
-      if (goal) {
-        var goalRect = goal.getBoundingClientRect();
-        var choiceRect = choice.getBoundingClientRect();
-        if (choiceRect.height > 4 && choiceRect.bottom > goalRect.top - 4) {
-          choice.style.maxHeight = Math.max(72, Math.floor(goalRect.top - 8 - choiceRect.top)) + 'px';
-        }
-      }
-    }
-    if (awayOpen) {
-      if (back) back.hidden = false;
-      var choiceTop = choiceOpen ? choice.getBoundingClientRect().top : (window.innerHeight - goalH);
-      away.style.top = (purseH + 8) + 'px';
-      away.style.bottom = Math.max(goalH + gap, window.innerHeight - choiceTop + gap) + 'px';
-      away.style.left = '0';
-      away.style.right = '0';
-      away.style.transform = 'none';
-      away.style.width = '100%';
-      away.style.maxHeight = 'none';
-      away.style.zIndex = '9';
-    } else if (back) back.hidden = true;
-    var pell = $('#pell-banner');
-    if (pell && !pell.hidden) pell.style.zIndex = '1';
+    if (back) back.hidden = true;
+    var choiceBack = $('#choice-back');
+    if (choiceBack) choiceBack.hidden = true;
     var ending = $('#ending');
     if (ending && !ending.hidden) ending.style.paddingTop = '1rem';
     var office = $('#office');
     var pad = purseH + 10;
     if (window.innerHeight < 450) pad = Math.min(pad, 70);
     if (office && purseH) office.style.paddingTop = pad + 'px';
-    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
-    if (office && narrow) office.style.paddingBottom = (goalH + gap + choiceH + 12) + 'px';
+    if (!view.goalPad || goalH > view.goalPad) view.goalPad = goalH;
+    var goalPad = Math.max(goalH, view.goalPad || goalH);
+    if (office && narrow) office.style.paddingBottom = (goalPad + gap + 12) + 'px';
+    var choice = $('#choice');
+    var awayCard = $('#away');
+    if (choice && awayCard && awayCard.hidden === false && choice.hidden === false) {
+      var awayBottom = awayCard.getBoundingClientRect().bottom;
+      choice.style.setProperty('top', Math.max(awayBottom + 8, 144) + 'px', 'important');
+    } else if (choice) choice.style.removeProperty('top');
     document.documentElement.style.scrollPaddingTop = (purseH + 12) + 'px';
-    var dock = goalH + gap + choiceH;
-    document.documentElement.style.scrollPaddingBottom = (dock + 12) + 'px';
+    document.documentElement.style.scrollPaddingBottom = (goalPad + gap + 12) + 'px';
+    syncDesk();
   }
 
   function render(fromClock) {
@@ -1213,17 +1201,12 @@
       state.partner || '',
       state.prepDone ? Object.keys(state.prepDone).sort().join(',') : ''
     ].join('|');
-    if (view.hintWorld !== hintWorld) {
-      view.hintLock = null;
-      view.hintWorld = hintWorld;
-    }
-    state._hintLock = view.hintLock;
-    var sentence = P.goal(state);
-    var focusStep = P.bestStep ? P.bestStep(state) : null;
-    if (!view.hintLock && focusStep && sentence === focusStep.sentence && focusStep.kind !== 'boat' && focusStep.kind !== 'row') {
-      view.hintLock = { kind: focusStep.kind, id: focusStep.id || '', tier: focusStep.tier == null ? '' : focusStep.tier };
-    }
+    view.hintLock = null;
+    view.hintWorld = hintWorld;
     state._hintLock = null;
+    var block = P.nextBlockingGoal ? P.nextBlockingGoal(state) : null;
+    var sentence = block ? block.sentence : P.goal(state);
+    var focusStep = block && block.kind && block.sentence === sentence ? block : null;
     goalEl.textContent = sentence;
     if (focusStep && goalEl.textContent === focusStep.sentence) {
       goalEl.dataset.step = focusStep.kind + ':' + (focusStep.id || '');
@@ -1242,7 +1225,7 @@
     var scene = document.querySelector('.scene');
     if (scene) {
       if (state.ended) scene.textContent = 'Night on the Saltmarsh coast. The lighthouses are burning.';
-      else if (state.trips < M.HAND_TRIPS) scene.textContent = 'Row this cargo. Three trips, and a second boat can tie up.';
+      else if (state.trips < M.HAND_TRIPS) scene.textContent = 'Three trips on the water, then a second boat.';
       else scene.textContent = 'The Saltmarsh coast, from the office window.';
     }
     var rowing = view.rowing > 0 && performance.now() - view.rowing < 650;
@@ -1636,6 +1619,13 @@
       render();
       return;
     }
+    if (b.id === 'desk-pill') {
+      view.choiceShut = false;
+      render();
+      var openBtn = document.querySelector('#choice-cards button');
+      if (openBtn && openBtn.focus) openBtn.focus({ preventScroll: true });
+      return;
+    }
     if (b.id === 'choice-fold') {
       view.choiceShut = true;
       var sheet = $('#choice');
@@ -1661,6 +1651,13 @@
       var offer = M.deskChoice(state);
       var trigger = choiceTrigger(offer);
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
+        if (b.closest('#away')) {
+          Array.prototype.forEach.call(b.parentNode.querySelectorAll('button'), function (other) {
+            if (other === b || other.dataset.act === 'away') return;
+            other.disabled = true;
+            other.textContent = 'Not taken.';
+          });
+        }
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
         armGuard(e, b);
@@ -1687,6 +1684,13 @@
       return;
     }
     if (b.dataset.act === 'route') {
+      var routeSpec = null;
+      (M.ROUTES || []).forEach(function (row) { if (row.id === b.dataset.route) routeSpec = row; });
+      if (routeSpec && routeSpec.risk >= 0.3 && b.dataset.sure !== '1') {
+        b.dataset.sure = '1';
+        b.textContent = 'Confirm ' + routeSpec.name + '. About ' + Math.round(routeSpec.risk * 100) + '% of the cargo can be lost.';
+        return;
+      }
       if (M.signRoute(state, b.dataset.route).ok) {
         cheer(b, 'Signed');
         if (state.sound) audio.sfx('coin');
@@ -1805,7 +1809,9 @@
     if (!li || b.dataset.act !== 'buy') return;
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
-    var shown = +b.getAttribute('data-count');
+    var labelled = /^Buy\s+(\d+)\b/.exec(b.textContent || '');
+    var shown = remembered(b) ? +b.getAttribute('data-count') : (labelled ? +labelled[1] : +b.getAttribute('data-count'));
+    if (!remembered(b) && labelled) b.dataset.count = String(shown);
     if (!(shown > 0)) return;
     var result = M.buy(state, i, shown);
     if (!result.ok) return;
@@ -1977,11 +1983,20 @@
     if (el) showInCarousel(el);
   }
   function showGoal() {
-    var sel = P.target(state);
-    if (view.choiceShut && sel && String(sel).indexOf('choice') >= 0) {
+    var block = P.nextBlockingGoal ? P.nextBlockingGoal(state) : null;
+    var sel = (block && block.selector) || P.target(state);
+    if (sel && sel.indexOf('#choice') >= 0) {
       view.choiceShut = false;
       render();
-      sel = P.target(state);
+      sel = (P.nextBlockingGoal(state).selector) || sel;
+    }
+    if (sel && sel.indexOf('#route-gear') >= 0) {
+      var gearId = (sel.match(/data-route="([^"]+)"/) || [])[1];
+      var gearHost = $('#route-gear');
+      if (gearHost && gearId && gearHost.dataset.pick !== gearId) {
+        gearHost.dataset.pick = gearId;
+        render();
+      }
     }
     var el = sel ? document.querySelector(sel) : null;
     if (!el) return;
@@ -1992,6 +2007,10 @@
     });
     el.classList.add('goal-target');
     showInCarousel(el);
+    var seen = el.getBoundingClientRect();
+    if (seen.top < 0 || seen.bottom > window.innerHeight || seen.height < 4) {
+      el.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+    }
     scrollTo(el);
     if (view.goalTimer) clearTimeout(view.goalTimer);
     view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
@@ -2013,14 +2032,15 @@
   /* One click of whatever the goal bar is asking for. The pacing run uses this,
      so a measured wait is a wait on the step the player can see. */
   function followGoal() {
-    var goal = ($('#goal') && $('#goal').textContent) || '';
+    var block = P.nextBlockingGoal ? P.nextBlockingGoal(state) : null;
+    var goal = (block && block.sentence) || (($('#goal') && $('#goal').textContent) || '');
     function press(el) {
       var x = window.scrollX;
       var y = window.scrollY;
       el.click();
       if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
     }
-    var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
+    var cheap = block && block.kind ? block : (P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null));
     if (cheap && goal === cheap.sentence) {
       if (!cheap.affordable) return false;
       if (cheap.kind === 'choice') {
@@ -2061,7 +2081,6 @@
       }
       if (cheap.kind === 'boat') {
         var boatHit = document.querySelector('#boats [data-i="' + cheap.tier + '"] [data-act="buy"]');
-        if (boatHit) boatHit.dataset.count = String(cheap.count || 1);
         if (usableControl(boatHit)) { press(boatHit); return true; }
         return false;
       }
@@ -2152,12 +2171,10 @@
       if (state.year === 2) {
         var namedTier = /rowboat/.test(goal) ? 0 : /sloop/.test(goal) ? 1 : /schooner/.test(goal) ? 2 : /bark/.test(goal) ? 3 : -1;
         var namedBtn = namedTier < 0 ? null : document.querySelector('#boats [data-i="' + namedTier + '"] [data-act="buy"]');
-        if (namedBtn) namedBtn.dataset.count = '1';
         if (usableControl(namedBtn)) { press(namedBtn); return true; }
       }
       var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
       var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
-      if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);
       if (usableControl(buy)) { press(buy); return true; }
       return false;
     }

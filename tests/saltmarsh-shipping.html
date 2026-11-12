@@ -561,7 +561,125 @@ document.querySelector('#run').onclick = async function () {
       s.prepDone = { pilot: which };
       return M.officeRate(s) - before;
     }
-    check('the chart wins when the routes are safe, and the pilot wins when cargo is still being lost', sideGain(false, 'chart') > sideGain(false, 'pilot') && sideGain(true, 'pilot') > sideGain(true, 'chart'));
+    check('the chart wins when the routes are safe, and the pilot wins when cargo is still being lost', sideGain(false, 'chart') > sideGain(false, 'pilot') && sideGain(true, 'pilot') > sideGain(true, 'chart') && sideGain(true, 'pilot') > sideGain(true, 'chart') * 1.25);
+    (function () {
+      var blocked = M.fresh();
+      blocked.trips = 3;
+      blocked.boats[0].owned = 40;
+      blocked.boats[1].owned = 12;
+      blocked.boats[2].owned = 12;
+      blocked.boats[3].owned = 9;
+      blocked.routes = { kelp: 1, gull: 1, tea: 0, headland: 0, reed: 0, night: 0 };
+      blocked.captains[0].hired = true;
+      blocked.captains[1].hired = true;
+      blocked.captains[2].hired = true;
+      blocked.forks = { sloop: 'fit', schooner: 'fit' };
+      blocked.lights = { pier: 2, headland: 2, reed: 2, quay: 0, glass: 0 };
+      blocked.cash = 1e15;
+      var open = P.nextBlockingGoal(blocked);
+      var shut = P.nextBlockingGoal(blocked);
+      blocked._hintLock = { kind: 'boat', id: 'bark', tier: 3 };
+      var locked = P.nextBlockingGoal(blocked);
+      check('the next step is one function, and hiding a card does not move it', !!open && open.sentence === shut.sentence && open.selector === shut.selector && open.selector === locked.selector && /Quay Lighthouse/.test(open.sentence) && /4 routes/.test(open.sentence) && /16 barks/.test(open.sentence) && /You have 2 and 9/.test(open.sentence));
+      var payable = M.fresh();
+      payable.trips = 3;
+      payable.boats[0].owned = 40;
+      payable.boats[1].owned = 12;
+      payable.boats[2].owned = 12;
+      payable.boats[3].owned = 16;
+      payable.routes = { kelp: 1, gull: 1, tea: 1, headland: 1, reed: 0, night: 0 };
+      payable.captains[0].hired = true;
+      payable.captains[1].hired = true;
+      payable.captains[2].hired = true;
+      payable.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      payable.lights = { pier: 2, headland: 2, reed: 2, quay: 0, glass: 0 };
+      payable.cash = 0;
+      var broke = P.nextBlockingGoal(payable);
+      payable.cash = 1e15;
+      var rich = P.nextBlockingGoal(payable);
+      check('enough coins points the hint at the blocking step on the next read', /Quay Lighthouse/.test(rich.sentence) && rich.kind === 'light' && rich.affordable === true && rich.cost > 0 && payable.cash >= rich.cost);
+    })();
+    (function () {
+      function office() {
+        var s = M.fresh();
+        s.trips = 3;
+        s.boats[0].owned = 40;
+        s.boats[1].owned = 12;
+        s.boats[2].owned = 12;
+        s.boats[3].owned = 16;
+        s.captains[0].hired = true;
+        s.captains[1].hired = true;
+        s.captains[2].hired = true;
+        s.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+        s.cash = 1e15;
+        return s;
+      }
+      var sail = office();
+      sail.boats[0].owned = sail.boats[1].owned = sail.boats[2].owned = sail.boats[3].owned = 2000;
+      sail.lights = { pier: 2, headland: 2, reed: 2, quay: 0 };
+      sail.routes = { kelp: 4, gull: 4, tea: 4, headland: 4, reed: 4, night: 4 };
+      sail.routeGross = { gull: 500000 };
+      sail.routeGear = { kelp: true };
+      var sailOffer = M.gearOffer(sail);
+      sail.cash = sailOffer.cost;
+      var sailStep = P.bestStep(sail);
+      var tea = office();
+      tea.boats[0].owned = 200;
+      tea.boats[1].owned = 80;
+      tea.boats[2].owned = 80;
+      tea.forks.quay = null;
+      tea.lights = { pier: 2, headland: 2, reed: 2, quay: 0 };
+      tea.routes = { kelp: 4, gull: 4, tea: 0, headland: 4, reed: 4, night: 4 };
+      var teaStep = P.bestStep(tea);
+      var reed = office();
+      reed.routes = { kelp: 1, gull: 1, tea: 1, headland: 1, reed: 1 };
+      reed.lights = { pier: 2, headland: 2, reed: 1, quay: 0 };
+      var reedStep = P.bestStep(reed);
+      var crate = office();
+      crate.boats[0].owned = 500;
+      crate.boats[1].owned = 200;
+      crate.boats[2].owned = 200;
+      crate.lights = { pier: 2, headland: 2, reed: 0, quay: 0 };
+      crate.routes = { kelp: 1, gull: 1 };
+      crate.events = { squall: 'wait', request: 'grant' };
+      var crateOffer = M.deskChoice(crate);
+      crate.cash = crateOffer.cards[0].cost;
+      crate.quotes = {
+        'tea:0': { id: 'tea', depth: 0, cost: 1e12, gross: 1, risk: 0 },
+        'headland:0': { id: 'headland', depth: 0, cost: 1e12, gross: 1, risk: 0 },
+        'night:0': { id: 'night', depth: 0, cost: 1e12, gross: 1, risk: 0 },
+        'reed:0': { id: 'reed', depth: 0, cost: 1e12, gross: 1, risk: 0 },
+        'kelp:1': { id: 'kelp', depth: 1, cost: 1e12, gross: 1, risk: 0 },
+        'gull:1': { id: 'gull', depth: 1, cost: 1e12, gross: 1, risk: 0 }
+      };
+      var crateStep = P.nextBlockingGoal(crate);
+      var sch = M.fresh();
+      sch.trips = 3;
+      sch.boats[0].owned = 40;
+      sch.boats[1].owned = 10;
+      sch.boats[2].owned = 4;
+      sch.captains[0].hired = true;
+      sch.captains[1].hired = true;
+      sch.forks = { sloop: 'fit' };
+      sch.cash = 0;
+      var schGoal = P.goal(sch);
+      sch.boats[2].owned = 9;
+      var schLater = P.goal(sch);
+      var bell = office();
+      bell.boats[3].owned = 20;
+      bell.routes = { kelp: 1, gull: 1, tea: 1 };
+      var bellOpen = M.deskChoice(bell);
+      bell.routes.headland = 1;
+      bell.routes.reed = 1;
+      bell.routes.night = 1;
+      var bellLater = M.deskChoice(bell);
+      check('the spare sail hint names the sail that is not fitted yet', !!sailStep && sailStep.kind === 'gear' && sailStep.id === 'gull' && sailStep.selector.indexOf('kelp') < 0 && sailStep.selector.indexOf('data-route="gull"') >= 0);
+      check('Sign Tea Reach points at the Tea Reach button', !!teaStep && teaStep.id === 'tea' && teaStep.selector === '#route-cards [data-route="tea"] [data-act="route"]');
+      check('a raised Reed lighthouse stays the hint until it is lit', !!reedStep && reedStep.kind === 'light' && reedStep.id === 'reed' && reedStep.stage === 1);
+      check('selling the crate points at the crate button', !!crateStep && crateStep.selector === '#choice [data-which="sell"]');
+      check('the schooner hint names how many are left, and the number moves', /6 more schooners/.test(schGoal) && /one more schooner/.test(schGoal) === false && /one more schooner/.test(schLater));
+      check('bell or coal stays on the desk after more routes are signed', !!bellOpen && bellOpen.id === 'pilot' && !!bellLater && bellLater.id === 'pilot');
+    })();
     var jobs = M.preset('lamps');
     jobs.played = 1000;
     jobs.cash = 1e15;
@@ -3608,8 +3726,10 @@ document.querySelector('#run').onclick = async function () {
         if (br.width > 4 && br.top > 0 && br.top < height) behindHit = doc.elementFromPoint(br.left + 8, br.top + 8);
       }
       var blocked = !behindHit || behindHit === back || !!(behindHit.closest && (behindHit.closest('#away') || behindHit.closest('#away-back') || behindHit.closest('#purse')));
-      check('at ' + width + ' the away log is a full-width card and Close is on screen',
-        away.hidden === false && back && back.hidden === false && awayRect.width >= width - 2 && awayRect.right <= width + 1 && coins.right <= width + 1 && closeRect.height >= 44 && closeRect.top >= 0 && closeRect.bottom <= height + 1 && hit && (hit === closeBtn || closeBtn.contains(hit)) && blocked);
+      var desk = doc.querySelector('#desk');
+      var boatClear = !behind || !behindHit || behindHit === behind || !!(behindHit.closest && behindHit.closest('#boats'));
+      check('at ' + width + ' the away log sits in the desk slot and Close does not cover a buy',
+        away.hidden === false && desk && desk.contains(away) && coins.right <= width + 1 && closeRect.height >= 44 && closeRect.top >= 0 && closeRect.bottom <= height + 1 && hit && (hit === closeBtn || closeBtn.contains(hit)) && boatClear && awayRect.top >= 0);
     }
     await awayModal(390, 844);
     await awayModal(320, 568);

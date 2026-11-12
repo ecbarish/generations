@@ -72,10 +72,10 @@
     if (!need) return base + '.';
     var rate = M.officeRate(state);
     var sec = rate > 0 ? Math.ceil((cost - state.cash) / rate) : 0;
-    if (sec > 15) return base + '. ' + (need ? need + ', ' + sec + 's. ' : '') + 'Row the skiff. The payout is real money while you wait.';
-    if (sec > 20 && /^(Raise|Light) the /.test(base)) return base + '. ' + need + ', ' + sec + 's. Row a cargo while you wait.';
-    if (sec > 0) return base + '. ' + need + ', ' + sec + 's.';
-    return base + '. ' + need + ' more.';
+    var wait = sec <= 0 ? '' : sec === 1 ? 'about one second' : 'about ' + sec + ' seconds';
+    if (sec > 15) return base + '. ' + need + ' more coins, ' + wait + '. Row the skiff. The payout is real money while you wait.';
+    if (sec > 0) return base + '. ' + need + ' more coins, ' + wait + '.';
+    return base + '. ' + need + ' more coins.';
   }
 
   /* Pending Light beats a new Raise. Otherwise the desk rotates through
@@ -203,6 +203,25 @@
     return rest[0];
   }
 
+  /* Requirements for the lighthouse that is blocking the coast, in one sentence. */
+  function lightNeedLine(state, light) {
+    var M = window.Saltmarsh;
+    var spec = null;
+    (M.LIGHTS || []).forEach(function (row) { if (row.id === light.id) spec = row; });
+    var verb = light.stage === 0 ? 'Raise' : 'Light';
+    var line = verb + ' the ' + light.name + ', ' + M.coins(light.cost);
+    var haveR = M.routesSailing(state);
+    var haveB = state.boats && state.boats[3] ? state.boats[3].owned : 0;
+    if (light.id === 'quay') {
+      var needR = spec && spec.needRoutes ? spec.needRoutes : 4;
+      line += '. It needs ' + needR + ' routes and ' + M.BARK_LAMP + ' barks. You have ' + haveR + ' and ' + haveB;
+    } else if (spec && spec.needRoutes) {
+      var need = spec.needRoutes;
+      line += '. It needs ' + need + (need === 1 ? ' route' : ' routes') + '. You have ' + haveR;
+    }
+    return withNeed(state, line, light.cost);
+  }
+
   /* Value, not the raw price. A dear contract that pays back sooner beats a
      cheap boat that does not. A light, the next errand, and Set sail are
      progress: they win when the purse can pay them. */
@@ -215,28 +234,46 @@
     if (M.routesSailing(state) < 1 && M.yearOf(state) !== 2) return null;
     var rate = Math.max(1, M.officeRate(state));
     var steps = [];
+    function annotate(sentence) {
+      if (!sentence || !M.LIGHTS || M.allLightsLit(state)) return sentence;
+      var spec = null;
+      var li;
+      for (li = 0; li < M.LIGHTS.length; li++) {
+        if ((state.lights && state.lights[M.LIGHTS[li].id] || 0) < 2) { spec = M.LIGHTS[li]; break; }
+      }
+      if (!spec || sentence.indexOf(spec.name) >= 0) return sentence;
+      var haveR = M.routesSailing(state);
+      var haveB = state.boats && state.boats[3] ? state.boats[3].owned : 0;
+      var needR = spec.needRoutes || 1;
+      var needB = spec.id === 'quay' ? M.BARK_LAMP : 0;
+      if (!(haveR < needR || (needB && haveB < needB))) return sentence;
+      var lead = 'Light the ' + spec.name + '. It needs ' + needR + (needR === 1 ? ' route' : ' routes');
+      if (needB) lead += ' and ' + needB + ' barks. You have ' + haveR + ' and ' + haveB;
+      else lead += '. You have ' + haveR;
+      return sentence.replace(/\.$/, '') + '. ' + lead + '.';
+    }
     function add(step) {
       step.gain = step.gain > 0 ? step.gain : 0;
       step.wait = state.cash >= step.cost ? 0 : Math.ceil((step.cost - state.cash) / rate);
       step.affordable = step.wait === 0;
       step.payback = step.progress ? 0 : (step.gain > 0 ? step.cost / step.gain : 99999);
+      if (step.sentence) step.sentence = annotate(step.sentence);
       steps.push(step);
     }
     var lights = (M.lightOffers(state, false) || []).filter(function (row) { return !row.blocked; });
     if (!M.allLightsLit(state)) {
       lights.forEach(function (light) {
-        var verb = light.stage === 0 ? 'Raise' : 'Light';
         add({
           kind: 'light', id: light.id, stage: light.stage, cost: light.cost, gain: 0, progress: true,
-          selector: '#light-cards [data-light="' + light.id + '"]',
-          sentence: withNeed(state, verb + ' the ' + light.name + ', ' + M.coins(light.cost), light.cost)
+          selector: '#light-cards [data-light="' + light.id + '"] [data-act="light"]',
+          sentence: lightNeedLine(state, light)
         });
       });
     }
     (M.routeOffers(state, false) || []).forEach(function (row) {
       add({
         kind: 'route', id: row.id, cost: row.cost, gain: row.gain || 0, progress: false,
-        selector: '#route-cards [data-route="' + row.id + '"]',
+        selector: '#route-cards [data-route="' + row.id + '"] [data-act="route"]',
         sentence: withNeed(state, 'Sign ' + row.name + ', ' + M.coins(row.cost), row.cost)
       });
     });
@@ -250,7 +287,7 @@
       if (!hadGear) delete state.routeGear[gear.id];
       add({
         kind: 'gear', id: gear.id, cost: gear.cost, gain: Math.max(0, afterGear - beforeGear), progress: false,
-        selector: '#route-gear button',
+        selector: '#route-gear button[data-act="gear"][data-route="' + gear.id + '"]',
         sentence: withNeed(state, 'Buy the spare sail, ' + M.coins(gear.cost), gear.cost)
       });
     }
@@ -303,7 +340,7 @@
       var card = desk.cards.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
       add({
         kind: 'choice', id: desk.id, which: card.which, cost: card.cost, gain: 0, progress: false,
-        selector: '#choice',
+        selector: '#choice [data-which="' + card.which + '"]',
         sentence: choiceGoal(state)
       });
     }
@@ -390,14 +427,50 @@
         sentence: 'Row the skiff. The payout is ' + M.coins(pay) + ' coins while you wait.'
       };
     }
+    var missingHull = null;
+    var hullTier;
+    for (hullTier = 1; hullTier <= 2; hullTier++) {
+      if (!state.boats[hullTier] || (state.boats[hullTier].owned || 0) > 0) continue;
+      if (!M.unlocked(state, hullTier)) continue;
+      var hullQuote = M.quote(state, hullTier, 1);
+      if (!(hullQuote.count > 0)) continue;
+      missingHull = {
+        kind: 'boat', tier: hullTier, count: 1, id: 'boat', cost: hullQuote.cost, gain: 0,
+        wait: 0, affordable: state.cash >= hullQuote.cost, payback: 0, progress: true,
+        selector: '#boats [data-i="' + hullTier + '"]',
+        sentence: 'Buy a ' + M.BOATS[hullTier].name.toLowerCase() + ', ' + M.coins(hullQuote.cost)
+      };
+      break;
+    }
+    if (missingHull) return within(missingHull);
     var affordLights = pool.filter(function (step) { return step.kind === 'light' && step.affordable; });
     if (affordLights.length) {
       affordLights.sort(function (a, b) { return (b.stage === 1) - (a.stage === 1) || a.cost - b.cost; });
       return within(affordLights[0]);
     }
+    /* A tower that is up stays the next step until it is lit. A new contract
+       does not take the hint in between the raise and the light. */
+    var raisedLight = null;
+    steps.forEach(function (step) {
+      if (step.kind !== 'light' || step.stage !== 1) return;
+      if (!raisedLight || step.wait < raisedLight.wait) raisedLight = step;
+    });
+    if (raisedLight) return raisedLight;
     var anyPrep = pool.filter(function (step) { return step.kind === 'prep'; })[0];
     if (anyPrep && M.allLightsLit(state)) {
       if (anyPrep.affordable) return anyPrep;
+      if (anyPrep.wait > 15) {
+        var filler = null;
+        pool.forEach(function (step) {
+          if (!step.affordable || step === anyPrep) return;
+          if (step.kind !== 'boat' && step.kind !== 'route' && step.kind !== 'gear') return;
+          var left = state.cash - step.cost;
+          var still = Math.ceil(Math.max(0, anyPrep.cost - left) / rate);
+          if (still > 15) return;
+          if (!filler || step.gain > filler.gain) filler = step;
+        });
+        if (filler) return filler;
+      }
       var filling = pool.filter(function (step) { return step.kind === 'boat' && step.affordable; })[0];
       if (filling) return filling;
       return within(anyPrep);
@@ -430,7 +503,7 @@
   }
 
   /* One sentence, always. The player should be able to read it and know what to do. */
-  function goal(state) {
+  function goalText(state) {
     var M = window.Saltmarsh;
     var phase = read(state);
     var left, i, owned, nextAt, choice, sailing, lit;
@@ -490,7 +563,8 @@
       var schoonerWait = Math.ceil(Math.max(0, schoonerAll - state.cash) / schoonerRate);
       var schoonerNoun = left === 1 ? 'a schooner' : left + ' schooners';
       if (left > 1 && schoonerWait > 15) {
-        var oneLine = state.boats[2].owned >= 1 ? 'Buy one more schooner for the next tide' : 'Buy a schooner for the next tide';
+        var still = left + ' more schooners';
+        var oneLine = state.boats[2].owned >= 1 ? ('Buy ' + still + ' for the next tide') : ('Buy ' + left + ' schooners for the next tide');
         return withNeed(state, oneLine, M.quote(state, 2, 1).cost);
       }
       if (state.boats[2].owned >= 1) {
@@ -572,14 +646,14 @@
   }
 
   /* The element the goal sentence is talking about. */
-  function target(state) {
+  function targetText(state) {
     var M = window.Saltmarsh;
     var phase = read(state);
     var step;
     if (!state || state.ended) return '#new-harbour';
     if (!phase.boats) return '#row';
     if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) {
-      var winterSentence = goal(state);
+      var winterSentence = goalText(state);
       if (/Frost Lane/.test(winterSentence)) return '#route-cards [data-route="frost"]';
     }
     if (M.finaleOffer && M.finaleOffer(state)) return '#finale';
@@ -595,7 +669,7 @@
     if (!phase.routesReady) return '#boats [data-i="2"]';
     if (M.canHire(state, 2)) return '#ask';
     var sailing = M.routesSailing(state);
-    var sentence = goal(state);
+    var sentence = goalText(state);
     if (/^Choose a route/.test(sentence)) return '#route-cards [data-act="route"], #routes';
     var aimed = bestStep(state) || cheapestAffordable(state);
     if (aimed && aimed.sentence === sentence && aimed.selector) return aimed.selector;
@@ -633,5 +707,72 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct, progressSteps: progressSteps, cheapestAffordable: cheapestAffordable, bestStep: bestStep };
+  /* The step that is blocking progress. The footer, the goal bar and the
+     carousel all read this. Hiding a card is not an input. */
+  function nextBlockingGoal(state) {
+    var M = window.Saltmarsh;
+    if (!state) return { sentence: '', selector: '#boats', kind: '', id: '', cost: 0, affordable: false, tier: null, which: '', count: 0, have: null, need: null };
+    state._hintLock = null;
+    var sentence = goalText(state);
+    var selector = targetText(state);
+    var step = bestStep(state);
+    var kind = '';
+    var id = '';
+    var cost = 0;
+    var affordable = false;
+    var tier = null;
+    var which = '';
+    var count = 0;
+    if (step && step.sentence === sentence) {
+      kind = step.kind || '';
+      id = step.id || '';
+      cost = step.cost || 0;
+      affordable = !!step.affordable;
+      tier = step.tier == null ? null : step.tier;
+      which = step.which || '';
+      count = step.count || 0;
+      if (step.selector) selector = step.selector;
+    }
+    var have = null;
+    var need = null;
+    if (M.LIGHTS && M.routesUnlocked && M.routesUnlocked(state)) {
+      var spec = null;
+      var li;
+      for (li = 0; li < M.LIGHTS.length; li++) {
+        if ((state.lights && state.lights[M.LIGHTS[li].id] || 0) < 2) { spec = M.LIGHTS[li]; break; }
+      }
+      if (spec) {
+        have = { routes: M.routesSailing(state), barks: state.boats && state.boats[3] ? state.boats[3].owned : 0 };
+        need = { routes: spec.needRoutes || 1, barks: spec.id === 'quay' ? M.BARK_LAMP : 0 };
+      }
+    }
+    if (step && step.affordable && step.kind === 'light' && step.sentence && sentence !== step.sentence && /^(Raise|Light) the /.test(step.sentence)) {
+      sentence = step.sentence;
+      if (step.selector) selector = step.selector;
+      kind = 'light';
+      id = step.id || '';
+      cost = step.cost || 0;
+      affordable = true;
+      which = step.which || '';
+      count = step.count || 0;
+    }
+    return {
+      sentence: sentence,
+      selector: selector,
+      kind: kind,
+      id: id,
+      cost: cost,
+      affordable: affordable,
+      tier: tier,
+      which: which,
+      count: count,
+      have: have,
+      need: need
+    };
+  }
+
+  function goal(state) { return nextBlockingGoal(state).sentence; }
+  function target(state) { return nextBlockingGoal(state).selector; }
+
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct, progressSteps: progressSteps, cheapestAffordable: cheapestAffordable, bestStep: bestStep, nextBlockingGoal: nextBlockingGoal };
 })();

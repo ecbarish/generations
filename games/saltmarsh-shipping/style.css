@@ -638,6 +638,15 @@ html { scroll-padding-top: 6.5rem; }
   overflow: hidden;
   box-sizing: border-box;
 }
+#route-gear {
+  height: 9rem;
+  min-height: 9rem;
+  max-height: 9rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
 #route-gear h3 { margin: 0.1rem 0; }
 #route-gear .actions { margin-top: auto; }
 #route-gear .actions button { min-height: 44px; height: auto; }
@@ -692,7 +701,8 @@ html { scroll-padding-top: 6.5rem; }
 .year-names button[aria-pressed="true"] { background: var(--sand); }
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
 body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
-#choice-cards { display: flex; gap: 0.45rem; align-items: stretch; }
+#choice-cards { display: flex; flex-wrap: nowrap; gap: 0.45rem; align-items: stretch; }
+#desk #choice .choice-card .habit { max-height: 3.2rem; overflow: auto; }
 #choice .choice-card {
   flex: 1 1 0;
   min-width: 0;
@@ -701,6 +711,8 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   display: flex;
   flex-direction: column;
 }
+#choice .take-need { display: block; min-height: 1em; line-height: 1em; font-size: 0.75rem; }
+#choice .actions button { padding: 2px 8px 3px; }
 #choice .choice-card .habit { white-space: normal; line-height: 1.25; margin: 0.1rem 0; }
 #choice .choice-card .actions {
   position: sticky;
@@ -762,7 +774,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .goalbar { width: min(60rem, 100%); }
   #choice.choice { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, #winter-bell, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending, .ledger { grid-column: 1 / -1; }
+  .row, #desk, #winter-bell, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending, .ledger { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -784,7 +796,199 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   }
   #row.row { margin-top: 0; }
   .purse { padding-bottom: 0; }
-  #choice.choice { max-height: 46vh; }
+  #choice.choice { max-height: none; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
+  #desk { height: 2.6rem; min-height: 2.6rem; max-height: 2.6rem; }
+}
+
+/* One slot above the buys. Nothing in it floats, and its height does not change when a card opens or shuts. */
+html { overflow-y: scroll; overflow-anchor: none; }
+body, .window, #desk { overflow-anchor: none; }
+#desk {
+  height: 9rem;
+  min-height: 9rem;
+  max-height: 9rem;
+  overflow: visible;
+  box-sizing: border-box;
+  margin: 0 0 0.35rem;
+  display: flex;
+  flex-direction: column;
+}
+#desk > #choice.choice:not([hidden]) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+#desk > #choice.choice:not([hidden]) #choice-cards {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: visible;
+}
+#desk #choice .choice-card {
+  min-height: 4.6rem;
+  height: auto;
+  flex: 1 1 auto;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+}
+#desk #choice .choice-card .actions { margin-top: auto; margin-bottom: 0; }
+#desk #choice .choice-card .habit {
+  overflow: hidden;
+}
+#desk-pill {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+#desk.is-shut { overflow: hidden; }
+#desk.is-shut > :not(#desk-pill) { display: none !important; }
+#choice.choice,
+#away.away,
+#away.away:not([hidden]),
+#pell-banner,
+#choice-back,
+#away-back {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: auto !important;
+  max-height: none !important;
+  z-index: auto !important;
+  margin: 0;
+}
+#choice-back,
+#away-back { display: none !important; }
+#bulk {
+  position: sticky;
+  top: 4.8rem;
+  z-index: 4;
+  background: var(--paper, #f3efe4);
+}
+@media (min-width: 900px) {
+  .harbour-wrap canvas { height: 240px; }
+  #desk { height: 9.5rem; min-height: 9.5rem; max-height: 9.5rem; }
+}
+#route-cards .route-card { display: flex; flex-direction: column; }
+#route-cards .route-card .habit {
+  height: 4.6rem;
+  min-height: 4.6rem;
+  max-height: 4.6rem;
+  overflow: auto;
+}
+#route-cards .route-card .actions { margin-top: auto; }
+#light-cards .light-card { display: flex; flex-direction: column; }
+#light-cards .light-card .actions { margin-top: auto; }
+@media (min-width: 1280px) {
+  #boats > li.boat { height: 12rem; min-height: 12rem; max-height: 12rem; overflow: hidden; box-sizing: border-box; }
+  #route-cards .route-card { height: 15rem; min-height: 15rem; max-height: 15rem; overflow: hidden; box-sizing: border-box; }
+  #light-cards .light-card { height: 15.5rem; min-height: 15.5rem; max-height: 15.5rem; overflow: hidden; box-sizing: border-box; }
+}
+@media (max-width: 899px) and (min-height: 500px) {
+  .harbour-wrap canvas { height: 300px; }
+  #desk { height: 9.5rem; min-height: 9.5rem; max-height: 9.5rem; }
+  #choice.choice { max-height: none; bottom: auto; }
+  #desk #choice .choice-card { height: 5.4rem; min-height: 5.4rem; max-height: 5.4rem; overflow: hidden; }
+  #desk #choice .choice-card .habit { height: 2.2rem; min-height: 2.2rem; max-height: 2.2rem; overflow: auto; }
+}
+@media (max-width: 390px) {
+  #desk { height: 9.5rem; min-height: 9.5rem; max-height: 9.5rem; }
+  #boats > li.boat { height: 7.5rem; min-height: 7.5rem; max-height: 7.5rem; overflow: hidden; box-sizing: border-box; }
+  #route-cards .route-card { height: 17.5rem; min-height: 17.5rem; max-height: 17.5rem; overflow: hidden; box-sizing: border-box; }
+  #light-cards .light-card { height: 12rem; min-height: 12rem; max-height: 12rem; overflow: hidden; box-sizing: border-box; }
+}
+@media (max-width: 320px) {
+  #desk { height: 8rem; min-height: 8rem; max-height: 8rem; }
+  #boats > li.boat { height: 7rem; min-height: 7rem; max-height: 7rem; overflow: hidden; box-sizing: border-box; }
+  #route-cards .route-card { height: 16rem; min-height: 16rem; max-height: 16rem; overflow: hidden; box-sizing: border-box; }
+  #route-cards .route-card .habit { height: auto; min-height: 0; max-height: 4.6rem; flex: 1 1 auto; }
+  #route-cards .route-card .actions { flex: 0 0 auto; }
+  #light-cards .light-card { height: 11rem; min-height: 11rem; max-height: 11rem; overflow: hidden; box-sizing: border-box; }
+  .light-card .habit { min-height: 0; max-height: 2.2rem; overflow: auto; }
+  #light-cards .light-card .actions button { min-height: 4rem; height: 4rem; max-height: 4rem; box-sizing: border-box; }
+  .light-card h3, #route-gear h3 { margin: 0; }
+  #route-gear .habit { max-height: 1.6rem; overflow: hidden; margin: 0; }
+}
+@media (max-height: 430px) {
+  #desk:not(:has(#choice:not([hidden]))):not(:has(#away:not([hidden]))):not(:has(#pell-banner:not([hidden]))) {
+    height: 0;
+    min-height: 0;
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+@media (max-width: 420px) and (max-height: 640px) {
+  .harbour-wrap canvas { height: 180px; }
+}
+@media (max-width: 400px) and (max-height: 600px) {
+  .harbour-wrap canvas,
+  .window[data-phase="fleet"] .harbour-wrap canvas { height: 48px; }
+  .scene, #away-rule { display: none; }
+}
+html body #choice.choice:not([hidden]) {
+  position: fixed !important;
+  top: 9rem !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(60rem, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 6 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  background: var(--paper, #f3efe4);
+}
+@media (max-width: 899px) {
+  html body #choice.choice:not([hidden]) {
+    max-height: 8.5rem !important;
+    overflow: hidden !important;
+  }
+}
+html body #choice.choice:not([hidden]) .choice-bar { margin: 0; padding: 0 0.4rem; min-height: 0; }
+html body #choice.choice:not([hidden]) .choice-bar h2 { margin: 0; font-size: 0.95rem; line-height: 1.3rem; }
+html body #choice.choice:not([hidden]) #choice-fold { min-height: 0; height: 1.4rem; padding: 0 8px; }
+html body #choice.choice:not([hidden]) .take-card,
+html body #choice.choice:not([hidden]) .choice-card {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: min-content;
+  max-height: none;
+  overflow: visible;
+  padding: 2px 6px 4px;
+  box-sizing: border-box;
+}
+html body #choice.choice:not([hidden]) .habit { max-height: 2.4rem; min-height: 1.2rem; overflow: hidden; margin: 0; }
+html body #choice.choice:not([hidden]) h3 { margin: 0; font-size: 0.95rem; }
+html body #choice.choice:not([hidden]) .actions { margin-top: auto; }
+@media (max-width: 899px) {
+  html body #choice.choice:not([hidden]) { padding: 0 0.3rem !important; }
+}
+@media (min-width: 900px) {
+  html body #choice.choice:not([hidden]) { max-height: none !important; overflow: visible !important; }
+  html body #choice.choice:not([hidden]) .take-card,
+  html body #choice.choice:not([hidden]) .choice-card {
+    height: 6.5rem;
+    min-height: 6.5rem;
+    max-height: 6.5rem;
+    padding: 6px 8px 8px;
+  }
+  html body #choice.choice:not([hidden]) .habit { max-height: 2.6rem; }
+}
+@media (max-height: 430px) {
+  html body #choice.choice:not([hidden]) { max-height: 4.2rem !important; }
+  #away.away:not([hidden]) { position: relative !important; z-index: 8 !important; }
 }

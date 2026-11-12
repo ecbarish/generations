@@ -19,7 +19,7 @@
       <p class="away-play" id="away-play">50% while away, up to 2h.</p>
     </div>
     <h1>Saltmarsh Shipping Office</h1>
-    <p class="scene">The Saltmarsh coast, from the office window. You row the first cargoes yourself.</p>
+    <p class="scene">Three trips on the water, then a second boat.</p>
     <p class="rate" id="away-rule"></p>
     <div class="tools-row">
       <button type="button" id="sound">Sound: off</button>
@@ -33,23 +33,26 @@
   <p class="cheer" id="cheer" hidden></p>
   </div>
   <div class="work">
-    <button type="button" id="row" class="row">Row this cargo</button>
-    <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
-    <aside id="pell-banner" class="pell-banner" hidden>
-      <p>Capt. Pell's banner. She takes a bark and names the boat she sailed.</p>
-      <button type="button" id="pell-close">Close</button>
-    </aside>
-    <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
-    <section id="away" class="away" hidden></section>
-    <div id="choice-back" class="choice-back" hidden></div>
-    <div id="away-back" class="away-back" hidden></div>
-    <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
+    <section id="desk" class="desk" aria-label="Choices and notices">
+      <button type="button" id="desk-pill" class="desk-pill" hidden>0 choices waiting · open</button>
+      <aside id="pell-banner" class="pell-banner" hidden>
+        <p>Capt. Pell's banner. She takes a bark and names the boat she sailed.</p>
+        <button type="button" id="pell-close">Close</button>
+      </aside>
+      <section id="away" class="away" hidden></section>
+      <div id="choice-back" class="choice-back" hidden></div>
+      <div id="away-back" class="away-back" hidden></div>
+      <section id="choice" class="choice" hidden aria-labelledby="choice-title">
       <div class="choice-bar">
         <h2 id="choice-title">A choice on the desk</h2>
         <button type="button" id="choice-fold" aria-expanded="true">Hide</button>
       </div>
       <div id="choice-cards"></div>
     </section>
+    </section>
+    <button type="button" id="row" class="row">Row this cargo</button>
+    <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
+    <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
     <div class="bulk" id="bulk" hidden role="group" aria-label="How many boats to buy at once">
       <button type="button" data-bulk="1" aria-pressed="true">1 at a time</button>
       <button type="button" data-bulk="10" aria-pressed="false">10 at a time</button>

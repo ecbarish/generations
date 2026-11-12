@@ -1,3 +1,7 @@
+### 2026-11-12 21:10 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS hint, layout, and one sitting
+
+The phone cases from 13ad3d3f are in the office. The hint names the real step and marks that control. A spare sail marks the route that is not fitted yet. Tea Reach marks Tea Reach. A raised Reed stays the light until it is lit. A hidden choice comes back from the pill. Reed and the Quay take their own wait, so a new office that follows the hint finishes in 12 minutes 7 seconds, with the first light at 7 minutes 27 seconds. The last voyage steps are 13, 11, 12 and 1 seconds apart. The window line no longer jumps the Row button when the shop opens. 423 checks pass. Ready for review. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 20:32 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the layout rebuild
 
 Playtester scored #675 at 13ad3d3f, Fun 5, down from 6. This note is before the rebuild: one inline slot instead of floating cards, one next-step function, and choices that trade off. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
