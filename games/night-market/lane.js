@@ -67,7 +67,11 @@
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
     for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
-  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
+  function nightEnded() {
+    var s = st();
+    if (window.NightMarket && typeof NightMarket.dawnDue === 'function') return NightMarket.dawnDue(s);
+    return !!(s && s.stalls[5] && s.stalls[5].owned >= 10);
+  }
   function finaleClock(now) {
     if (!nightEnded()) { finaleStart = 0; return null; }
     if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -247,9 +251,11 @@
     // The lane breaks out of the page column to the full page width. Whole-number scale from 384 px up (2x from 768, 3x from
     // 1152, never more than 3x). Below 384 px a 1x strip can't fit, so it shrinks to the page width with every stall whole
     // (the one place the scale isn't a whole number, so the Tea Stall is never cut off).
-    // NM-G8: the width is the page body's, which is the viewport minus a classic scrollbar. A scrollbar that appears once the
-    // stalls have filled in shrinks it with no window resize, so a ResizeObserver on the body refits the strip as well.
-    var vw = (document.body && document.body.clientWidth) || document.documentElement.clientWidth || W, wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
+    // NM-G8: the width is the viewport, minus a classic scrollbar. A scrollbar that appears once the
+    // stalls have filled in shrinks it with no window resize, so a ResizeObserver on the document refits the strip as well.
+    var viewW = (document.documentElement && document.documentElement.clientWidth) || W;
+    var bodyW = (document.body && document.body.clientWidth) || viewW;
+    var vw = Math.min(viewW, bodyW), wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
     if (wrap.style.width === vw + 'px' && cv.dataset.scale === String(+k.toFixed(3))) return;
     wrap.style.width = vw + 'px';
     cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; cv.dataset.scale = String(+k.toFixed(3));
@@ -275,7 +281,12 @@
       flash(i, m); if (reduce) stillFor(500);
     },
     hire: function (i) { flash(i, false); if (reduce) stillFor(500); },
-    refresh: function () { if (!live) draw(); },
+    refresh: function () {
+      if (!getState) return;
+      var g = signature();
+      if (!live || g !== sig) draw();
+    },
+    signature: function () { return getState ? signature() : ''; },
     // for the checks
     W: W, H: H, PALETTE: C, MAX_COINS: MAX_COINS, SLOT: SLOT, STALL_BOTTOM: STALL_BOTTOM, WALK: { y: WALK_Y, w: WALK_W, h: WALK_H },
     walkerCap: walkerCap, fit: fit, still: function () { draw(); }, background: function () { return bx.getImageData(0, 0, W, H); },
