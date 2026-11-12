@@ -9,14 +9,18 @@
 
    Needs Node and the playwright package (npm i -g playwright). It uses any Chrome, Chromium or Edge already
    installed, else Playwright's own Chromium (CHROME_PATH overrides all). GitHub runs this on every push and pull
-   request (.github/workflows/checks.yml). No game saves are touched: every page runs in a fresh browser context. */
+   request (.github/workflows/checks.yml). Night Market is six parts (model, screen, grid-0 through grid-3) so no
+   one page sits on the 15 minute wait. The main GitHub job sets SKIP_NIGHT_MARKET=1 and a second job runs the parts
+   in parallel. No game saves are touched: every page runs in a fresh browser context. */
 const http=require('http'),fs=require('fs'),path=require('path'),{spawnSync}=require('child_process');
 const ROOT=path.resolve(__dirname,'..');
 const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market','saltmarsh-shipping'];
+const NM_PARTS=['model','screen','grid-0','grid-1','grid-2','grid-3'];
 const GODOT_SUITES=['starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','save-names','asset-library','agent-context','little-ranch-palette','nm-audit']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['save-names','asset-library','agent-context','little-ranch-palette','nm-audit']).join(', '));process.exit(2);}
+const NM_NAMES=NM_PARTS.map(part=>'night-market-'+part);
+if(only.length&&!PAGES.concat(GODOT_SUITES,NM_NAMES,['launcher','save-names','asset-library','agent-context','little-ranch-palette','nm-audit']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,NM_NAMES,['save-names','asset-library','agent-context','little-ranch-palette','nm-audit']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -39,7 +43,17 @@ function findGodot(){
 
 (async()=>{
   const results=[];
-  const pages=PAGES.filter(wanted);
+  const pages=[];
+  for(const name of PAGES){
+    if(name==='night-market'){
+      if(process.env.SKIP_NIGHT_MARKET==='1')continue;
+      for(const id of NM_NAMES){
+        if(!only.length||only.some(w=>id===w||id.includes(w)||w==='night-market'))pages.push(id);
+      }
+      continue;
+    }
+    if(wanted(name))pages.push(name);
+  }
   if(pages.length||wanted('launcher')){
     const {chromium}=require('playwright');
     const server=await serve(),origin='http://localhost:'+server.address().port;
@@ -53,7 +67,10 @@ function findGodot(){
       page.on('pageerror',e=>errors.push(e.message));
       const started=Date.now();let line;
       try{
-        await page.goto(origin+'/tests/'+name+'.html');
+        const href=name.indexOf('night-market-')===0
+          ?origin+'/tests/night-market.html?part='+name.slice('night-market-'.length)
+          :origin+'/tests/'+name+'.html';
+        await page.goto(href);
         await page.click('#run');
         await page.waitForFunction(()=>/^(PASS|FAIL)/.test(document.querySelector('#summary').textContent),null,{timeout:15*60*1000,polling:500});
         line=(await page.textContent('#summary')).trim();

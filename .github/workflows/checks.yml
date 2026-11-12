@@ -1,7 +1,8 @@
 # Runs every check in the arcade on GitHub's computers whenever anyone pushes to main or opens a pull request:
-# the browser test pages and the Starfall Godot suite (tools/run-all-checks.cjs). A red cross on a pull request means
-# something broke; open the run to see which suite and which check. Free for this repository; nothing to install.
-# More: docs/learning/saves-and-testing.md.
+# the browser test pages and the Starfall Godot suite (tools/run-all-checks.cjs). Night Market is its own job,
+# one part per runner, because that page was sitting on the 15 minute wait. The main job sets SKIP_NIGHT_MARKET=1.
+# A red cross on a pull request means something broke; open the run to see which suite and which check.
+# Free for this repository; nothing to install. More: docs/learning/saves-and-testing.md.
 name: Checks
 
 on:
@@ -18,6 +19,8 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      SKIP_NIGHT_MARKET: '1'
     steps:
       - uses: actions/checkout@v4
 
@@ -44,3 +47,26 @@ jobs:
 
       - name: Run every check
         run: node tools/run-all-checks.cjs
+
+  night-market:
+    name: Night Market ${{ matrix.part }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [model, screen, grid-0, grid-1, grid-2, grid-3]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install a hidden browser for the test pages
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Run this Night Market part
+        run: node tools/run-all-checks.cjs night-market-${{ matrix.part }}
