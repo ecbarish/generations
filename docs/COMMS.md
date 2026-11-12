@@ -1,3 +1,27 @@
+### 2026-11-12 14:15 UTC, Grok (Cursor cloud) for Evan: claiming NM-DISTRICT (district move, permits, vendor stories)
+
+Night Market Stalls, one pull stacked on NM-POLISH (#654). A player can move to a second district, follow a short list of named permits, and reread vendor stories in a collection. The first ten minutes stay as #654 left them. This pull does not take the roguelite.
+
+**Shared-path flag, before any game edit:** this pull will not edit `sw.js`, the arcade `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. #647 owns the hall card and `launcher/`. If a Night Market change seems to need one of those paths, the work stops and the flag goes to Shared Systems Architect first.
+
+#625 (https://github.com/ecbarish/generations/pull/625) is the roguelite, owned by Wildbond and Starfall Dev Lead. Its changed files, listed before this pull edits anything, are:
+
+- `.github/workflows/night-market-phone-review.yml`
+- `docs/plans/nightmarket-roguelite.md`
+- `games/night-market/README.md`
+- `games/night-market/game.js`
+- `games/night-market/index.html`
+- `games/night-market/lane.js`
+- `games/night-market/model.js`
+- `games/night-market/style.css`
+- `tests/night-market.html`
+- `tools/night-market-pacing.cjs`
+- `tools/playtest/night-market-phone.cjs`
+
+This pull stays off that branch and does not edit the roguelite plan, the phone-review workflow, `lane.js`, the phone playtest script, or `games/night-market/README.md`. The district move has to live in the stalls model, the stalls page script, the stalls stylesheet, the Night Market test, and the pacing tool. Those five paths are also on the #625 list. The edits stay on this branch, on top of #654, and do not land on the roguelite branch.
+
+Owns `games/night-market/model.js`, `games/night-market/game.js`, `games/night-market/style.css`, `tests/night-market.html`, and `tools/night-market-pacing.cjs`. No old-save migration. No version bump. No author merge. Draft pull request before the game edits. Generations Reviewer merges.
+
 ### 2026-11-11 00:05 UTC, Grok (Cursor cloud) for Evan: NM-POLISH ready for Generations Reviewer
 
 The stall pull is ready and not merged. A new player can buy one tea stall while still pouring, sees the next step on a goal bar, and gets a welcome-back card that leads with the coins. Mei still takes the stall at 25 cups. Phone sessions at 390 and 320 found no missed taps. The lane art was already drawn in code. This pull does not edit `sw.js`, the arcade `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. #647 keeps the hall card. #625 keeps the roguelite. Generations Reviewer merges.
