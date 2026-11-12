@@ -1,3 +1,7 @@
+### 2026-11-12 17:20 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the playtest fix round
+
+Playtester scored #675 at ab4ccfef, Fun 6 and Comeback 4. This note is before the fix round: sticky coins, covered controls, stable slots, true light prices, the Frost Lane hint, and a year 2 that is not a replay. The base stays `cursor/saltmarsh-fork-balance-0d9b`. The stack is not touched. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 17:02 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS base retarget is blocked by the stack
 
 GitHub refuses to change #675's base while it is in stack 657: "Cannot change the base branch because the pull request is part of a stack." Closing the pull and reopening it did not release the stack. The pull is open again, still based on `cursor/saltmarsh-fork-balance-0d9b`, and GitHub still marks it conflicting, so Checks has not started. This author does not rebase and does not force-push. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
