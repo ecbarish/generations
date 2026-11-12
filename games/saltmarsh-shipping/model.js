@@ -156,6 +156,12 @@
       works: 0,
       workQuote: null,
       errands: 0,
+      events: {},
+      eventQuotes: {},
+      routeDiscount: 0,
+      nightLeak: 0,
+      prepPrices: {},
+      routePaid: {},
       peekQuotes: {},
       goalCursor: 0,
       jobs: {},
@@ -538,7 +544,8 @@
             if (!cap || !(units > 0) || !state.captains[index]) return;
             var rate = state._awayRate > 0 ? state._awayRate : 1;
             var paid = haulCoins(cap, units, rate);
-            addCash(state, paid);
+            /* The office rate already pays this average every second.
+               A haul is the log, not a second purse. */
             var row = state.captains[index];
             row.brought = (row.brought || 0) + paid;
             row.hauls = (row.hauls || 0) + units;
@@ -637,7 +644,7 @@
     var next = price == null ? 'none' : coins(price);
     var sloop = state.forks && state.forks.sloop === 'fit' ? 'done' : 'open';
     var schooner = state.forks && state.forks.schooner === 'fit' ? 'done' : 'open';
-    return ' The lighter sloop hulls are ' + sloop + '. The deeper schooner holds are ' + schooner + '. The next shed is ' + next + ' coins. Choosing a fitting does not raise this price.';
+    return ' The lighter sloop hulls are ' + sloop + '. The deeper schooner holds are ' + schooner + '. The next shed is ' + next + ' coins. The list is 480, then 8.40K, then 125K, and only a shed you build takes the next step. Choosing a fitting does not raise this price.';
   }
 
   function needMore(state, cost) {
@@ -709,6 +716,11 @@
       lead += ' The game was closed, so the boats earned ' + Math.round(OFFLINE_RATE * 100) + '%.';
       if (summary.capped) lead += ' ' + hold + ', so ' + hours + ' hours counted.';
     }
+    if (typeof detail.perSec === 'number' && summary && summary.credited > 0) {
+      var factor = openPage ? 1 : OFFLINE_RATE;
+      var promised = Math.round(detail.perSec * summary.credited * factor);
+      lead += ' The desk showed ' + coins(detail.perSec) + ' coins a second, so this stretch is ' + coins(promised) + ' coins.';
+    }
     var lines = [];
     if (typeof detail.before === 'number') lines.push('You left with ' + coins(detail.before) + ' coins.');
     var boatGain = typeof detail.boatGain === 'number' ? detail.boatGain : (summary.gained || 0);
@@ -717,6 +729,10 @@
     if (!captains.length) lines.push('No captain was at the pier.');
     captains.forEach(function (row) { lines.push(row); });
     if (typeof detail.after === 'number') lines.push('You came back to ' + coins(detail.after) + ' coins.');
+    var lit = lightsLit(state);
+    if (lit === 1) lines.push('One lighthouse is burning.');
+    else if (lit > 1) lines.push(lit + ' lighthouses are burning.');
+    if (window.SaltmarshPhase && window.SaltmarshPhase.goal) lines.push('Next: ' + window.SaltmarshPhase.goal(state));
     return { title: 'While you were away', lead: lead, lines: lines, box: lines.join(' ') };
   }
 
@@ -771,10 +787,10 @@
     { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 26, mid: 28, later: 32, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
   ];
   var LIGHTS = [
-    { id: 'pier', name: 'Pier Lighthouse', wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
-    { id: 'headland', name: 'Headland Lighthouse', wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
-    { id: 'reed', name: 'Reed Lighthouse', wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'pier', name: 'Pier Lighthouse', needRoutes: 1, wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The tower is up. Lighting costs the same as raising it, and nights stay safer.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
+    { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The tower is up. Lighting costs the same as raising it, and the runs stay quicker.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The tower is up. Lighting costs the same as raising it, and the far water stays on the chart.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
   var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });
@@ -814,6 +830,7 @@
     var keep = Math.min(0.2, hauls * 0.01);
     if (state.pilot === 'bell') keep += 0.05;
     if (state.lights && state.lights.quay >= 2) keep = Math.min(0.4, keep * 2);
+    if (state.events && state.events.request === 'grant') keep += 0.05;
     return keep > 0.4 ? 0.4 : keep;
   }
   function brambleHaste(state) {
@@ -822,6 +839,11 @@
     if (state.pilot === 'bell') haste += 0.05;
     if (state.lights && state.lights.quay >= 2) haste = Math.min(0.32, haste * 2);
     return haste > 0.32 ? 0.32 : haste;
+  }
+  function nightLeak(state) {
+    if (!state || !(state.nightLeak > 0)) return 0;
+    if (state.lights && state.lights.pier >= 2) return 0;
+    return state.nightLeak > 0.2 ? 0.2 : state.nightLeak;
   }
   function nightSafety(state) {
     var safety = 0;
@@ -846,6 +868,8 @@
       if (!(gross > 0)) return;
       var cut = (state.routeCut && state.routeCut[spec.id]) || 0;
       if (spec.wren || spec.night) cut *= (1 - nightSafety(state));
+      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') cut *= 0.5;
+      if ((spec.wren || spec.night) && nightLeak(state)) cut += gross * nightLeak(state);
       var g = gross - cut;
       if (g < 0) g = 0;
       if (spec.wren) g *= (1 + wrenKeep(state));
@@ -875,9 +899,19 @@
     /* Every contract on the desk is a short step, about half a minute of the office.
        The long arc is the provisions after the lights, not a hidden wait on a later contract. */
     var stake = depth <= 0 ? spec.first : depth === 1 ? spec.mid : spec.later;
+    if (state.routeDiscount > 0 && state.routeDiscount < 1) stake = stake * (1 - state.routeDiscount);
+    var cost = rate * stake;
+    var gross = cost / spec.payback;
+    var paid = state.routePaid && state.routePaid[spec.id];
+    /* The next contract on a route stays within twice the price just signed.
+       A later stake used to jump with the whole office. */
+    if (depth > 0 && paid > 0 && cost > paid * 2) {
+      gross = gross * ((paid * 2) / cost);
+      cost = paid * 2;
+    }
     var risk = spec.risk || 0;
     if (spec.wren) risk = Math.max(0, risk - wrenKeep(state));
-    return { id: spec.id, depth: depth, cost: rate * stake, gross: (rate * stake) / spec.payback, risk: risk };
+    return { id: spec.id, depth: depth, cost: cost, gross: gross, risk: risk };
   }
   function quoteRoute(state, spec, lock) {
     var depth = (state.routes && state.routes[spec.id]) || 0;
@@ -939,6 +973,9 @@
     state.routeGross[id] = (state.routeGross[id] || 0) + quote.gross;
     state.routeCut[id] = (state.routeCut[id] || 0) + quote.gross * (quote.risk || 0);
     state.voyages = (state.voyages || 0) + 1;
+    if (state.routeDiscount) state.routeDiscount = 0;
+    if (!state.routePaid) state.routePaid = {};
+    state.routePaid[id] = quote.cost;
     var depth = state.routes[id];
     if (state.quotes) delete state.quotes[id + ':' + (depth - 1)];
     pushLog(state, spec.name + ', contract ' + depth + '. ' + spec.line, now);
@@ -1051,14 +1088,35 @@
     if (lock) state.lightQuotes[key] = built;
     return built;
   }
+  function lightReady(state, spec) {
+    if (!routesUnlocked(state) || !spec) return false;
+    return routesSailing(state) >= (spec.needRoutes || 1);
+  }
+  function lightClosed(state, spec) {
+    if (!spec) return 'Not yet';
+    if ((state.lights && state.lights[spec.id] || 0) >= 2) return 'Burning';
+    if (spec.id === 'quay') {
+      var barks = (state.boats && state.boats[3] && state.boats[3].owned) || 0;
+      if (barks < BARK_LAMP) return 'Own 16 barks to light the house lamp, ' + (BARK_LAMP - barks) + ' to go.';
+      if (!state.forks || !state.forks.quay) return 'Choose the quay lamp on the desk.';
+    }
+    var need = spec.needRoutes || 1;
+    var have = routesSailing(state);
+    if (have < need) {
+      var left = need - have;
+      return left === 1 ? 'Sign one more route first.' : 'Sign ' + left + ' more routes first.';
+    }
+    return 'Not yet';
+  }
   function lightOffers(state, lock) {
-    if (!routesUnlocked(state) || routesSailing(state) < 5) return [];
+    if (!routesUnlocked(state)) return [];
     var out = [];
     LIGHTS.forEach(function (spec) {
+      if (!lightReady(state, spec)) return;
       var quote = quoteLight(state, spec, !!lock);
       if (!quote) return;
       var blocked = '';
-      if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) blocked = 'Choose the quay first.';
+      if (spec.id === 'quay' && (!state.forks || !state.forks.quay || ((state.boats[3] && state.boats[3].owned) || 0) < BARK_LAMP)) blocked = lightClosed(state, spec);
       out.push({
         id: spec.id, name: spec.name, stage: quote.stage, cost: quote.cost, line: quote.line,
         verb: quote.stage === 0 ? 'Raise the' : 'Light the',
@@ -1070,7 +1128,7 @@
   }
   function buildLight(state, id, now) {
     var spec = lightById(id);
-    if (!spec || routesSailing(state) < 5 || state.ended) return { ok: false, reason: 'closed' };
+    if (!spec || !lightReady(state, spec) || state.ended) return { ok: false, reason: 'closed' };
     if (id === 'quay' && (!state.forks || !state.forks.quay)) return { ok: false, reason: 'choice' };
     var quote = quoteLight(state, spec, true);
     if (!quote || !(state.cash >= quote.cost)) return { ok: false, reason: 'cost', cost: quote && quote.cost };
@@ -1079,29 +1137,34 @@
     var prevStage = (state.lights[id] || 0);
     state.lights[id] = prevStage + 1;
     if (state.lightQuotes) delete state.lightQuotes[id + ':' + prevStage];
-    pushLog(state, quote.line, now);
-    if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. The voyage list opens when the office has been open for 40 minutes.', now);
+    if (state.log && state.log.length) {
+      state.log = state.log.filter(function (row) {
+        return !(row && row.text && row.text.indexOf('Still dark') === 0 && row.text.indexOf(spec.name) >= 0);
+      });
+    }
+    var litLine = spec.lines[state.lights[id]] || spec.lines[spec.lines.length - 1];
+    pushLog(state, litLine, now);
+    if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. Pack the voyage list, then set sail.', now);
     commitGoal(state, 'light');
     return { ok: true, stage: state.lights[id] };
   }
-  /* The voyage list is a short checklist. Prices are coins, never a share of the fleet.
-     Buying boats raises income, so these prices arrive sooner. They never get dearer. */
-  var VOYAGE_AT = 2400;
+  /* The voyage list opens when the four lights are burning. Each price is locked
+     to the office at that moment, in seconds of pay, so a bigger fleet does not
+     make the list dearer and a slower office is not stuck on an old coin figure. */
+  var VOYAGE_AT = 0;
+  /* Six errands, not a dozen small ones. Each one changes the office by
+     about a tenth, and the two sides of a fork do not cost the same. */
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Food for the crew', cost: 3600000000, choice: [
-      { id: 'fresh', name: 'Fresh food', line: 'Fresh food makes every route pay a little more.' },
-      { id: 'pork', name: 'Salt pork', line: 'Salt pork puts 100 million coins back in the chest.' }
+    { id: 'victuals', name: 'Food for the crew', stake: 40, choice: [
+      { id: 'fresh', name: 'Fresh food', costMul: 1.35, route: 0.22, line: 'Fresh food. Every route pays 22% more.' },
+      { id: 'pork', name: 'Salt pork', costMul: 0.7, nextCut: 0.25, line: 'Salt pork. The next errand costs 25% less.' }
     ]},
-    { id: 'canvas', name: 'Canvas for the sails', cost: 4300000000, line: 'New canvas. Every route pays a little more.' },
-    { id: 'coal', name: 'Coal for the lamps', cost: 5100000000, line: 'The lamps are coaled. Every route pays a little more.' },
-    { id: 'pilot', name: 'A pilot for the bar', cost: 6000000000, choice: [
-      { id: 'pilot', name: 'A pilot for the bar', line: 'A pilot makes every route pay a little more.' },
-      { id: 'chart', name: 'A bought chart', line: 'A bought chart makes the boats earn a little more.' }
+    { id: 'canvas', name: 'Canvas for the sails', stake: 48, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
+    { id: 'pilot', name: 'A pilot for the bar', stake: 42, choice: [
+      { id: 'pilot', name: 'A pilot', costMul: 1.4, shield: true, line: 'A pilot. Risky routes lose only half as much.' },
+      { id: 'chart', name: 'A bought chart', costMul: 0.72, boat: 0.18, line: 'A chart. Every boat earns 18% more.' }
     ]},
-    { id: 'casks', name: 'Water casks', cost: 6400000000, line: 'The hold rides lower. The boats earn a little more.' },
-    { id: 'cable', name: 'A new anchor cable', cost: 6800000000, line: 'The mooring holds. The boats earn a little more.' },
-    { id: 'flag', name: 'A house flag', cost: 7100000000, line: 'The ship shows her house flag. Routes pay a little more.' },
-    { id: 'tide', name: 'The tide table', cost: 7200000000, line: 'The hour of sailing is written down.' }
+    { id: 'tide', name: 'The tide table', stake: 44, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' }
   ];
   var WORK_SPAN = 32;
   var WORK_VERBS = ['Tar', 'Oil', 'Mend', 'Paint', 'Coil', 'Hang', 'Caulk', 'Sweep'];
@@ -1114,24 +1177,65 @@
   function prepRouteFactor(state) {
     var done = prepDoneMap(state);
     var m = 1 + 0.012 * ((state && state.works) || 0);
-    if (done.canvas) m *= 1.02;
-    if (done.coal) m *= 1.02;
-    if (done.flag) m *= 1.02;
-    if (done.tide) m *= 1.02;
-    if (done.victuals === 'fresh') m *= 1.03;
-    if (done.pilot === 'pilot') m *= 1.02;
+    if (done.victuals === 'fresh') m *= 1.22;
+    if (done.canvas) m *= 1.2;
+    if (done.tide) m *= 1.2;
     return m;
   }
   function boatPrepFactor(state) {
     var done = prepDoneMap(state);
     var m = 1;
-    if (done.casks) m *= 1.02;
-    if (done.cable) m *= 1.02;
-    if (done.pilot === 'chart') m *= 1.02;
+    if (done.pilot === 'chart') m *= 1.18;
     return m;
   }
   function voyageOpen(state) {
-    return !!(state && !state.ended && allLightsLit(state) && (state.played || 0) >= VOYAGE_AT);
+    return !!(state && !state.ended && allLightsLit(state));
+  }
+  function preparationCost(state, item) {
+    if (!item) return 0;
+    if (!state.prepPrices) state.prepPrices = {};
+    if (!(state.prepPrices[item.id] > 0)) {
+      var cost = Math.max(1, Math.round(officeRate(state) * (item.stake || 40)));
+      if (item.id === 'victuals' && state.events && state.events.windfall === 'stow') cost = Math.round(cost * 0.7);
+      if (item.id !== 'victuals' && state.prepDone && state.prepDone.victuals === 'pork') cost = Math.round(cost * 0.75);
+      state.prepPrices[item.id] = Math.max(1, cost);
+    }
+    return state.prepPrices[item.id];
+  }
+  function prepOption(item, which) {
+    if (!item || !item.choice) return null;
+    var found = null;
+    item.choice.forEach(function (opt) { if (opt.id === which) found = opt; });
+    return found;
+  }
+  function optionPrice(state, item, which) {
+    var base = preparationCost(state, item);
+    var opt = prepOption(item, which);
+    var mul = opt && opt.costMul ? opt.costMul : 1;
+    return Math.max(1, Math.round(base * mul));
+  }
+  /* What this side does, in coins per second or as the next-errand cut. */
+  function optionEffect(state, item, which) {
+    var opt = which ? prepOption(item, which) : null;
+    var route = (opt && opt.route) || (!opt && item && item.route) || 0;
+    var boat = (opt && opt.boat) || (!opt && item && item.boat) || 0;
+    if (opt && opt.nextCut) return { text: '−' + Math.round(opt.nextCut * 100) + '% next', gain: 0 };
+    if (opt && opt.shield) {
+      var before = routeIncome(state);
+      var prevPilot = state.prepDone && state.prepDone.pilot;
+      if (!state.prepDone) state.prepDone = {};
+      state.prepDone.pilot = 'pilot';
+      var after = routeIncome(state);
+      if (prevPilot) state.prepDone.pilot = prevPilot;
+      else delete state.prepDone.pilot;
+      var kept = Math.max(0, after - before);
+      return { text: kept > 1 ? 'risk cut +' + coins(Math.round(kept)) + '/s' : 'risky routes lose half', gain: kept };
+    }
+    var gain = 0;
+    if (route) gain = routeIncome(state) * route;
+    if (boat) gain += income(state) * boat;
+    if (!(gain > 1)) return { text: '', gain: 0 };
+    return { text: '+' + coins(Math.round(gain)) + '/s', gain: gain };
   }
   function preparationById(id) {
     var i;
@@ -1147,14 +1251,31 @@
   function preparationOffers(state) {
     if (!voyageOpen(state)) return [];
     var done = prepDoneMap(state);
-    return PREPARATIONS.filter(function (item) { return !done[item.id]; }).map(function (item) {
+    var left = PREPARATIONS.filter(function (item) { return !done[item.id]; });
+    return left.map(function (item, index) {
+      var choice = null;
+      var cost = 0;
+      if (index === 0 && item.choice) {
+        choice = item.choice.map(function (opt) {
+          var price = optionPrice(state, item, opt.id);
+          var effect = optionEffect(state, item, opt.id);
+          return { id: opt.id, name: opt.name, line: opt.line, cost: price, effect: effect.text, gain: effect.gain };
+        });
+        cost = choice[0].cost;
+        choice.forEach(function (opt) { if (opt.cost < cost) cost = opt.cost; });
+      } else if (index === 0) {
+        cost = preparationCost(state, item);
+      }
+      var solo = !item.choice ? optionEffect(state, item, '') : null;
       return {
         id: item.id,
         name: item.name,
-        cost: item.cost,
-        choice: item.choice || null,
+        cost: cost,
+        choice: choice,
         line: item.line || '',
-        affordable: state.cash >= item.cost
+        effect: solo ? solo.text : '',
+        gain: solo ? solo.gain : 0,
+        affordable: index === 0 && state.cash >= cost
       };
     });
   }
@@ -1167,20 +1288,20 @@
     if (!item || !voyageOpen(state) || prepDoneMap(state)[id]) return { ok: false, reason: 'closed' };
     var offer = nextPreparation(state);
     if (!offer || offer.id !== id) return { ok: false, reason: 'closed' };
-    if (!(state.cash >= item.cost)) return { ok: false, reason: 'cost', cost: item.cost };
     var picked = which || null;
     if (item.choice) {
       var ok = false;
       item.choice.forEach(function (opt) { if (opt.id === which) ok = true; });
       if (!ok) picked = item.choice[0].id;
     }
-    state.cash -= item.cost;
+    var price = item.choice ? optionPrice(state, item, picked) : preparationCost(state, item);
+    if (!(state.cash >= price)) return { ok: false, reason: 'cost', cost: price };
+    state.cash -= price;
     if (state.cash < 1e-6) state.cash = 0;
     if (!state.prepDone) state.prepDone = {};
     state.prepDone[id] = item.choice ? picked : true;
     if (!state.prepChoices) state.prepChoices = {};
     if (item.choice) state.prepChoices[id] = picked;
-    if (id === 'victuals' && picked === 'pork') addCash(state, 100000000);
     var line = item.line || item.name;
     if (item.choice) item.choice.forEach(function (opt) { if (opt.id === picked) line = opt.line; });
     pushLog(state, item.name + '. ' + line, now);
@@ -1194,7 +1315,7 @@
   function workOffer(state) {
     if (!sideWorkOpen(state)) return null;
     var n = state.works || 0;
-    if (n >= 140) return null;
+    if (n >= 4) return null;
     var cost = Math.max(1, officeRate(state)) * WORK_SPAN;
     return { index: n, name: WORKS[n % WORKS.length], cost: cost, affordable: state.cash >= cost, line: 'A harbour job. The routes pay a little more.' };
   }
@@ -1242,7 +1363,7 @@
   function errandOffer(state) {
     if (!sideWorkOpen(state)) return null;
     var n = state.errands || 0;
-    if (n >= 140) return null;
+    if (n >= 4) return null;
     var cost = Math.max(1, officeRate(state)) * 32;
     return { index: n, name: ERRANDS[n % ERRANDS.length], cost: cost, affordable: state.cash >= cost, line: 'A short errand on the quay. The boats earn a little more.' };
   }
@@ -1361,6 +1482,124 @@
     else pushLog(state, 'A bell on the pier. Wren and Bramble count for a little more on their routes.', now);
     return { ok: true, which: state.pilot };
   }
+  var EVENT_IDS = ['squall', 'request', 'windfall'];
+  function eventDone(state, id) {
+    return !!(state && state.events && state.events[id]);
+  }
+  function eventWindow(state, id) {
+    if (!state || state.ended || eventDone(state, id) || !routesUnlocked(state)) return false;
+    var sailing = routesSailing(state);
+    var lit = lightsLit(state);
+    if (id === 'squall') return sailing === 1 && lit === 0;
+    if (id === 'request') return lit === 1;
+    if (id === 'windfall') return lit === 2;
+    return false;
+  }
+  function eventQuote(state, id) {
+    if (!state.eventQuotes) state.eventQuotes = {};
+    if (!(state.eventQuotes[id] > 0)) state.eventQuotes[id] = Math.max(1, Math.round(officeRate(state) * 10));
+    return state.eventQuotes[id];
+  }
+  function eventSpec(id) {
+    if (id === 'squall') return {
+      goal: 'Choose to wait the squall out, or sail through it.',
+      cards: [
+        { which: 'wait', name: 'Wait the squall out', line: 'Every contract on the desk costs less.' },
+        { which: 'sail', name: 'Sail through the squall', line: 'A purse comes in now. Night runs keep a little less until the Pier Lighthouse is burning.' }
+      ]
+    };
+    if (id === 'request') return {
+      goal: 'Choose Capt. Wren\'s request, or keep the purse.',
+      cards: [
+        { which: 'grant', name: 'Let Wren keep the gull\'s coin', line: 'Wren\'s count keeps 5% more of Gull Rock.' },
+        { which: 'purse', name: 'Keep the purse', line: 'The coin stays in the chest.' }
+      ]
+    };
+    if (id === 'windfall') return {
+      goal: 'Choose to sell the crate, or stow it for the last voyage.',
+      cards: [
+        { which: 'sell', name: 'Sell the crate', line: 'The crate pays out now.' },
+        { which: 'stow', name: 'Stow the crate', line: 'Food for the crew costs less when the voyage list opens.' }
+      ]
+    };
+    return null;
+  }
+  function eventOffer(state) {
+    if (!state || state.ended) return null;
+    var i;
+    for (i = 0; i < EVENT_IDS.length; i++) {
+      var id = EVENT_IDS[i];
+      if (!eventWindow(state, id)) continue;
+      var spec = eventSpec(id);
+      var cost = eventQuote(state, id);
+      return {
+        id: id,
+        goal: spec.goal,
+        cards: spec.cards.map(function (card) {
+          var line = card.line;
+          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(Math.max(1, officeRate(state)) * 36)) + ' to the chest.';
+          if (id === 'windfall' && card.which === 'sell') line = 'The crate pays ' + coins(Math.round(Math.max(1, officeRate(state)) * 48)) + ' now.';
+          return {
+            which: card.which,
+            name: card.name,
+            cost: cost,
+            line: line,
+            affordable: state.cash >= cost
+          };
+        })
+      };
+    }
+    return null;
+  }
+  function chooseEvent(state, id, which, now) {
+    var offer = eventOffer(state);
+    if (!offer || offer.id !== id) return { ok: false, reason: 'closed' };
+    var card = null;
+    offer.cards.forEach(function (row) { if (row.which === which) card = row; });
+    if (!card) return { ok: false, reason: 'closed' };
+    if (!(state.cash >= card.cost)) return { ok: false, reason: 'cost', cost: card.cost };
+    state.cash -= card.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    if (!state.events) state.events = {};
+    var rate = Math.max(1, officeRate(state));
+    if (id === 'squall' && which === 'wait') {
+      state.events.squall = 'wait';
+      state.routeDiscount = 0;
+      var shown = routeOffers(state, true);
+      if (!state.quotes) state.quotes = {};
+      shown.forEach(function (row) {
+        var key = row.id + ':' + row.depth;
+        var prev = state.quotes[key];
+        if (!prev || !(prev.cost > 0)) return;
+        state.quotes[key] = {
+          id: prev.id, depth: prev.depth,
+          cost: Math.max(1, Math.round(prev.cost * 0.75)),
+          gross: prev.gross, risk: prev.risk
+        };
+      });
+      pushLog(state, 'The squall passed. The contracts on the desk cost less.', now);
+    } else if (id === 'squall') {
+      state.events.squall = 'sail';
+      state.nightLeak = 0.12;
+      addCash(state, Math.round(rate * 24));
+      pushLog(state, 'The office sailed through the squall. A purse came in, and the night runs keep a little less until the Pier Lighthouse is burning.', now);
+    } else if (id === 'request' && which === 'grant') {
+      state.events.request = 'grant';
+      pushLog(state, 'Capt. Wren keeps the gull\'s coin. Her count holds a little more of Gull Rock.', now);
+    } else if (id === 'request') {
+      state.events.request = 'purse';
+      addCash(state, Math.round(rate * 36));
+      pushLog(state, 'The purse stays in the chest. Capt. Wren lets the gull have its coin.', now);
+    } else if (id === 'windfall' && which === 'stow') {
+      state.events.windfall = 'stow';
+      pushLog(state, 'The crate is stowed. Food for the crew will cost less.', now);
+    } else if (id === 'windfall') {
+      state.events.windfall = 'sell';
+      addCash(state, Math.round(rate * 48));
+      pushLog(state, 'The crate is sold. The coins are in the chest.', now);
+    } else return { ok: false, reason: 'closed' };
+    return { ok: true, id: id, which: state.events[id] };
+  }
   function deskChoice(state) {
     if (!state || state.ended) return null;
     var fork = choiceOffer(state);
@@ -1376,12 +1615,15 @@
     }
     var quay = quayOffer(state);
     if (quay) return { id: 'quay', goal: quay.goal, cards: [quay.lamp, quay.hold] };
+    var tide = eventOffer(state);
+    if (tide) return tide;
     var pilot = pilotOffer(state);
     if (!pilot) return null;
     return { id: 'pilot', goal: pilot.goal, cards: pilot.cards };
   }
   function chooseDesk(state, id, which, now) {
     if (id === 'quay') return chooseQuay(state, which, now);
+    if (id === 'squall' || id === 'request' || id === 'windfall') return chooseEvent(state, id, which, now);
     if (id === 'pilot') return choosePilot(state, which, now);
     return chooseFork(state, id, which, now);
   }
@@ -1542,10 +1784,15 @@
     if (o.provisions != null && (!finiteNum(o.provisions) || o.provisions < 0)) return false;
     if (o.provisionQuote != null && (typeof o.provisionQuote !== 'object' || !finiteNum(o.provisionQuote.cost) || o.provisionQuote.cost < 0)) return false;
     if (o.played != null && (!finiteNum(o.played) || o.played < 0)) return false;
+    if (o.events != null && typeof o.events !== 'object') return false;
+    if (o.prepPrices != null && typeof o.prepPrices !== 'object') return false;
+    if (o.routeDiscount != null && (!finiteNum(o.routeDiscount) || o.routeDiscount < 0 || o.routeDiscount >= 1)) return false;
+    if (o.nightLeak != null && (!finiteNum(o.nightLeak) || o.nightLeak < 0)) return false;
     if (o.routeGear != null && typeof o.routeGear !== 'object') return false;
     if (o.gearQuote != null && typeof o.gearQuote !== 'object') return false;
     if (o.routeGross != null && typeof o.routeGross !== 'object') return false;
     if (o.routeCut != null && typeof o.routeCut !== 'object') return false;
+    if (o.routePaid != null && typeof o.routePaid !== 'object') return false;
     return true;
   }
 
@@ -1597,6 +1844,16 @@
       prepDone: state.prepDone && typeof state.prepDone === 'object' ? state.prepDone : {},
       prepChoices: state.prepChoices && typeof state.prepChoices === 'object' ? state.prepChoices : {},
       works: state.works || 0,
+      events: {
+        squall: state.events && (state.events.squall === 'wait' || state.events.squall === 'sail') ? state.events.squall : null,
+        request: state.events && (state.events.request === 'grant' || state.events.request === 'purse') ? state.events.request : null,
+        windfall: state.events && (state.events.windfall === 'sell' || state.events.windfall === 'stow') ? state.events.windfall : null
+      },
+      eventQuotes: state.eventQuotes && typeof state.eventQuotes === 'object' ? state.eventQuotes : {},
+      routeDiscount: state.routeDiscount > 0 && state.routeDiscount < 1 ? state.routeDiscount : 0,
+      nightLeak: state.nightLeak > 0 ? state.nightLeak : 0,
+      prepPrices: state.prepPrices && typeof state.prepPrices === 'object' ? state.prepPrices : {},
+      routePaid: state.routePaid && typeof state.routePaid === 'object' ? state.routePaid : {},
       workQuote: state.workQuote && finiteNum(state.workQuote.cost) ? { index: state.workQuote.index || 0, name: state.workQuote.name || '', cost: state.workQuote.cost } : null,
       peekQuotes: state.peekQuotes && typeof state.peekQuotes === 'object' ? state.peekQuotes : {},
       goalCursor: state.goalCursor || 0,
@@ -1664,6 +1921,32 @@
     }
     state.prepChoices = o.prepChoices && typeof o.prepChoices === 'object' ? o.prepChoices : {};
     state.works = finiteNum(o.works) ? Math.max(0, Math.floor(o.works)) : 0;
+    state.events = {};
+    if (o.events && typeof o.events === 'object') {
+      if (o.events.squall === 'wait' || o.events.squall === 'sail') state.events.squall = o.events.squall;
+      if (o.events.request === 'grant' || o.events.request === 'purse') state.events.request = o.events.request;
+      if (o.events.windfall === 'sell' || o.events.windfall === 'stow') state.events.windfall = o.events.windfall;
+    }
+    state.eventQuotes = {};
+    if (o.eventQuotes && typeof o.eventQuotes === 'object') {
+      EVENT_IDS.forEach(function (id) {
+        if (finiteNum(o.eventQuotes[id]) && o.eventQuotes[id] > 0) state.eventQuotes[id] = o.eventQuotes[id];
+      });
+    }
+    state.routeDiscount = finiteNum(o.routeDiscount) && o.routeDiscount > 0 && o.routeDiscount < 1 ? o.routeDiscount : 0;
+    state.nightLeak = finiteNum(o.nightLeak) && o.nightLeak > 0 ? o.nightLeak : 0;
+    state.routePaid = {};
+    if (o.routePaid && typeof o.routePaid === 'object') {
+      ROUTE_IDS.forEach(function (id) {
+        if (finiteNum(o.routePaid[id]) && o.routePaid[id] > 0) state.routePaid[id] = o.routePaid[id];
+      });
+    }
+    state.prepPrices = {};
+    if (o.prepPrices && typeof o.prepPrices === 'object') {
+      PREPARATIONS.forEach(function (item) {
+        if (finiteNum(o.prepPrices[item.id]) && o.prepPrices[item.id] > 0) state.prepPrices[item.id] = o.prepPrices[item.id];
+      });
+    }
     state.workQuote = o.workQuote && finiteNum(o.workQuote.cost) ? { index: o.workQuote.index || 0, name: o.workQuote.name || '', cost: o.workQuote.cost } : null;
     state.peekQuotes = o.peekQuotes && typeof o.peekQuotes === 'object' ? o.peekQuotes : {};
     state.goalCursor = finiteNum(o.goalCursor) ? Math.max(0, Math.floor(o.goalCursor)) : 0;
@@ -1759,7 +2042,7 @@
 
   function createIdle(state, save) {
     return Idle.create({
-      getRate: function () { return income(state) + routeIncome(state); },
+      getRate: function () { return officeRate(state); },
       apply: function (amount) { addCash(state, amount); },
       maxOfflineSec: offlineCap(state),
       offlineRate: OFFLINE_RATE,
@@ -1851,8 +2134,13 @@
     gearOffer: gearOffer,
     buyGear: buyGear,
     lightOffers: lightOffers,
+    lightClosed: lightClosed,
     buildLight: buildLight,
     voyageOpen: voyageOpen,
+    preparationCost: preparationCost,
+    optionPrice: optionPrice,
+    optionEffect: optionEffect,
+    eventOffer: eventOffer,
     preparationOffers: preparationOffers,
     nextPreparation: nextPreparation,
     buyPreparation: buyPreparation,

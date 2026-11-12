@@ -15,13 +15,15 @@
     <div id="choice-cards"></div>
   </section>
   <header>
-    <div class="top">
-      <a class="home" href="../../index.html">Back to the arcade</a>
-      <p class="coins"><span id="coins">0</span> coins</p>
+    <div class="purse" id="purse">
+      <div class="top">
+        <a class="home" href="../../index.html">Back to the arcade</a>
+        <p class="coins"><span id="coins">0</span> coins</p>
+      </div>
+      <p class="rate" id="rate">Nothing is earning yet.</p>
     </div>
     <h1>Saltmarsh Shipping Office</h1>
     <p class="scene">The Saltmarsh coast, from the office window. You row the first cargoes yourself.</p>
-    <p class="rate" id="rate">Nothing is earning yet.</p>
     <p class="rate" id="away-rule"></p>
     <div class="tools-row">
       <button type="button" id="sound">Sound: off</button>
@@ -32,6 +34,7 @@
   <div class="harbour-wrap">
     <canvas id="harbour" aria-hidden="true"></canvas>
     <p class="float" id="float" hidden></p>
+  <p class="cheer" id="cheer" hidden></p>
   </div>
   <div class="work">
     <button type="button" id="row" class="row">Row this cargo</button>
@@ -44,16 +47,6 @@
       <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     </div>
     <ol class="boats" id="boats"></ol>
-    <section id="sheds" hidden></section>
-    <section id="settled" class="settled" hidden>
-      <h2>Settled on the desk</h2>
-      <ul id="settled-list"></ul>
-    </section>
-    <section id="fleet" class="fleet" hidden>
-      <h2>The fleet</h2>
-      <div class="chart" id="chart"></div>
-      <ol class="captains" id="captains"></ol>
-    </section>
     <section id="routes" class="routes" hidden>
       <h2>Trade routes</h2>
       <p id="routes-note"></p>
@@ -64,6 +57,16 @@
       <h2>Lighthouses</h2>
       <p id="lights-note"></p>
       <div id="light-cards"></div>
+    </section>
+    <section id="sheds" hidden></section>
+    <section id="settled" class="settled" hidden>
+      <h2>Settled on the desk</h2>
+      <ul id="settled-list"></ul>
+    </section>
+    <section id="fleet" class="fleet" hidden>
+      <h2>The fleet</h2>
+      <div class="chart" id="chart"></div>
+      <ol class="captains" id="captains"></ol>
     </section>
     <section id="harbour-work" class="finale" hidden>
       <h2>Harbour work</h2>

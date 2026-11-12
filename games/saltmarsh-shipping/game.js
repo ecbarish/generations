@@ -83,8 +83,9 @@
         var one = M.quote(state, i, 1);
         return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
       }
+      if (q.count === 1) return 'Buy 1 · ' + money(q.cost);
       if (q.toGoal) return 'To the goal · ' + q.count + ' · ' + money(q.cost);
-      return 'Buy up to ' + q.count + ' · ' + money(q.cost);
+      return 'Buy ' + q.count + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
     var label = 'Buy ' + n + ' · ' + money(q.cost);
@@ -327,11 +328,37 @@
     var offer = M.deskChoice(state);
     box.hidden = !offer;
     if (back) back.hidden = !offer;
-    if (box.hidden) return;
-    var bar = $('#goalbar');
-    if (bar) {
-      box.style.bottom = bar.offsetHeight + 'px';
-      box.style.maxHeight = 'calc(100vh - ' + (bar.offsetHeight + 8) + 'px)';
+    if (box.hidden) {
+      box.style.top = '';
+      box.style.bottom = '';
+      box.style.maxHeight = '';
+      return;
+    }
+    /* The sheet stays on the half the finger is not on, and it stops above the goal bar. */
+    var bar = document.querySelector('#goalbar');
+    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var short = window.matchMedia('(max-height: 430px)').matches;
+    var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
+    var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
+    /* On a phone the choice is a short banner above the goal, so the cards stay visible. */
+    if (narrow) {
+      box.style.top = 'auto';
+      box.style.bottom = (barH + gap) + 'px';
+      box.style.maxHeight = '11rem';
+    } else if (fingerLow) {
+      box.style.top = topPx + 'px';
+      box.style.bottom = 'auto';
+      var room = window.innerHeight - barH - gap - topPx;
+      var cap = short ? Math.min(room, window.innerHeight * 0.46) : room;
+      box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
+    } else {
+      box.style.top = 'auto';
+      box.style.bottom = (barH + gap) + 'px';
+      var roomBottom = window.innerHeight - barH - gap;
+      var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
+      box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
     }
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
@@ -348,8 +375,17 @@
       var button = host.querySelector('[data-which="' + card.which + '"]');
       if (!button) return;
       button.disabled = !card.affordable;
-      var label = 'Take · ' + money(card.cost);
-      button.textContent = card.affordable || !(card.cost > 0) ? label : label + ' · ' + M.needMore(state, card.cost);
+      button.replaceChildren();
+      var main = document.createElement('span');
+      main.className = 'take-main';
+      main.textContent = 'Take · ' + money(card.cost);
+      button.appendChild(main);
+      if (!card.affordable && card.cost > 0) {
+        var sub = document.createElement('span');
+        sub.className = 'take-need';
+        sub.textContent = M.needMore(state, card.cost);
+        button.appendChild(sub);
+      }
     });
   }
 
@@ -440,12 +476,21 @@
     var offerById = {};
     offers.forEach(function (offer) { offerById[offer.id] = offer; });
     var rows = [];
+    /* Only the contracts on the desk. A signed route stays in its card,
+       so a new name is not inserted above a button the player can already see. */
+    var waitingLine = [];
     M.ROUTES.forEach(function (spec) {
-      var signed = (state.routes && state.routes[spec.id]) || 0;
       var offer = offerById[spec.id] || null;
-      if (!offer && signed <= 0) return;
-      rows.push({ spec: spec, offer: offer, signed: signed });
+      var signed = (state.routes && state.routes[spec.id]) || 0;
+      if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
+      else if (signed > 0 && signed < spec.depths) {
+        var peek = M.peekRoute(state, spec);
+        if (peek) waitingLine.push(spec.name + ' ' + money(peek.cost) + ' after the current one');
+        rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
+      }
     });
+    /* On a phone the same price is already on the card, so the note stays one sentence. */
+    if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
       return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
@@ -457,21 +502,26 @@
         var spec = row.spec;
         var offer = row.offer;
         var wrap = document.createElement('div');
-        wrap.className = 'route-card';
+        wrap.className = 'route-card' + (row.queued ? ' is-wait' : '');
         wrap.dataset.route = spec.id;
         var h = document.createElement('h3');
         var contract = M.routeContract(state, spec.id);
-        h.textContent = row.signed >= spec.depths
-          ? spec.name + ' · ' + contract.signed + ' signed'
-          : spec.name + ' · contract ' + contract.next + ' of ' + contract.depths;
+        h.textContent = row.waiting
+          ? spec.name
+          : row.signed >= spec.depths
+            ? spec.name + ' · ' + contract.signed + ' signed'
+            : spec.name + ' · contract ' + contract.next + ' of ' + contract.depths;
         var p = document.createElement('p');
         p.className = 'habit';
         var risk = spec.risk > 0 ? ' About ' + Math.round(spec.risk * 100) + '% can be lost.' : ' Nothing is risked.';
-        p.textContent = spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
+        p.textContent = row.waiting
+          ? 'Not on the desk yet.'
+          : spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
         var gain = document.createElement('p');
         gain.className = 'facts';
         var peek = !offer && row.signed > 0 && row.signed < spec.depths ? M.peekRoute(state, spec) : null;
-        if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
+        if (row.waiting) gain.textContent = 'It waits its turn.';
+        else if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
         else if (peek) gain.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
         else gain.textContent = 'Signed.';
         wrap.appendChild(h);
@@ -485,7 +535,7 @@
         if (offer) button.dataset.act = 'route';
         else {
           button.disabled = true;
-          button.textContent = peek ? (money(peek.cost) + ' · after the current one') : 'Signed';
+          button.textContent = row.waiting ? 'Not yet' : (peek ? (money(peek.cost) + ' · after the current one') : 'Signed');
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -511,6 +561,8 @@
       var spec = null;
       M.ROUTES.forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
       if (!spec) return;
+      var signedNow = (state.routes && state.routes[spec.id]) || 0;
+      if (signedNow <= 0) return;
       var peek = M.peekRoute(state, spec);
       var card = button.parentNode && button.parentNode.parentNode;
       var facts = card ? card.querySelector('.facts') : null;
@@ -629,7 +681,7 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
@@ -640,6 +692,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
         wrap.dataset.light = spec.id;
+        wrap.dataset.stage = String(stage);
         var h = document.createElement('h3');
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');
@@ -656,24 +709,25 @@
         if (offer) button.dataset.act = 'light';
         else {
           button.disabled = true;
-          button.textContent = 'Burning';
+          button.textContent = M.lightClosed ? M.lightClosed(state, spec) : (stage >= 2 ? 'Burning' : 'Not yet');
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
         host.appendChild(wrap);
       });
     }
-    Array.prototype.forEach.call(host.querySelectorAll('[data-act="light"]'), function (button) {
+    Array.prototype.forEach.call(host.querySelectorAll('button'), function (button) {
+      var spec = null;
+      for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
-      if (!offer) return;
-      var desk = M.deskChoice(state);
-      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
-      if (offer.blocked) {
+      if (!offer || offer.blocked) {
         button.disabled = true;
-        button.textContent = offer.blocked;
+        button.textContent = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
         return;
       }
+      button.dataset.act = 'light';
+      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
       button.disabled = !offer.affordable;
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
@@ -718,7 +772,7 @@
     if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
     $('#provision-note').textContent = offers.length
       ? 'These prices don\'t go up as your fleet grows.'
-      : 'All eight are packed.';
+      : 'Set sail when you are ready.';
     var host = $('#provision-cards');
     var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
@@ -731,26 +785,22 @@
         host.dataset.heldHeight = '';
         var packed = document.createElement('p');
         packed.className = 'habit';
-        packed.textContent = 'All eight are packed.';
+        packed.textContent = 'Nothing left to pack.';
         host.appendChild(packed);
       } else {
-        M.PREPARATIONS.forEach(function (item) {
-          var card = document.createElement('div');
-          card.className = 'route-card';
-          var h = document.createElement('h3');
-          var picked = doneMap[item.id];
-          var chosen = null;
-          if (item.choice && picked) item.choice.forEach(function (opt) { if (opt.id === picked) chosen = opt; });
-          h.textContent = chosen ? item.name + ' · ' + chosen.name : (picked ? item.name + ' · packed' : item.name);
-          var p = document.createElement('p');
-          p.className = 'habit';
-          if (chosen) p.textContent = chosen.line;
-          else if (item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
-          else p.textContent = item.line || '';
-          card.appendChild(h);
-          card.appendChild(p);
-          host.appendChild(card);
-        });
+        var item = null;
+        M.PREPARATIONS.forEach(function (row) { if (row.id === offers[0].id) item = row; });
+        var card = document.createElement('div');
+        card.className = 'route-card';
+        var h = document.createElement('h3');
+        h.textContent = item ? item.name : offers[0].name;
+        var p = document.createElement('p');
+        p.className = 'habit';
+        if (item && item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
+        else p.textContent = (item && item.line) || offers[0].line || '';
+        card.appendChild(h);
+        card.appendChild(p);
+        host.appendChild(card);
       }
     }
     if (offers.length) {
@@ -778,10 +828,22 @@
     if (actions) actions.hidden = false;
     button.dataset.prep = current.id;
     button.dataset.which = current.choice ? current.choice[0].id : '';
-    var mainName = current.choice ? current.choice[0].name : current.name;
-    var mainLabel = mainName + ' · ' + money(current.cost);
-    button.disabled = !(state.cash >= current.cost);
-    button.textContent = state.cash >= current.cost ? mainLabel : mainLabel + ' · ' + M.needMore(state, current.cost);
+    function packLabel(node, opt) {
+      node.replaceChildren();
+      var main = document.createElement('span');
+      main.className = 'take-main';
+      main.textContent = opt.name;
+      var price = document.createElement('span');
+      price.className = 'take-need';
+      price.textContent = money(opt.cost) + (opt.effect ? ' · ' + opt.effect : '');
+      node.appendChild(main);
+      node.appendChild(price);
+      node.disabled = !(state.cash >= opt.cost);
+      node.dataset.cost = String(opt.cost);
+      if (state.cash >= opt.cost) node.removeAttribute('title');
+      else node.setAttribute('title', opt.name + ' · ' + money(opt.cost) + (opt.effect ? ' · ' + opt.effect : ''));
+    }
+    packLabel(button, current.choice ? current.choice[0] : { name: current.name, cost: current.cost, effect: current.effect || '' });
     if (current.choice) {
       if (!alt) {
         alt = document.createElement('button');
@@ -793,17 +855,11 @@
       alt.hidden = false;
       alt.dataset.prep = current.id;
       alt.dataset.which = current.choice[1].id;
-      var altLabel = current.choice[1].name + ' · ' + money(current.cost);
-      alt.disabled = !(state.cash >= current.cost);
-      alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
+      packLabel(alt, current.choice[1]);
     } else if (alt) alt.hidden = true;
     if (actions) {
-      var rowH = actions.offsetHeight;
-      var rowHeld = parseFloat(actions.dataset.heldHeight || '0');
-      if (rowH > rowHeld + 0.5) {
-        actions.dataset.heldHeight = String(rowH);
-        actions.style.minHeight = rowH + 'px';
-      }
+      actions.style.minHeight = '';
+      actions.dataset.heldHeight = '';
     }
   }
 
@@ -900,7 +956,64 @@
     el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
   }
 
+  function panelsOverlap(a, b) {
+    return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+  }
+  function panelCoversBuy(rect) {
+    var nodes = document.querySelectorAll('#boats [data-act="buy"]');
+    var i;
+    for (i = 0; i < nodes.length; i++) {
+      var button = nodes[i];
+      if (button.hidden || button.offsetParent === null) continue;
+      var box = button.getBoundingClientRect();
+      if (box.width < 4 || box.height < 4) continue;
+      if (panelsOverlap(rect, box)) return true;
+    }
+    return false;
+  }
+  /* Choice and the welcome-back card float, so opening one does not move a button.
+     They stack above the goal, and move under the purse if that stack would cover a buy. */
+  function placeStack() {
+    var choice = $('#choice');
+    var away = $('#away');
+    var goal = $('#goalbar');
+    var purse = $('#purse');
+    var goalH = goal ? Math.ceil(goal.getBoundingClientRect().height) : 64;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var choiceOpen = choice && !choice.hidden;
+    var awayOpen = away && !away.hidden;
+    if (choiceOpen) {
+      choice.style.top = 'auto';
+      choice.style.bottom = (goalH + gap) + 'px';
+      choice.style.maxHeight = narrow ? '8.5rem' : '';
+      choice.style.zIndex = '7';
+    }
+    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
+    if (awayOpen) {
+      away.style.top = 'auto';
+      away.style.bottom = (goalH + gap + (choiceH ? choiceH + gap : 0)) + 'px';
+      away.style.zIndex = '8';
+    }
+    var choiceRect = choiceOpen ? choice.getBoundingClientRect() : null;
+    var awayRect = awayOpen ? away.getBoundingClientRect() : null;
+    if ((choiceRect && panelCoversBuy(choiceRect)) || (awayRect && panelCoversBuy(awayRect))) {
+      var top = purse ? Math.ceil(purse.getBoundingClientRect().bottom) + gap : gap;
+      if (awayOpen) {
+        away.style.top = top + 'px';
+        away.style.bottom = 'auto';
+        top += Math.ceil(away.getBoundingClientRect().height) + gap;
+      }
+      if (choiceOpen) {
+        choice.style.top = top + 'px';
+        choice.style.bottom = 'auto';
+      }
+    }
+  }
+
   function render(fromClock) {
+    var pin = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var pinTop = pin ? pin.getBoundingClientRect().top : null;
     var sec = Math.floor(Date.now() / 1000);
     view.allowPrices = !fromClock || view.priceSec !== sec;
     if (view.allowPrices) view.priceSec = sec;
@@ -914,9 +1027,18 @@
     var rateLine = $('#rate');
     var totalRate = boatsRate + captainsRate + routeRate;
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
-    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
-    else showLine(rateLine, M.rateWords(totalRate));
-    $('#goal').textContent = P.goal(state);
+    else showLine(rateLine, Arcade.fmt(totalRate) + ' coins a second');
+    var goalEl = $('#goal');
+    var focusStep = P.bestStep ? P.bestStep(state) : null;
+    goalEl.textContent = P.goal(state);
+    if (focusStep && goalEl.textContent === focusStep.sentence) {
+      goalEl.dataset.step = focusStep.kind + ':' + (focusStep.id || '');
+      goalEl.dataset.wait = String(focusStep.wait || 0);
+      goalEl.dataset.payback = String(Math.round(focusStep.payback || 0));
+    } else {
+      goalEl.dataset.step = '';
+      goalEl.dataset.wait = '';
+    }
     var aim = $('#aim');
     if (aim) {
       var aimText = P.aim(state);
@@ -974,11 +1096,23 @@
         list.appendChild(li);
       });
     }
-    Array.prototype.forEach.call(list.children, function (li) { fillBoat(li, +li.dataset.i); });
+    Array.prototype.forEach.call(list.children, function (li) {
+      fillBoat(li, +li.dataset.i);
+      li.classList.toggle('is-now', !!(focusStep && focusStep.kind === 'boat' && String(focusStep.tier) === li.dataset.i));
+    });
     fillChoice();
     fillSettled();
     fillRoutes();
     fillLights();
+    var nextLight = null;
+    Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
+      var burning = card.querySelector('h3') && /burning/.test(card.querySelector('h3').textContent);
+      if (!burning && !nextLight) nextLight = card;
+      if (focusStep && focusStep.kind === 'light' && focusStep.id === card.dataset.light) nextLight = card;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
+      card.classList.toggle('is-now', card === nextLight);
+    });
     fillWork();
     fillErrand();
     fillProvision();
@@ -1013,9 +1147,17 @@
     if (routes && !routes.hidden) view.routes = true;
     if (openedFleet) fleet.classList.add('reveal');
     Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function (el) {
-      if (el.textContent) el.setAttribute('title', el.textContent);
+      if (!el.textContent) return;
+      if (el.getAttribute('title') && el.getAttribute('title').indexOf('Need ') >= 0) return;
+      el.setAttribute('title', el.textContent);
     });
     if (audio && audio.render) audio.render();
+    placeStack();
+    var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    if (pinned && pinTop != null) {
+      var shift = pinned.getBoundingClientRect().top - pinTop;
+      if (shift > 2) window.scrollBy(0, shift);
+    }
   }
 
   function showAway(summary, detail) {
@@ -1040,6 +1182,22 @@
     btn.dataset.act = 'away';
     btn.textContent = 'Close the log';
     box.appendChild(btn);
+    placeStack();
+  }
+
+  function cheer(button, text) {
+    var el = $('#cheer');
+    if (!el || !button || !button.getBoundingClientRect) return;
+    var rect = button.getBoundingClientRect();
+    el.hidden = false;
+    el.textContent = text;
+    el.style.left = (rect.left + rect.width / 2) + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+    button.classList.add('answered');
+    setTimeout(function () { button.classList.remove('answered'); }, 450);
   }
 
   function pop(x, y, text) {
@@ -1139,8 +1297,63 @@
       prep: b.dataset.prep || '',
       bulk: b.dataset.bulk || '',
       id: b.id || '',
-      tier: li ? li.dataset.i : ''
+      tier: li ? li.dataset.i : '',
+      x: e.clientX,
+      y: e.clientY
     };
+    view.lastY = e.clientY;
+  }, true);
+  function stillSame(el, a) {
+    if (!el) return false;
+    return (el.dataset.act || '') === a.act && (el.dataset.prep || '') === a.prep && (el.dataset.which || '') === a.which && (el.dataset.route || '') === a.route && (el.dataset.light || '') === a.light;
+  }
+  function findLive(a) {
+    if (!a) return null;
+    if (a.el && a.el.isConnected && stillSame(a.el, a)) return a.el;
+    if (a.prep) {
+      var q = '#provision [data-prep="' + a.prep + '"]';
+      if (a.which) q += '[data-which="' + a.which + '"]';
+      var same = document.querySelector(q);
+      if (same) return same;
+    }
+    if (a.act === 'route' && a.route) return document.querySelector('[data-act="route"][data-route="' + a.route + '"]');
+    if (a.act === 'light' && a.light) return document.querySelector('[data-act="light"][data-light="' + a.light + '"]');
+    if (a.act === 'buy' && a.tier !== '') return document.querySelector('#boats [data-i="' + a.tier + '"] [data-act="buy"]');
+    if (a.id) {
+      var byId = document.getElementById(a.id);
+      if (stillSame(byId, a)) return byId;
+    }
+    return null;
+  }
+  function buttonKey(b) {
+    return [b.id || '', b.dataset.act || '', b.dataset.which || '', b.dataset.prep || '', b.dataset.route || '', b.dataset.light || ''].join('|');
+  }
+  /* The next fork or errand must not inherit the tap that opened it. */
+  function armGuard(e, b) {
+    var seen = new Map();
+    document.querySelectorAll('button').forEach(function (btn) { seen.set(btn, buttonKey(btn)); });
+    view.guard = { until: performance.now() + 450, x: e.clientX, y: e.clientY, seen: seen, key: buttonKey(b) };
+  }
+  /* A render between press and release moves the button. The press still counts
+     when the finger has not travelled, even if the click lands on empty page. */
+  document.addEventListener('pointerup', function (e) {
+    if (!armed) return;
+    if (performance.now() - armed.t > 700) return;
+    var dx = e.clientX - armed.x;
+    var dy = e.clientY - armed.y;
+    if (dx * dx + dy * dy > 24 * 24) return;
+    var live = findLive(armed);
+    if (!live || live.disabled) return;
+    if (view.guard && performance.now() < view.guard.until) {
+      var pdx = e.clientX - view.guard.x;
+      var pdy = e.clientY - view.guard.y;
+      var knownLive = view.guard.seen.get(live);
+      if (pdx * pdx + pdy * pdy < 72 * 72 && !(knownLive != null && knownLive === buttonKey(live))) return;
+    }
+    var hit = document.elementFromPoint(e.clientX, e.clientY);
+    var hitBtn = hit && hit.closest ? hit.closest('button') : null;
+    if (hitBtn === live) return;
+    live.click();
   }, true);
   function remembered(b) {
     if (!armed || !b) return null;
@@ -1150,7 +1363,7 @@
        still counts: same action, same boat, route or light. */
     var li = b.closest('[data-i]');
     var tier = li ? li.dataset.i : '';
-    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.id || '') === armed.id) return armed;
+    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.dataset.prep || '') === armed.prep && (b.dataset.which || '') === armed.which && (b.id || '') === armed.id) return armed;
     return null;
   }
   function keepPlace(work) {
@@ -1163,6 +1376,12 @@
   document.addEventListener('click', function (e) {
     view.freshPrices = true;
     var b = e.target.closest('button');
+    if (b && view.guard && performance.now() < view.guard.until && (e.clientX || e.clientY)) {
+      var gdx = e.clientX - view.guard.x;
+      var gdy = e.clientY - view.guard.y;
+      var known = view.guard.seen.get(b);
+      if (gdx * gdx + gdy * gdy < 72 * 72 && !(known != null && known === buttonKey(b))) return;
+    }
     var held = remembered(b);
     if (!b || (b.disabled && !held)) return;
     if (held) {
@@ -1188,6 +1407,7 @@
       $('#away').hidden = true;
       awayOn = false;
       $('#away').replaceChildren();
+      placeStack();
       return;
     }
     if (b.dataset.act === 'fork') {
@@ -1196,6 +1416,7 @@
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
+        armGuard(e, b);
         keepPlace(function () {
           persist();
           render();
@@ -1206,21 +1427,25 @@
     }
     if (b.dataset.act === 'gear') {
       if (M.buyGear(state, b.dataset.route).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, 'Sail up');
+        if (state.sound) audio.sfx('coin');
         keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'route') {
       if (M.signRoute(state, b.dataset.route).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, 'Signed');
+        if (state.sound) audio.sfx('coin');
         keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'light') {
+      var raised = (state.lights[b.dataset.light] || 0) === 0;
       if (M.buildLight(state, b.dataset.light).ok) {
-        if (state.sound) audio.sfx('quest');
+        cheer(b, raised ? 'Raised' : 'Lit');
+        if (state.sound) audio.sfx(raised ? 'quest' : 'level');
         keepPlace(function () { persist(); render(); });
       }
       return;
@@ -1228,6 +1453,7 @@
     if (b.dataset.act === 'prep' || b.id === 'provision-go') {
       if (M.buyPreparation(state, b.dataset.prep, b.dataset.which || '', actNow()).ok) {
         if (state.sound) audio.sfx('quest');
+        armGuard(e, b);
         keepPlace(function () {
           persist();
           render();
@@ -1260,6 +1486,7 @@
     }
     if (b.id === 'finale-go') {
       if (M.launchFinale(state, Date.now()).ok) {
+        cheer(b, 'Under way');
         if (state.sound) audio.sfx('level');
         persist();
         render();
@@ -1352,7 +1579,8 @@
       after: state.cash,
       boatGain: cashAfterBoats - cashBeforeAway,
       captains: M.captainAwayLines(state, booksBeforeAway, haulsBeforeAway),
-      openPage: false
+      openPage: false,
+      perSec: M.officeRate(state)
     });
   }
   render();
@@ -1400,7 +1628,8 @@
         after: state.cash,
         boatGain: Math.max(0, state.cash - before - captainGain(books)),
         captains: M.captainAwayLines(state, books, hauls),
-        openPage: true
+        openPage: true,
+        perSec: M.officeRate(state)
       });
       render();
     }
@@ -1459,84 +1688,126 @@
      so a measured wait is a wait on the step the player can see. */
   function followGoal() {
     var goal = ($('#goal') && $('#goal').textContent) || '';
+    function press(el) {
+      var x = window.scrollX;
+      var y = window.scrollY;
+      el.click();
+      if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
+    }
+    var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
+    if (cheap && goal === cheap.sentence) {
+      if (!cheap.affordable) return false;
+      if (cheap.kind === 'choice') {
+        var whichBtn = cheap.which ? document.querySelector('#choice [data-which="' + cheap.which + '"]') : document.querySelector('#choice button');
+        if (usableControl(whichBtn)) { press(whichBtn); return true; }
+        return false;
+      }
+      if (cheap.kind === 'prep') {
+        var prepSel = '#provision [data-prep="' + cheap.id + '"]' + (cheap.which ? '[data-which="' + cheap.which + '"]' : '');
+        var prepHit = document.querySelector(prepSel) || $('#provision-go');
+        if (usableControl(prepHit)) { press(prepHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'route') {
+        var routeHit = document.querySelector('#route-cards [data-route="' + cheap.id + '"] [data-act="route"]');
+        if (usableControl(routeHit)) { press(routeHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'light') {
+        var lightHit = document.querySelector('#light-cards [data-light="' + cheap.id + '"] [data-act="light"]');
+        if (usableControl(lightHit)) { press(lightHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'gear') {
+        var gearHit = document.querySelector('#route-gear button');
+        if (usableControl(gearHit)) { press(gearHit); return true; }
+        return false;
+      }
+      if (cheap.kind === 'boat') {
+        var boatHit = document.querySelector('#boats [data-i="' + cheap.tier + '"] [data-act="buy"]');
+        if (boatHit) boatHit.dataset.count = String(cheap.count || 1);
+        if (usableControl(boatHit)) { press(boatHit); return true; }
+        return false;
+      }
+    }
     var act = P.nextAct(state);
     if (/^Choose a route/.test(goal)) {
       var routeAct = P.nextAct(state);
       var routeBtn = routeAct && routeAct.kind === 'route'
         ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
         : null;
-      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      if (usableControl(routeBtn)) { press(routeBtn); return true; }
       return false;
     }
     if (/^Pick bell or coal/.test(goal)) {
       var bellBtn = document.querySelector('#choice button');
-      if (usableControl(bellBtn)) { bellBtn.click(); return true; }
+      if (usableControl(bellBtn)) { press(bellBtn); return true; }
       return false;
     }
     if (/^Choose fresh|^Choose a pilot/.test(goal)) {
       var prepBtn = act && act.kind === 'prep'
         ? document.querySelector('#provision [data-prep="' + act.id + '"]' + (act.which ? '[data-which="' + act.which + '"]' : ''))
         : $('#provision-go');
-      if (usableControl(prepBtn)) { prepBtn.click(); return true; }
+      if (usableControl(prepBtn)) { press(prepBtn); return true; }
       return false;
     }
     if (/^Choose /.test(goal)) {
       var choice = document.querySelector('#choice button');
-      if (usableControl(choice)) { choice.click(); return true; }
+      if (usableControl(choice)) { press(choice); return true; }
       return false;
     }
     if (/^Ask /.test(goal)) {
       var ask = $('#ask');
-      if (usableControl(ask)) { ask.click(); return true; }
+      if (usableControl(ask)) { press(ask); return true; }
       return false;
     }
     if (/^Row /.test(goal)) {
       var row = $('#row');
-      if (usableControl(row)) { row.click(); return true; }
+      if (usableControl(row)) { press(row); return true; }
       return false;
     }
     if (/^Set sail/.test(goal)) {
       var sail = $('#finale-go');
-      if (usableControl(sail)) { sail.click(); return true; }
+      if (usableControl(sail)) { press(sail); return true; }
       return false;
     }
     if (/^Pack /.test(goal)) {
       var packBtn = act && act.kind === 'prep'
         ? document.querySelector('#provision [data-prep="' + act.id + '"]')
         : $('#provision-go');
-      if (usableControl(packBtn)) { packBtn.click(); return true; }
+      if (usableControl(packBtn)) { press(packBtn); return true; }
       return false;
     }
     if (/^Do the harbour work/.test(goal)) {
       var workBtn = $('#work-go');
-      if (usableControl(workBtn)) { workBtn.click(); return true; }
+      if (usableControl(workBtn)) { press(workBtn); return true; }
       return false;
     }
     if (/^Run the errand/.test(goal)) {
       var errandBtn = $('#errand-go');
-      if (usableControl(errandBtn)) { errandBtn.click(); return true; }
+      if (usableControl(errandBtn)) { press(errandBtn); return true; }
       return false;
     }
     if (/^Send /.test(goal)) {
       var send = $('#finale-go');
-      if (usableControl(send)) { send.click(); return true; }
+      if (usableControl(send)) { press(send); return true; }
       return false;
     }
     if (/^Sign /.test(goal) && act && act.kind === 'route') {
       var routeBtn = document.querySelector('#route-cards [data-route="' + act.id + '"] [data-act="route"]');
-      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      if (usableControl(routeBtn)) { press(routeBtn); return true; }
       return false;
     }
     if (/^(Raise|Light) the /.test(goal) && act && act.kind === 'light') {
       var lightBtn = document.querySelector('#light-cards [data-light="' + act.id + '"] [data-act="light"]');
-      if (usableControl(lightBtn)) { lightBtn.click(); return true; }
+      if (usableControl(lightBtn)) { press(lightBtn); return true; }
       return false;
     }
     if (/^Buy |^Tie up /.test(goal)) {
       var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
       var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
       if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);
-      if (usableControl(buy)) { buy.click(); return true; }
+      if (usableControl(buy)) { press(buy); return true; }
       return false;
     }
     return false;
