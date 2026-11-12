@@ -14,7 +14,8 @@
  if(A){A.versions[KEY]=M.SAVE_VERSION;A.validators[KEY]=M.valid;}
  const raw=A?A.load(KEY):null, protect=!!(raw&&!M.valid(raw));
  let R=raw&&M.valid(raw)?M.restore(raw):M.newRun(), L=M.current(R), outlookKey='';
- function persist(){if(!A||protect||A.held[KEY])return false;const ok=A.save(KEY,M.serialize(R));if(ok)A.report('keymaster',M.summary(R));return ok;}
+ function persist(){if(!A||protect||A.held[KEY])return false;const data=M.serialize(R);data.leftAt=Date.now();const ok=A.save(KEY,data);if(ok)A.report('keymaster',M.summary(R));return ok;}
+ function remember(){if(!L||S.phase==='done')return;R.sheet={id:L.id,price:S.price,down:S.down,rehab:S.rehab};persist();}
  const S={price:0,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null,sure:false};
  // $60,000 under asking is 75% on 14 Alder, so the stepper does not stop around 92.5%.
  const MIN=()=>L.ask-60000, MAX=()=>L.ask+20000;
@@ -56,8 +57,29 @@
   return head.length<=10?head:head.split(/\s+/)[0];
  }
  function herePlace(){return M.placeOf(R.order);}
- function nextPlace(){return (R.tier||0)>=1?null:M.placeOf(M.dealFor(0,1));}
- function walkWord(){return M.won(R)&&nextPlace()?'Walk '+nextPlace():'Walk '+herePlace()+' again';}
+ function goalNow(){return M.nextGoal(R.tier||0);}
+ function bestMark(){return Math.max(R.best||0,M.finished(R)?M.combinedEarn(R):0);}
+ function nextLine(){
+  const g=goalNow();
+  if(g.kind==='street') return 'Next: '+g.place+'. '+g.line;
+  const best=bestMark();
+  return 'Next: Beat your best combined earnings'+(best?' of '+money(best)+' a month.':'.');
+ }
+ function walkWord(){
+  const g=goalNow();
+  if(M.won(R)&&g.kind==='street') return 'Walk '+g.place;
+  if(M.won(R)&&g.kind==='best') return 'Beat your best';
+  return 'Walk '+herePlace()+' again';
+ }
+ function reserveFacts(){
+  const homes=M.orderOf(R);
+  const blurbs=homes.map(h=>h.blurb).sort((a,b)=>b.length-a.length);
+  const hold=$('#blurbHold'); if(hold) hold.textContent=blurbs[0]||'';
+  const units=$('#unitsHold');
+  if(!units) return;
+  const most=homes.slice().sort((a,b)=>b.units.join(' ').length-a.units.join(' ').length)[0];
+  units.innerHTML=(most?most.units:[]).map(u=>'<li>'+u+'</li>').join('');
+ }
 
  // The cash note stays inside the reserved lines. A shorter win sentence picks up one true clause
  // when a font wraps the reserve a line lower, and never grows the row.
@@ -81,6 +103,11 @@
   const done=M.paying(R), b=M.streetBudget(R);
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
   $('#goal').textContent='Own '+M.GOAL+' homes on '+herePlace()+' that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  const past=(R.streets||[]).map(s=>s.place+' '+money(s.earn)).join(', ');
+  const now=M.finished(R)?herePlace()+' '+money(M.monthEarn(R))+' a month':herePlace();
+  const g=goalNow();
+  const next=g.kind==='street'?'Next: '+g.place+'.':nextLine();
+  const ladder=$('#ladder'); if(ladder) ladder.innerHTML='<li>'+(past?past+'. ':'')+'Now: '+now+'. '+next+'</li>';
   const tag=document.querySelector('#placeTag'); if(tag) tag.textContent=herePlace()+', Millbrook';
   const walk=document.querySelector('#giveup [data-act="again"]'); if(walk) walk.textContent='Walk '+herePlace()+' again';
   $('#budget').hidden=false;
@@ -170,7 +197,10 @@
   oneLi.className=expensive?'':(oneMet?'good':'bad');
   oneLi.querySelector('.v').textContent=pct(a.rent/a.price,2);
   const sellers=M.respond(choice.price,L);
-  $('#countCue').textContent=!view.o.counts?'Would not count.':sellers.answer==='yes'?'Would count.':'Only if they take it.';
+  const cue=$('#countCue');
+  cue.textContent=!view.o.counts?'Would not count.':sellers.answer==='yes'?'Would count.':'Only if they take it.';
+  cue.parentElement.classList.toggle('good',!!view.o.counts&&sellers.answer==='yes');
+  cue.parentElement.classList.toggle('bad',!view.o.counts);
   reserve('arv',[arvNote(a,L.plans[S.rehab].cost),ARV_HOLD,...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);
   mark('arv',a.equity>=0,money(a.arv),arvNote(a,L.plans[S.rehab].cost));
   $('#outlookSlot').hidden=S.phase==='done';
@@ -182,7 +212,8 @@
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
   $('#shortCash').hidden=!(running&&L&&!M.canAfford(R,choice,L));
   document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
-  $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
+  $('[data-offer="-'+M.OFFER_STEP+'"]').disabled=!running||S.price<=MIN();$('[data-offer="'+M.OFFER_STEP+'"]').disabled=!running||S.price>=MAX();
+  const lowBtn=$('#lowestBtn'); if(lowBtn) lowBtn.disabled=!running;
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
  }
 
@@ -262,7 +293,7 @@
 
  function buy(price,line,counted){
   if(!counted)R.offers=(R.offers||0)+1;
-  S.price=price;S.phase='done';
+  S.price=price;S.phase='done';R.sheet=null;
   const y=M.buyHome(R,S),v=M.verdict(y.onCash);persist();render();
   const months=y.months.map(m=>'<li class="'+(m.notes.length?'event':'')+'" title="'+m.notes.join('; ')+'"><b>'+MONTHS[m.m-1]+
    '</b>'+money(m.net)+(m.notes.length?'<b>'+m.notes[0]+'</b>':'')+'</li>').join('');
@@ -284,19 +315,29 @@
 
  // Pass, walk away, or lose it to another buyer: the home is gone for this run.
  function lose(line){
-  S.phase='done';const p=M.passHome(R);persist();render();
-  show(nextButton()+'<h2>'+line+'</h2><p>Another investor bought it for '+money(p.price)+', did the full work, and '+
-   (p.onCash>=0?'made '+pct(p.onCash):'lost '+pct(-p.onCash))+' on their cash in the first year. '+L.lesson+'</p>');
+  S.phase='done';R.sheet=null;const p=M.passHome(R);persist();render();
+  const up=p.onCash>=0, made=up?'made ':'lost ', cls=up?'good':'bad';
+  show(nextButton()+'<h2>'+line+'</h2>'+
+   '<p class="reveal '+cls+'"><b>Another investor</b> paid '+money(p.price)+' and did the full work.</p>'+
+   '<p class="reveal-num '+cls+'">'+made+pct(Math.abs(p.onCash))+'</p>'+
+   '<p>They '+made+money(Math.abs(p.total))+' in the first year. '+L.lesson+'</p>');
  }
 
  function startListing(){
-  L=M.current(R);Object.assign(S,{price:L.ask,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null});
-  fill();render();clearReply();$('#answer').hidden=true;$('#finale').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
+  L=M.current(R);
+  const saved=R.sheet&&L&&R.sheet.id===L.id?R.sheet:null;
+  Object.assign(S,{price:saved?saved.price:L.ask,down:saved?saved.down:0.25,rehab:saved?saved.rehab:'refresh',phase:'run',noes:0,counter:null,sure:false});
+  if(L) R.sheet={id:L.id,price:S.price,down:S.down,rehab:S.rehab};
+  outlookKey='';
+  reserveFacts();fill();render();clearReply();$('#answer').hidden=true;$('#finale').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
  }
 
  function next(){
   if(M.finished(R)){showStreet();return;}
-  startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});
+  const y=window.scrollY;
+  startListing();
+  if(scrollTo) scrollTo(0,y);
+  $('#offerBtn').focus({preventScroll:true});
  }
 
  function showStreet(){
@@ -311,10 +352,10 @@
   const payingHomes=R.homes.filter(h=>h.bought&&h.onCash>=0).length;
   const ownWord=payingHomes===1?'home that pays':'homes that pay';
   const where=herePlace();
-  const ahead=M.won(R)?nextPlace():null;
+  const g=goalNow();
   const nextSentence=!M.won(R)?'Walk '+where+' again when you want another try.'
-   :ahead?'Next is '+ahead+', still from $200,000.'
-   :where+' is done. Walk it again whenever you like.';
+   :g.kind==='street'?'Next is '+g.place+', still from $200,000.'
+   :nextLine();
   const html='<div class="actions"><button type="button" class="primary" data-act="again">'+walkWord()+'</button></div>'+
    '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
    '<p class="earn">Your homes earn '+money(flow)+' a month.</p>'+
@@ -333,25 +374,43 @@
  function begin(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
  function again(){
   const prev=M.orderOf(R).map(h=>h.id).join('|');
-  const tier=M.won(R)?(R.tier||0)+1:(R.tier||0);
+  const won=M.won(R);
+  let streets=M.finished(R)?M.finishedStreets(R).map(s=>({place:s.place,earn:s.earn})):(R.streets||[]).slice();
+  let best=Math.max(R.best||0,M.finished(R)?M.combinedEarn(R):0);
+  let tier=won?(R.tier||0)+1:(R.tier||0);
+  if(won&&(R.tier||0)>=2){tier=0;streets=[];}
   let seed=(Date.now()>>>0)||1, run, n=0;
-  do{run=M.newRun(seed+n,tier); n++;}while(run.order.join('|')===prev&&n<12);
+  do{run=M.newRun(seed+n,tier); n++;}while(tier<2&&run.order.join('|')===prev&&n<12);
+  run.streets=streets; run.best=best; run.sheet=null;
   R=run;persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});
  }
 
  // On a phone the offer controls are a screen above the answer: take the player back to them.
- function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="2000"]').focus({preventScroll:true});}
+ function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="'+M.OFFER_STEP+'"]').focus({preventScroll:true});}
+ function showWelcome(){
+  const card=$('#welcome'); if(!card) return;
+  const rows=M.finishedStreets(R);
+  $('#welcomeList').innerHTML=rows.length?rows.map(s=>'<li><b>'+s.place+'</b><span>'+money(s.earn)+' a month</span></li>').join('')
+   :'<li><b>None finished yet</b><span>This street is still open.</span></li>';
+  $('#welcomeNow').textContent='Now: '+herePlace()+'. '+$('#goal').textContent+' '+nextLine();
+  card.hidden=false;
+ }
 
- let holdTimer=null, heldStep=false;
+ let holdTimer=null, swallowClickUntil=0;
  function stopHold(){if(holdTimer){clearInterval(holdTimer);holdTimer=null;}}
  function stepOffer(delta){
   if(S.phase!=='run'||!L)return;
-  S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),S.price+delta));render();
+  S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),S.price+delta));render();remember();
+ }
+ function snapLowest(){
+  if(S.phase!=='run'||!L)return;
+  S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),M.lowestOf(L)));render();remember();
  }
  document.addEventListener('pointerdown',e=>{
   const b=e.target.closest&&e.target.closest('[data-offer]');
-  if(!b||b.disabled)return;
-  heldStep=true;const delta=+b.dataset.offer;stepOffer(delta);
+  if(!b||b.disabled||b.dataset.offer==='lowest')return;
+  const delta=+b.dataset.offer; if(!delta)return;
+  swallowClickUntil=Date.now()+700; stepOffer(delta);
   let ticks=0;stopHold();
   holdTimer=setInterval(()=>{
    if(b.disabled||S.phase!=='run'){stopHold();return;}
@@ -359,13 +418,14 @@
    if(ticks===3){stopHold();holdTimer=setInterval(()=>{if(b.disabled||S.phase!=='run'){stopHold();return;}stepOffer(delta);},70);}
   },320);
  });
- document.addEventListener('pointerup',()=>{stopHold();setTimeout(()=>{heldStep=false;},0);});
- document.addEventListener('pointercancel',()=>{stopHold();heldStep=false;});
+ document.addEventListener('pointerup',()=>{stopHold();swallowClickUntil=Date.now()+700;});
+ document.addEventListener('pointercancel',()=>{stopHold();swallowClickUntil=0;});
  document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
-  if(b.dataset.offer){if(heldStep){heldStep=false;return;}stepOffer(+b.dataset.offer);}
-  else if(b.dataset.down){S.sure=false;S.down=+b.dataset.down;render();if(S.phase==='counter')paintCounter();}
-  else if(b.dataset.rehab){S.sure=false;S.rehab=b.dataset.rehab;render();if(S.phase==='counter')paintCounter();}
+  if(b.dataset.offer==='lowest'){snapLowest();return;}
+  if(b.dataset.offer){if(Date.now()<swallowClickUntil)return;stepOffer(+b.dataset.offer);}
+  else if(b.dataset.down){S.sure=false;S.down=+b.dataset.down;render();remember();if(S.phase==='counter')paintCounter();}
+  else if(b.dataset.rehab){S.sure=false;S.rehab=b.dataset.rehab;render();remember();if(S.phase==='counter')paintCounter();}
   else if(b.id==='offerBtn')offer();
   else if(b.id==='passBtn')lose('You pass on '+L.address+'.');
   else if(b.dataset.act==='take')buy(S.counter,'You take their '+money(S.counter)+'.');
@@ -375,9 +435,13 @@
   else if(b.dataset.act==='end')endStreet();
   else if(b.dataset.act==='next')next();
   else if(b.dataset.act==='again')again();
+  else if(b.dataset.act==='continue'){const card=$('#welcome'); if(card) card.hidden=true;}
   else if(b.dataset.act==='change'){clearReply();$('#answer').hidden=true;backToOffer();}
  });
 
  if(M.finished(R))showStreet();else startListing();
+ const returning=!!(raw&&M.valid(raw));
+ if(returning) showWelcome();
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&returning) showWelcome();});
  window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,begin,arvNote,outlookVariants,protect};   // the checks page drives the real buttons
 })();

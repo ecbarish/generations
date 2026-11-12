@@ -27,7 +27,8 @@ section{background:var(--card);border:1px solid var(--line);border-radius:10px;p
 button{font:inherit;min-height:44px;min-width:44px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;white-space:normal}
 button:disabled{opacity:.4;cursor:default}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.stepper{display:flex;align-items:center;gap:8px}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
+.stepper{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
+#lowestBtn{flex:0 1 auto;padding:6px 8px;line-height:1.1;font-size:.82rem}
 .toggle{display:flex;gap:6px;flex-wrap:wrap}.toggle button{flex:1 1 auto}
 .toggle button[aria-checked="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .rehab button{text-align:left;flex:1 1 220px;min-height:76px}.rehab small{display:block;color:inherit;opacity:.8}
@@ -51,6 +52,9 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .outlook-hold>span{grid-area:1/1}
 .outlook b{font-size:1.05rem}
 .of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
+.count-cue{display:grid;min-height:1.35em;margin:4px 0 6px;font-size:1.15rem;font-weight:800;color:var(--ink);line-height:1.2}
+.count-cue.good{color:var(--good)}.count-cue.bad{color:var(--bad)}
+.count-cue .note-live{font-weight:800}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
 .action-slot{display:grid;margin-top:12px}.action-slot>.actions{grid-area:1/1;margin-top:0;width:100%}
@@ -62,7 +66,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
  .give-slot button{flex:1 1 0;min-width:0;font-size:.75rem;line-height:1.15;padding:6px 6px;white-space:normal}
  .give-slot button:last-child{flex:2.4 1 0}
 }
-.count-cue{display:grid;min-height:1.2em}.count-cue>span{grid-area:1/1}
+.count-cue>span{grid-area:1/1}
 .answer .actions{flex-wrap:nowrap}.answer .actions button{flex:1 1 0}
 .primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
 .answer h2{margin:0 0 6px}.answer p{margin:6px 0}
@@ -72,6 +76,20 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .months b{display:block;font-size:.7rem;color:var(--soft);font-weight:400}
 .year{width:100%;border-collapse:collapse}.year th{text-align:left;font-weight:400;color:var(--soft);padding:3px 0}.year td{text-align:right;font-variant-numeric:tabular-nums}
 .verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
+.reveal{margin:8px 0;padding:12px;border-radius:10px;text-align:center;font-size:1.05rem}
+.reveal.good{background:#eef6ee;color:var(--good)}.reveal.bad{background:#fbe9df;color:var(--bad)}
+.reveal-num{margin:0 0 8px;font-size:2rem;font-weight:800;text-align:center;line-height:1.1}
+.reveal-num.good{color:var(--good)}.reveal-num.bad{color:var(--bad)}
+.welcome{display:grid;gap:6px}
+.welcome h2,.welcome h3{margin:0}
+.welcome ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.welcome li{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.ladder-slot{grid-column:1/-1;display:grid}.ladder-slot>*{grid-area:1/1;margin:0}
+.ladder{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.ladder li{font-size:.8rem;line-height:1.15;font-weight:700}
+.ladder-hold{visibility:hidden}
+.blurb-slot,.units-slot{display:grid}.blurb-slot>*,.units-slot>*{grid-area:1/1;margin:0}
+.blurb-hold,.units-hold{visibility:hidden}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
 .goal-slot,.budget-slot{display:grid}.goal-slot>*,.budget-slot>*{grid-area:1/1;margin:0;align-self:start}
@@ -131,13 +149,18 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .yours li small{grid-column:1/-1;color:var(--soft)}.yours .pays{background:#eef6ee}.yours .lost{background:#fbe9df}
 @media (min-width:860px){
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
- header,.street{grid-column:1/-1}
+ header,.street,.welcome,.goal-slot{grid-column:1/-1}
 }
 @media (max-width:859px){
  .desk{display:flex;flex-direction:column}
  .goal-slot{position:sticky;top:0;z-index:5;order:0;padding:0;background:var(--paper)}
  .goal{font-size:.9rem;line-height:1.25}
- .street{order:1}.sheet{order:2}.listing{order:3}.answer{order:4}
+ .street{order:1}.listing{order:2}.sheet{order:3}.answer{order:4}
+ .listing{display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px;align-items:start}
+ .house{max-height:72px;overflow:hidden}
+ .house svg{max-height:72px;width:auto}
+ .kind,.units-slot{max-height:1.35em;overflow:hidden}
+ .blurb-slot{max-height:2.7em;overflow:hidden}
 }
 @media (max-height:450px) and (min-width:700px){
  .desk{display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,1.3fr);align-items:start}
@@ -147,11 +170,27 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
  .listing{grid-column:1;grid-row:3;order:0}
 }
 @media (max-width:420px){
+ .count-cue{margin-bottom:16px}
+ .desk{padding:4px 6px 8px}
+ section{padding:4px 8px}
+ .listing{grid-template-columns:52px minmax(0,1fr);gap:4px;padding:4px 6px}
+ .house,.house svg{max-height:48px}
+ .kind,.units-slot{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ .blurb-slot{max-height:2.4em;overflow:hidden}
+ .ladder-slot{max-height:1.35em;overflow:hidden}
+ .facts h2{font-size:.95rem;margin:0}
+ .ask{display:none}
+ .goal{font-size:.8rem;line-height:1.15}
+ section{padding-top:2px;padding-bottom:2px}
+ .street{gap:2px}
+}
+@media (max-width:420px){
  header .tag{display:none}
  .choices,.measures{grid-template-columns:minmax(0,1fr)}.choice.wide{grid-column:auto}
  .months{grid-template-columns:repeat(4,1fr)}
  .month th,.month td{white-space:normal}
  .stepper output{min-width:0}
+ .blurb-slot,.units-slot,.facts,.listing{min-height:0}
 }
 @media (max-width:400px){
  .sheet,.choices,.choice,.rehab,.plan-live,.of-ask,.count-cue,.stepper{width:100%;min-width:0;max-width:100%}
@@ -186,11 +225,28 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 }
 /* A tall narrow phone does not get the short-phone squeeze. The plan line now sits under the
    work choices, so the gaps above the offer have to give that line back or the buttons slip off. */
+@media (max-width:859px) and (max-height:700px){
+ .house,.house svg{max-height:48px}
+ .listing{grid-template-columns:52px minmax(0,1fr);gap:4px;padding:4px 6px}
+ .kind,.ask,.units-slot{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ .blurb-slot{max-height:2.4em}
+ .ladder-slot{max-height:2.4em;overflow:hidden}
+ .facts h2{font-size:.95rem;margin:0}
+ .street{gap:1px}
+}
 @media (max-width:420px) and (min-height:640px){
- .desk{gap:4px;padding-top:4px}
- section{padding:6px 8px}
+ .desk{gap:2px;padding-top:2px}
+ section{padding:3px 8px}
  .sheet h2{margin:0 0 2px}
  .plan-live{margin-top:2px}
  .street{gap:2px}
+}
+@media (max-width:420px) and (max-height:640px){
+ .street{position:relative}
+ .give-slot{position:absolute;left:4px;right:4px;bottom:0;margin:0;z-index:2}
+ .ladder-slot{max-height:1.2em}
+ .blurb-slot{max-height:1.3em}
+ #addr{font-size:.85rem;line-height:1.1}
+ .listing{padding-top:1px;padding-bottom:1px}
 }
 @media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}

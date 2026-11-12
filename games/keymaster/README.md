@@ -4,11 +4,11 @@ v0.1.1.
 
 Alder Street in Millbrook is the first block. You have $200,000 and five homes come up for sale, one at a time. The goal is to own three
 that each pay you in their first year (docs/plans/keymaster-street.md). The worksheet is the game (docs/proposals/keymaster.md).
-Walk the street again before a win and the next block is drawn from a larger pool, so the addresses change. After a win, the next block is Birch Street, still from $200,000. After Birch Street, the street is done and you can walk it again.
+Walk the street again before a win and the next block is drawn from a larger pool, so the addresses change. After a win, the next block is Birch Street, still from $200,000. After Birch Street comes Maple Street, where two doors do not pay. After Maple Street the goal is to beat your best combined earnings. The ladder names the street you are on and the next goal. A return visit shows Your streets and keeps the offer you were editing.
 14 Alder Street, the first home, is a 1962 duplex: Unit A is let, Unit B is empty and needs work, and the sellers have
 moved away and want a quick sale. On every home you set three things:
 
-- **your offer** (in $2,000 steps, from $60,000 under the asking price to $20,000 over it; hold the button to keep stepping);
+- **your offer** (in $10,000 steps, from $60,000 under the asking price to $20,000 over it; hold the button to keep stepping, or tap Sellers' lowest);
 - **your down payment** (20% or 25%; the loan is 7% over 30 years);
 - **the plan for the work**: leave it, refresh it, or renovate it (each costs more and lets for more).
 
