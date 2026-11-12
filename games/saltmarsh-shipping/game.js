@@ -473,9 +473,11 @@
     var done = M.routesComplete(state);
     note.textContent = done
       ? 'Every route on the chart has been signed.'
-      : offers.length
-        ? 'A price stays while that card is on the desk. Signing one does not raise the others.'
-        : 'The next contract is not on the desk yet.';
+      : state.year === 2
+        ? 'The old runs are dear this winter. Frost Lane is the new crossing, and its price stays on the card.'
+        : offers.length
+          ? 'A price stays while that card is on the desk. Signing one does not raise the others.'
+          : 'The next contract is not on the desk yet.';
     var host = $('#route-cards');
     if (done && M.finaleOffer && M.finaleOffer(state)) {
       if (host.dataset.sig !== 'folded') {
@@ -788,6 +790,22 @@
     button.textContent = state.cash >= offer.cost ? label : label + ' · ' + M.needMore(state, offer.cost);
   }
 
+  function fillBell() {
+    var box = $('#winter-bell');
+    if (!box) return;
+    var offer = M.bellOffer ? M.bellOffer(state) : null;
+    box.hidden = !offer;
+    if (!offer) return;
+    var note = $('#winter-bell-note');
+    if (note) note.textContent = 'Sound the bell to knock the storm back. The first year has no bell. It lasts until the Glass Lighthouse is burning.';
+    var button = $('#winter-go');
+    if (!button) return;
+    button.disabled = !offer.affordable;
+    button.textContent = offer.affordable
+      ? 'Sound the winter bell · ' + money(offer.cost)
+      : 'Sound the winter bell · ' + money(offer.cost) + ' · ' + M.needMore(state, offer.cost);
+  }
+
   function fillProvision() {
     var box = $('#provision');
     if (!box) return;
@@ -1038,13 +1056,14 @@
     return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
   }
   function panelCoversBuy(rect) {
-    var nodes = document.querySelectorAll('#boats [data-act="buy"]');
+    var nodes = document.querySelectorAll('#row, #ask, #winter-go, #boats button, #route-cards button, #light-cards button, #provision-go, #provision-alt, #finale-go, #work-go, #errand-go, #captains button');
     var i;
     for (i = 0; i < nodes.length; i++) {
       var button = nodes[i];
       if (button.hidden || button.offsetParent === null) continue;
       var box = button.getBoundingClientRect();
       if (box.width < 4 || box.height < 4) continue;
+      if (box.bottom < 0 || box.top > window.innerHeight) continue;
       if (panelsOverlap(rect, box)) return true;
     }
     return false;
@@ -1081,13 +1100,26 @@
       if (awayOpen) {
         away.style.top = top + 'px';
         away.style.bottom = 'auto';
+        away.style.maxHeight = '8rem';
         top += Math.ceil(away.getBoundingClientRect().height) + gap;
       }
       if (choiceOpen) {
         choice.style.top = top + 'px';
         choice.style.bottom = 'auto';
+        choice.style.maxHeight = narrow ? '8.5rem' : '11rem';
       }
     }
+    var purseH = purse ? Math.ceil(purse.getBoundingClientRect().height) : 0;
+    var office = $('#office');
+    var pad = purseH + 10;
+    if (window.innerHeight < 450) pad = Math.min(pad, 70);
+    if (office && purseH) office.style.paddingTop = pad + 'px';
+    document.documentElement.style.scrollPaddingTop = (purseH + 12) + 'px';
+    var dock = goalH + gap;
+    if (choiceOpen) dock += Math.ceil(choice.getBoundingClientRect().height) + gap;
+    if (awayOpen) dock += Math.ceil(away.getBoundingClientRect().height) + gap;
+    document.documentElement.style.scrollPaddingBottom = (dock + 12) + 'px';
+    if (office) office.style.paddingBottom = Math.max(dock + 16, 96) + 'px';
   }
 
   function render(fromClock) {
@@ -1149,8 +1181,8 @@
     var row = $('#row');
     row.disabled = rowing;
     if (rowing) row.textContent = 'Rowing…';
-    else if (state.trips < M.HAND_TRIPS) row.textContent = 'Row this cargo · ' + money(M.handPay(state)) + ' coins';
-    else row.textContent = 'Row the skiff · ' + money(M.handPay(state)) + ' coins';
+    else if (state.trips < M.HAND_TRIPS) row.textContent = 'Row this cargo · payout ' + money(M.handPay(state)) + ' coins';
+    else row.textContent = 'Row the skiff · payout ' + money(M.handPay(state)) + ' coins';
     var ask = $('#ask');
     var crew = $('#crew');
     var askIndex = -1;
@@ -1200,6 +1232,7 @@
     fillSettled();
     fillRoutes();
     fillLights();
+    fillBell();
     var nextLight = null;
     Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
       var burning = card.querySelector('h3') && /burning/.test(card.querySelector('h3').textContent);
@@ -1535,6 +1568,12 @@
         });
         if (trigger && trigger.isConnected && trigger.focus) trigger.focus({ preventScroll: true });
       }
+      return;
+    }
+    if (b.dataset.act === 'bell' || b.id === 'winter-go') {
+      var rung = M.soundBell(state, Date.now());
+      if (rung.ok) { cheer(b, 'The bell'); persist(); }
+      render();
       return;
     }
     if (b.dataset.act === 'gear') {

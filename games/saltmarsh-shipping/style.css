@@ -145,12 +145,17 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   box-shadow: none;
 }
 .purse {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, 100%);
   z-index: 5;
+  box-sizing: border-box;
   background: var(--paper);
-  padding-bottom: 0.2rem;
+  padding: 0.45rem 1rem 0.35rem;
 }
+.window { padding-top: 7.2rem; }
 html { scroll-padding-top: 6.5rem; }
 .crew {
   display: flex;
@@ -417,7 +422,7 @@ html { scroll-padding-top: 6.5rem; }
   #boats { order: 5; }
   #routes { order: 6; }
   #lights { order: 7; }
-  #provision { order: 8; }
+  #winter-bell, #provision { order: 8; }
   #finale { order: 9; }
   #ledger { order: 10; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
@@ -578,25 +583,36 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .window button, .window .home, .window .foot a, .window .btn { min-height: 44px; }
   .window .row, .window .ask { min-height: 64px; }
 }
+#route-cards .route-card .actions,
+#light-cards .light-card .actions {
+  min-height: 44px;
+  height: 44px;
+}
+#provision-cards { min-height: 10.5rem; }
+#provision-actions {
+  min-height: 8.5rem;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+#provision-actions button { height: auto; max-height: none; }
+#finale, #provision, #winter-bell, #row {
+  scroll-margin-top: 8rem;
+  scroll-margin-bottom: 10rem;
+}
 @media (min-width: 900px) {
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
+  .purse { width: min(60rem, 100%); }
   .goalbar { width: min(60rem, 100%); }
   #choice.choice { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending, .ledger { grid-column: 1 / -1; }
+  .row, #winter-bell, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending, .ledger { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
-  #row.row {
-    position: sticky;
-    top: 6.6rem;
-    z-index: 4;
-    background: var(--sand);
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .float, #cheer, .fleet.reveal { animation: none; }
 }
 @media (max-height: 430px) {
-  .window { padding: 0.3rem 0.75rem 4.2rem; }
+  .window { padding: 4.4rem 0.75rem 4.2rem; }
   h1 { font-size: 1.15rem; margin: 0.1rem 0; }
   .scene, #away-rule { display: none; }
   .coins { font-size: 1.1rem; }

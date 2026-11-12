@@ -134,6 +134,9 @@
       routes: { kelp: 0, gull: 0, tea: 0, headland: 0, reed: 0, night: 0 },
       routeGear: {},
       gearQuote: null,
+      lastGearCost: 0,
+      bell: false,
+      bellQuote: null,
       played: 0,
       lights: { pier: 0, headland: 0, reed: 0, quay: 0 },
       routeGross: {},
@@ -893,7 +896,7 @@
   ];
   /* Season 2 only. These stay off the first year's chart, so the first sitting does not grow. */
   var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 22, mid: 22, later: 22, payback: 48, time: 'a winter crossing', line: 'Wool from the Glass Wharf. The winter storm takes a cut until the Glass Lighthouse is burning.', perk: 'The harbour\'s regard opens this lane.' };
-  var GLASS = { id: 'glass', name: 'Glass Lighthouse', needRoutes: 2, wait: 10, lines: ['Still dark. Raising the Glass Lighthouse starts to hold the winter storm.', 'The Glass Lighthouse\'s tower is up. Lighting it lifts the winter storm.', 'The Glass Lighthouse is burning. The winter storm has lifted.'] };
+  var GLASS = { id: 'glass', name: 'Glass Lighthouse', needRoutes: 0, wait: 10, lines: ['Still dark. Raising the Glass Lighthouse starts to hold the winter storm.', 'The Glass Lighthouse\'s tower is up. Lighting it lifts the winter storm.', 'The Glass Lighthouse is burning. The winter storm has lifted.'] };
   var STORM_RATE = 0.84;
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
   var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });
@@ -916,12 +919,12 @@
   }
   function shownRoutes(state) {
     var list = ROUTES.slice();
-    if (yearOf(state) === 2 && (state.reputation || 0) >= 1) list.push(FROST);
+    if (yearOf(state) === 2 && (state.reputation || 0) >= 1) list.unshift(FROST);
     return list;
   }
   function shownLights(state) {
     var list = LIGHTS.slice();
-    if (yearOf(state) === 2) list.push(GLASS);
+    if (yearOf(state) === 2) list.unshift(GLASS);
     return list;
   }
   function routesUnlocked(state) {
@@ -1006,7 +1009,11 @@
       n += g;
     });
     var total = n * headMult(state) * prepRouteFactor(state);
-    if (yearOf(state) === 2 && !glassBurning(state)) total *= (state.winter === 'oil' ? 0.94 : STORM_RATE);
+    if (yearOf(state) === 2 && !glassBurning(state)) {
+      var storm = state.winter === 'oil' ? 0.94 : STORM_RATE;
+      if (state.bell && storm < 0.9) storm = 0.9;
+      total *= storm;
+    }
     return total;
   }
   function officeRate(state) {
@@ -1030,6 +1037,8 @@
     /* Every contract on the desk is a short step, about half a minute of the office.
        The long arc is the provisions after the lights, not a hidden wait on a later contract. */
     var stake = depth <= 0 ? spec.first : depth === 1 ? spec.mid : spec.later;
+    /* Year 2 does not sell the old crossings at the first year's price. */
+    if (yearOf(state) === 2 && spec.id !== 'frost') stake = stake * 8;
     if (state.routeDiscount > 0 && state.routeDiscount < 1) stake = stake * (1 - state.routeDiscount);
     var cost = rate * stake;
     var gross = cost / spec.payback;
@@ -1187,12 +1196,16 @@
       if ((state.routes[spec.id] || 0) > 0 && !state.routeGear[spec.id]) pick = spec;
     });
     if (!pick) { state.gearQuote = null; return null; }
-    state.gearQuote = { id: pick.id, cost: Math.round(Math.max(1, officeRate(state)) * 12) };
+    var gearCost = Math.round(Math.max(1, officeRate(state)) * 12);
+    if (state.lastGearCost > 0 && gearCost > state.lastGearCost * 2) gearCost = Math.round(state.lastGearCost * 2);
+    state.gearQuote = { id: pick.id, cost: gearCost };
     return {
       id: pick.id,
       name: 'A spare sail for ' + pick.name,
       cost: state.gearQuote.cost,
-      line: 'This run pays a little more. The other prices on the desk stay as they are.',
+      line: state.lastGearCost > 0
+        ? 'The next spare sail follows the office, and it is never more than twice the last one.'
+        : 'This run pays a little more. The other prices on the desk stay as they are.',
       affordable: state.cash >= state.gearQuote.cost
     };
   }
@@ -1204,6 +1217,7 @@
     if (state.cash < 1e-6) state.cash = 0;
     if (!state.routeGear) state.routeGear = {};
     state.routeGear[offer.id] = true;
+    state.lastGearCost = offer.cost;
     state.gearQuote = null;
     var spec = routeById(offer.id);
     pushLog(state, 'A spare sail for ' + (spec ? spec.name : 'the run') + '. That route pays a little more.', now);
@@ -1218,9 +1232,13 @@
     /* Raising and lighting are the same short step whenever they appear.
        There is no clock that makes a lighthouse dearer after a hidden minute. */
     var cost = Math.max(1, officeRate(state)) * spec.wait;
+    /* The card says lighting costs the same as raising. A later light keeps the
+       raise that was already on the desk, so the quay cannot jump to a million. */
+    if (stage >= 1 && state.lightQuotes[spec.id + ':0'] && state.lightQuotes[spec.id + ':0'].cost > 0) {
+      cost = state.lightQuotes[spec.id + ':0'].cost;
+    }
     /* A price already on the desk caps a new raise. Raising one lighthouse
-       must not reprice the others by the income that raise just added.
-       Lighting a tower is a separate watch, so it keeps its own price. */
+       must not reprice the others by the income that raise just added. */
     if (lock && stage === 0) {
       var cap = 0;
       Object.keys(state.lightQuotes).forEach(function (k) {
@@ -1365,7 +1383,7 @@
   }
   function voyageOpen(state) {
     if (!state || state.ended) return false;
-    if (yearOf(state) === 2) return glassBurning(state) && routesSailing(state) >= 2;
+    if (yearOf(state) === 2) return glassBurning(state) && ((state.routes && state.routes.frost) >= 1 || routesSailing(state) >= 2);
     return allLightsLit(state);
   }
   function preparationCost(state, item) {
@@ -1874,9 +1892,10 @@
     if (quay) return { id: 'quay', goal: quay.goal, cards: [quay.lamp, quay.hold] };
     var partner = partnerOffer(state);
     if (partner) return partner;
+    var tide = eventOffer(state);
+    if (tide && state.waited && state.waited[tide.id]) return tide;
     var winter = winterOffer(state);
     if (winter) return winter;
-    var tide = eventOffer(state);
     if (tide) return tide;
     var pilot = pilotOffer(state);
     if (!pilot) return null;
@@ -1896,9 +1915,23 @@
       ]
     };
   }
+  function bellOffer(state) {
+    if (yearOf(state) !== 2 || !state || state.ended || state.bell || glassBurning(state)) return null;
+    if (!finiteNum(state.bellQuote)) state.bellQuote = Math.round(Math.max(1, officeRate(state)) * 18);
+    return { cost: state.bellQuote, name: 'Sound the winter bell', affordable: state.cash >= state.bellQuote };
+  }
+  function soundBell(state, now) {
+    var offer = bellOffer(state);
+    if (!offer) return { ok: false, reason: 'closed' };
+    if (!(state.cash >= offer.cost)) return { ok: false, reason: 'cost', cost: offer.cost };
+    state.cash -= offer.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.bell = true;
+    pushLog(state, 'The winter bell. The storm eases until the Glass Lighthouse is burning.', now);
+    return { ok: true };
+  }
   function winterOffer(state) {
     if (yearOf(state) !== 2 || state.winter || state.ended) return null;
-    if (!((state.routes && state.routes.frost) >= 1)) return null;
     if (!finiteNum(state.winterQuote)) state.winterQuote = Math.round(Math.max(1, officeRate(state)) * 16);
     var cost = state.winterQuote;
     return {
@@ -2183,6 +2216,9 @@
     if (o.nightLeak != null && (!finiteNum(o.nightLeak) || o.nightLeak < 0)) return false;
     if (o.routeGear != null && typeof o.routeGear !== 'object') return false;
     if (o.gearQuote != null && typeof o.gearQuote !== 'object') return false;
+    if (o.lastGearCost != null && !finiteNum(o.lastGearCost)) return false;
+    if (o.bell != null && typeof o.bell !== 'boolean') return false;
+    if (o.bellQuote != null && !finiteNum(o.bellQuote)) return false;
     if (o.routeGross != null && typeof o.routeGross !== 'object') return false;
     if (o.routeCut != null && typeof o.routeCut !== 'object') return false;
     if (o.routePaid != null && typeof o.routePaid !== 'object') return false;
@@ -2232,6 +2268,9 @@
       voyages: state.voyages || 0,
       routeGear: state.routeGear && typeof state.routeGear === 'object' ? state.routeGear : {},
       gearQuote: state.gearQuote && finiteNum(state.gearQuote.cost) ? { id: state.gearQuote.id, cost: state.gearQuote.cost } : null,
+      lastGearCost: state.lastGearCost > 0 ? state.lastGearCost : 0,
+      bell: !!state.bell,
+      bellQuote: finiteNum(state.bellQuote) ? state.bellQuote : null,
       played: state.played || 0,
       ended: !!state.ended,
       ending: state.ending || null,
@@ -2313,6 +2352,9 @@
       ROUTE_IDS.forEach(function (id) { if (o.routeGear[id]) state.routeGear[id] = true; });
     }
     state.gearQuote = o.gearQuote && finiteNum(o.gearQuote.cost) && routeById(o.gearQuote.id) ? { id: o.gearQuote.id, cost: o.gearQuote.cost } : null;
+    state.lastGearCost = finiteNum(o.lastGearCost) && o.lastGearCost > 0 ? o.lastGearCost : 0;
+    state.bell = o.bell === true;
+    state.bellQuote = finiteNum(o.bellQuote) ? o.bellQuote : null;
     state.played = finiteNum(o.played) ? o.played : 0;
     state.ended = !!o.ended;
     state.ending = o.ending || null;
@@ -2555,6 +2597,8 @@
     routeLedger: routeLedger,
     gearOffer: gearOffer,
     buyGear: buyGear,
+    bellOffer: bellOffer,
+    soundBell: soundBell,
     lightOffers: lightOffers,
     lightClosed: lightClosed,
     buildLight: buildLight,

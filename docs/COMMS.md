@@ -1,3 +1,7 @@
+### 2026-11-12 17:35 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS playtest fix round
+
+The sticky bar now keeps the coin total and the rate. Row is labelled a payout. Floating cards move off a control they would cover. A sign or a completion leaves the next button where it was. Lighting a tower costs the same as raising it, and the next spare sail is at most twice the last. Year 2 opens on Ives, wool or oil, Frost Lane and the winter bell, and the old runs cost eight times the first year's price. The base and the stack were not touched. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 17:20 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the playtest fix round
 
 Playtester scored #675 at ab4ccfef, Fun 6 and Comeback 4. This note is before the fix round: sticky coins, covered controls, stable slots, true light prices, the Frost Lane hint, and a year 2 that is not a replay. The base stays `cursor/saltmarsh-fork-balance-0d9b`. The stack is not touched. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.

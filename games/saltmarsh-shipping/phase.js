@@ -402,8 +402,8 @@
       return 'Row ' + left + ' cargoes yourself. Then a second boat can tie up.';
     }
     if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'partner') return choiceGoal(state);
-    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return 'Sign Frost Lane. The winter crossing is this year\'s new run.';
     if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'winter') return choiceGoal(state);
+    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return 'Sign Frost Lane. The winter crossing is this year\'s new run.';
     if (state.boats[0].owned < M.WREN_AT && !(state.captains[0] && state.captains[0].hired)) {
       left = M.WREN_AT - state.boats[0].owned;
       return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then Capt. Wren takes the pier.';
@@ -513,6 +513,8 @@
     var step;
     if (!state || state.ended) return '#new-harbour';
     if (!phase.boats) return '#row';
+    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return '#route-cards [data-route="frost"]';
+    if (M.finaleOffer && M.finaleOffer(state)) return '#finale';
     if (state.boats[0].owned < M.WREN_AT) return '#boats [data-i="0"]';
     if (M.canHire(state, 0)) return '#ask';
     if (state.boats[0].owned < M.SLOOP_AT) return '#boats [data-i="0"]';
