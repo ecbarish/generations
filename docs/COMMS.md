@@ -1,8 +1,14 @@
+### 2026-11-12 19:17 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the repeat-voyage round
+
+Playtester scored #675 at 22ad5104, Fun 6 and Comeback 4, with year 1 ending at 12:35. This note is before the fix round: the last voyage is many identical clicks, a hint collapses the card under the pointer, Frost Lane is the hint while Kelp pays more, Chart beats Pilot, Pell needs a hand to close, and the Quay line says 12 barks when the lamp needs 16. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 18:40 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS phone and desktop playtest fixes
 
 Playtester scored #675 at 35f196d6, Fun 6 on desktop and 6 combined on the phone at 390. The longest press-every-5-seconds gap is now 15s. Year 1 reaches the first light at 302s and the ending at 827s. A light button keeps the raise price, the spare sail stays on the route under the finger, and the goal brings that boat to the front of the row. The away log is a full-width card with Close on screen. Pell and the choice sit clear of the coin and rate line, which now says 50% while away. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
 
 
+
+### 2026-11-12 17:55 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the second playtest round
 
 Playtester scored #675 at 35f196d6, Fun 6 and Comeback 4. This note is before the fix round: dead waits on the last voyage, the real click-shift path, light labels that still disagree, Pell over the rate, and prices that jump. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
 
