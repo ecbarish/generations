@@ -44,8 +44,8 @@
       var sec = document.createElement('section');
       sec.id = 'move';
       sec.hidden = true;
-      sec.innerHTML = '<h2>Willow Quay</h2><p>Mei will come with you and keep one tea stall. The coins stay on this lane. Lin is waiting with a cold brazier.</p><button type="button" data-act="move">Move to Willow Quay</button>';
-      bar.parentNode.insertBefore(sec, bar.nextSibling);
+      sec.innerHTML = '<p>Mei keeps one tea stall. The coins stay on this lane.</p><button type="button" data-act="move">Move to Willow Quay</button>';
+      bar.insertBefore(sec, bar.firstChild);
     }
     var save = document.querySelector('details.save');
     if (save && !$('#book')) {
@@ -148,7 +148,7 @@
     var st = slotsNow()[i];
     if (!stall || !st) return;
     var open = M.unlocked(state, i);
-    li.className = 'stall' + (open ? '' : ' closed');
+    li.className = 'stall' + (open ? '' : ' closed') + (M.onQuay(state) ? ' quay' : '');
     var tag = li.querySelector('.best-tag');
     if (tag) tag.hidden = true;
     li.querySelector('h2').textContent = open
@@ -307,11 +307,17 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     var list = $('#stalls');
-    if (list.children.length !== liveSpecs.length) {
+    var order = [];
+    for (var oi = 0; oi < liveSpecs.length; oi++) order.push(oi);
+    if (M.onQuay(state) && order.length === 2) order = [1, 0];
+    var orderKey = order.join(',');
+    if (list.dataset.order !== orderKey) {
+      list.dataset.order = orderKey;
       list.replaceChildren();
-      liveSpecs.forEach(function (stall, i) {
+      order.forEach(function (i) {
         var li = document.createElement('li');
         li.dataset.i = String(i);
+        if (M.onQuay(state)) li.classList.add('quay');
         li.innerHTML = '<h2></h2><p class="best-tag" hidden>Best</p><p class="habit"></p><p class="facts"></p><p class="wait"></p>' +
           '<progress class="pour" hidden></progress><p class="count" hidden></p>' +
           '<div class="actions"><button type="button" data-act="serve"></button>' +

@@ -2007,6 +2007,29 @@ document.querySelector('#run').onclick = async function () {
         dd.documentElement.scrollWidth <= districtWidth[0] + 1);
       districtFrame.remove();
     }
+    for (var offerSize of [[1280, 800], [390, 844], [320, 568], [320, 480], [844, 390]]) {
+      localStorage.removeItem(KEY);
+      var offerFrame = await openLane('../games/night-market/index.html', offerSize[0], offerSize[1]);
+      var od = offerFrame.contentDocument;
+      var ow = offerFrame.contentWindow;
+      var os = ow.__nightMarket.state;
+      os.lifetime = ow.NightMarket.MOVE_AT;
+      os.stalls.forEach(function (s, i) { if (i < 5) { s.owned = 12; s.hired = true; } });
+      ow.__nightMarket.render();
+      var moveBtn = od.querySelector('#move button');
+      var moveBox = moveBtn.getBoundingClientRect();
+      check(offerSize[0] + 'x' + offerSize[1] + ': Move to Willow Quay is fully on the first screen',
+        !od.querySelector('#move').hidden && moveBox.height >= 44 && moveBox.top >= 0 && moveBox.bottom <= offerSize[1] && moveBox.left >= 0 && moveBox.right <= offerSize[0] + 1);
+      ow.NightMarket.move(os);
+      ow.__nightMarket.render();
+      if (ow.NightLane && ow.NightLane.still) ow.NightLane.still();
+      var serves = od.querySelectorAll('[data-act="serve"]');
+      var cone = serves[0];
+      var coneBox = cone.getBoundingClientRect();
+      check(offerSize[0] + 'x' + offerSize[1] + ': the first pour is Fill a cone and it is on the first screen',
+        /Fill a cone/.test(cone.textContent) && coneBox.top >= 0 && coneBox.bottom <= offerSize[1] && coneBox.height >= 44);
+      offerFrame.remove();
+    }
     Object.keys(localStorage).forEach(function (k) {
       if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
     });
