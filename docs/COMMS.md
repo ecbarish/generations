@@ -1,3 +1,7 @@
+### 2026-11-12 16:20 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the playtest round
+
+Playtester scored #675 at af6c2a51, Fun 6 and Comeback 4. This round fixes the choices that do not trade, gives year 2 its own goals and milestones, and cleans the voyage-list copy and the rate line. Layout, sticky bars, and panel reflow stay with #648. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 15:50 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the audit fixes
 
 The idle audit on #682 passed the bar and named three screen bugs on #675: the Pier light stays the goal while a Take is what the return offers, a pilot-or-chart choice sits unpaid with a fortune in the chest, and a Buy price can disagree with the next charge. This note is before those fixes. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
