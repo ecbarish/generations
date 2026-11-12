@@ -1,3 +1,7 @@
+### 2026-11-12 15:50 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the audit fixes
+
+The idle audit on #682 passed the bar and named three screen bugs on #675: the Pier light stays the goal while a Take is what the return offers, a pilot-or-chart choice sits unpaid with a fortune in the chest, and a Buy price can disagree with the next charge. This note is before those fixes. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 15:40 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the queue merge
 
 Checks never started because this stacked pull cannot merge into main: `docs/QUEUE.md` conflicts. This note is before that merge. The office code stays. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
