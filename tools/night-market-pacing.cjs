@@ -425,9 +425,102 @@
     return playBuyer(M, { bulk: 'max', buyMs: 5000, durationSec: durationSec || 3600, fallback: true });
   }
 
+  var SESSION_POLICIES = [
+    { id: '2.5s', handSec: 2.5, buySec: 2.5 },
+    { id: '5s', handSec: 5, buySec: 5 },
+    { id: 'buy-when-affordable', handSec: 2.5, buyWhenAffordable: true }
+  ];
+
+  function playPolicy(M, spec, durationSec) {
+    var state = M.fresh();
+    var hand = spec.handSec;
+    var limit = durationSec || 900;
+    var dt = 0.05;
+    var t = 0;
+    var nextHand = 0;
+    var nextBuy = 0;
+    var firstFun = null;
+    var hireAt = null;
+    var firstBuy = null;
+    var dry = 0;
+    var maxDry = 0;
+    var buys = 0;
+    function affordable() {
+      var i, q;
+      for (i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) continue;
+        q = M.quote(state, i, 1);
+        if (q && q.count > 0 && !q.blocked) return i;
+      }
+      return -1;
+    }
+    function pick() {
+      var best = -1, pay = Infinity, fallback = -1, i, q, sec;
+      for (i = 0; i < M.STALLS.length; i++) {
+        q = M.quote(state, i, 1);
+        if (!q || !(q.count > 0) || q.blocked) continue;
+        if (!state.stalls[i].hired) { if (fallback < 0) fallback = i; continue; }
+        sec = M.paybackSeconds(state, i, 1);
+        if (sec < pay) { pay = sec; best = i; }
+      }
+      return best >= 0 ? best : fallback;
+    }
+    function actHand() {
+      var i, sold;
+      for (i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) break;
+        if (state.stalls[i].hired) continue;
+        if (!M.canHire(state, i)) {
+          sold = M.handSell(state, i);
+          if (sold.ok && firstFun == null) firstFun = t;
+        }
+        if (M.canHire(state, i)) {
+          M.hire(state, i);
+          if (i === 0 && hireAt == null) hireAt = t;
+        }
+        return;
+      }
+    }
+    function actBuy() {
+      var i = pick();
+      if (i < 0) return;
+      if (M.buy(state, i, 1).ok) {
+        buys++;
+        if (firstBuy == null) firstBuy = t;
+      }
+    }
+    while (t < limit - 1e-9) {
+      var step = Math.min(dt, Math.round((limit - t) * 1000) / 1000);
+      t = Math.round((t + step) * 1000) / 1000;
+      M.addCash(state, M.income(state) * step);
+      if (t + 1e-9 >= nextHand) {
+        actHand();
+        nextHand = Math.round((nextHand + hand) * 1000) / 1000;
+      }
+      if (t <= 600 + 1e-9) {
+        if (affordable() >= 0) {
+          if (dry > maxDry) maxDry = dry;
+          dry = 0;
+        } else dry += step;
+      }
+      if (spec.buyWhenAffordable) {
+        if (affordable() >= 0) actBuy();
+      } else if (t + 1e-9 >= nextBuy) {
+        actBuy();
+        nextBuy = Math.round((nextBuy + spec.buySec) * 1000) / 1000;
+      }
+    }
+    return {
+      id: spec.id, firstFun: firstFun, hireAt: hireAt, firstBuy: firstBuy,
+      maxDryFirst10Min: Math.round(maxDry * 100) / 100, buys: buys,
+      owned: state.stalls.map(function (s) { return s.owned; }),
+      income: M.income(state)
+    };
+  }
+
   var api = {
-    PROFILES: PROFILES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable,
-    playMeasured: playMeasured, playHuman: playHuman, topShare: topShare, purchaseGap: purchaseGap, beatCoverage: beatCoverage
+    PROFILES: PROFILES, SESSION_POLICIES: SESSION_POLICIES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable,
+    playMeasured: playMeasured, playHuman: playHuman, playPolicy: playPolicy, topShare: topShare, purchaseGap: purchaseGap, beatCoverage: beatCoverage
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NightMarketPacing = api;
@@ -457,7 +550,9 @@ if (typeof module !== 'undefined' && require.main === module) {
     const human = module.exports.playHuman(context.NightMarket, 3600);
     const coverage = (run) => module.exports.beatCoverage(run.beats, 900, 3600);
     const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
+    const policies = module.exports.SESSION_POLICIES.map(spec => module.exports.playPolicy(context.NightMarket, spec, 900));
     return {
+      policies: policies,
       source: ref || 'working-tree', modelSha256: crypto.createHash('sha256').update(modelSource).digest('hex'),
       stalls: context.NightMarket.STALLS.map(s => ({id: s.id, base: s.base, growth: s.growth, rate: s.rate, serves: s.serves, hand: s.hand})),
       profiles: profiles,
@@ -562,6 +657,11 @@ if (typeof module !== 'undefined' && require.main === module) {
     laneBeforeFinale('fast buyer', measured);
     laneBeforeFinale('human buyer', humanPace);
     matWindow('human buyer', humanPace);
+    for (const row of report.current.policies) {
+      assert(row.firstFun != null && row.firstFun < 30, row.id + ' first fun under 30s (' + row.firstFun + 's)');
+      assert(row.hireAt >= 60 && row.hireAt <= 120, row.id + ' Mei takes the stall between 60s and 120s (' + row.hireAt + 's)');
+      assert(row.maxDryFirst10Min <= 90, row.id + ' something to buy within 90s in the first 10 min (' + row.maxDryFirst10Min + 's)');
+    }
     report.validation = 'passed';
   }
   console.log(JSON.stringify(report, null, 2));

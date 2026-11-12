@@ -6,6 +6,7 @@
   var KEY = M.SAVE_KEY;
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return Arcade.fmt(n); };
+  var coinWord = function (n) { return n === 1 ? 'coin' : 'coins'; };
 
   Arcade.versions[KEY] = M.SAVE_VERSION;
   Arcade.validators[KEY] = M.valid;
@@ -148,6 +149,7 @@
       wait.textContent = need > 0
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
+      if (st.owned > 0) wait.textContent += ' The ' + (st.owned === 1 ? 'one you bought waits' : 'ones you bought wait') + ' for ' + stall.vendor + '.';
       if (i === M.STALLS.length - 1 && st.owned === 0) wait.textContent += ' The first Story Mat costs ' + money(M.quote(state, i, 1).cost) + ' coins.';
       /* The Ask button keeps its place before it can be used, so the pour
          does not shrink or drop when the words appear. */
@@ -157,7 +159,12 @@
       ask.setAttribute('aria-hidden', ready ? 'false' : 'true');
       ask.textContent = stall.hire;
       ask.disabled = !ready;
-      buy.hidden = true;
+      var early = M.quote(state, i, 1);
+      buy.hidden = false;
+      buy.classList.remove('best', 'refused');
+      buy.dataset.count = early.count > 0 ? '1' : '0';
+      buy.textContent = 'Buy 1 · ' + money(early.cost) + ' coins';
+      buy.disabled = !(early.count > 0);
       return;
     }
     var rate = M.production(state, i);
@@ -198,12 +205,26 @@
 
   function render() {
     $('#coins').textContent = money(state.cash);
+    var coinLabel = $('#coin-word');
+    if (coinLabel) coinLabel.textContent = coinWord(state.cash);
     $('#away-rule').textContent = M.awayRule();
     var rate = M.income(state);
-    var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
+    var waitingOn = '';
+    if (!(rate > 0)) {
+      for (var w = 0; w < M.STALLS.length; w++) {
+        if (state.stalls[w].owned > 0 && !state.stalls[w].hired) { waitingOn = M.STALLS[w].vendor; break; }
+      }
+    }
+    var rateLine = (rate > 0 ? money(rate) + ' coins a second' : waitingOn ? 'Nothing earns until ' + waitingOn + ' takes the stall.' : 'Nothing is earning yet.') + holdSuffix();
     $('#rate').textContent = rateLine;
     var goalText = M.goal(state);
     $('#goal').textContent = goalText;
+    var meter = $('#goal-meter');
+    if (meter) {
+      var prog = M.goalProgress(state);
+      meter.max = prog.max;
+      meter.value = prog.value;
+    }
     var laneGoal = $('#lane-goal');
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
@@ -310,7 +331,7 @@
     if (coinPin) {
       var rate = M.income(state);
       var per = rate > 0 ? money(rate) + ' a second' : 'nothing earning yet';
-      coinPin.textContent = money(state.cash) + ' coins · ' + per + holdSuffix();
+      coinPin.textContent = money(state.cash) + ' ' + coinWord(state.cash) + ' · ' + per + holdSuffix();
       coinPin.hidden = !(wide && laneGone && coinsGone);
     }
     var reserve = phone ? pinHeight(pin) : pinHeight(coinPin);
@@ -329,8 +350,8 @@
     var box = $('#away');
     box.hidden = false;
     awayOn = true;
-    box.innerHTML = '<h2>' + copy.title + '</h2><p>' + copy.lead + '</p><p>' + copy.box + '</p><p>' +
-      M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
+    box.innerHTML = '<h2>' + copy.title + '</h2><p class="payout">' + copy.payout + '</p><p>' + copy.lead + '</p><p>' +
+      copy.box + '</p><p>' + M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
   }
 
   // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
@@ -450,7 +471,7 @@
   var summary = idle.start(typeof state.seen === 'number' ? state.seen : null);
   state.seen = Date.now();
   persist(M.serialize(state, state.seen));
-  if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
+  if (summary) showAway(summary);
   render();
   settleHash();
   setInterval(render, 250);

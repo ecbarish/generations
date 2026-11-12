@@ -15,12 +15,16 @@
     <a class="home" href="../../index.html">Back to the arcade</a>
     <h1>Night Market Stalls</h1>
     <p class="scene">Lanterns over a short lane of stalls. You work a stall yourself before anyone will run it.</p>
-    <p class="coins"><span id="coins">0</span> coins</p>
+    <p class="coins"><span id="coins">0</span> <span id="coin-word">coins</span></p>
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
   </header>
+  <section class="away" id="away" hidden></section>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
-  <p class="goal" id="goal"></p>
+  <div class="goal-bar" id="goal-bar">
+    <p class="goal" id="goal"></p>
+    <progress class="goal-meter" id="goal-meter" max="25" value="0"></progress>
+  </div>
   <p class="lane-goal" id="lane-goal"></p>
   <section class="finale" id="finale" hidden tabindex="-1">
     <h2 id="finale-title"></h2>
@@ -36,7 +40,6 @@
     <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
-  <section id="away" hidden></section>
   <ol class="stalls" id="stalls"></ol>
   </div>
   <details class="save">
