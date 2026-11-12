@@ -1,3 +1,7 @@
+### 2026-11-12 16:58 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before retargeting the base
+
+GitHub still marks #675 conflicting against #656 even though a local merge is clean. This note is before retargeting the pull base so GitHub recomputes. No office code changes in this step. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 16:55 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS merge is clean locally
 
 The merge commit is on the branch. A merge of this head into 281a3a95 is clean, and so is a merge into current main. GitHub still reports the pull as conflicting, so Checks has not started on this head. This author does not rebase and does not force-push. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
