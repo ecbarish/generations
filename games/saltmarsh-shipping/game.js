@@ -330,19 +330,26 @@
       var card = trigger.getBoundingClientRect();
       if (card.height > 0 && card.width > 0) cardMid = card.top + card.height / 2;
     }
+    function phoneCap(room) {
+      var narrow = window.matchMedia('(max-width: 899px)').matches;
+      var short = window.matchMedia('(max-height: 430px)').matches;
+      var cap = room;
+      if (narrow || short) cap = Math.min(room, viewH * 0.46);
+      return Math.max(140, Math.floor(cap));
+    }
     function pinBelow() {
       box.style.top = 'auto';
       box.style.bottom = (barH + 8) + 'px';
       var cardBottom = trigger ? trigger.getBoundingClientRect().bottom : 0;
       var room = viewH - (cardBottom > 0 ? cardBottom : 0) - barH - 16;
-      box.style.maxHeight = cardBottom > 8 && room > 140 ? Math.floor(room) + 'px' : '';
+      box.style.maxHeight = phoneCap(room > 140 ? room : viewH - barH - 16) + 'px';
     }
     function pinAbove() {
       box.style.bottom = 'auto';
       box.style.top = '4.2rem';
       var cardTop = trigger ? trigger.getBoundingClientRect().top : viewH;
       var room = cardTop - 72 - 12;
-      box.style.maxHeight = cardTop < viewH && room > 140 ? Math.floor(room) + 'px' : '';
+      box.style.maxHeight = phoneCap(room > 140 ? room : viewH * 0.46) + 'px';
     }
     function overlapsCard() {
       if (!trigger) return false;
@@ -375,7 +382,7 @@
     placeChoice(box, offer);
     box.hidden = false;
     if (back) back.hidden = false;
-    if (placeChoice) placeChoice(box, offer);
+    placeChoice(box, offer);
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -505,7 +512,8 @@
         rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
       }
     });
-    if (waitingLine.length) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
+    /* On a phone the same price is already on the card, so the note stays one sentence. */
+    if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
     var sig = rows.map(function (row) {
       var cost = row.offer ? Math.round(row.offer.cost) : 0;
       return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
@@ -707,6 +715,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
         wrap.dataset.light = spec.id;
+        wrap.dataset.stage = String(stage);
         var h = document.createElement('h3');
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');

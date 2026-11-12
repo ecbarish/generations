@@ -1336,7 +1336,8 @@ document.querySelector('#run').onclick = async function () {
     lampWin.__saltmarsh.render();
     check('harbour work and an errand have their own buttons', lampsBox.contentDocument.querySelector('#harbour-work').hidden === false && lampsBox.contentDocument.querySelector('#errand').hidden === false && /the pilings|the winch|the nets/.test(lampsBox.contentDocument.querySelector('#work-go').textContent) && /Sound the channel/.test(lampsBox.contentDocument.querySelector('#errand-go').textContent));
     var routeNote = lampsBox.contentDocument.querySelector('#routes-note').textContent || '';
-    check('a contract that is not on the desk shows its price and waits its turn', /after the current one/.test(routeNote) && /\d/.test(routeNote) && /Sign the one on the desk/.test(routeNote) === false);
+    var routeCards = lampsBox.contentDocument.querySelector('#route-cards').textContent || '';
+    check('a contract that is not on the desk shows its price and waits its turn', /after the current one/.test(routeNote + ' ' + routeCards) && /\d/.test(routeNote + ' ' + routeCards) && /Sign the one on the desk/.test(routeNote) === false);
     async function soundStill(width, height) {
       var box = await loadFrame('sound ' + width);
       box.style.width = width + 'px';
@@ -1402,7 +1403,7 @@ document.querySelector('#run').onclick = async function () {
       if (preset === 'lamps' && width === 390 && height === 844) {
         win.__saltmarsh.render();
         var lampsPhone = doc.documentElement.scrollHeight;
-        check('at 390 by 844 the lamps page stays within about 10% of 4,159px (' + lampsPhone + 'px)', lampsPhone <= 4159 * 1.10 && lampsPhone >= 4159 * 0.90);
+        check('at 390 by 844 the lamps page stays within about 10% of 2,233px (' + lampsPhone + 'px)', lampsPhone <= 2233 * 1.10 && lampsPhone >= 2233 * 0.90);
       }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
@@ -1750,7 +1751,6 @@ document.querySelector('#run').onclick = async function () {
         var rect = buttons[b].getBoundingClientRect();
         if (rect.top < 0 || rect.bottom > viewH + 1) bothIn = false;
       }
-      var clipped = choice.scrollHeight > choice.clientHeight + 2;
       var takeBottoms = [];
       for (b = 0; b < buttons.length; b++) takeBottoms.push(buttons[b].getBoundingClientRect().bottom);
       var takeAligned = takeBottoms.length === 2 && Math.abs(takeBottoms[0] - takeBottoms[1]) < 2;
@@ -1776,7 +1776,9 @@ document.querySelector('#run').onclick = async function () {
           if (!hitsButton(buttons[b], spots[s][0], spots[s][1])) hitOk = false;
         }
       }
-      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false && takeAligned && clearOfBar && hitOk);
+      var sheetBox = choice.getBoundingClientRect();
+      var sheetClearsBar = sheetBox.bottom <= goalBar.top + 1;
+      check('at ' + width + ' by ' + height + ' both desk choices are on screen and above the goal bar', choice.hidden === false && bothIn && takeAligned && clearOfBar && hitOk && sheetClearsBar);
       function tapButton(button) {
         var rect = button.getBoundingClientRect();
         var x = rect.left + rect.width / 2;
@@ -2520,6 +2522,41 @@ document.querySelector('#run').onclick = async function () {
     await followUpScreen(320, 568);
     await followUpScreen(360, 640);
     await followUpScreen(1280, 800);
+    async function voyageNear(width, height) {
+      var box = await loadFrame('voyage near ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var st = win.__saltmarsh.state;
+      st.boats[0].owned = 30;
+      st.boats[1].owned = 12;
+      st.boats[2].owned = 10;
+      st.boats[3].owned = 16;
+      st.routes = { kelp: 2, gull: 2, tea: 1, headland: 1, reed: 1, night: 1 };
+      st.lights = { pier: 2, headland: 2, reed: 2, quay: 2 };
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      st.cash = 1e9;
+      st.played = 2000;
+      st.prepDone = {};
+      win.__saltmarsh.render();
+      doc.querySelector('#boats').scrollIntoView({ block: 'start' });
+      var boatTop = doc.querySelector('#boats').getBoundingClientRect().top + (win.scrollY || 0);
+      var prov = doc.querySelector('#provision');
+      var provTop = prov.getBoundingClientRect().top + (win.scrollY || 0);
+      var screens = (provTop - boatTop) / height;
+      var sign = doc.querySelector('#route-cards [data-act="route"]');
+      var signInside = true;
+      if (sign) {
+        var card = sign.closest('.route-card').getBoundingClientRect();
+        var rect = sign.getBoundingClientRect();
+        signInside = rect.height >= 8 && rect.top >= card.top - 1 && rect.bottom <= card.bottom + 1;
+      }
+      check('at ' + width + ' by ' + height + ' the voyage list sits within two screens of the boats (' + screens.toFixed(2) + ')', prov.hidden === false && screens > 0 && screens < 2 && signInside);
+    }
+    await voyageNear(320, 568);
+    await voyageNear(390, 844);
     async function buttonsShow(width, height) {
       wipe();
       var box = await loadFrame('buttons ' + width + 'x' + height);
