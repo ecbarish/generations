@@ -16,6 +16,7 @@
         <p class="coins"><span id="coins">0</span> coins</p>
       </div>
       <p class="rate" id="rate">Nothing is earning yet.</p>
+      <p class="away-play" id="away-play">50% while away, up to 2h.</p>
     </div>
     <h1>Saltmarsh Shipping Office</h1>
     <p class="scene">The Saltmarsh coast, from the office window. You row the first cargoes yourself.</p>
@@ -41,9 +42,11 @@
     <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
     <section id="away" class="away" hidden></section>
     <div id="choice-back" class="choice-back" hidden></div>
+    <div id="away-back" class="away-back" hidden></div>
     <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
       <div class="choice-bar">
         <h2 id="choice-title">A choice on the desk</h2>
+        <button type="button" id="choice-fold" aria-expanded="true">Hide</button>
       </div>
       <div id="choice-cards"></div>
     </section>

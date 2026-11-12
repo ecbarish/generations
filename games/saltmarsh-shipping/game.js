@@ -95,7 +95,7 @@
         return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
       }
       if (q.toGoal) return 'Buy ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' for the next step · ' + money(q.cost);
-      return 'Buy up to ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' · ' + money(q.cost);
+      return 'Buy ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
     var label = hullTitle(i, n) + ' · ' + money(q.cost);
@@ -357,7 +357,10 @@
     if (narrow) {
       box.style.top = 'auto';
       box.style.bottom = (barH + gap) + 'px';
-      box.style.maxHeight = '11rem';
+      box.style.maxHeight = '';
+      box.style.left = '0';
+      box.style.transform = 'none';
+      box.style.width = '100%';
     } else if (fingerLow) {
       box.style.top = topPx + 'px';
       box.style.bottom = 'auto';
@@ -391,7 +394,7 @@
       button.replaceChildren();
       var main = document.createElement('span');
       main.className = 'take-main';
-      main.textContent = 'Take · ' + money(card.cost);
+      main.textContent = card.gain > 0 && !(card.cost > 0) ? 'Gain · ' + money(card.gain) : 'Pay · ' + money(card.cost);
       button.appendChild(main);
       if (!card.affordable && card.cost > 0) {
         var sub = document.createElement('span');
@@ -498,10 +501,10 @@
       var offer = offerById[spec.id] || null;
       var signed = (state.routes && state.routes[spec.id]) || 0;
       if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
-      else if (signed > 0 && signed < spec.depths) {
-        var peek = M.peekRoute(state, spec);
+      else if (signed > 0 && (signed < spec.depths || spec.depths === 1)) {
+        var peek = signed < spec.depths ? M.peekRoute(state, spec) : null;
         if (peek) waitingLine.push(spec.name + ' ' + money(peek.cost) + ' after the current one');
-        rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
+        rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: signed < spec.depths });
       }
     });
     /* On a phone the same price is already on the card, so the note stays one sentence. */
@@ -586,7 +589,7 @@
       button.textContent = money(peek.cost) + ' · after the current one';
       if (facts) facts.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
     });
-    var gear = M.gearOffer(state);
+    var sails = M.gearOffers ? M.gearOffers(state) : [];
     var gearHost = $('#route-gear');
     if (!gearHost) {
       gearHost = document.createElement('div');
@@ -596,83 +599,81 @@
     }
     /* Sail stays above the route cards, so a new Sign row cannot push it down. */
     if (host && gearHost.compareDocumentPosition(host) & Node.DOCUMENT_POSITION_PRECEDING) box.insertBefore(gearHost, host);
-    if (!gear) {
-      if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig === sig) gearHost.hidden = false;
-      else if (gearHost.dataset.id && gearHost.hidden === false && gearHost.offsetHeight > 0) {
-        var held = gearHost.offsetHeight;
-        gearHost.dataset.hold = '1';
-        gearHost.dataset.holdSig = sig;
-        gearHost.style.minHeight = held + 'px';
-        gearHost.replaceChildren();
-        var heldNote = document.createElement('p');
-        heldNote.className = 'habit';
-        heldNote.textContent = 'The spare sail is fitted.';
-        var heldActions = document.createElement('div');
-        heldActions.className = 'actions';
-        var heldBtn = document.createElement('button');
-        heldBtn.type = 'button';
-        heldBtn.disabled = true;
-        heldBtn.textContent = 'Fitted';
-        heldActions.appendChild(heldBtn);
-        gearHost.appendChild(heldNote);
-        gearHost.appendChild(heldActions);
-        gearHost.hidden = false;
+    gearHost.hidden = false;
+    var picked = gearHost.dataset.pick || '';
+    var current = null;
+    sails.forEach(function (row) { if (row.id === picked) current = row; });
+    if (!current) sails.forEach(function (row) { if (!current && !row.fitted) current = row; });
+    if (current) gearHost.dataset.pick = current.id;
+    var sailSig = current
+      ? current.id + (current.fitted ? ':fit' : ':' + current.cost) + ':' + sails.map(function (row) { return row.id; }).join(',')
+      : 'wait';
+    if (gearHost.dataset.sig !== sailSig) {
+      gearHost.dataset.sig = sailSig;
+      gearHost.replaceChildren();
+      if (!current) {
+        var waitH = document.createElement('h3');
+        waitH.textContent = 'Spare sail';
+        var waitP = document.createElement('p');
+        waitP.className = 'habit';
+        waitP.textContent = 'A spare sail waits for the first route you sign.';
+        var waitA = document.createElement('div');
+        waitA.className = 'actions';
+        var waitB = document.createElement('button');
+        waitB.type = 'button';
+        waitB.disabled = true;
+        waitB.textContent = 'Not yet';
+        waitA.appendChild(waitB);
+        gearHost.appendChild(waitH);
+        gearHost.appendChild(waitP);
+        gearHost.appendChild(waitA);
       } else {
-        gearHost.hidden = false;
-        gearHost.dataset.hold = '';
-        if (gearHost.dataset.reserved !== '1') {
-          gearHost.dataset.reserved = '1';
-          gearHost.replaceChildren();
-          var waitH = document.createElement('h3');
-          waitH.textContent = 'Spare sail';
-          var waitP = document.createElement('p');
-          waitP.className = 'habit';
-          waitP.textContent = 'A spare sail waits for the first route you sign.';
-          var waitA = document.createElement('div');
-          waitA.className = 'actions';
-          var waitB = document.createElement('button');
-          waitB.type = 'button';
-          waitB.disabled = true;
-          waitB.textContent = 'Not yet';
-          waitA.appendChild(waitB);
-          gearHost.appendChild(waitH);
-          gearHost.appendChild(waitP);
-          gearHost.appendChild(waitA);
+        if (sails.length > 1) {
+          var picks = document.createElement('div');
+          picks.className = 'sail-picks';
+          sails.forEach(function (sail) {
+            var pick = document.createElement('button');
+            pick.type = 'button';
+            pick.dataset.pick = sail.id;
+            pick.setAttribute('aria-pressed', sail.id === current.id ? 'true' : 'false');
+            pick.textContent = sail.name.replace(/^A spare sail for /, '').replace(/ Road| Rock| Reach| Headland| Channel| Cut/, function (word) { return word; }).split(' ')[0];
+            picks.appendChild(pick);
+          });
+          gearHost.appendChild(picks);
         }
-      }
-    } else {
-      if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig !== sig) {
-        gearHost.dataset.hold = '';
-        gearHost.style.minHeight = '';
-        gearHost.dataset.id = '';
-      }
-      gearHost.hidden = false;
-      if (gearHost.dataset.id !== gear.id) {
-        gearHost.dataset.id = gear.id;
-        gearHost.dataset.hold = '';
-        gearHost.style.minHeight = '';
-        gearHost.replaceChildren();
         var gh = document.createElement('h3');
-        gh.textContent = 'Spare sail · ' + gear.name.replace(/^A spare sail for /, '');
+        gh.dataset.route = current.id;
+        gh.textContent = current.fitted
+          ? ('Spare sail · ' + current.name.replace(/^A spare sail for /, '') + ' fitted')
+          : ('Spare sail · ' + current.name.replace(/^A spare sail for /, ''));
         var gp = document.createElement('p');
         gp.className = 'habit';
-        gp.textContent = gear.line;
+        gp.textContent = current.line;
         var ga = document.createElement('div');
         ga.className = 'actions';
         var gb = document.createElement('button');
         gb.type = 'button';
-        gb.dataset.act = 'gear';
-        gb.dataset.route = gear.id;
+        gb.dataset.route = current.id;
+        if (!current.fitted) {
+          gb.dataset.act = 'gear';
+          gb.disabled = !current.affordable;
+          var gearLabel = 'Sail · ' + money(current.cost);
+          gb.textContent = current.affordable ? gearLabel : gearLabel + ' · ' + M.needMore(state, current.cost);
+        } else {
+          gb.disabled = true;
+          gb.textContent = 'Fitted';
+        }
         ga.appendChild(gb);
         gearHost.appendChild(gh);
         gearHost.appendChild(gp);
         gearHost.appendChild(ga);
       }
-      var gearBtn = gearHost.querySelector('button');
-      if (gearBtn) {
-        gearBtn.disabled = !gear.affordable;
-        var gearLabel = 'Sail · ' + money(gear.cost);
-        gearBtn.textContent = gear.affordable ? gearLabel : gearLabel + ' · ' + M.needMore(state, gear.cost);
+    } else if (current && !current.fitted) {
+      var live = gearHost.querySelector('button[data-act="gear"]');
+      if (live) {
+        live.disabled = !current.affordable;
+        var liveLabel = 'Sail · ' + money(current.cost);
+        live.textContent = current.affordable ? liveLabel : liveLabel + ' · ' + M.needMore(state, current.cost);
       }
     }
   }
@@ -822,38 +823,51 @@
     var host = $('#provision-cards');
     var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
+    function provisionCard(item, offer) {
+      var card = document.createElement('div');
+      card.className = 'route-card';
+      var h = document.createElement('h3');
+      h.textContent = item ? item.name : offer.name;
+      var p = document.createElement('p');
+      p.className = 'habit';
+      if (item && item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
+      else p.textContent = (item && item.line) || (offer && offer.line) || '';
+      card.appendChild(h);
+      card.appendChild(p);
+      return card;
+    }
+    /* Every errand is measured up front. A later, taller card must not push the button. */
+    function lockProvisionSlot() {
+      var width = Math.round(host.clientWidth);
+      if (!(width > 0)) return;
+      if (host.dataset.heldWidth === String(width) && host.style.minHeight) return;
+      var probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;width:' + width + 'px;';
+      host.appendChild(probe);
+      var max = 0;
+      M.PREPARATIONS.forEach(function (item) {
+        var sample = provisionCard(item, item);
+        probe.appendChild(sample);
+        max = Math.max(max, sample.offsetHeight);
+      });
+      probe.remove();
+      if (max > 0) {
+        host.style.minHeight = max + 'px';
+        host.dataset.heldHeight = String(max);
+        host.dataset.heldWidth = String(width);
+      }
+    }
     var sig = M.PREPARATIONS.map(function (item) { return item.id + (doneMap[item.id] ? ':' + doneMap[item.id] : ':0'); }).join('|');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
-      if (!offers.length) {
-        host.style.minHeight = '';
-        host.dataset.heldHeight = '';
-        host.textContent = '';
-      } else {
+      if (offers.length) {
         var item = null;
         M.PREPARATIONS.forEach(function (row) { if (row.id === offers[0].id) item = row; });
-        var card = document.createElement('div');
-        card.className = 'route-card';
-        var h = document.createElement('h3');
-        h.textContent = item ? item.name : offers[0].name;
-        var p = document.createElement('p');
-        p.className = 'habit';
-        if (item && item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
-        else p.textContent = (item && item.line) || offers[0].line || '';
-        card.appendChild(h);
-        card.appendChild(p);
-        host.appendChild(card);
+        host.appendChild(provisionCard(item, offers[0]));
       }
     }
-    if (offers.length) {
-      var held = parseFloat(host.dataset.heldHeight || '0');
-      var nowH = host.offsetHeight;
-      if (nowH > held) {
-        host.dataset.heldHeight = String(nowH);
-        host.style.minHeight = nowH + 'px';
-      }
-    }
+    if (offers.length || host.dataset.heldWidth) lockProvisionSlot();
     var current = offers[0];
     var button = $('#provision-go');
     var alt = $('#provision-alt');
@@ -1080,46 +1094,50 @@
     var narrow = window.matchMedia('(max-width: 899px)').matches;
     var choiceOpen = choice && !choice.hidden;
     var awayOpen = away && !away.hidden;
+    var purseH = purse ? Math.ceil(purse.getBoundingClientRect().height) : 0;
+    var back = $('#away-back');
     if (choiceOpen) {
       choice.style.top = 'auto';
       choice.style.bottom = (goalH + gap) + 'px';
-      choice.style.maxHeight = narrow ? '8.5rem' : '';
+      choice.style.maxHeight = awayOpen ? '4.4rem' : '';
       choice.style.zIndex = '7';
+      if (narrow) {
+        choice.style.left = '0';
+        choice.style.right = '0';
+        choice.style.transform = 'none';
+        choice.style.width = '100%';
+      }
     }
-    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
     if (awayOpen) {
-      away.style.top = 'auto';
-      away.style.bottom = (goalH + gap + (choiceH ? choiceH + gap : 0)) + 'px';
-      away.style.zIndex = '8';
+      if (back) back.hidden = false;
+      var choiceTop = choiceOpen ? choice.getBoundingClientRect().top : (window.innerHeight - goalH);
+      away.style.top = (purseH + 8) + 'px';
+      away.style.bottom = Math.max(goalH + gap, window.innerHeight - choiceTop + gap) + 'px';
+      away.style.left = '0';
+      away.style.right = '0';
+      away.style.transform = 'none';
+      away.style.width = '100%';
+      away.style.maxHeight = 'none';
+      away.style.zIndex = '9';
+    } else if (back) back.hidden = true;
+    var pell = $('#pell-banner');
+    if (pell && !pell.hidden) {
+      pell.style.top = (purseH + 8) + 'px';
+      pell.style.left = '0';
+      pell.style.right = '0';
+      pell.style.transform = 'none';
+      pell.style.width = '100%';
+      pell.style.zIndex = '3';
     }
-    var choiceRect = choiceOpen ? choice.getBoundingClientRect() : null;
-    var awayRect = awayOpen ? away.getBoundingClientRect() : null;
-    if ((choiceRect && panelCoversBuy(choiceRect)) || (awayRect && panelCoversBuy(awayRect))) {
-      var purseBottom = purse ? purse.getBoundingClientRect().bottom : gap;
-      var top = Math.max(gap, Math.ceil(purseBottom) + gap);
-      if (awayOpen) {
-        away.style.top = top + 'px';
-        away.style.bottom = 'auto';
-        away.style.maxHeight = '8rem';
-        top += Math.ceil(away.getBoundingClientRect().height) + gap;
-      }
-      if (choiceOpen) {
-        choice.style.top = top + 'px';
-        choice.style.bottom = 'auto';
-        choice.style.maxHeight = narrow ? '8.5rem' : '11rem';
-      }
-    }
-    var purseH = purse ? Math.ceil(purse.getBoundingClientRect().height) : 0;
     var office = $('#office');
     var pad = purseH + 10;
     if (window.innerHeight < 450) pad = Math.min(pad, 70);
     if (office && purseH) office.style.paddingTop = pad + 'px';
+    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
+    if (office && narrow) office.style.paddingBottom = (goalH + gap + choiceH + 12) + 'px';
     document.documentElement.style.scrollPaddingTop = (purseH + 12) + 'px';
-    var dock = goalH + gap;
-    if (choiceOpen) dock += Math.ceil(choice.getBoundingClientRect().height) + gap;
-    if (awayOpen) dock += Math.ceil(away.getBoundingClientRect().height) + gap;
+    var dock = goalH + gap + choiceH;
     document.documentElement.style.scrollPaddingBottom = (dock + 12) + 'px';
-    if (office) office.style.paddingBottom = Math.max(dock + 16, 96) + 'px';
   }
 
   function render(fromClock) {
@@ -1153,6 +1171,10 @@
     else showLine(rateLine, M.rateWords(totalRate));
     if (M.yearOf && M.yearOf(state) === 2 && M.glassBurning && !M.glassBurning(state) && !state.ended) {
       rateLine.textContent = rateLine.textContent + ' Storm until Glass burns.';
+    }
+    var awayPlay = $('#away-play');
+    if (awayPlay && M.offlineCap) {
+      awayPlay.textContent = '50% while away, up to ' + Math.round(M.offlineCap(state) / 3600) + 'h.';
     }
     var goalEl = $('#goal');
     var focusStep = P.bestStep ? P.bestStep(state) : null;
@@ -1283,6 +1305,7 @@
     });
     if (audio && audio.render) audio.render();
     placeStack();
+    syncCarousel(false);
     var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
     if (pinned && pinTop != null) {
       var shift = pinned.getBoundingClientRect().top - pinTop;
@@ -1520,7 +1543,8 @@
       var gdx = e.clientX - view.guard.x;
       var gdy = e.clientY - view.guard.y;
       var known = view.guard.seen.get(b);
-      if (gdx * gdx + gdy * gdy < 72 * 72 && !(known != null && known === buttonKey(b))) return;
+      var sameHull = b.dataset.act === 'buy' && b.closest('[data-i]');
+      if (!sameHull && gdx * gdx + gdy * gdy < 72 * 72 && !(known != null && known === buttonKey(b))) return;
     }
     var held = remembered(b);
     if (!b || (b.disabled && !held)) return;
@@ -1548,10 +1572,28 @@
       });
       return;
     }
+    if (b.dataset.pick) {
+      var sailHost = $('#route-gear');
+      if (sailHost) sailHost.dataset.pick = b.dataset.pick;
+      render();
+      return;
+    }
+    if (b.id === 'choice-fold') {
+      var sheet = $('#choice');
+      if (sheet) {
+        sheet.classList.toggle('is-shut');
+        b.textContent = sheet.classList.contains('is-shut') ? 'Show' : 'Hide';
+        b.setAttribute('aria-expanded', sheet.classList.contains('is-shut') ? 'false' : 'true');
+      }
+      placeStack();
+      return;
+    }
     if (b.dataset.act === 'away') {
       $('#away').hidden = true;
       awayOn = false;
       $('#away').replaceChildren();
+      var awayBack = $('#away-back');
+      if (awayBack) awayBack.hidden = true;
       render();
       return;
     }
@@ -1719,7 +1761,7 @@
       persist();
       render();
       var again = document.querySelector('#boats [data-i="' + i + '"] [data-act="buy"]');
-      if (again && again.focus) again.focus();
+      if (again && again.focus) again.focus({ preventScroll: true });
     });
   });
 
@@ -1847,6 +1889,25 @@
     render(!paid.length);
   }, 250);
 
+  function carouselOf(el) {
+    return el && el.closest('#boats, #route-cards, #light-cards, #route-gear');
+  }
+  /* The phone rows are sideways. Bring the named card to the front of its row
+     without scrolling the page, so the rowboat is not what you see for a sloop. */
+  function showInCarousel(el) {
+    var scroller = carouselOf(el);
+    if (!scroller || scroller.scrollWidth <= scroller.clientWidth + 4) return;
+    var card = el.closest('.sail-card, .route-card, .light-card, li') || el;
+    scroller.scrollLeft = card.offsetLeft;
+  }
+  function syncCarousel(force) {
+    var sel = P.target(state);
+    if (!sel) return;
+    if (!force && view.carouselSel === sel) return;
+    view.carouselSel = sel;
+    var el = document.querySelector(sel);
+    if (el) showInCarousel(el);
+  }
   function showGoal() {
     var sel = P.target(state);
     var el = sel ? document.querySelector(sel) : null;
@@ -1855,6 +1916,7 @@
       node.classList.remove('goal-target');
     });
     el.classList.add('goal-target');
+    showInCarousel(el);
     scrollTo(el);
     if (view.goalTimer) clearTimeout(view.goalTimer);
     view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
@@ -1912,7 +1974,13 @@
         return false;
       }
       if (cheap.kind === 'gear') {
-        var gearHit = document.querySelector('#route-gear button');
+        var gearHit = document.querySelector('#route-gear button[data-route="' + cheap.id + '"][data-act="gear"]');
+        if (!usableControl(gearHit)) {
+          var sailHost = $('#route-gear');
+          if (sailHost) sailHost.dataset.pick = cheap.id;
+          render();
+          gearHit = document.querySelector('#route-gear button[data-route="' + cheap.id + '"][data-act="gear"]');
+        }
         if (usableControl(gearHit)) { press(gearHit); return true; }
         return false;
       }

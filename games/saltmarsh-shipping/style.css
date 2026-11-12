@@ -114,11 +114,13 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .ask { background: var(--lamp); }
 .pell-banner {
   position: fixed;
-  z-index: 5;
-  left: 50%;
-  top: 0.6rem;
-  transform: translateX(-50%);
-  width: min(40rem, calc(100% - 1.2rem));
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 7.4rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   margin: 0;
   padding: 0.7rem 0.85rem;
   background: var(--panel);
@@ -128,14 +130,22 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .pell-banner p { margin: 0 0 0.45rem; }
 .pell-banner button { width: 100%; }
 /* The welcome names a choice already on the desk, so it has to sit above that sheet. */
-#away:not([hidden]) {
+.away-back:not([hidden]) {
   position: fixed;
   z-index: 8;
-  left: 50%;
-  top: 4.2rem;
-  bottom: 5.2rem;
-  transform: translateX(-50%);
-  width: min(40rem, calc(100% - 1rem));
+  inset: 0;
+  background: rgba(35, 57, 76, 0.45);
+}
+#away:not([hidden]) {
+  position: fixed;
+  z-index: 9;
+  left: 0;
+  right: 0;
+  top: 7.2rem;
+  bottom: 4.8rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   margin: 0;
   overflow: auto;
 }
@@ -150,7 +160,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   left: 50%;
   transform: translateX(-50%);
   width: min(40rem, 100%);
-  z-index: 5;
+  z-index: 10;
   box-sizing: border-box;
   background: var(--paper);
   padding: 0.45rem 1rem 0.35rem;
@@ -262,8 +272,14 @@ html { scroll-padding-top: 6.5rem; }
   white-space: nowrap;
 }
 /* The season line lives in the sticky purse and wraps instead of widening the page. */
-#purse .rate {
-  white-space: normal;
+#purse .away-play {
+  margin: 0.15rem 0 0;
+  color: var(--hull);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 1.3em;
+  max-height: 1.3em;
 }
 #away-rule {
   white-space: normal;
@@ -471,14 +487,14 @@ html { scroll-padding-top: 6.5rem; }
   .boat .wait { display: none; }
   #choice.choice {
     max-height: 11rem;
-    overflow: hidden;
+    overflow: auto;
   }
-  #choice .choice-card .habit { display: none; }
+  #choice .choice-card .habit { display: block; }
   #choice h2 { font-size: 1rem; margin: 0 0 0.25rem; }
   .light-card[data-stage="2"] .habit { display: none; }
   #fleet, #sheds, #settled { display: none; }
   .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
-  #route-gear { height: auto; min-height: 12rem; overflow: visible; }
+  #route-gear { height: 12rem; min-height: 12rem; max-height: 12rem; overflow-x: auto; overflow-y: hidden; }
 }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }
@@ -495,7 +511,7 @@ html { scroll-padding-top: 6.5rem; }
 }
 .goalbar #goal::after { content: '  \203A'; }
 .goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
-.goal-target { outline: 3px solid var(--lamp); outline-offset: 3px; }
+.goal-target { box-shadow: inset 0 0 0 3px var(--lamp); }
 #choice-back.choice-back { display: none !important; }
 #choice.choice {
   position: fixed;
@@ -513,19 +529,59 @@ html { scroll-padding-top: 6.5rem; }
 }
 #away.away:not([hidden]) {
   position: fixed;
-  z-index: 8;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(40rem, calc(100% - 1rem));
+  z-index: 9;
+  left: 0;
+  right: 0;
+  transform: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   margin: 0;
-  max-height: 34vh;
+  max-height: none;
   overflow: auto;
-  bottom: 12rem;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
-/* Later than the base rule, so a phone actually keeps this cap. */
+#away.away:not([hidden]) button[data-act="away"] {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  margin-top: 0.6rem;
+  background: var(--sand);
+}
+#route-gear {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  height: 12rem;
+  min-height: 12rem;
+  max-height: 12rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+}
+#route-gear .sail-card {
+  flex: 0 0 100%;
+  width: 100%;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+}
+#route-gear .actions button,
+#choice .actions button {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  height: auto;
+}
 @media (max-width: 899px) {
-  #choice.choice { max-height: 46vh; }
+  .purse, .goalbar, #choice.choice, .pell-banner {
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+  }
+  #choice.choice { max-height: 11rem; }
+  #choice .choice-card .habit { font-size: 0.78rem; line-height: 1.2; }
+  #choice .choice-bar { position: sticky; top: 0; background: var(--panel); z-index: 1; }
   #choice.choice.is-shut {
     max-height: 4.6rem;
     overflow: hidden;
@@ -588,9 +644,10 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   min-height: 44px;
   height: 44px;
 }
-#provision-cards { min-height: 10.5rem; }
+#provision-cards { min-height: 7.2rem; }
+#provision-note, #provision-title { min-height: 2.9em; }
 #provision-actions {
-  min-height: 8.5rem;
+  min-height: 4.8rem;
   align-items: flex-start;
   align-content: flex-start;
 }

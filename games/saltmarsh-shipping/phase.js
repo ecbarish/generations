@@ -72,7 +72,7 @@
     if (!need) return base + '.';
     var rate = M.officeRate(state);
     var sec = rate > 0 ? Math.ceil((cost - state.cash) / rate) : 0;
-    if (sec > 90) return base + '. Row a cargo while you wait.';
+    if (sec > 15) return base + '. ' + (need ? need + ', ' + sec + 's. ' : '') + 'Row the skiff. The payout is real money while you wait.';
     if (sec > 20 && /^(Raise|Light) the /.test(base)) return base + '. ' + need + ', ' + sec + 's. Row a cargo while you wait.';
     if (sec > 0) return base + '. ' + need + ', ' + sec + 's.';
     return base + '. ' + need + ' more.';
@@ -211,7 +211,7 @@
     if (M.finaleOffer && M.finaleOffer(state)) {
       return { kind: 'finale', id: 'finale', cost: 0, gain: 0, progress: true, affordable: true, wait: 0, payback: 0, selector: '#finale', sentence: 'Set sail.' };
     }
-    if (M.routesSailing(state) < 1) return null;
+    if (M.routesSailing(state) < 1 && M.yearOf(state) !== 2) return null;
     var rate = Math.max(1, M.officeRate(state));
     var steps = [];
     function add(step) {
@@ -283,7 +283,7 @@
       });
       break;
     }
-    if (M.allLightsLit(state) && M.nextPreparation) {
+    if (M.voyageOpen(state) && M.nextPreparation) {
       var prep = M.nextPreparation(state);
       if (prep) {
         var line = prep.choice
@@ -329,11 +329,23 @@
         if (step.kind === 'light' && step.id === 'glass') winterLight = step;
         if (step.kind === 'prep' && !winterPrep) winterPrep = step;
       });
-      if (winterRoute) return winterRoute;
-      if (winterLight) return winterLight;
-      if (M.glassBurning(state) && winterPrep) return winterPrep;
+      /* A winter price that is more than a few seconds away does not block a boat
+         the purse can already buy. */
+      if (winterRoute && winterRoute.wait <= 15) return winterRoute;
+      if (winterLight && winterLight.wait <= 15) return winterLight;
+      if (M.glassBurning(state) && winterPrep && winterPrep.wait <= 15) return winterPrep;
+      [winterRoute, winterLight].forEach(function (step) {
+        var at = step ? steps.indexOf(step) : -1;
+        if (at >= 0 && step.wait > 15) steps.splice(at, 1);
+      });
+      if (winterPrep && (!M.glassBurning(state) || winterPrep.wait > 15)) {
+        var prepAt = steps.indexOf(winterPrep);
+        if (prepAt >= 0) steps.splice(prepAt, 1);
+      }
     }
-    var soon = steps.filter(function (step) { return step.wait <= 90; });
+    var waitCap = M.yearOf(state) === 2 ? 15 : 90;
+    var soon = steps.filter(function (step) { return step.wait <= waitCap; });
+    if (!soon.length) soon = steps.filter(function (step) { return step.wait <= 90; });
     var pool = soon.length ? soon : steps;
     function settle(step) {
       if (!step) return step;
@@ -350,33 +362,42 @@
       state._goalHold = step;
       return step;
     }
+    function within(step) {
+      if (M.yearOf(state) !== 2 || !step || !(step.wait > 15) || state.trips < M.HAND_TRIPS) return step;
+      var pay = M.handPay(state);
+      return {
+        kind: 'row', id: 'skiff', cost: 0, gain: pay, wait: 0, affordable: true, payback: 0, progress: false,
+        selector: '#row',
+        sentence: 'Row the skiff. The payout is ' + M.coins(pay) + ' coins while you wait.'
+      };
+    }
     var affordLights = pool.filter(function (step) { return step.kind === 'light' && step.affordable; });
     if (affordLights.length) {
       affordLights.sort(function (a, b) { return (b.stage === 1) - (a.stage === 1) || a.cost - b.cost; });
-      return affordLights[0];
+      return within(affordLights[0]);
     }
     var anyPrep = pool.filter(function (step) { return step.kind === 'prep'; })[0];
     if (anyPrep && M.allLightsLit(state)) {
       if (anyPrep.affordable) return anyPrep;
       var filling = pool.filter(function (step) { return step.kind === 'boat' && step.affordable; })[0];
       if (filling) return filling;
-      return anyPrep;
+      return within(anyPrep);
     }
     var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
     if (affordPrep) return affordPrep;
     var lampBark = pool.filter(function (step) { return step.id === 'bark'; })[0];
     var affordRoute = pool.filter(function (step) { return step.kind === 'route' && step.affordable; })[0];
-    if (lampBark && !affordLights.length && !affordRoute) return settle(lampBark);
+    if (lampBark && !affordLights.length && !affordRoute) return within(settle(lampBark));
     var income = pool.filter(function (step) { return step.affordable && !step.progress && step.payback <= 90 && step.kind !== 'choice'; });
     var affordChoice = pool.filter(function (step) { return step.kind === 'choice' && step.affordable; })[0];
     if (affordChoice && !income.length) return affordChoice;
     var bestIncome = richest(income);
-    if (bestIncome) return settle(bestIncome);
+    if (bestIncome) return within(settle(bestIncome));
     if (affordChoice) return affordChoice;
     var progressSoon = pool.filter(function (step) { return step.progress; });
-    if (progressSoon.length) return soonest(progressSoon);
+    if (progressSoon.length) return within(soonest(progressSoon));
     var worth = pool.filter(function (step) { return step.payback <= 120; });
-    return settle(soonest(worth.length ? worth : pool));
+    return within(settle(soonest(worth.length ? worth : pool)));
   }
 
   function progressSteps(state) {
@@ -403,22 +424,40 @@
     }
     if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'partner') return choiceGoal(state);
     if (state.year === 2 && M.deskChoice(state) && M.deskChoice(state).id === 'winter') return choiceGoal(state);
-    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return 'Sign Frost Lane. The winter crossing is this year\'s new run.';
+    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) {
+      var opening = bestStep(state);
+      if (opening && opening.wait <= 15) return opening.sentence;
+      return 'Sign Frost Lane. The winter crossing is this year\'s new run.';
+    }
     if (state.boats[0].owned < M.WREN_AT && !(state.captains[0] && state.captains[0].hired)) {
       left = M.WREN_AT - state.boats[0].owned;
       return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then Capt. Wren takes the pier.';
     }
     if (M.canHire(state, 0)) return M.askLine(0);
-    if (state.boats[0].owned < M.SLOOP_AT) {
-      left = M.SLOOP_AT - state.boats[0].owned;
-      return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then a sloop can tie up.';
+    if (state.year === 2 && (state.routes && state.routes.frost) >= 1) {
+      var winterStep = bestStep(state);
+      if (winterStep) return winterStep.sentence;
+    }
+    if (state.year === 2 && M.unlocked(state, 1)) {
+      /* A sloop can already tie up. Do not ask for more rowboats. */
+    } else if (state.boats[0].owned < (state.year === 2 ? 12 : M.SLOOP_AT)) {
+      left = (state.year === 2 ? 12 : M.SLOOP_AT) - state.boats[0].owned;
+      if (left > 0) return 'Tie up ' + more(left, 'rowboat', 'rowboats') + '. Then a sloop can tie up.';
     }
     var desk = M.deskChoice(state);
     choice = choiceGoal(state);
     if (choice && (!phase.routesReady || (desk && (desk.id === 'sloop' || desk.id === 'schooner')))) return choice;
     if (!phase.fleet) {
       left = M.UNLOCK_AT - state.boats[1].owned;
-      if (left > 0) return withNeed(state, 'Buy ' + (left === 1 ? 'a sloop' : left + ' sloops'), M.quote(state, 1, left).cost);
+      if (left > 0) {
+        var sloopAll = M.quote(state, 1, left).cost;
+        var sloopOne = M.quote(state, 1, 1).cost;
+        var sloopRate = Math.max(1, M.officeRate(state));
+        if (left > 1 && Math.ceil(Math.max(0, sloopAll - state.cash) / sloopRate) > 15) {
+          return withNeed(state, 'Buy a sloop', sloopOne);
+        }
+        return withNeed(state, 'Buy ' + (left === 1 ? 'a sloop' : left + ' sloops'), sloopAll);
+      }
     }
     if (M.canHire(state, 1)) return M.askLine(1);
     if (!phase.routesReady) {
@@ -427,10 +466,13 @@
       var schoonerRate = Math.max(1, M.officeRate(state));
       var schoonerWait = Math.ceil(Math.max(0, schoonerAll - state.cash) / schoonerRate);
       var schoonerNoun = left === 1 ? 'a schooner' : left + ' schooners';
+      if (left > 1 && schoonerWait > 15) {
+        var oneLine = state.boats[2].owned >= 1 ? 'Buy one more schooner for the next tide' : 'Buy a schooner for the next tide';
+        return withNeed(state, oneLine, M.quote(state, 2, 1).cost);
+      }
       if (state.boats[2].owned >= 1) {
         return withNeed(state, 'Buy ' + (left === 1 ? 'one more schooner' : left + ' more schooners') + ' for the next tide', schoonerAll);
       }
-      if (schoonerWait > 90) return withNeed(state, 'Buy a schooner for the next tide', M.quote(state, 2, 1).cost);
       return withNeed(state, 'Buy ' + schoonerNoun + ' for the next tide', schoonerAll);
     }
     if (M.canHire(state, 2)) return M.askLine(2);
@@ -513,11 +555,16 @@
     var step;
     if (!state || state.ended) return '#new-harbour';
     if (!phase.boats) return '#row';
-    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) return '#route-cards [data-route="frost"]';
+    if (state.year === 2 && !((state.routes && state.routes.frost) >= 1)) {
+      var winterSentence = goal(state);
+      if (/Frost Lane/.test(winterSentence)) return '#route-cards [data-route="frost"]';
+    }
     if (M.finaleOffer && M.finaleOffer(state)) return '#finale';
     if (state.boats[0].owned < M.WREN_AT) return '#boats [data-i="0"]';
     if (M.canHire(state, 0)) return '#ask';
-    if (state.boats[0].owned < M.SLOOP_AT) return '#boats [data-i="0"]';
+    if (state.year === 2 && M.unlocked(state, 1)) {
+      /* sloops are already on the desk */
+    } else if (state.boats[0].owned < (state.year === 2 ? 12 : M.SLOOP_AT)) return '#boats [data-i="0"]';
     var earlyDesk = M.deskChoice(state);
     if (earlyDesk && (earlyDesk.id === 'sloop' || earlyDesk.id === 'schooner' || !phase.routesReady)) return '#choice';
     if (!phase.fleet) return '#boats [data-i="1"]';

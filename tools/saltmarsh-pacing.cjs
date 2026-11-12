@@ -270,6 +270,9 @@
   function goalAction(M, P, state, now) {
     var goal = P.goal(state);
     var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
+    if (cheap && cheap.kind === 'prep' && cheap.affordable) {
+      return { id: 'prep:' + cheap.id, affordable: true, cost: cheap.cost, buy: function () { M.buyPreparation(state, cheap.id, cheap.which || '', now); } };
+    }
     if (cheap && goal === cheap.sentence) {
       if (cheap.kind === 'finale') {
         return { id: 'sail', affordable: true, buy: function () { M.launchFinale(state, now); } };
@@ -338,8 +341,8 @@
     }
     if (/^Row /.test(goal)) {
       return {
-        id: 'row',
-        affordable: state.trips < M.HAND_TRIPS,
+        id: state.trips < M.HAND_TRIPS ? 'row' : 'skiff',
+        affordable: true,
         buy: function () { M.handSell(state, 0); }
       };
     }
