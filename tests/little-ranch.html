@@ -1262,6 +1262,22 @@ document.querySelector('#run').onclick = async () => {
           const toyFigs = areaThings(2), fig = n => toyFigs.find(t => t.name === n).box, piles = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
           check(`${key} K: the Toy Yard pup, Pebblit and the basket stand clear of each other`, !piles(fig('baby'), fig('friend')) && !piles(fig('baby'), fig('basket')) && !piles(fig('friend'), fig('basket')));
           {
+            const built = L().buildings || [];
+            const touch = (a, b2) => a.x0 < b2.x1 - 1 && b2.x0 < a.x1 - 1 && a.y0 < b2.y1 - 1 && b2.y0 < a.y1 - 1;
+            let crossed = '';
+            for (let a = 0; a < built.length; a++) for (let b2 = a + 1; b2 < built.length; b2++) if (touch(built[a], built[b2])) crossed += built[a].name + '+' + built[b2].name + ' ';
+            const skyLine = L().ground - L().U * .28;
+            const names = ['hutch', 'picnic', 'stage', 'shelf', 'barn', 'shed', 'wagon', 'pond', 'gate'];
+            const have = names.every(n => built.some(b => b.name === n));
+            const underSky = built.every(b => b.name === 'pond' || b.y0 >= skyLine - .5);
+            const doors = ['ksign', 'tsign', 'stage', 'shelf', 'dsign', 'sign', 'wsign'];
+            const mounted = doors.every(n => {
+              const b = built.find(q => q.door === n), c = door(n).c;
+              return b && c.x >= b.x0 - 1 && c.x <= b.x1 + 1 && (n === 'wsign' || (c.y >= b.y0 - 1 && c.y <= b.y1 + 1));
+            });
+            check(`${key} K: the buildings stay apart and under the sky, and each plaque sits on its place${crossed ? ' — ' + crossed : ''}`, !crossed && have && underSky && mounted);
+          }
+          {
             const cover = (box, c, r) => { const x = Math.max(box.x0, Math.min(c.x, box.x1)), y = Math.max(box.y0, Math.min(c.y, box.y1)); return Math.hypot(c.x - x, c.y - y) < r - 1; };
             const ballOf = side => { const b = S().ball, was = { from: b.from, to: b.to, at: b.at }; b.from = side; b.to = side; b.at = -9; const q = LR.ballNow(); b.from = was.from; b.to = was.to; b.at = was.at; return q; };
             const toyTaps = i => {
