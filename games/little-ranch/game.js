@@ -1935,4 +1935,9 @@
     redraw() { draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); const x = st.place === 'ranch' ? p.x - cam.x : p.x; return { x: r.left + x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
+if (!/\/baseline\//.test(location.pathname)) {
+  const feel = document.createElement('script');
+  feel.src = 'feel.js';
+  document.body.appendChild(feel);
+}
 
