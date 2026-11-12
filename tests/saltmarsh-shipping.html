@@ -2659,6 +2659,62 @@ document.querySelector('#run').onclick = async function () {
     await seasonScreen(320, 568);
     await seasonScreen(390, 844);
     await seasonScreen(1280, 800);
+    async function welcomeOverChoice(width, height) {
+      var box = await loadFrame('welcome over choice ' + width + 'x' + height, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var st = win.__saltmarsh.state;
+      st.ended = false;
+      st.year = 2;
+      st.reputation = 4;
+      st.trips = 3;
+      st.cash = 1e9;
+      st.boats[0].owned = 32;
+      st.boats[1].owned = 10;
+      st.boats[2].owned = 10;
+      st.routes.kelp = 1;
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      st.partner = null;
+      win.__saltmarsh.render();
+      var choice = doc.querySelector('#choice');
+      var away = doc.querySelector('#away');
+      var copy = win.Saltmarsh.awayCopy(st, { away: 120, gained: 40, capped: true }, {
+        before: 10, after: 50, boatGain: 40, captains: ['Capt. Wren: 1 haul, 12 coins.'], openPage: false
+      });
+      away.hidden = false;
+      away.replaceChildren();
+      var h = doc.createElement('h2');
+      h.textContent = copy.title;
+      var lead = doc.createElement('p');
+      lead.textContent = copy.lead;
+      away.appendChild(h);
+      away.appendChild(lead);
+      copy.lines.forEach(function (text) {
+        var p = doc.createElement('p');
+        p.textContent = text;
+        away.appendChild(p);
+      });
+      var closeLog = doc.createElement('button');
+      closeLog.type = 'button';
+      closeLog.dataset.act = 'away';
+      closeLog.textContent = 'Close the log';
+      away.appendChild(closeLog);
+      closeLog.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      var rect = closeLog.getBoundingClientRect();
+      var barTop = doc.querySelector('.goalbar').getBoundingClientRect().top;
+      var hit = doc.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      var hitName = hit ? (hit.id || hit.className || hit.textContent || '').toString().replace(/\s+/g, ' ').slice(0, 40) : 'none';
+      var hitOk = !!(hit && (hit === closeLog || closeLog.contains(hit)));
+      closeLog.click();
+      check('at ' + width + 'x' + height + ' Close the log is the tap when Ives is waiting (hit ' + hitName + ')', choice.hidden === false && hitOk && rect.height >= 44 && rect.bottom <= barTop + 1 && away.hidden === true);
+    }
+    await welcomeOverChoice(320, 568);
+    await welcomeOverChoice(320, 480);
+    await welcomeOverChoice(390, 844);
+    await welcomeOverChoice(844, 390);
     async function buttonsShow(width, height) {
       wipe();
       var box = await loadFrame('buttons ' + width + 'x' + height);
