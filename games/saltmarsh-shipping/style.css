@@ -191,6 +191,13 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   max-width: 100%;
 }
 .actions button { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#away button {
+  white-space: normal;
+  height: auto;
+  max-height: none;
+  min-height: 44px;
+  line-height: 1.2;
+}
 #ending .actions button {
   height: auto;
   max-height: none;
@@ -388,6 +395,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   min-height: 44px;
 }
 @media (max-width: 899px) {
+  #boats .actions button { font-size: 0.86rem; }
   .work { display: flex; flex-direction: column; }
   #row { order: 1; }
   #ask, #crew { order: 2; }

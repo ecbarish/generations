@@ -756,6 +756,48 @@
     return 'Next, nearly in reach: ' + step.sentence;
   }
 
+  /* What the welcome card can do straight away. A lighthouse the purse can
+     already pay comes before an older choice. A pending pilot, chart, meal
+     or desk choice is named here, with its own price. */
+  function returnOffers(state) {
+    var phase = window.SaltmarshPhase;
+    if (!phase || !phase.goal || !state || state.ended) return [];
+    var goal = phase.goal(state);
+    var offers = [];
+    var prep = nextPreparation(state);
+    if (prep && prep.choice && (/^Choose a pilot or a bought chart/.test(goal) || /^Choose fresh food or salt pork/.test(goal))) {
+      prep.choice.forEach(function (opt) {
+        if (!(state.cash >= opt.cost)) return;
+        offers.push({
+          kind: 'prep', id: prep.id, which: opt.id, cost: opt.cost,
+          label: opt.name + ' · ' + coins(opt.cost)
+        });
+      });
+      if (offers.length) return offers;
+    }
+    var best = phase.bestStep ? phase.bestStep(state) : null;
+    if (best && best.affordable && best.kind === 'light' && best.sentence === goal) {
+      var spec = lightById(best.id);
+      var verb = best.stage === 0 ? 'Raise' : 'Light';
+      offers.push({
+        kind: 'light', id: best.id, cost: best.cost,
+        label: verb + ' the ' + (spec ? spec.name : 'lighthouse') + ' · ' + coins(best.cost)
+      });
+      return offers;
+    }
+    var desk = deskChoice(state);
+    if (desk && desk.goal && goal.indexOf(desk.goal.replace(/\.$/, '')) === 0) {
+      (desk.cards || []).forEach(function (card) {
+        if (!(state.cash >= card.cost)) return;
+        offers.push({
+          kind: 'fork', id: desk.id, which: card.which, cost: card.cost,
+          label: card.name + ' · ' + coins(card.cost)
+        });
+      });
+    }
+    return offers;
+  }
+
   function captainBooks(state) {
     return state.captains.map(function (c) { return c && c.brought ? c.brought : 0; });
   }
@@ -2449,6 +2491,7 @@
     lookLine: lookLine,
     awayRule: awayRule,
     awayCopy: awayCopy,
+    returnOffers: returnOffers,
     captainBooks: captainBooks,
     captainHauls: captainHauls,
     captainAwayLines: captainAwayLines,

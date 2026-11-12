@@ -9,13 +9,6 @@
 </head>
 <body>
 <main class="window" id="office" data-phase="dock">
-  <div id="choice-back" class="choice-back" hidden></div>
-  <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
-    <div class="choice-bar">
-      <h2 id="choice-title">A choice on the desk</h2>
-    </div>
-    <div id="choice-cards"></div>
-  </section>
   <header>
     <div class="top">
       <a class="home" href="../../index.html">Back to the arcade</a>
@@ -45,6 +38,13 @@
     </aside>
     <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
     <section id="away" class="away" hidden></section>
+    <div id="choice-back" class="choice-back" hidden></div>
+    <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
+      <div class="choice-bar">
+        <h2 id="choice-title">A choice on the desk</h2>
+      </div>
+      <div id="choice-cards"></div>
+    </section>
     <div class="bulk" id="bulk" hidden role="group" aria-label="How many boats to buy at once">
       <button type="button" data-bulk="1" aria-pressed="true">1 at a time</button>
       <button type="button" data-bulk="10" aria-pressed="false">10 at a time</button>

@@ -945,6 +945,98 @@ document.querySelector('#run').onclick = async function () {
     var awayText = awayFrame.contentDocument.querySelector('#away').textContent;
     check('the away log shows after a closed page', awayFrame.contentWindow.__saltmarsh.away() && /While you were away/.test(awayText) && /50%/.test(awayText));
 
+    (function () {
+      var pier = ready();
+      pier.boats[0].owned = M.SLOOP_AT;
+      pier.boats[1].owned = M.UNLOCK_AT;
+      pier.boats[2].owned = M.UNLOCK_AT;
+      pier.boats[3].owned = M.BARK_QUAY;
+      pier.captains[0].hired = true;
+      pier.captains[1].hired = true;
+      pier.captains[2].hired = true;
+      pier.routes.kelp = 1;
+      pier.lights.pier = 1;
+      pier.cash = 35e6;
+      pier.forks.sloop = 'shed';
+      pier.forks.schooner = 'shed';
+      pier.lightQuotes = { 'pier:1': { id: 'pier', stage: 1, cost: 257000, line: 'The tower is up.' } };
+      var goal = P.goal(pier);
+      var back = M.returnOffers(pier);
+      var desk = M.deskChoice(pier);
+      check('a return offers the Pier light, not the quay choice, when the purse can pay',
+        /Light the Pier Lighthouse/.test(goal) && desk && desk.id === 'quay' &&
+        back.length === 1 && back[0].kind === 'light' && back[0].id === 'pier' &&
+        back[0].label === 'Light the Pier Lighthouse · ' + M.coins(257000));
+    })();
+    (function () {
+      var chart = ready();
+      chart.boats[0].owned = M.SLOOP_AT;
+      chart.boats[1].owned = M.UNLOCK_AT;
+      chart.boats[2].owned = M.UNLOCK_AT;
+      chart.boats[3].owned = M.BARK_LAMP;
+      chart.captains[0].hired = true;
+      chart.captains[1].hired = true;
+      chart.captains[2].hired = true;
+      chart.captains[3].hired = true;
+      chart.routes = { kelp: 1, gull: 1, tea: 1, headland: 1, reed: 1, night: 1 };
+      chart.lights = { pier: 2, headland: 2, reed: 2, quay: 2 };
+      chart.forks.sloop = 'shed';
+      chart.forks.schooner = 'shed';
+      chart.forks.quay = 'lamp';
+      chart.cash = 1e12;
+      chart.prepDone = { victuals: 'fresh', canvas: true };
+      var goal = P.goal(chart);
+      var back = M.returnOffers(chart);
+      var pilot = M.optionPrice ? null : null;
+      var names = back.map(function (row) { return row.label; }).join(' | ');
+      check('a return puts the pilot and the chart on the card, each with its own price',
+        /^Choose a pilot or a bought chart/.test(goal) && back.length === 2 &&
+        back[0].kind === 'prep' && back[0].which === 'pilot' && /A pilot · /.test(back[0].label) &&
+        back[1].which === 'chart' && /A bought chart · /.test(back[1].label) &&
+        back[0].cost !== back[1].cost && names.indexOf('Buy 1') < 0);
+    })();
+
+    var pierSave = ready();
+    pierSave.boats[0].owned = M.SLOOP_AT;
+    pierSave.boats[1].owned = M.UNLOCK_AT;
+    pierSave.boats[2].owned = M.UNLOCK_AT;
+    pierSave.boats[3].owned = M.BARK_QUAY;
+    pierSave.captains[0].hired = true;
+    pierSave.captains[1].hired = true;
+    pierSave.captains[2].hired = true;
+    pierSave.routes.kelp = 1;
+    pierSave.lights.pier = 1;
+    pierSave.cash = 35e6;
+    pierSave.forks.sloop = 'shed';
+    pierSave.forks.schooner = 'shed';
+    pierSave.lightQuotes = { 'pier:1': { id: 'pier', stage: 1, cost: 257000, line: 'The tower is up.' } };
+    wipe();
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(pierSave, Date.now() - 120000)));
+    var pierFrame = await loadFrame('pier return');
+    var pierDoc = pierFrame.contentDocument;
+    var pierWin = pierFrame.contentWindow;
+    var pierBtn = pierDoc.querySelector('#away [data-act="light"][data-light="pier"]');
+    var pierChoice = pierDoc.querySelector('#choice');
+    check('the welcome card lights the Pier while the quay choice is still on the desk',
+      pierWin.__saltmarsh.away() && pierBtn && pierBtn.textContent === 'Light the Pier Lighthouse · ' + M.coins(257000) &&
+      pierChoice && pierChoice.hidden === false && pierWin.__saltmarsh.state.lights.pier === 1);
+    pierBtn.click();
+    check('lighting from the welcome card raises the Pier to burning', pierWin.__saltmarsh.state.lights.pier === 2);
+
+    pierWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
+    pierWin.__saltmarsh.state.boats[1].owned = 2;
+    pierWin.__saltmarsh.state.cash = 1e9;
+    pierWin.__saltmarsh.state.bulk = 1;
+    pierWin.__saltmarsh.render();
+    var rowBtn = pierDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var sloopBtn = pierDoc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+    var rowCost = pierWin.Saltmarsh.quote(pierWin.__saltmarsh.state, 0, 1).cost;
+    var sloopCost = pierWin.Saltmarsh.quote(pierWin.__saltmarsh.state, 1, 1).cost;
+    check('each Buy button names its hull and that hull\'s own price',
+      rowBtn && sloopBtn && rowCost !== sloopCost &&
+      rowBtn.textContent.indexOf('Rowboat · ' + pierWin.Saltmarsh.coins(rowCost)) >= 0 &&
+      sloopBtn.textContent.indexOf('Sloop · ' + pierWin.Saltmarsh.coins(sloopCost)) >= 0);
+
     function readHarbour(canvas, width) {
       var rect = canvas.getBoundingClientRect();
       var w = rect.width, h = rect.height;
@@ -1142,7 +1234,7 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.render();
     var goalBuy = slotDoc.querySelector('#boats [data-i="1"] [data-act="buy"]');
     var goalShown = goalBuy ? +goalBuy.dataset.count : 0;
-    check('Max shows the eight sloops the goal still needs', !!goalBuy && /Buy 8 for the next step ·/.test(goalBuy.textContent) && goalShown === 8);
+    check('Max shows the eight sloops the goal still needs', !!goalBuy && /Buy 8 sloops for the next step ·/.test(goalBuy.textContent) && goalShown === 8);
     slotWin.__saltmarsh.state.cash += 1e9;
     goalBuy.click();
     check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 10);

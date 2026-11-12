@@ -82,6 +82,11 @@
     return q;
   }
 
+  function hullTitle(i, count) {
+    var name = M.BOATS[i].name;
+    return count === 1 ? name : name + 's';
+  }
+
   function buyLabel(i) {
     var q = boatQuote(i);
     if (state.bulk === 'max') {
@@ -89,11 +94,11 @@
         var one = M.quote(state, i, 1);
         return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
       }
-      if (q.toGoal) return 'Buy ' + q.count + ' for the next step · ' + money(q.cost);
-      return 'Buy up to ' + q.count + ' · ' + money(q.cost);
+      if (q.toGoal) return 'Buy ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' for the next step · ' + money(q.cost);
+      return 'Buy up to ' + q.count + ' ' + hullTitle(i, q.count).toLowerCase() + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
-    var label = 'Buy ' + n + ' · ' + money(q.cost);
+    var label = hullTitle(i, n) + ' · ' + money(q.cost);
     if (!(q.count > 0)) label += ' · ' + M.needMore(state, q.cost);
     return label;
   }
@@ -139,7 +144,7 @@
     var boatGoal = P.nextAct(state);
     if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
       priced = { count: boatGoal.count, cost: boatGoal.cost };
-      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
+      buy.textContent = hullTitle(i, boatGoal.count) + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
     } else buy.textContent = buyLabel(i);
     buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
     buy.dataset.count = String(priced.count || 0);
@@ -1253,6 +1258,16 @@
       p.textContent = text;
       box.appendChild(p);
     });
+    (M.returnOffers ? M.returnOffers(state) : []).forEach(function (step) {
+      var act = document.createElement('button');
+      act.type = 'button';
+      act.textContent = step.label;
+      act.dataset.act = step.kind;
+      if (step.kind === 'light') act.dataset.light = step.id;
+      if (step.kind === 'prep') act.dataset.prep = step.id;
+      if (step.which) act.dataset.which = step.which;
+      box.appendChild(act);
+    });
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.act = 'away';
@@ -1487,6 +1502,7 @@
       $('#away').hidden = true;
       awayOn = false;
       $('#away').replaceChildren();
+      render();
       return;
     }
     if (b.dataset.act === 'fork') {
