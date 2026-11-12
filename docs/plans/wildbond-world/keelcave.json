@@ -1,0 +1,159 @@
+{
+  "id": "keelcave",
+  "status": "proposed",
+  "map": {
+    "name": "Keelcave",
+    "biome": "saltmarsh",
+    "start": [
+      10,
+      11,
+      "up"
+    ],
+    "rows": [
+      "#####################",
+      "#####################",
+      "#######.......#######",
+      "#######.......#######",
+      "#######.......#######",
+      "#########...#########",
+      "####.............####",
+      "####.\"\"..........####",
+      "####.\"\"..........####",
+      "####..........\"\".####",
+      "####..........\"\".####",
+      "####.............####",
+      "#########...#########",
+      "#########...#########",
+      "#########SSS#########"
+    ],
+    "exits": {
+      "S": {
+        "to": "greywash",
+        "x": null,
+        "y": null,
+        "dir": null,
+        "landing": "planned"
+      }
+    },
+    "signs": {},
+    "items": [],
+    "wild": [
+      [
+        "brineskit",
+        24
+      ],
+      [
+        "dunepounce",
+        20
+      ],
+      [
+        "reedtusk",
+        16
+      ],
+      [
+        "wrackjaw",
+        14
+      ],
+      [
+        "kiteskirl",
+        18
+      ],
+      [
+        "spindriftfoal",
+        8
+      ],
+      [
+        "foamglint",
+        3
+      ],
+      [
+        "poolkit",
+        6
+      ],
+      [
+        "dewspinner",
+        5
+      ],
+      [
+        "saillet",
+        6
+      ]
+    ]
+  },
+  "gates": [],
+  "zones": [
+    {
+      "id": "dry-cave",
+      "kind": "dry",
+      "rects": [
+        [
+          7,
+          2,
+          7,
+          3
+        ],
+        [
+          9,
+          5,
+          3,
+          1
+        ],
+        [
+          4,
+          6,
+          13,
+          6
+        ],
+        [
+          9,
+          12,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "back-ledge",
+      "kind": "ledge",
+      "rects": [
+        [
+          7,
+          2,
+          7,
+          3
+        ]
+      ]
+    }
+  ],
+  "markers": [
+    {
+      "id": "slip-rinse",
+      "kind": "lesson-slip",
+      "move": "rinse",
+      "at": [
+        10,
+        3
+      ]
+    }
+  ],
+  "layout": {
+    "mouth_px": [
+      48,
+      48
+    ],
+    "ceiling_px": 48,
+    "mounts_allowed": true
+  },
+  "integration": {
+    "status": "unresolved_landings",
+    "destinations": [
+      "greywash"
+    ],
+    "incoming_requirements": {
+      "greywash": [
+        "field:tide"
+      ]
+    },
+    "approach_gate": "greywash--keelcave:field:tide"
+  }
+}
