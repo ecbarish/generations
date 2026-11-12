@@ -14,6 +14,9 @@
   var SAVE_VERSION = 1;
   var OFFLINE_CAP = 4 * 3600;
   var OFFLINE_RATE = 0.5;
+  /* 1,000,000 coins is minute 21 on the 2.5s and 5s buyers. 250,000,000 is inside
+     45 to 75 minutes for both, with a few minutes of room on each side. */
+  var MOVE_AT = 250000000;
   var UNLOCK_AT = 10;
   var STALL_MILESTONES = [25, 50, 100, 150, 200, 300, 400];
   var LANE_MILESTONES = [10, 25, 50];
@@ -109,15 +112,94 @@
     }
   ];
 
+  var QUAY = [
+    {
+      id: 'tea', name: 'Tea Stall', vendor: 'Mei',
+      habit: 'Mei opens before the lanterns are lit.',
+      serve: 'Pour a cup', left: 'cup', lefts: 'cups', hire: 'Ask Mei to take the stall',
+      base: 6, growth: 1.07, rate: 0.45, serves: 25, hand: 1,
+      looks: ['One lantern', 'Two lanterns', 'A striped awning', 'A crowd at the cups'],
+      gossip: 'Mei says the regulars were waiting in the dark.',
+      next: ''
+    },
+    {
+      id: 'chestnut', name: 'Chestnut Brazier', vendor: 'Lin',
+      habit: 'Lin saves the warmest paper cone for the last ferry worker.',
+      serve: 'Fill a cone', left: 'cone', lefts: 'cones', hire: 'Ask Lin to tend the brazier',
+      base: 20, growth: 1.08, rate: 4, serves: 25, hand: 1,
+      looks: ['One iron pan', 'Two warm pans', 'A copper chimney', 'Steam above the quay'],
+      gossip: 'Lin says the ferries ran late, so she kept the coals warm.',
+      next: ''
+    }
+  ];
+
+  var TALES = {
+    tea: [
+      { at: 'hired', title: 'Mei Opens Early', text: 'Mei takes over the tea stall and opens it before the lanterns are lit. A few regulars are already waiting in the dark, hands wrapped around their coats. She pours the first cup and says nothing, because the steam says enough.' },
+      { at: '25', title: 'Warm Bread for the Row', text: 'Mei has twenty-five tea stalls pouring now, and the first one still opens before the lanterns. A baker stops by on his way to work and leaves a loaf of warm bread as thanks. Mei shares it with the whole row.' },
+      { at: '50', title: 'The Quiet Hour', text: 'At fifty tea stalls, Mei still wakes before anyone else. She likes the quiet hour when the lane is blue and the kettles begin to sing. By the time the lanterns are lit, there is already a line.' },
+      { at: '100', title: 'No One Waits in the Dark', text: 'Mei has a hundred tea stalls, and no one waits in the dark any more. Each one opens just before the lanterns, as if the lane were taking a breath. She smiles and pours one more cup for the street sweeper.' }
+    ],
+    dumpling: [
+      { at: 'hired', title: 'Bo Folds and Talks', text: 'Bo rolls up his sleeves at the dumpling cart and begins to talk. He tells the regulars about his cousin\'s goat while his fingers pinch each fold. Nobody leaves until the steamer is full.' },
+      { at: '25', title: 'The Goat Gets a Name', text: 'Twenty-five carts are folding now, and the goat in Bo\'s story has finally been given a name. The regulars argue about whether it suits her. Bo laughs, folds three more dumplings, and says it suits her fine.' },
+      { at: '50', title: 'Listeners in the Lane', text: 'At fifty carts, people stay after their dumplings are gone just to hear how the story goes. Bo never rushes, because a good fold takes the time it takes. The steam rises, the goat gets lost again, and everyone cheers.' },
+      { at: '100', title: 'One Long Story', text: 'Bo has a hundred carts, and every one is steaming while he tells the story he started on his first day. He says the goat is still lost, but nobody believes him. The dumplings sell, and the story goes on.' }
+    ],
+    lantern: [
+      { at: 'hired', title: 'An Trims the Wicks', text: 'An takes the lantern stand and trims each wick with a small pair of silver scissors. She waits until the flame sits perfectly still before she hangs the lantern. She says a calm flame is a kind flame.' },
+      { at: '25', title: 'Twenty-Five Steady Flames', text: 'Twenty-five lantern stands glow along the lane now, and An has trimmed every wick herself. A child asks why she takes so long. An says the light looks after the people, so she looks after the light.' },
+      { at: '50', title: 'Clean Light', text: 'At fifty stands, An\'s wicks burn so clean that there is no smoke at all. The moths come to look, and then they simply sit and rest. An lets them, because a lantern should welcome everyone.' },
+      { at: '100', title: 'The Alley, Lit', text: 'An has a hundred lantern stands, and the whole alley glows as softly as a sleeping cat. She trims the last wick of the night and waits for the flame to go still. Then she lets the lane see itself.' }
+    ],
+    mooncake: [
+      { at: 'hired', title: 'Qiao Counts Twice', text: 'Qiao sets out her tins of mooncakes and counts them once, then counts them again. When a customer asks for one, she hands over the tin she likes least and keeps the best for later. The customer says it is delicious anyway.' },
+      { at: '25', title: 'The Tin She Likes Best', text: 'Qiao has twenty-five tables now, and she counts every tin twice. She still gives away the one she likes least, and somehow it is always the first one asked for. She is starting to think the lane knows her secret.' },
+      { at: '50', title: 'A Painted Sign', text: 'At fifty tables, a painter offers to make Qiao a sign. She counts her coins twice, nods, and asks for tins painted along the edge. The sign is finished by dusk, and the whole table looks proud of itself.' },
+      { at: '100', title: 'Tins Along the Table', text: 'Qiao has a hundred tables, and tins line every one. She counts them twice that evening, just to be sure, and the number comes out the same both times. Qiao pats the nearest tin and smiles.' }
+    ],
+    incense: [
+      { at: 'hired', title: 'Ren Lights Two Sticks', text: 'Ren takes the incense tray and lights one stick for the stall. Then he lights a second stick and sets it at the mouth of the alley, for anyone passing by. He says a lane should smell welcome before it looks it.' },
+      { at: '25', title: 'Cedar Before Dusk', text: 'With twenty-five trays burning, the alley smells of cedar before anyone has arrived. Ren says that is the point of the second stick. Visitors follow the smell and find a smiling lane.' },
+      { at: '50', title: 'A Bronze Stand', text: 'At fifty trays, Ren buys a small bronze stand for the alley stick. It holds the smoke in a thin ribbon that curls up toward the lanterns. Ren watches it for a while and lights the next stick.' },
+      { at: '100', title: 'Smoke from the Gate', text: 'Ren has a hundred trays, and the smoke rises in soft ribbons you can see from the gate. He still lights one stick for the stall and one for the alley, just as he did on the first night. Some things stay the same.' }
+    ],
+    stories: [
+      { at: 'hired', title: 'Old Wen Unrolls the Mat', text: 'Old Wen unrolls the story mat and sits down slowly, one knee at a time. He begins a tale about a tortoise who carried a lantern up a hill. Just before the ending, Old Wen stops, and the crowd leans in to pay for the rest.' },
+      { at: '25', title: 'The Tortoise Climbs', text: 'Twenty-five mats are spread across the lane, and Old Wen\'s tortoise has reached the middle of the hill. The listeners bring cushions and tea. Old Wen smiles and stops right before the best part.' },
+      { at: '50', title: 'A Paper Screen', text: 'At fifty mats, Old Wen paints a paper screen so the children can see the hill. The tortoise is very small and very brave on it. Just before the tortoise reaches the top, Old Wen pauses and asks who wants to hear the rest.' },
+      { at: '100', title: 'The Ending, Twice', text: 'Old Wen has a hundred mats, and tonight he finally reaches the ending of the tortoise\'s tale. The crowd sighs happily, and then he begins again from the start. Nobody minds, because the lane loves the hill.' }
+    ],
+    chestnut: [
+      { at: 'hired', title: 'Lin Takes the Brazier', text: 'Lin rakes the coals until they glow, then fills a paper cone for the last ferry worker. The chestnuts smell like the evening water. She keeps the warmest cone aside, as she always has.' },
+      { at: '25', title: 'The Last Ferry', text: 'Twenty-five braziers line Willow Quay, and Lin still watches for the last ferry. The worker takes the warmest cone and stays to warm his hands. Lin nods and turns the next pan.' },
+      { at: '50', title: 'A Copper Chimney', text: 'At fifty braziers a copper chimney goes up over Lin\'s first pan. The smoke leans out over the water and the ferries answer with their lamps. Lin says the quay should be easy to find in the dark.' },
+      { at: '100', title: 'Steam above the Quay', text: 'Lin has a hundred braziers, and the steam sits over the water after the ferries stop. She fills one more cone and sets it on the rail. Someone will be cold when the next boat comes in.' }
+    ]
+  };
+
   function fresh() {
     return {
       cash: 0,
       lifetime: 0,
       seen: null,
       bulk: 1,
+      place: 'lane',
+      quay: null,
       stalls: STALLS.map(function () { return { owned: 0, serves: 0, hired: false }; })
     };
   }
+
+  function onQuay(state) {
+    return !!(state && state.place === 'quay' && state.quay && state.quay.length === 2);
+  }
+
+  function board(state) {
+    return onQuay(state) ? { specs: QUAY, slots: state.quay } : null;
+  }
+
+  function activeSpecs(state) { return onQuay(state) ? QUAY : STALLS; }
+  function activeSlots(state) { return onQuay(state) ? state.quay : state.stalls; }
 
   function spec(i) { return STALLS[i] || null; }
 
@@ -128,6 +210,7 @@
   }
 
   function unlocked(state, i) {
+    if (onQuay(state)) return i === 0 || i === 1;
     if (!spec(i)) return false;
     if (i === 0) return true;
     return state.stalls[i - 1].owned >= unlockNeed(i);
@@ -176,6 +259,12 @@
   }
 
   function production(state, i) {
+    if (onQuay(state)) {
+      var q = state.quay[i];
+      var qs = QUAY[i];
+      if (!q || !qs || !q.hired || !(q.owned > 0)) return 0;
+      return qs.rate * q.owned * stallMult(q.owned);
+    }
     var st = state.stalls[i];
     if (!st || !st.hired || !(st.owned > 0)) return 0;
     return spec(i).rate * st.owned * stallMult(st.owned) * laneMult(state);
@@ -196,12 +285,14 @@
 
   function handSell(state, i) {
     if (!unlocked(state, i)) return { ok: false, reason: 'closed' };
-    var stall = spec(i);
-    state.stalls[i].serves += 1;
+    var stall = onQuay(state) ? QUAY[i] : spec(i);
+    var st = onQuay(state) ? state.quay[i] : state.stalls[i];
+    if (!stall || !st) return { ok: false, reason: 'closed' };
+    st.serves += 1;
     addCash(state, stall.hand);
     return {
       ok: true,
-      ready: !state.stalls[i].hired && state.stalls[i].serves >= stall.serves
+      ready: !st.hired && st.serves >= stall.serves
     };
   }
 
@@ -222,18 +313,25 @@
     return { pours: pours, acc: next - pours, seconds: seconds };
   }
 
+  function slotOf(state, i) {
+    if (onQuay(state)) return { stall: QUAY[i], st: state.quay[i] };
+    return { stall: spec(i), st: state.stalls[i] };
+  }
+
   function canHire(state, i) {
-    if (!unlocked(state, i) || state.stalls[i].hired) return false;
-    return state.stalls[i].serves >= spec(i).serves;
+    var row = slotOf(state, i);
+    if (!unlocked(state, i) || !row.st || row.st.hired) return false;
+    return row.st.serves >= row.stall.serves;
   }
 
   function hire(state, i) {
-    if (!unlocked(state, i)) return { ok: false, reason: 'closed' };
-    if (state.stalls[i].hired) return { ok: false, reason: 'hired' };
-    if (state.stalls[i].serves < spec(i).serves) {
-      return { ok: false, reason: 'serves', need: spec(i).serves - state.stalls[i].serves };
+    var row = slotOf(state, i);
+    if (!unlocked(state, i) || !row.st || !row.stall) return { ok: false, reason: 'closed' };
+    if (row.st.hired) return { ok: false, reason: 'hired' };
+    if (row.st.serves < row.stall.serves) {
+      return { ok: false, reason: 'serves', need: row.stall.serves - row.st.serves };
     }
-    state.stalls[i].hired = true;
+    row.st.hired = true;
     return { ok: true };
   }
 
@@ -265,8 +363,8 @@
     return stall.base * Math.pow(stall.growth, 52 + owned - origin);
   }
 
-  function cost(i, owned, n) {
-    var stall = spec(i);
+  function cost(i, owned, n, stallOverride) {
+    var stall = stallOverride || spec(i);
     n = Math.floor(n);
     if (!stall || !(n > 0)) return 0;
     if (!isFinite(owned) || owned < 0) owned = 0;
@@ -277,18 +375,18 @@
     return total;
   }
 
-  function maxFit(i, owned, cash, limit) {
+  function maxFit(i, owned, cash, limit, stallOverride) {
     var cap = limit > 0 ? limit : 80;
-    if (!(cash > 0) || cost(i, owned, 1) > cash) return 0;
+    if (!(cash > 0) || cost(i, owned, 1, stallOverride) > cash) return 0;
     var lo = 1, hi = 1;
-    while (hi < cap && cost(i, owned, hi) <= cash) {
+    while (hi < cap && cost(i, owned, hi, stallOverride) <= cash) {
       lo = hi;
       hi = Math.min(cap, hi * 2);
     }
-    if (cost(i, owned, hi) <= cash) return hi;
+    if (cost(i, owned, hi, stallOverride) <= cash) return hi;
     while (lo < hi) {
       var mid = Math.ceil((lo + hi) / 2);
-      if (cost(i, owned, mid) <= cash) lo = mid;
+      if (cost(i, owned, mid, stallOverride) <= cash) lo = mid;
       else hi = mid - 1;
     }
     return lo;
@@ -303,11 +401,15 @@
   }
 
   function quote(state, i, mode) {
-    if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
-    var owned = state.stalls[i].owned;
-    var one = cost(i, owned, 1);
+    var row = slotOf(state, i);
+    var stall = row.stall;
+    var st = row.st;
+    if (!stall || !st) return { count: 0, cost: 0, blocked: 'closed' };
+    var owned = st.owned;
+    var over = onQuay(state) ? stall : null;
+    var one = cost(i, owned, 1, over);
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
-    if (!state.stalls[i].hired) {
+    if (!st.hired) {
       if (mode !== 1 && mode !== '1') return { count: 0, cost: one, blocked: 'hire' };
       if (!(one >= 0) || one > state.cash) return { count: 0, cost: one, blocked: 'cost' };
       return { count: 1, cost: one, blocked: null };
@@ -316,26 +418,26 @@
     if (mode === 'max') {
       var room = countToNext(owned);
       var capN = room > 0 ? room : 20;
-      afford = maxFit(i, owned, state.cash, capN);
+      afford = maxFit(i, owned, state.cash, capN, over);
       n = afford;
       while (n > 0 && paybackSeconds(state, i, n) > PAYBACK_CAP) n--;
       if (!(n > 0)) {
         /* Coins can cover a copy that Max still refuses. Say so, instead of a dead Buy 1. */
         return { count: 0, cost: one, blocked: afford > 0 ? 'payback' : 'cost' };
       }
-      priced = cost(i, owned, n);
+      priced = cost(i, owned, n, over);
       return { count: n, cost: priced, blocked: null };
     }
     if (mode === 'next') {
       n = countToNext(owned);
       if (!(n > 0)) return { count: 0, cost: one, blocked: 'done' };
-      var toward = maxFit(i, owned, state.cash, n);
+      var toward = maxFit(i, owned, state.cash, n, over);
       /* Greyed Next prices the next single step. A batch price does not match the one copy you are short. */
       if (!(toward > 0)) return { count: 0, cost: one, blocked: 'cost' };
-      return { count: toward, cost: cost(i, owned, toward), blocked: null };
+      return { count: toward, cost: cost(i, owned, toward, over), blocked: null };
     }
     n = mode === 10 || mode === '10' ? 10 : 1;
-    priced = cost(i, owned, n);
+    priced = cost(i, owned, n, over);
     if (!(priced >= 0) || priced > state.cash) return { count: 0, cost: priced, blocked: 'cost' };
     return { count: n, cost: priced, blocked: null };
   }
@@ -348,27 +450,30 @@
   /* Spends exactly `count`, priced the same way quote() priced that many.
      The button stores that count at render; a later income tick must not buy a different number. */
   function buyExact(state, i, count) {
-    if (!spec(i) || !state.stalls[i] || !unlocked(state, i)) {
+    var row = slotOf(state, i);
+    if (!row.stall || !row.st || !unlocked(state, i)) {
       return { ok: false, reason: 'closed', count: 0, cost: 0 };
     }
     count = Math.floor(count);
-    if (!state.stalls[i].hired && count !== 1) return { ok: false, reason: 'hire', count: 0, cost: 0 };
-    var priced = count > 0 ? cost(i, state.stalls[i].owned, count) : 0;
+    if (!row.st.hired && count !== 1) return { ok: false, reason: 'hire', count: 0, cost: 0 };
+    var over = onQuay(state) ? row.stall : null;
+    var priced = count > 0 ? cost(i, row.st.owned, count, over) : 0;
     if (!(count > 0) || !(priced >= 0) || priced > state.cash) return { ok: false, reason: 'cost', count: 0, cost: priced };
     state.cash -= priced;
     if (state.cash < 1e-6) state.cash = 0;
-    state.stalls[i].owned += count;
+    row.st.owned += count;
     return { ok: true, count: count, cost: priced };
   }
 
   /* Payback is the price of the selected quantity divided by the income those stalls add.
      A tenth or a twenty-fifth can add more than one stall's rate, because the whole row doubles. */
   function paybackSeconds(state, i, count) {
-    var stall = spec(i);
-    var st = state.stalls && state.stalls[i];
+    var row = slotOf(state, i);
+    var stall = row.stall;
+    var st = row.st;
     if (!stall || !st || !st.hired) return Infinity;
     var n = count > 0 ? Math.floor(count) : 1;
-    var priced = cost(i, st.owned, n);
+    var priced = cost(i, st.owned, n, onQuay(state) ? stall : null);
     var before = income(state);
     st.owned += n;
     var after = income(state);
@@ -395,9 +500,10 @@
   }
 
   function paybackLine(state, i) {
-    var stall = spec(i);
+    var row = slotOf(state, i);
+    var stall = row.stall;
     if (!stall) return '';
-    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
+    var owned = row.st ? row.st.owned : 0;
     var n = buyCount(state, i);
     var seconds = paybackSeconds(state, i, n);
     var label = paybackLabel(seconds);
@@ -458,7 +564,25 @@
     return extra ? sentence + ' ' + extra : sentence;
   }
 
+  function quayGoal(state) {
+    var lin = state.quay[1];
+    var stall = QUAY[1];
+    var left;
+    if (!lin.hired) {
+      if (lin.serves >= stall.serves) return 'Lin will tend the Chestnut Brazier whenever you ask.';
+      left = stall.serves - lin.serves;
+      if (lin.serves === 0) return 'Hold to fill a cone. ' + left + ' more cones, then Lin will tend the brazier.';
+      return left + ' more ' + (left === 1 ? 'cone' : 'cones') + ' to do yourself. Then Lin will tend the brazier.';
+    }
+    if (!(lin.owned > 0)) return 'Buy the first Chestnut Brazier. Lin will tend it.';
+    var at = nextMark(lin.owned);
+    if (!at) return 'Lin\'s braziers are as warm as they get tonight.';
+    var n = at - lin.owned;
+    return (n === 1 ? 'One more chestnut brazier' : n + ' more chestnut braziers') + ' reaches ' + at + ', and that brazier doubles.';
+  }
+
   function goal(state) {
+    if (onQuay(state)) return quayGoal(state);
     var i, stall, left, bonus;
     for (i = 0; i < STALLS.length; i++) {
       if (!unlocked(state, i) || state.stalls[i].hired) continue;
@@ -502,8 +626,9 @@
   }
 
   function nextGoalLine(state, i) {
-    var stall = spec(i);
-    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
+    var row = slotOf(state, i);
+    var stall = row.stall;
+    var owned = row.st ? row.st.owned : 0;
     var at = nextMark(owned);
     if (!stall) return '';
     if (!at) return 'Every doubling on this stall is lit.';
@@ -531,6 +656,7 @@
   }
 
   function laneLine(state) {
+    if (onQuay(state)) return '';
     var low = lowestOwned(state);
     var next = laneTarget(low);
     var lit = laneMult(state) >= 2 ? 'The whole lane is lit. ' : '';
@@ -544,6 +670,7 @@
   }
 
   function chapterLine(state) {
+    if (onQuay(state)) return '';
     var owned = state.stalls[STALLS.length - 1] ? state.stalls[STALLS.length - 1].owned : 0;
     if (!(owned > 0)) return '';
     if (owned > FINALE_AT) return 'Old Wen tells it again.';
@@ -552,6 +679,7 @@
   }
 
   function finaleReached(state) {
+    if (onQuay(state)) return false;
     return !!(state.stalls[STALLS.length - 1] && state.stalls[STALLS.length - 1].owned >= FINALE_AT);
   }
 
@@ -561,22 +689,29 @@
   }
 
   function lookLine(state, i) {
-    var owned = state.stalls[i].owned;
-    var stall = spec(i);
-    if (!state.stalls[i].hired) return '';
+    var row = slotOf(state, i);
+    var owned = row.st ? row.st.owned : 0;
+    var stall = row.stall;
+    if (!stall || !row.st) return '';
+    if (!row.st.hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
     return stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
   }
 
   function gossipLine(state) {
+    if (onQuay(state)) {
+      if (state.quay[1].hired) return QUAY[1].gossip;
+      if (state.quay[0].hired) return QUAY[0].gossip;
+      return 'The quay was quiet.';
+    }
     for (var i = STALLS.length - 1; i >= 0; i--) {
       if (state.stalls[i].hired) return spec(i).gossip;
     }
     return 'The lane was quiet.';
   }
 
-  function awayCopy(summary) {
+  function awayCopy(summary, state) {
     var lead = 'You were gone ' + Arcade.fmtTime(summary.away) + '.';
     if (summary.capped) lead += ' The box only holds four hours, so ' + Arcade.fmtTime(summary.credited) + ' counted.';
     else lead += ' The stalls kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
@@ -586,15 +721,156 @@
       : summary.gained > 0
         ? Arcade.fmt(summary.gained) + ' coins are in the box.'
         : 'The box is empty. Nothing was earning while you were gone.';
-    return {
+    var copy = {
       title: 'While you were away',
       lead: lead,
       box: box,
       payout: Arcade.fmt(summary.gained) + (summary.gained === 1 ? ' coin' : ' coins')
     };
+    if (state) copy.next = closerLead(state);
+    return copy;
+  }
+
+  var PERMITS = [
+    { id: 'mei', name: "Mei's permit" },
+    { id: 'bo', name: "Bo's cart" },
+    { id: 'lane', name: 'The lane light' },
+    { id: 'quay', name: 'The Quay permit' },
+    { id: 'lin', name: "Lin's brazier" }
+  ];
+
+  function permitShown(state, id) {
+    return id === 'lin' ? state.place === 'quay' : true;
+  }
+
+  function permitDone(state, id) {
+    if (id === 'mei') return !!(state.stalls[0] && state.stalls[0].hired);
+    if (id === 'bo') return !!(state.stalls[0] && state.stalls[0].owned >= 10);
+    if (id === 'lane') return lowestOwned(state) >= 10;
+    if (id === 'quay') return state.lifetime >= MOVE_AT;
+    if (id === 'lin') return !!(state.quay && state.quay[1] && state.quay[1].hired);
+    return false;
+  }
+
+  function permitList(state) {
+    return PERMITS.filter(function (p) { return permitShown(state, p.id); }).map(function (p) {
+      return { id: p.id, name: p.name, done: permitDone(state, p.id) };
+    });
+  }
+
+  function nextPermit(state) {
+    var list = permitList(state);
+    if (state.place === 'quay') {
+      var lin = null, i;
+      for (i = 0; i < list.length; i++) if (list[i].id === 'lin') lin = list[i];
+      if (lin && !lin.done) return lin;
+    }
+    for (var k = 0; k < list.length; k++) if (!list[k].done) return list[k];
+    return null;
+  }
+
+  function permitProgress(state, id) {
+    if (id === 'mei') return permitDone(state, 'mei') ? 1 : Math.min(1, (state.stalls[0].serves || 0) / 25);
+    if (id === 'bo') return Math.min(1, (state.stalls[0].owned || 0) / 10);
+    if (id === 'lane') return Math.min(1, lowestOwned(state) / 10);
+    if (id === 'quay') return state.lifetime >= MOVE_AT ? 1 : Math.min(1, state.lifetime / MOVE_AT);
+    if (id === 'lin') {
+      if (!state.quay || !state.quay[1]) return 0;
+      if (state.quay[1].hired) return 1;
+      return Math.min(1, state.quay[1].serves / 25);
+    }
+    return 0;
+  }
+
+  function servesFor(id) {
+    var i;
+    for (i = 0; i < STALLS.length; i++) if (STALLS[i].id === id) return STALLS[i].serves;
+    for (i = 0; i < QUAY.length; i++) if (QUAY[i].id === id) return QUAY[i].serves;
+    return 25;
+  }
+
+  function progressFor(state, id) {
+    var owned = 0, hired = false, serves = 0, i;
+    for (i = 0; i < STALLS.length; i++) {
+      if (STALLS[i].id !== id) continue;
+      if (state.stalls[i].owned > owned) owned = state.stalls[i].owned;
+      if (state.stalls[i].hired) hired = true;
+      if (state.stalls[i].serves > serves) serves = state.stalls[i].serves;
+    }
+    if (state.quay) {
+      for (i = 0; i < QUAY.length; i++) {
+        if (QUAY[i].id !== id) continue;
+        if (state.quay[i].owned > owned) owned = state.quay[i].owned;
+        if (state.quay[i].hired) hired = true;
+        if (state.quay[i].serves > serves) serves = state.quay[i].serves;
+      }
+    }
+    return { owned: owned, hired: hired, serves: serves };
+  }
+
+  function stories(state) {
+    var order = ['tea', 'dumpling', 'lantern', 'mooncake', 'incense', 'stories', 'chestnut'];
+    var out = [];
+    order.forEach(function (id) {
+      (TALES[id] || []).forEach(function (tale) {
+        var p = progressFor(state, id);
+        var unlocked = tale.at === 'hired' ? p.hired : p.owned >= +tale.at;
+        var fraction = tale.at === 'hired'
+          ? (p.hired ? 1 : Math.min(1, p.serves / servesFor(id)))
+          : Math.min(1, p.owned / +tale.at);
+        out.push({ id: id, at: tale.at, title: tale.title, text: tale.text, unlocked: unlocked, fraction: fraction });
+      });
+    });
+    return out;
+  }
+
+  function nextStory(state) {
+    var best = null;
+    stories(state).forEach(function (tale) {
+      if (tale.unlocked) return;
+      if (!best || tale.fraction > best.fraction) best = tale;
+    });
+    return best;
+  }
+
+  function closerLead(state) {
+    var permit = nextPermit(state);
+    var story = nextStory(state);
+    if (!permit && !story) return 'The book is full.';
+    var prem = permit ? 1 - permitProgress(state, permit.id) : 2;
+    var srem = story ? 1 - story.fraction : 2;
+    var useStory = srem < prem;
+    var name = useStory ? story.title : permit.name;
+    var rem = useStory ? srem : prem;
+    if (rem <= 0.2) return 'You are close to ' + name + '.';
+    return 'Next in the book: ' + name + '.';
+  }
+
+  function canMove(state) {
+    return state.place !== 'quay' && state.lifetime >= MOVE_AT;
+  }
+
+  function move(state) {
+    if (state.place === 'quay') return { ok: true, already: true };
+    if (!(state.lifetime >= MOVE_AT)) return { ok: false, reason: 'early' };
+    state.place = 'quay';
+    state.cash = 0;
+    state.quay = [
+      { owned: 1, serves: 25, hired: true },
+      { owned: 0, serves: 0, hired: false }
+    ];
+    return { ok: true };
   }
 
   function goalProgress(state) {
+    if (onQuay(state)) {
+      var lin = state.quay[1];
+      if (!lin.hired) return { value: Math.min(lin.serves, 25), max: 25 };
+      if (!(lin.owned > 0)) return { value: 0, max: 1 };
+      var at = nextMark(lin.owned);
+      if (!at) return { value: 1, max: 1 };
+      return { value: lin.owned, max: at };
+    }
     var i, stall, need, bonus, owned;
     for (i = 0; i < STALLS.length; i++) {
       if (!unlocked(state, i) || state.stalls[i].hired) continue;
@@ -621,8 +897,9 @@
      tag stays off until that stall can actually be bought. */
   function bestIndex(state) {
     var best = -1, score = Infinity, i, n, sec, mode = state.bulk;
-    for (i = 0; i < STALLS.length; i++) {
-      if (!state.stalls[i].hired || !unlocked(state, i)) continue;
+    var slots = activeSlots(state);
+    for (i = 0; i < slots.length; i++) {
+      if (!slots[i].hired || !unlocked(state, i)) continue;
       if (mode === 'max' || mode === 'next') n = quote(state, i, mode).count;
       else n = mode === 10 || mode === '10' ? 10 : 1;
       if (!(n > 0)) continue;
@@ -658,6 +935,10 @@
       lifetime: state.lifetime,
       seen: typeof seen === 'number' ? seen : state.seen,
       bulk: state.bulk,
+      place: state.place === 'quay' ? 'quay' : 'lane',
+      quay: state.place === 'quay' && state.quay ? state.quay.map(function (s) {
+        return { owned: s.owned, serves: s.serves, hired: !!s.hired };
+      }) : null,
       stalls: state.stalls.map(function (s) {
         return { owned: s.owned, serves: s.serves, hired: !!s.hired };
       })
@@ -676,6 +957,16 @@
       state.stalls[i].serves = Math.floor(s.serves);
       state.stalls[i].hired = !!s.hired;
     });
+    state.place = 'lane';
+    state.quay = null;
+    if (o.place === 'quay' && Array.isArray(o.quay) && o.quay.length === 2 && o.quay.every(function (s) {
+      return s && isFinite(s.owned) && isFinite(s.serves) && s.owned >= 0 && s.serves >= 0;
+    })) {
+      state.place = 'quay';
+      state.quay = o.quay.map(function (s) {
+        return { owned: Math.floor(s.owned), serves: Math.floor(s.serves), hired: !!s.hired };
+      });
+    }
     return state;
   }
 
@@ -698,6 +989,8 @@
     STALLS: STALLS,
     SAVE_KEY: SAVE_KEY,
     SAVE_VERSION: SAVE_VERSION,
+    MOVE_AT: MOVE_AT,
+    QUAY: QUAY,
     OFFLINE_CAP: OFFLINE_CAP,
     OFFLINE_RATE: OFFLINE_RATE,
     UNLOCK_AT: UNLOCK_AT,
@@ -749,6 +1042,16 @@
     valid: valid,
     serialize: serialize,
     restore: restore,
-    createIdle: createIdle
+    createIdle: createIdle,
+    onQuay: onQuay,
+    activeSpecs: activeSpecs,
+    activeSlots: activeSlots,
+    permitList: permitList,
+    nextPermit: nextPermit,
+    stories: stories,
+    nextStory: nextStory,
+    closerLead: closerLead,
+    canMove: canMove,
+    move: move
   };
 })();

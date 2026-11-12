@@ -165,6 +165,15 @@ button[aria-pressed="true"], button.ask, button.best {
 .away .payout { margin: 0.1rem 0 0.35rem; font-size: 1.7rem; line-height: 1.15; color: var(--good); font-variant-numeric: tabular-nums; }
 .away p { margin: 0.3rem 0; }
 .away button { min-height: 44px; }
+#move { margin: 0.35rem 0 0; border: 1px solid var(--amber); background: #fbf6ec; padding: 0.35rem 0.5rem 0.45rem; }
+#move p { margin: 0 0 0.3rem; }
+#move button { min-height: 44px; width: 100%; }
+#move[hidden] { display: none; }
+.book { margin-top: 1.1rem; color: var(--ink); }
+.book summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; color: var(--good); }
+.book > summary::before { content: "▸"; display: inline-block; width: 1.1em; }
+.book[open] > summary::before { content: "▾"; }
+.book-body p { margin: 0.35rem 0; }
 .save { margin-top: 1.1rem; color: var(--mute); }
 /* Playtest fix: the save box's controls look and work like the rest of the buttons */
 .save .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.35rem 0.75rem;
@@ -206,6 +215,8 @@ button[aria-pressed="true"], button.ask, button.best {
   .stall h2 { order: -2; }
   .stall .actions { order: -1; margin-bottom: 0.3rem; }
   .actions [data-act="buy"] { flex: 1 1 100%; }
+  .stall.quay .ask.reserved { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; overflow: hidden; }
+  .stall.quay [data-act="serve"] { flex: 1 1 100%; height: 44px; max-height: 44px; }
   .count { font-size: 16px; }
   .coin-pin { display: none !important; }
   .goal-pin:not([hidden]) {
@@ -251,6 +262,7 @@ button[aria-pressed="true"], button.ask, button.best {
   .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0.2rem; margin-bottom: 0; }
   #away { grid-column: 1 / -1; grid-row: 2; margin: 0; }
   #goal-bar { grid-column: 1 / -1; grid-row: 3; margin: 0; padding: 0.05rem 0.4rem; }
+  #move { grid-column: 1 / -1; grid-row: 3; margin: 0 0 0.2rem; }
   #goal-bar .goal { line-height: 1.15; }
   .goal-meter { display: none; }
   /* GAD: the lane-bonus line, the ending card, and the note each have a row.
@@ -263,7 +275,8 @@ button[aria-pressed="true"], button.ask, button.best {
   #finale:not([hidden]) { padding: 0.4rem 0.75rem 0.45rem; }
   #finale:not([hidden]) h2 { margin-bottom: 0.2rem; font-size: 1.35rem; }
   #finale:not([hidden]) p { margin-bottom: 0.4rem; }
-  .save { grid-column: 1 / -1; grid-row: 8; }
+  .book { grid-column: 1 / -1; grid-row: 8; margin-top: 0.2rem; }
+  .save { grid-column: 1 / -1; grid-row: 9; }
   .scene { margin-bottom: 0.25rem; }
   .bulk { margin-top: 0; flex-wrap: nowrap; gap: 0.15rem; }
   .bulk-name { position: static; width: auto; height: auto; min-height: 0; padding: 0 0.15rem 0 0; margin: 0; overflow: visible; clip: auto; font-size: 16px; line-height: 1; white-space: nowrap; border: 0; }

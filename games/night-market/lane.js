@@ -24,19 +24,100 @@
   function box(c, x, y, w, h, fill) { rect(c, x, y, w, h, 'ink'); if (w > 2 && h > 2) rect(c, x + 1, y + 1, w - 2, h - 2, fill); }
   function look(owned) { var k = 0; MILESTONES.forEach(function (m) { if (owned >= m) k++; }); return k; }
   function st() { return getState(); }
+  function onQuay() { var s = st(); return !!(s && s.place === 'quay' && s.quay); }
+  function slotAt(i) {
+    var s = st();
+    if (!s) return null;
+    if (onQuay()) return s.quay[i] || null;
+    return s.stalls[i] || null;
+  }
+  function stallX(i) { return onQuay() ? (i === 0 ? 6 : 200) : i * SLOT; }
   function open(i) { return unlockedFn(st(), i); }
-  function busy(i) { var t = st().stalls[i]; return open(i) && (t.hired || t.serves > 0); }
+  function busy(i) { var t = slotAt(i); return !!(t && open(i) && (t.hired || t.serves > 0)); }
 
   /* ---- effect 0: the static lane, painted once per change of unlock / look ---- */
-  function signature() { return st().stalls.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + look(t.owned); }).join(','); }
+  function signature() {
+    var s = st();
+    var list = onQuay() ? s.quay : s.stalls;
+    return (onQuay() ? 'q:' : 'h:') + list.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + look(t.owned); }).join(',');
+  }
   function paintStatic() {
+    if (onQuay()) { paintQuay(); return; }
     var c = bx; rect(c, 0, 0, W, H, 'night');
     rect(c, 0, 1, W, 1, 'ink');                                      // the lantern string
     rect(c, 0, STALL_BOTTOM, W, H - STALL_BOTTOM, 'mute'); rect(c, 0, STALL_BOTTOM, W, 1, 'ink');   // the lane's cobbles, where people walk (light enough for a dark silhouette)
     for (var x = 4; x < W; x += 12) rect(c, x, 70, 4, 1, 'timber');
     for (var x2 = 10; x2 < W; x2 += 12) rect(c, x2, 78, 4, 1, 'timber');
     rect(c, 0, H - 1, W, 1, 'ink');
-    for (var i = 0; i < 6; i++) { var x0 = i * SLOT, y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
+    for (var i = 0; i < 6; i++) { var x0 = stallX(i), y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
+  }
+  /* Willow Quay is water under a timber deck, not the cobbled lane with stalls left out. */
+  function paintQuay() {
+    var c = bx;
+    var lin = slotAt(1);
+    var k = look(lin ? lin.owned : 0);
+    rect(c, 0, 0, W, H, 'night');
+    rect(c, 0, 66, W, 22, 'ink');
+    [[24, 74, 4], [70, 81, 3], [150, 84, 5], [230, 76, 3], [300, 82, 4], [348, 73, 3]].forEach(function (g) {
+      rect(c, g[0], g[1], g[2], 1, 'mute');
+    });
+    rect(c, 0, 58, W, 8, 'timber');
+    rect(c, 0, 58, W, 1, 'wash');
+    rect(c, 0, 65, W, 1, 'ink');
+    rect(c, 18, 52, 3, 8, 'timber');
+    rect(c, 360, 52, 3, 8, 'timber');
+    drawFerry(c, 108, 68);
+    drawTeaCart(c, 6, 22);
+    drawBrazier(c, 200, k);
+  }
+  function drawFerry(c, x, y) {
+    rect(c, x + 10, y - 10, 1, 12, 'timber');
+    box(c, x + 16, y - 4, 16, 10, 'amber');
+    rect(c, x + 18, y - 2, 4, 3, 'lamp');
+    rect(c, x + 19, y - 1, 2, 1, 'wash');
+    box(c, x + 4, y + 6, 44, 7, 'timber');
+    rect(c, x, y + 8, 4, 3, 'timber');
+    rect(c, x + 48, y + 8, 5, 3, 'timber');
+    rect(c, x + 6, y + 7, 14, 1, 'wash');
+  }
+  function drawTeaCart(c, x, y) {
+    rect(c, x + 6, y + 14, 2, 22, 'timber');
+    rect(c, x + 52, y + 14, 2, 22, 'timber');
+    rect(c, x + 6, y + 14, 1, 22, 'amber');
+    box(c, x, y + 6, 60, 8, 'amber');
+    rect(c, x + 2, y + 8, 6, 4, 'wash');
+    box(c, x + 2, y + 26, 56, 10, 'amber');
+    rect(c, x + 3, y + 27, 20, 1, 'wash');
+    box(c, x + 18, y + 20, 7, 6, 'amber');
+    rect(c, x + 24, y + 22, 2, 1, 'ink');
+    box(c, x + 30, y + 22, 5, 4, 'wash');
+  }
+  function drawBrazier(c, x, k) {
+    var y = 16;
+    var chimH = k >= 2 ? 26 : 14;
+    rect(c, x + 22, y + 28, 4, 14, 'timber');
+    rect(c, x + 70, y + 28, 4, 14, 'timber');
+    box(c, x + 6, y + 20, 84, 12, 'amber');
+    rect(c, x + 8, y + 21, 24, 2, 'wash');
+    rect(c, x + 18, y + 16, 10, 5, 'lamp');
+    rect(c, x + 36, y + 14, 12, 6, 'lamp');
+    box(c, x + 78, y + 12, 7, 9, 'wash');
+    if (k >= 1) {
+      box(c, x + 96, y + 24, 36, 10, 'amber');
+      rect(c, x + 98, y + 25, 10, 2, 'wash');
+      rect(c, x + 104, y + 20, 8, 5, 'lamp');
+    }
+    box(c, x + 34, y + 20 - chimH, 12, chimH, 'timber');
+    rect(c, x + 35, y + 21 - chimH, 3, chimH - 2, 'amber');
+    if (k >= 2) {
+      box(c, x + 30, y + 14 - chimH, 20, 6, 'amber');
+      rect(c, x + 32, y + 15 - chimH, 6, 2, 'lamp');
+    }
+    if (k >= 3) {
+      rect(c, x + 38, 1, 4, 3, 'rule');
+      rect(c, x + 44, 4, 3, 2, 'wash');
+      rect(c, x + 32, 3, 3, 2, 'rule');
+    }
   }
   function stallShut(c, x0, y0) {
     rect(c, x0 + 5, y0 + 13, 54, 42, 'mute');                       // a lighter rim so a shuttered stall has an edge on the night
@@ -44,7 +125,8 @@
     for (var y = y0 + 17; y < y0 + 52; y += 4) rect(c, x0 + 8, y, 48, 1, 'mute');
   }
   function stallOpen(c, i, x0, y0) {
-    var s = STRIPE[look(st().stalls[i].owned)];
+    var ownedNow = slotAt(i);
+    var s = STRIPE[look(ownedNow ? ownedNow.owned : 0)];
     rect(c, x0 + 7, y0 + 14, 3, 30, 'timber'); rect(c, x0 + 54, y0 + 14, 3, 30, 'timber');   // posts
     rect(c, x0 + 7, y0 + 14, 1, 30, 'amber');                                                 // lit from the upper left
     box(c, x0 + 3, y0 + 6, 58, 10, 'amber');                                                  // awning
@@ -64,10 +146,16 @@
   /* ---- effect 2: lanterns ---- */
   function makeLanterns() {
     lanterns = [];
+    if (onQuay()) {
+      [20, 78, 214, 330].forEach(function (x) {
+        lanterns.push({ x: x, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
+      });
+      return;
+    }
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
-    for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
+    for (var i = 0; i < 6; i++) lanterns.push({ x: stallX(i) + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
-  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
+  function nightEnded() { var s = st(); if (!s || onQuay()) return false; return !!(s.stalls[5] && s.stalls[5].owned >= 10); }
   function finaleClock(now) {
     if (!nightEnded()) { finaleStart = 0; return null; }
     if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -94,6 +182,7 @@
   /* Chapters 5 to 9 each light one more overhead lantern with the existing halo,
      so a Story Mat that barely changes income still changes the lane. */
   function chapterGlow() {
+    if (onQuay()) return 0;
     var s = st();
     var owned = s && s.stalls[5] ? s.stalls[5].owned : 0;
     if (owned < 5 || owned >= 10) return 0;
@@ -143,7 +232,7 @@
     c.on = true; c.i = i; c.f = 0; return true;
   }
   function drawCoin(c) {
-    var x = c.i * SLOT + 30, y = TOP + 31 - [0, 2, 4, 6][c.f];
+    var x = stallX(c.i) + 30, y = TOP + 31 - [0, 2, 4, 6][c.f];
     if (c.f === 3) { rect(cx, x + 1, y + 1, 3, 1, 'lamp'); rect(cx, x + 2, y, 1, 3, 'lamp'); return; }  // the sparkle
     box(cx, x, y, 5, 5, 'lamp'); rect(cx, x + 1, y + 1, 1, 1, 'wash');
   }
@@ -151,7 +240,7 @@
   /* ---- effect 3: steam ---- */
   function drawSteam(i) {
     var col = STEAM[i]; if (!col || !busy(i)) return;
-    var bx0 = i * SLOT + 31, by = TOP + 30, t = reduce ? 0 : Math.floor(ticks * TICK / 166);
+    var bx0 = stallX(i) + 31, by = TOP + 30, t = reduce ? 0 : Math.floor(ticks * TICK / 166);
     for (var p = 0; p < 3; p++) {
       var f = (t + p * 2 + i) % 6, sz = [3, 3, 2, 2, 1, 1][f];
       rect(cx, bx0 + Math.floor(f / 2), by - f * 2 - p, sz, sz, col);
@@ -164,7 +253,7 @@
     flashes.push({ i: i, m: !!milestone, f: 0 });
   }
   function drawFlash(F) {
-    var x = F.i * SLOT, y = TOP - 1, w = SLOT, h = 56, col = F.m ? 'good' : 'lamp', last = F.m ? 3 : 1;
+    var x = stallX(F.i), y = TOP - 1, w = SLOT, h = 56, col = F.m ? 'good' : 'lamp', last = F.m ? 3 : 1;
     if (F.f >= last) return;
     rect(cx, x, y, w, 1, col); rect(cx, x, y + h - 1, w, 1, col); rect(cx, x, y, 1, h, col); rect(cx, x + w - 1, y, 1, h, col);
     if (F.m && F.f === 1) [[x, y], [x + w - 1, y], [x, y + h - 1], [x + w - 1, y + h - 1]].forEach(function (q) {
@@ -179,7 +268,7 @@
   function walkerCap() {
     if (reduce) return 0;
     var owned = 0;
-    for (var i = 0; i < 6; i++) if (open(i)) owned += st().stalls[i].owned;
+    for (var i = 0; i < (onQuay() ? 2 : 6); i++) { var row = slotAt(i); if (open(i) && row) owned += row.owned; }
     for (var k = 0; k < BUSY.length; k++) if (owned >= BUSY[k][0]) return BUSY[k][1];
     return 0;
   }
@@ -201,7 +290,8 @@
     var s = st();
     coins.forEach(function (c) { if (c.on && ++c.f > 3) c.on = false; });
     flashes.forEach(function (F) { F.f++; }); flashes = flashes.filter(function (F) { return F.f < (F.m ? 4 : 2); });
-    s.stalls.forEach(function (t, i) {                                                          // hired stalls: a visual coin every 2 s
+    var rows = onQuay() ? s.quay : s.stalls;
+    rows.forEach(function (t, i) {                                                          // hired stalls: a visual coin every 2 s
       if (!(t.hired && t.owned > 0 && open(i))) return;
       if (coinAt[i] === undefined) coinAt[i] = ticks + 2 + i * 3;
       if (ticks >= coinAt[i]) { pop(i); coinAt[i] = ticks + 16; }
@@ -209,14 +299,20 @@
     stepLanterns();
     walkers.forEach(function (P) { P.x += P.dir; P.f = (P.f + 1) % 4; });
     walkers = walkers.filter(function (P) { return P.x > -17 && P.x < W + 1; });
-    var cap = walkerCap(); if (!nightEnded() && walkers.length < cap && ticks >= nextWalker) spawn();
+    var cap = walkerCap();
+    if (onQuay()) walkers = [];
+    else if (!nightEnded() && walkers.length < cap && ticks >= nextWalker) spawn();
     if (momentOn()) walkers = [];
   }
+  var lampMode = '';
   function draw(now) {
+    var mode = onQuay() ? 'q' : 'h';
+    if (!lampMode) lampMode = mode;
+    else if (mode !== lampMode) { lampMode = mode; makeLanterns(); }
     var g = signature(); if (g !== sig) { sig = g; paintStatic(); }
     cx.drawImage(bg, 0, 0);
     lanterns.forEach(function (L, index) { drawLantern(L, index, now); });
-    for (var i = 0; i < 6; i++) drawSteam(i);
+    if (!onQuay()) { for (var i = 0; i < 6; i++) drawSteam(i); }
     walkers.forEach(drawWalker);
     if (momentOn(now)) drawMoment();
     coins.forEach(function (c) { if (c.on) drawCoin(c); });
