@@ -760,6 +760,11 @@
 
   function nextPermit(state) {
     var list = permitList(state);
+    if (state.place === 'quay') {
+      var lin = null, i;
+      for (i = 0; i < list.length; i++) if (list[i].id === 'lin') lin = list[i];
+      if (lin && !lin.done) return lin;
+    }
     for (var k = 0; k < list.length; k++) if (!list[k].done) return list[k];
     return null;
   }

@@ -198,7 +198,7 @@ document.querySelector('#run').onclick = async function () {
     laneOpen.stalls[0].hired = true;
     laneOpen.stalls[0].owned = 12;
     M.move(laneOpen);
-    check('an unlit lane stays ahead of Lin', M.nextPermit(laneOpen).name === 'The lane light');
+    check('on a dark lane the next permit is still Lin once you have moved', M.nextPermit(laneOpen).name === "Lin's brazier");
     var lin = M.fresh();
     lin.lifetime = M.MOVE_AT;
     M.move(lin);
