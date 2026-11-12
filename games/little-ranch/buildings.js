@@ -1,13 +1,12 @@
 'use strict';
 (function (root) {
-  function sillLine(L) { return L.ground + L.U * .13; }
 
   function overlaps(a, b) {
     return a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
   }
 
   function layout(L, W, H, stops) {
-    const U = L.U, sky = L.ground - U * .28, foot = Math.round(sillLine(L)), top = Math.ceil(sky) + 1;
+    const U = L.U, sky = L.ground - U * .28, foot = Math.round(L.ground + U * .13), top = Math.ceil(sky) + 1;
     const band = area => {
       const stop = stops[area];
       const lo = stop + (area > 0 ? U * .2 : 0) + 2;
@@ -219,13 +218,6 @@
     cx.fillRect(R(mid + gap / 2 + w * .08), R(b.y0 + (b.y1 - b.y0) * .55), R(b.x1 - mid - gap / 2 - w * .08), Math.max(2, R((b.y1 - b.y0) * .08)));
   }
 
-  function hideWagonPost(e) {
-    const post = (e.L.postRects || []).find(q => q.name === 'wsign');
-    if (!post) return;
-    e.cx.fillStyle = paint(e.pick3, e.g, '#7abf5c', '#909848', '#24423f');
-    e.cx.fillRect(post.x, post.y, post.w, Math.max(1, post.h));
-  }
-
   function drawStageDeck(e) {
     const b = (e.L.buildings || []).find(q => q.name === 'stage');
     if (!b) return;
@@ -269,7 +261,7 @@ function drawPlaques(e) {
   root.LRBuildings = {
     layout,
     at,
-    drawBack(e) { drawSome(e, BACK); hideWagonPost(e); },
+    drawBack(e) { drawSome(e, BACK); },
     drawFront(e) { drawStageDeck(e); drawSome(e, FRONT); drawPlaques(e); }
   };
 })(window);

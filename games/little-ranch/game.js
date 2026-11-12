@@ -952,17 +952,18 @@
     ell(c.x - r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x + r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x, y + r * .35, r * .12, r * (rain ? .1 : .05), '#8a8aa0'); cx.globalAlpha = 1;
     if (rain) { cx.strokeStyle = 'rgba(120,170,230,.8)'; cx.lineWidth = Math.max(1.5, L.U * .006); const top = y + r * .5, bot = L.ground + L.U * .25, span = r * 2.4, m = reduce() ? .4 : 1;
       cx.beginPath(); for (let i = 0; i < 26; i++) { const x = c.x - span / 2 + (i * 37.7 % span), k = ((st.t * 1.6 * m + i * .137) % 1), yy = top + k * (bot - top); cx.moveTo(R(x), R(yy)); cx.lineTo(R(x - L.U * .006), R(yy + L.U * .03)); } cx.stroke(); } }
-  function drawSignPosts(g) { // each picture-sign's post runs down to the back line, behind the fence
-    const foot = L.ground + L.U * .13;
+  function drawSignPosts(g) {
+    const foot = L.ground + L.U * .13, bh = L.R * 1.37, r = L.R * .95, w = Math.max(2, R(L.R * .16));
     cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g);
     const drawn = [];
     for (const name of SIGNS) {
-      const s = L[name], r = L.R * .95, bob = hintBob(name), top = s.y - r * .2 - bob, bot = Math.max(s.y + r * 1.2, foot);
-      const rect = { name, x: R(s.x - r * .08), y: R(top), w: Math.max(2, R(r * .16)), h: R(bot - top) };
+      const s = L[name], top = Math.min(s.y - r * .45 + bh / 2, foot);
+      const rect = { name, x: R(s.x) - (w >> 1), y: R(top), w, h: Math.max(1, R(foot) - R(top)) };
       drawn.push(rect);
       cx.fillRect(rect.x, rect.y, rect.w, rect.h);
     }
     L.postRects = drawn;
+    L.backLine = foot;
   }
   function drawPuddles() { for (const q of st.puddles) { const P = L.puddles[q.i], dry = clamp(1 - (st.t - q.at - (PUDDLE_SECS - 6)) / 6, 0, 1), grow = clamp((st.t - q.at) / .6, 0, 1), k = dry * grow, sp2 = st.t - q.splash;
     ell(P.x, P.y, P.r * k, P.r * .36 * k, '#5aa8e0'); ell(P.x - P.r * .2, P.y - P.r * .06, P.r * .5 * k, P.r * .1 * k, '#a8dcf8');
@@ -1192,22 +1193,16 @@
     ell(x, y - r * .35, r * .88, r * .3, '#4a2e1c'); ell(x, y - r * .33, r * .78, r * .24, col);
     for (const [dx, h] of [[-.5, .5], [.1, .75], [.55, .4]]) { cx.fillStyle = col; cx.fillRect(R(x + dx * r), R(y - r * .3), Math.max(2, R(r * .16)), R(r * h)); ell(x + dx * r + r * .08, y - r * .3 + r * h, r * .1, r * .1, col); } }
   function drawSign(g) {
-    const s = L.sign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.sign.shake * r * .06;
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - hintBob('sign'))); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#f4e2c0', '#e8c890', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
-    PAINT.forEach((c, i) => { cx.fillStyle = g > .6 ? mixHex(c, '#20203a', .6) : c; const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
-    cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore(); // a little brush
+    const r = drawBoard(L.sign, st.sign.shake, 'sign', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+    PAINT.forEach((c, i) => { cx.fillStyle = dk(c); const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
+    cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore();
     cx.restore(); }
   function drawWheel(x, y, r, a, col) { cx.strokeStyle = col || '#5a3a24'; cx.lineWidth = Math.max(2, r * .22); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
     cx.lineWidth = Math.max(1, r * .12); for (let k = 0; k < 4; k++) { const b = a + k * Math.PI / 4; cx.beginPath(); cx.moveTo(R(x - Math.cos(b) * r), R(y - Math.sin(b) * r)); cx.lineTo(R(x + Math.cos(b) * r), R(y + Math.sin(b) * r)); cx.stroke(); }
     ell(x, y, r * .22, r * .22, '#f2c14e'); }
   function drawWheelSign(g) { // LR10: a picture-sign with a wagon wheel and a red car
-    const s = L.wsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.wsign.shake * r * .06, bob = hintBob('wsign');
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff4e0', '#e8d890', '#3a4458', g); cx.fillRect(R(-r * .78), R(-r * .56), R(r * 1.56), R(r * 1.12));
-    cx.fillStyle = g > .6 ? mixHex(CARS[0], '#20203a', .6) : CARS[0]; cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
+    const r = drawBoard(L.wsign, st.wsign.shake, 'wsign', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+    cx.fillStyle = dk(CARS[0]); cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
     drawWheel(-r * .4, r * .25, r * .26, st.t * 2, '#3a2420'); drawWheel(r * .2, r * .25, r * .26, st.t * 2, '#3a2420'); cx.restore(); }
   function drawMini(x, y, z, kind, wave, hop) { // a small baby riding or waiting: 0 the Cindercub, 1 its friend, a round baby Pebblit
     y -= hop; const body = kind ? '#8fa0b8' : '#e06a32', dark = kind ? '#6a7a94' : '#b4471c';
@@ -1272,17 +1267,12 @@
     else { cx.fillStyle = '#8acb6a'; cx.fillRect(R(x - r * .14), R(y), R(r * .28), R(r * .7)); for (const [dx, dy, k] of [[-.42, -.05, .34], [.42, -.05, .34], [0, -.38, .4], [-.2, -.2, .32], [.22, -.2, .32]]) ell(x + dx * r, y + dy * r, r * k, r * k, '#3f9a48');
       for (const [dx, dy] of [[-.3, -.3], [.2, -.45], [.4, -.1]]) ell(x + dx * r, y + dy * r, r * .08, r * .08, '#6cc070'); } }
   function drawKSign(g) { // LR11: a picture-sign with a bowl of berries
-    const s = L.ksign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.ksign.shake * r * .06, bob = hintBob('ksign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.ksign, st.ksign.shake, 'ksign', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     for (const [dx, dy] of [[-.3, -.08], [0, -.18], [.3, -.08], [-.15, -.3], [.15, -.3]]) ell(dx * r, dy * r, r * .17, r * .17, dk('#5a3fa8'));
     cx.fillStyle = dk('#4fa6e8'); cx.beginPath(); cx.moveTo(R(-r * .65), R(-r * .05)); cx.lineTo(R(r * .65), R(-r * .05)); cx.lineTo(R(r * .4), R(r * .45)); cx.lineTo(R(-r * .4), R(r * .45)); cx.fill();
     ell(0, -r * .05, r * .65, r * .1, dk('#7cc0f4')); cx.restore(); }
   function drawDSign(g) { // LR17: a picture-sign with a red barn door
-    const s = L.dsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.dsign.shake * r * .06, bob = hintBob('dsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.dsign, st.dsign.shake, 'dsign', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     cx.fillStyle = dk('#c8453a'); cx.fillRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.strokeStyle = dk('#fff4e0'); cx.lineWidth = Math.max(1.5, r * .09);
     cx.strokeRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.beginPath(); cx.moveTo(R(-r * .45), R(-r * .5)); cx.lineTo(R(r * .45), R(r * .54)); cx.moveTo(R(r * .45), R(-r * .5)); cx.lineTo(R(-r * .45), R(r * .54)); cx.stroke();
     ell(r * .62, -r * .38, r * .13, r * .13, dk('#ffd03a')); cx.restore(); }
@@ -1327,9 +1317,7 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
     drawFx(U); }
   function drawTSign(g) { // LR18: a picture-sign with a round lump of dough and a rolling pin
-    const s = L.tsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.tsign.shake * r * .06, bob = hintBob('tsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const r = drawBoard(L.tsign, st.tsign.shake, 'tsign', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     ell(-r * .2, r * .05, r * .42, r * .36, dk('#f0a070')); ell(-r * .3, -r * .08, r * .12, r * .08, dk('#ffd0b0'));
     cx.save(); cx.rotate(-.5); cx.fillStyle = dk('#c8955a'); cx.fillRect(R(r * .05), R(r * .25), R(r * .7), R(r * .2)); cx.fillStyle = dk('#8a5a34'); cx.fillRect(R(-r * .05), R(r * .29), R(r * .12), R(r * .12)); cx.fillRect(R(r * .73), R(r * .29), R(r * .12), R(r * .12)); cx.restore(); cx.restore(); }
   function drawDoughBaby(x, y, z, col, squash) { // a little dough baby: round body, round head, two pointy ears, two dot eyes
@@ -1480,10 +1468,15 @@
   }
   function drawBoard(s, shake, name, g) {
     const r = L.R * .95, sh = Math.sin(st.t * 30) * shake * r * .06, bob = hintBob(name);
+    const bw = L.R * 1.8, bh = L.R * 1.37, edge = Math.max(2, R(L.R * .1));
     shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob));
-    cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    const originY = s.y - r * .45 - bob;
+    (L.boardRects = L.boardRects || []).push({ name, top: originY - bh / 2, bottom: originY + bh / 2 });
+    cx.save(); cx.translate(R(s.x + sh), R(originY));
+    cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g);
+    cx.fillRect(R(-bw / 2), R(-bh / 2), R(bw), R(bh));
+    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g);
+    cx.fillRect(R(-bw / 2 + edge), R(-bh / 2 + edge), Math.max(1, R(bw - edge * 2)), Math.max(1, R(bh - edge * 2)));
     return r;
   }
   function drawDoorPlaque(name, x, y, scale) {
@@ -1631,6 +1624,7 @@
     cx.save(); cx.translate(-cam.x, 0);
     drawCloud(g);
     cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), R(worldW), H - R(L.ground));
+    L.boardRects = [];
     drawSignPosts(g);
     if (window.LRBuildings) LRBuildings.drawBack({ cx, L, g, R, pick3, mixHex, ell, st });
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), R(worldW), Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), R(worldW), Math.max(1, R(U * .025)));
