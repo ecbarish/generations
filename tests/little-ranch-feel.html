@@ -33,6 +33,15 @@ document.querySelector('#run').onclick = async () => {
         check(`${width}×${height} ${names[area]}: the animal is there and the tap is at least 44 px`, !!spot && css >= 44 && LR.camera.area === area);
       }
     }
+    for (const [width, height] of [[1024, 768], [320, 480], [667, 375], [1280, 800], [375, 812]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(160);
+      for (const area of [1, 3]) {
+        LR.go(area); LR.advance(.4);
+        const spot = w.LRFeel.spot(area);
+        const span = spot ? spot.s : 0;
+        check(`${width}×${height} ${names[area]}: the animal stays big enough to read`, !!spot && span >= 24 && span * LR.scale >= 56);
+      }
+    }
     frame.style.width = '1280px'; frame.style.height = '800px'; await sleep(160);
     LR.newVisit(); LR.advance(.2);
     const home = w.LRFeel.rows()[1];
