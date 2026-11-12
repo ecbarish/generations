@@ -1,3 +1,6 @@
+### 2026-11-12 15:27 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the CI push
+SS-SEASONS stays the second season and comeback loop on #675, stacked on #656 and #648. This note is only so Checks can run on the current head. No gameplay change is in this commit. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 14:13 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before any second-season edit
 SS-SEASONS is the second season and comeback loop, stacked on #656 (`cursor/saltmarsh-fork-balance-0d9b`) and #648 (`cursor/saltmarsh-office-complete-9560`). After the ending, the office offers a new year, a harbour reputation that carries over, events that can wait for the player, and a season ledger. Files: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`, and one new row in `docs/QUEUE.md`. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
 
