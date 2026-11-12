@@ -2552,6 +2552,71 @@ document.querySelector('#run').onclick = async function () {
     }
     await cardsHit(320, 844);
     await cardsHit(390, 844);
+    async function panelsStay(width, height) {
+      var box = await loadFrame('panels ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e12;
+      st.boats[3].owned = 16;
+      st.forks.quay = 'lamp';
+      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { st.lights[id] = 2; });
+      st.prepDone = {};
+      win.__saltmarsh.render();
+      function topOf(sel) {
+        var el = doc.querySelector(sel);
+        if (!el || el.hidden || el.offsetParent === null) return null;
+        return el.getBoundingClientRect().top;
+      }
+      var raise = topOf('#light-cards [data-light="quay"] button');
+      var pack = topOf('#provision-go');
+      var buy = topOf('#boats [data-act="buy"]');
+      st.forks.quay = null;
+      win.__saltmarsh.render();
+      var raise2 = topOf('#light-cards [data-light="quay"] button');
+      var pack2 = topOf('#provision-go');
+      var buy2 = topOf('#boats [data-act="buy"]');
+      var shift = 0;
+      if (raise != null && raise2 != null) shift = Math.max(shift, Math.abs(raise2 - raise));
+      if (pack != null && pack2 != null) shift = Math.max(shift, Math.abs(pack2 - pack));
+      if (buy != null && buy2 != null) shift = Math.max(shift, Math.abs(buy2 - buy));
+      function overlaps(a, b) {
+        return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      }
+      var choice = doc.querySelector('#choice');
+      var choiceBox = choice.getBoundingClientRect();
+      var covered = false;
+      Array.prototype.forEach.call(doc.querySelectorAll('#boats [data-act="buy"]'), function (button) {
+        if (button.hidden || button.offsetParent === null) return;
+        var rect = button.getBoundingClientRect();
+        if (rect.height > 4 && overlaps(choiceBox, rect)) covered = true;
+      });
+      var away = doc.querySelector('#away');
+      away.hidden = false;
+      away.textContent = 'While you were away. The boats added 1.44K coins.';
+      win.__saltmarsh.render();
+      var raise3 = topOf('#light-cards [data-light="quay"] button');
+      var pack3 = topOf('#provision-go');
+      if (raise2 != null && raise3 != null) shift = Math.max(shift, Math.abs(raise3 - raise2));
+      if (pack2 != null && pack3 != null) shift = Math.max(shift, Math.abs(pack3 - pack2));
+      var awayBox = away.getBoundingClientRect();
+      choice = doc.querySelector('#choice');
+      choiceBox = choice.getBoundingClientRect();
+      var stacked = choice.hidden === false && away.hidden === false && awayBox.bottom <= choiceBox.top + 2;
+      var purse = doc.querySelector('#purse');
+      doc.querySelector('#provision').scrollIntoView({ block: 'end' });
+      var purseBox = purse.getBoundingClientRect();
+      var rateBox = doc.querySelector('#rate').getBoundingClientRect();
+      var coinsBox = doc.querySelector('#coins').getBoundingClientRect();
+      var purseSticks = purseBox.top <= 1 && rateBox.top >= purseBox.top - 1 && rateBox.bottom <= purseBox.bottom + 1 && coinsBox.top >= purseBox.top - 1 && coinsBox.bottom <= height;
+      check('at ' + width + ' by ' + height + ' panels do not move or cover a buy, and the purse stays (' + shift.toFixed(1) + 'px)', shift < 2 && covered === false && stacked && purseSticks);
+    }
+    await panelsStay(1280, 800);
+    await panelsStay(390, 844);
+    await panelsStay(320, 844);
     async function routeGoalScroll() {
       var box = await loadFrame('route goal', '&state=fleet');
       box.style.width = '320px';

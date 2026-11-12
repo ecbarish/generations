@@ -117,12 +117,14 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   z-index: auto;
   box-shadow: none;
 }
-.top {
+.purse {
   position: sticky;
   top: 0;
   z-index: 5;
   background: var(--paper);
+  padding-bottom: 0.2rem;
 }
+html { scroll-padding-top: 6.5rem; }
 .crew {
   display: flex;
   align-items: center;
@@ -458,10 +460,22 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   left: 50%;
   bottom: 4.6rem;
   transform: translateX(-50%);
-  width: min(40rem, 100%);
+  width: min(40rem, calc(100% - 1rem));
   max-height: calc(100vh - 7.2rem);
   margin: 0;
   overflow: auto;
+  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+}
+#away.away:not([hidden]) {
+  position: fixed;
+  z-index: 8;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 1rem));
+  margin: 0;
+  max-height: 34vh;
+  overflow: auto;
+  bottom: 12rem;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 /* Later than the base rule, so a phone actually keeps this cap. */
@@ -520,8 +534,9 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .harbour-wrap canvas { height: 340px; }
   #row.row {
     position: sticky;
-    top: 3.4rem;
+    top: 6.6rem;
     z-index: 4;
+    background: var(--sand);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -541,6 +556,8 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
+  #row.row { margin-top: 0; }
+  .purse { padding-bottom: 0; }
   #choice.choice { max-height: 46vh; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }

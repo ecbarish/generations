@@ -956,6 +956,61 @@
     el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
   }
 
+  function panelsOverlap(a, b) {
+    return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+  }
+  function panelCoversBuy(rect) {
+    var nodes = document.querySelectorAll('#boats [data-act="buy"]');
+    var i;
+    for (i = 0; i < nodes.length; i++) {
+      var button = nodes[i];
+      if (button.hidden || button.offsetParent === null) continue;
+      var box = button.getBoundingClientRect();
+      if (box.width < 4 || box.height < 4) continue;
+      if (panelsOverlap(rect, box)) return true;
+    }
+    return false;
+  }
+  /* Choice and the welcome-back card float, so opening one does not move a button.
+     They stack above the goal, and move under the purse if that stack would cover a buy. */
+  function placeStack() {
+    var choice = $('#choice');
+    var away = $('#away');
+    var goal = $('#goalbar');
+    var purse = $('#purse');
+    var goalH = goal ? Math.ceil(goal.getBoundingClientRect().height) : 64;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var choiceOpen = choice && !choice.hidden;
+    var awayOpen = away && !away.hidden;
+    if (choiceOpen) {
+      choice.style.top = 'auto';
+      choice.style.bottom = (goalH + gap) + 'px';
+      choice.style.maxHeight = narrow ? '8.5rem' : '';
+      choice.style.zIndex = '7';
+    }
+    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
+    if (awayOpen) {
+      away.style.top = 'auto';
+      away.style.bottom = (goalH + gap + (choiceH ? choiceH + gap : 0)) + 'px';
+      away.style.zIndex = '8';
+    }
+    var choiceRect = choiceOpen ? choice.getBoundingClientRect() : null;
+    var awayRect = awayOpen ? away.getBoundingClientRect() : null;
+    if ((choiceRect && panelCoversBuy(choiceRect)) || (awayRect && panelCoversBuy(awayRect))) {
+      var top = purse ? Math.ceil(purse.getBoundingClientRect().bottom) + gap : gap;
+      if (awayOpen) {
+        away.style.top = top + 'px';
+        away.style.bottom = 'auto';
+        top += Math.ceil(away.getBoundingClientRect().height) + gap;
+      }
+      if (choiceOpen) {
+        choice.style.top = top + 'px';
+        choice.style.bottom = 'auto';
+      }
+    }
+  }
+
   function render(fromClock) {
     var pin = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
     var pinTop = pin ? pin.getBoundingClientRect().top : null;
@@ -1097,6 +1152,7 @@
       el.setAttribute('title', el.textContent);
     });
     if (audio && audio.render) audio.render();
+    placeStack();
     var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
     if (pinned && pinTop != null) {
       var shift = pinned.getBoundingClientRect().top - pinTop;
@@ -1126,6 +1182,7 @@
     btn.dataset.act = 'away';
     btn.textContent = 'Close the log';
     box.appendChild(btn);
+    placeStack();
   }
 
   function cheer(button, text) {
@@ -1350,6 +1407,7 @@
       $('#away').hidden = true;
       awayOn = false;
       $('#away').replaceChildren();
+      placeStack();
       return;
     }
     if (b.dataset.act === 'fork') {
