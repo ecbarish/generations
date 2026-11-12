@@ -113,10 +113,15 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 }
 .ask { background: var(--lamp); }
 #ask.ask:not([hidden]) {
+  position: static;
+  z-index: auto;
+  box-shadow: none;
+}
+.top {
   position: sticky;
-  top: 0.4rem;
-  z-index: 4;
-  box-shadow: 0 0 0 3px var(--ink);
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
 }
 .crew {
   display: flex;
@@ -263,7 +268,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   visibility: hidden;
 }
 #sheds .shed-hold { margin: 0.15rem 0 0; }
-.shed-price { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; }
+.shed-price { display: inline; font-variant-numeric: tabular-nums; }
 #route-gear { min-height: 12rem; }
 .route-card,
 .route-card.is-wait,
@@ -374,20 +379,38 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   #provision { order: 8; }
   #finale { order: 9; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
-  #route-cards, #light-cards {
+  #route-cards, #light-cards, #boats {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: 0.65rem;
+    gap: 0;
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
     height: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0;
   }
-  #route-cards .route-card, #light-cards .light-card {
-    flex: 0 0 88%;
+  #route-cards .route-card, #light-cards .light-card, #boats > li {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     height: auto;
     min-height: 0;
     overflow: visible;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .route-card .actions button,
+  .light-card .actions button,
+  .boat .actions button {
+    white-space: normal;
+    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    scroll-margin-top: 5rem;
+    scroll-margin-bottom: 6rem;
   }
   #sheds { order: 20; }
   #settled { order: 21; }
@@ -398,15 +421,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .boat .habit,
   .boat .facts,
   .boat .wait { display: none; }
-  #boats {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0.55rem;
-    overflow-x: auto;
-    overflow-y: visible;
+  #choice.choice {
+    max-height: 11rem;
+    overflow: hidden;
   }
-  #boats > li { flex: 0 0 78%; min-width: 0; }
+  #choice .choice-card .habit { display: none; }
+  #choice h2 { font-size: 1rem; margin: 0 0 0.25rem; }
   .light-card[data-stage="2"] .habit { display: none; }
   #fleet, #sheds, #settled { display: none; }
   .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
@@ -498,6 +518,11 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
+  #row.row {
+    position: sticky;
+    top: 3.4rem;
+    z-index: 4;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .float, #cheer, .fleet.reveal { animation: none; }

@@ -151,9 +151,10 @@ document.querySelector('#run').onclick = async function () {
     var firstPay = haul.cash;
     var once = M.collectCaptains(haul, clock + 20000, 1);
     var paid = haul.cash;
+    var broughtOnce = haul.captains[0].brought;
     var again = M.collectCaptains(haul, clock + 20000, 1);
     var later = M.collectCaptains(haul, clock + 40000, 1);
-    check('the same stretch pays Capt. Wren once, one coin short', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 179 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 179 && haul.log.some(function (line) { return /gull/i.test(line.text); }));
+    check('the same stretch pays Capt. Wren once, one coin short', once.length === 1 && once[0].units === 1 && again.length === 0 && broughtOnce === 179 && later.length === 1 && later[0].units === 1 && haul.captains[0].brought === 358 && paid === firstPay && haul.log.some(function (line) { return /gull/i.test(line.text); }));
     check('a short gap pays nothing', (function () {
       var s = ready();
       s.boats[0].owned = M.WREN_AT;
@@ -169,7 +170,7 @@ document.querySelector('#run').onclick = async function () {
       var beforeCash = s.cash;
       var rows = M.collectCaptains(s, clock + 20000, 0.5);
       var replay = M.collectCaptains(s, clock + 20000, 0.5);
-      return rows.length === 1 && near(s.cash - beforeCash, 89) && replay.length === 0;
+      return rows.length === 1 && near(s.captains[0].brought, 89) && s.cash === beforeCash && replay.length === 0;
     })());
 
     check('one shed holds 2h and four sheds hold 8h, at half pay', M.offlineCap(ready()) === 2 * 3600 && M.OFFLINE_RATE === 0.5 && (function () { var s = ready(); s.warehouses = 4; return M.offlineCap(s) === 8 * 3600; })());
@@ -713,6 +714,51 @@ document.querySelector('#run').onclick = async function () {
     check('a chart lifts the boats and fresh food lifts the routes', M.income(handsOffice) > plainBoats && M.routeIncome(gunOffice) > plainRoutes);
     var back = M.awayCopy(tide, { away: 120, gained: 40, capped: false }, { before: 10, after: 50, boatGain: 40, captains: [] });
     check('coming back names what grew and the next step', back.title === 'While you were away' && /boats added/.test(back.box) && /Next: /.test(back.box));
+    check('four minutes away pays the rate on the desk', (function () {
+      var s = ready();
+      s.trips = 3;
+      s.boats[0].owned = 40;
+      s.boats[1].owned = 12;
+      M.hire(s, 0, 1700000000000);
+      var rate = M.officeRate(s);
+      var shown = Arcade.fmt(rate);
+      var before = s.cash;
+      var idle = M.createIdle(s, function () {});
+      idle.start(Date.now() - 240000);
+      idle.stop();
+      var gained = s.cash - before;
+      var promised = rate * 240 * M.OFFLINE_RATE;
+      var copy = M.awayCopy(s, { away: 240, credited: 240, gained: gained, capped: false }, {
+        perSec: rate, openPage: false, boatGain: gained, before: before, after: s.cash, captains: []
+      });
+      return shown === Arcade.fmt(M.officeRate(s)) && Math.abs(gained - promised) < Math.max(2, rate) && copy.lead.indexOf(M.coins(Math.round(rate))) >= 0 && copy.lead.indexOf(M.coins(Math.round(promised))) >= 0;
+    })());
+    check('owning a schooner does not ask for the first one again', (function () {
+      var s = ready();
+      s.trips = 3;
+      s.boats[0].owned = 40;
+      s.boats[1].owned = 12;
+      s.boats[2].owned = 1;
+      s.cash = 0;
+      s.forks.sloop = 'fit';
+      M.hire(s, 0, 1000);
+      M.hire(s, 1, 1000);
+      return /more schooner/.test(P.goal(s)) && /next tide/.test(P.goal(s)) && /Buy a schooner for the next tide/.test(P.goal(s)) === false;
+    })());
+    check('the shed names the whole price list without a gap word', /480/.test(M.shedNote(ready())) && /8\.40K/.test(M.shedNote(ready())) && /125K/.test(M.shedNote(ready())));
+    check('raising a light clears the still-dark line', (function () {
+      var s = ready();
+      s.trips = 3;
+      s.boats[0].owned = 40;
+      s.boats[1].owned = 12;
+      s.boats[2].owned = 10;
+      s.routes.kelp = 1;
+      s.cash = 1e12;
+      s.log.push({ t: 1, text: 'Still dark. Raising the Pier Lighthouse makes nights safer.' });
+      M.buildLight(s, 'pier', 1700000000000);
+      var text = s.log.map(function (line) { return line.text; }).join(' ');
+      return text.indexOf('Still dark') < 0 && /tower is up|burning/.test(text);
+    })());
     check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
@@ -1975,7 +2021,7 @@ document.querySelector('#run').onclick = async function () {
         win.__saltmarshTime = sim;
         st.played = sec;
         bridge.view.rowing = 0;
-        M.addCash(st, M.income(st) + M.routeIncome(st));
+        M.addCash(st, M.officeRate(st));
         M.collectCaptains(st, sim, 1);
         bridge.render();
         if (sec === 40) {
@@ -2439,7 +2485,7 @@ document.querySelector('#run').onclick = async function () {
         win.__saltmarshTime = sim;
         state.played = (state.played || 0) + 1;
         bridge.view.rowing = 0;
-        M.addCash(state, M.income(state) + M.routeIncome(state));
+        M.addCash(state, M.officeRate(state));
         M.collectCaptains(state, sim, 1);
         bridge.render();
         if (!marks.route && M.routesSailing(state) >= 1) { marks.route = sample('route'); }
@@ -2457,6 +2503,55 @@ document.querySelector('#run').onclick = async function () {
     await buttonsShow(320, 844);
     await buttonsShow(360, 800);
     await buttonsShow(1280, 800);
+    async function cardsHit(width, height) {
+      var box = await loadFrame('cards hit ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+      var st = win.__saltmarsh.state;
+      st.boats[2].owned = 10;
+      st.boats[3].owned = 8;
+      st.routes.kelp = 1;
+      st.cash = 1e9;
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: null };
+      win.__saltmarsh.render();
+      var bad = [];
+      var buttons = doc.querySelectorAll('#route-cards button, #light-cards button, #boats button');
+      var i;
+      for (i = 0; i < buttons.length; i++) {
+        var button = buttons[i];
+        if (button.closest('[hidden]') || button.hidden) continue;
+        button.scrollIntoView({ block: 'center', inline: 'center' });
+        var rect = button.getBoundingClientRect();
+        var label = (button.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 24);
+        if (rect.width < 8 || rect.height < 8) bad.push('zero ' + label);
+        if (rect.left < -1 || rect.right > width + 1) bad.push('edge ' + label);
+        if (button.scrollWidth > button.clientWidth + 2) bad.push('clip ' + label);
+        var hit = doc.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        if (!(hit === button || (hit && button.contains(hit)))) bad.push('miss ' + label + ' hit ' + (hit ? (hit.id || hit.tagName) : 'none'));
+      }
+      var choice = doc.querySelector('#choice');
+      var routeCard = doc.querySelector('#route-cards .route-card');
+      var covered = false;
+      if (choice && choice.hidden === false && routeCard) {
+        var cr = routeCard.getBoundingClientRect();
+        var sheet = choice.getBoundingClientRect();
+        if (cr.height > 20 && sheet.top < cr.bottom - 8 && sheet.bottom > cr.top + 8 && sheet.left < cr.right && sheet.right > cr.left) covered = true;
+      }
+      var ask = doc.querySelector('#ask');
+      var buy = doc.querySelector('#boats button');
+      var askCovers = false;
+      if (ask && buy && ask.hidden === false && buy.getBoundingClientRect().height > 8) {
+        var ar = ask.getBoundingClientRect();
+        var br = buy.getBoundingClientRect();
+        askCovers = ar.bottom > br.top + 4 && ar.top < br.bottom - 4 && ar.right > br.left && ar.left < br.right;
+      }
+      check('at ' + width + ' by ' + height + ' every route, light and buy button is fully tappable (' + (bad[0] || 'clear') + ')', bad.length === 0 && covered === false && askCovers === false);
+    }
+    await cardsHit(320, 844);
+    await cardsHit(390, 844);
     async function routeGoalScroll() {
       var box = await loadFrame('route goal', '&state=fleet');
       box.style.width = '320px';
@@ -2628,7 +2723,7 @@ document.querySelector('#run').onclick = async function () {
         win.__saltmarshTime = simNow;
         state.played = (state.played || 0) + 1;
         bridge.view.rowing = 0;
-        M.addCash(state, M.income(state) + M.routeIncome(state));
+        M.addCash(state, M.officeRate(state));
         M.collectCaptains(state, simNow, 1);
         bridge.render();
         Array.prototype.forEach.call(doc.querySelectorAll('[data-act="light"]'), function (b) {

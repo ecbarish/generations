@@ -83,8 +83,9 @@
         var one = M.quote(state, i, 1);
         return 'Max · ' + money(one.cost) + ' · ' + M.needMore(state, one.cost);
       }
+      if (q.count === 1) return 'Buy 1 · ' + money(q.cost);
       if (q.toGoal) return 'To the goal · ' + q.count + ' · ' + money(q.cost);
-      return 'Buy up to ' + q.count + ' · ' + money(q.cost);
+      return 'Buy ' + q.count + ' · ' + money(q.cost);
     }
     var n = state.bulk === 10 ? 10 : 1;
     var label = 'Buy ' + n + ' · ' + money(q.cost);
@@ -341,17 +342,24 @@
     var short = window.matchMedia('(max-height: 430px)').matches;
     var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
     var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
-    if (fingerLow) {
+    /* On a phone the choice is a short banner above the goal, so the cards stay visible. */
+    if (narrow) {
+      box.style.top = 'auto';
+      box.style.bottom = (barH + gap) + 'px';
+      box.style.maxHeight = '11rem';
+    } else if (fingerLow) {
       box.style.top = topPx + 'px';
       box.style.bottom = 'auto';
+      var room = window.innerHeight - barH - gap - topPx;
+      var cap = short ? Math.min(room, window.innerHeight * 0.46) : room;
+      box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
     } else {
       box.style.top = 'auto';
       box.style.bottom = (barH + gap) + 'px';
+      var roomBottom = window.innerHeight - barH - gap;
+      var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
+      box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
     }
-    var room = window.innerHeight - barH - gap - topPx;
-    var cap = room;
-    if (narrow || short) cap = Math.min(room, window.innerHeight * 0.46);
-    box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -764,7 +772,7 @@
     if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
     $('#provision-note').textContent = offers.length
       ? 'These prices don\'t go up as your fleet grows.'
-      : 'All ' + M.PREPARATIONS.length + ' are packed.';
+      : 'Set sail when you are ready.';
     var host = $('#provision-cards');
     var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
@@ -777,7 +785,7 @@
         host.dataset.heldHeight = '';
         var packed = document.createElement('p');
         packed.className = 'habit';
-        packed.textContent = 'All ' + M.PREPARATIONS.length + ' are packed.';
+        packed.textContent = 'Nothing left to pack.';
         host.appendChild(packed);
       } else {
         var item = null;
@@ -964,8 +972,7 @@
     var rateLine = $('#rate');
     var totalRate = boatsRate + captainsRate + routeRate;
     if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
-    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. Captains add ' + money(captainsRate) + '.');
-    else showLine(rateLine, M.rateWords(totalRate));
+    else showLine(rateLine, Arcade.fmt(totalRate) + ' coins a second');
     var goalEl = $('#goal');
     var focusStep = P.bestStep ? P.bestStep(state) : null;
     goalEl.textContent = P.goal(state);
@@ -1514,7 +1521,8 @@
       after: state.cash,
       boatGain: cashAfterBoats - cashBeforeAway,
       captains: M.captainAwayLines(state, booksBeforeAway, haulsBeforeAway),
-      openPage: false
+      openPage: false,
+      perSec: M.officeRate(state)
     });
   }
   render();
@@ -1562,7 +1570,8 @@
         after: state.cash,
         boatGain: Math.max(0, state.cash - before - captainGain(books)),
         captains: M.captainAwayLines(state, books, hauls),
-        openPage: true
+        openPage: true,
+        perSec: M.officeRate(state)
       });
       render();
     }
