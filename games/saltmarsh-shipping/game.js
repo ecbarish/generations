@@ -326,15 +326,16 @@
     if (!box) return;
     var back = $('#choice-back');
     var offer = M.deskChoice(state);
-    box.hidden = !offer;
-    if (back) back.hidden = !offer;
-    if (box.hidden) {
+    if (!offer) {
+      box.hidden = true;
+      if (back) back.hidden = true;
       box.style.top = '';
       box.style.bottom = '';
       box.style.maxHeight = '';
       return;
     }
-    /* The sheet stays on the half the finger is not on, and it stops above the goal bar. */
+    /* The sheet stays on the half the finger is not on, and it stops above the goal bar.
+       On a phone it is a short banner, and placeStack moves it if it would cover a buy. */
     var bar = document.querySelector('#goalbar');
     var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
     var gap = 8;
@@ -342,7 +343,6 @@
     var short = window.matchMedia('(max-height: 430px)').matches;
     var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
     var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
-    /* On a phone the choice is a short banner above the goal, so the cards stay visible. */
     if (narrow) {
       box.style.top = 'auto';
       box.style.bottom = (barH + gap) + 'px';
@@ -360,6 +360,8 @@
       var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
       box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
     }
+    box.hidden = false;
+    if (back) back.hidden = false;
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -681,7 +683,7 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + (offers.length ? '' : ':done');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + ':r' + M.routesSailing(state) + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
@@ -721,9 +723,17 @@
       for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
+      if (spec && spec.id === 'quay' && (state.lights.quay || 0) < 2) {
+        var habit = button.closest('.light-card') && button.closest('.light-card').querySelector('.habit');
+        var needs = M.lightClosed(state, spec);
+        var story = spec.lines[(state.lights.quay || 0)] || spec.lines[0];
+        if (habit) habit.textContent = needs && needs !== 'Not yet' && needs !== 'Burning' ? needs : story;
+      }
       if (!offer || offer.blocked) {
         button.disabled = true;
-        button.textContent = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
+        var closed = (offer && offer.blocked) || (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
+        var stop = closed.indexOf('. ');
+        button.textContent = stop > 0 ? closed.slice(0, stop + 1) : closed;
         return;
       }
       button.dataset.act = 'light';
@@ -882,7 +892,7 @@
     if (box.hidden) return;
     var stats = state.ending || M.statsOf(state, Date.now());
     var voyageHow = '';
-    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot took the deep channel, and every route paid a little more.';
+    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot brought the risky cargo back in.';
     if (state.prepDone && state.prepDone.pilot === 'chart') voyageHow = ' The bought chart stayed in the cabin, and the boats earned a little more.';
     $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.' + voyageHow;
     var list = $('#ending-stats');
@@ -998,7 +1008,8 @@
     var choiceRect = choiceOpen ? choice.getBoundingClientRect() : null;
     var awayRect = awayOpen ? away.getBoundingClientRect() : null;
     if ((choiceRect && panelCoversBuy(choiceRect)) || (awayRect && panelCoversBuy(awayRect))) {
-      var top = purse ? Math.ceil(purse.getBoundingClientRect().bottom) + gap : gap;
+      var purseBottom = purse ? purse.getBoundingClientRect().bottom : gap;
+      var top = Math.max(gap, Math.ceil(purseBottom) + gap);
       if (awayOpen) {
         away.style.top = top + 'px';
         away.style.bottom = 'auto';
@@ -1063,6 +1074,8 @@
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
     var deskOpen = !!M.deskChoice(state);
     ask.hidden = askIndex < 0 || deskOpen;
+    var pellBanner = $('#pell-banner');
+    if (pellBanner) pellBanner.hidden = askIndex !== 3 || view.pellClosed || deskOpen;
     if (askIndex >= 0 && !deskOpen) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
@@ -1395,6 +1408,11 @@
       if (held.bulk) b.dataset.bulk = held.bulk;
     }
     if (b.id === 'row' || b.id === 'sound' || b.id === 'ask' || b.classList.contains('arc-set-btn')) return;
+    if (b.id === 'pell-close') {
+      view.pellClosed = true;
+      render();
+      return;
+    }
     if (b.dataset.bulk) {
       keepPlace(function () {
         M.setBulk(state, b.dataset.bulk);
@@ -1635,6 +1653,7 @@
     }
     setTimeout(settle, 50);
   });
+  window.addEventListener('pageshow', function () { render(); });
   function captainGain(books) {
     var nowBooks = M.captainBooks(state);
     var n = 0;

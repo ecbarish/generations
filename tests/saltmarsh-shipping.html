@@ -517,7 +517,7 @@ document.querySelector('#run').onclick = async function () {
     var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
     var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
     var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
-    check('the voyage cards say what each choice does, in plain words', /22% more/.test(foodCard) && /fresh food/i.test(foodCard) && /25% less/.test(foodCard) && /lose only half/.test(pilotCard) && /boat earns 18%/.test(pilotCard) && !/Victuals/.test(foodItem.name));
+    check('the voyage cards say what each choice does, in plain words', /40% more/.test(foodCard) && /fresh food/i.test(foodCard) && /12% less/.test(foodCard) && /risky cargo comes back/.test(pilotCard) && /boat earns 10%/.test(pilotCard) && !/Victuals/.test(foodItem.name));
     function payOffice(which) {
       var s = M.preset('lamps');
       s.played = 3000;
@@ -528,7 +528,7 @@ document.querySelector('#run').onclick = async function () {
     var chartRoutes = M.routeIncome(payOffice('chart'));
     var pilotBoats = M.income(payOffice('pilot'));
     var chartBoats = M.income(payOffice('chart'));
-    check('a bought chart pays the boats and a pilot is the risk shield', chartBoats > pilotBoats && /lose only half/.test(M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0].choice[0].line));
+    check('a bought chart pays the boats and a pilot brings the risky cargo back', chartBoats > pilotBoats && /risky cargo comes back/.test(M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0].choice[0].line));
     var jobs = M.preset('lamps');
     jobs.played = 1000;
     jobs.cash = 1e15;
@@ -634,12 +634,12 @@ document.querySelector('#run').onclick = async function () {
     quayState.routes.gull = 1;
     quayState.forks = { sloop: null, schooner: null, quay: 'lamp' };
     var quayDark = M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]);
-    check('a dark Quay lighthouse names the house lamp after the quay is chosen', quayDark === 'Own 16 barks to light the house lamp, 16 to go.');
+    check('a dark Quay lighthouse names every unlock that is still shut', quayDark.indexOf('Sign 2 more routes') >= 0 && quayDark.indexOf('four routes are sailing') >= 0 && quayDark.indexOf('The house lamp lights at 16 barks, 16 to go.') >= 0);
     quayState.boats[3].owned = 7;
-    check('the quay count moves when barks are bought', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]) === 'Own 16 barks to light the house lamp, 9 to go.');
+    check('the quay count moves when barks are bought', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]).indexOf('The house lamp lights at 16 barks, 9 to go.') >= 0);
     quayState.boats[3].owned = 0;
     quayState.boats[3].owned = 16;
-    check('sixteen barks leave the route count as the quay\'s remaining gate', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]) === 'Sign 2 more routes first.');
+    check('sixteen barks leave the route count as the quay\'s remaining lock', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]) === 'Sign 2 more routes. The Quay Lighthouse opens when four routes are sailing.');
     var bellDesk = M.fresh();
     bellDesk.trips = 3;
     bellDesk.boats[0].owned = M.SLOOP_AT;
@@ -792,6 +792,100 @@ document.querySelector('#run').onclick = async function () {
     sea.lifetime = 4e7;
     M.newHarbour(sea, 0, 10);
     check('a new harbour keeps one captain and the charts', sea.ended === false && sea.boats[0].owned === 0 && sea.captains[0].hired && sea.charts === 2 && charts === 2 && sea.cash === 0);
+
+    function copyOffice(state) {
+      return M.restore(JSON.parse(JSON.stringify(M.serialize(state, 1))));
+    }
+    function sideValue(state, apply, horizon) {
+      var cash = state.cash;
+      var rate = M.officeRate(state);
+      var bought = apply(state);
+      if (!bought || bought.ok === false) return null;
+      var next = M.nextPreparation ? M.nextPreparation(state) : null;
+      if (next && next.id !== 'victuals' && next.id !== 'pilot') {
+        state.cash = Math.max(state.cash, next.cost);
+        var later = M.buyPreparation(state, next.id, next.choice ? next.choice[0].id : '', 1);
+        if (!later || later.ok === false) return null;
+      }
+      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
+    }
+    function voyageDesk(routes, boats) {
+      var state = M.preset('lamps');
+      state.played = 700;
+      state.cash = 1e15;
+      state.ended = false;
+      state.prepDone = {};
+      state.prepPrices = {};
+      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { state.lights[id] = 2; });
+      state.boats[0].owned = boats[0];
+      state.boats[1].owned = boats[1];
+      state.boats[2].owned = boats[2];
+      state.boats[3].owned = boats[3];
+      M.ROUTES.forEach(function (spec) {
+        var depth = routes[spec.id] || 0;
+        state.routes[spec.id] = depth;
+        state.routeGross[spec.id] = routes[spec.id + 'Gross'] || 0;
+        state.routeCut[spec.id] = routes[spec.id + 'Cut'] || 0;
+      });
+      return state;
+    }
+    var foodThin = voyageDesk({ kelp: 1, kelpGross: 400 }, [80, 40, 30, 24]);
+    var foodFat = voyageDesk({
+      kelp: 2, kelpGross: 791, gull: 2, gullGross: 993, gullCut: 85,
+      tea: 2, teaGross: 973, night: 1, nightGross: 8341, nightCut: 3003
+    }, [32, 10, 10, 16]);
+    var freshThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
+    var porkThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
+    var freshFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
+    var porkFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
+    check('fresh food and salt pork each win a real desk (' + Math.round(freshThin) + ' / ' + Math.round(porkThin) + ' thin, ' + Math.round(freshFat) + ' / ' + Math.round(porkFat) + ' fat)', freshThin != null && porkThin != null && freshFat != null && porkFat != null && porkThin > freshThin && freshFat > porkFat);
+    function readyForPilot(desk) {
+      var state = copyOffice(desk);
+      state.cash = 1e15;
+      M.buyPreparation(state, 'victuals', 'fresh', 1);
+      M.buyPreparation(state, 'canvas', '', 1);
+      return state;
+    }
+    var pilotSafe = readyForPilot(foodThin);
+    var pilotRisk = readyForPilot(foodFat);
+    var pilotOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
+    var chartOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
+    var pilotOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
+    var chartOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
+    check('the pilot and the chart each win a real desk (' + Math.round(pilotOnSafe) + ' / ' + Math.round(chartOnSafe) + ' safe, ' + Math.round(pilotOnRisk) + ' / ' + Math.round(chartOnRisk) + ' risk)', pilotOnSafe != null && chartOnSafe != null && pilotOnRisk != null && chartOnRisk != null && chartOnSafe > pilotOnSafe && pilotOnRisk > chartOnRisk);
+    function gullDesk(gullGross) {
+      var state = M.preset('fleet');
+      state.cash = 1e12;
+      state.boats[2].owned = 10;
+      state.boats[3].owned = 4;
+      state.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      state.lights.pier = 2;
+      state.routes.kelp = 1;
+      state.routeGross.kelp = 400;
+      state.voyages = 1;
+      state.events = { squall: 'wait' };
+      if (gullGross > 0) {
+        state.routes.gull = 2;
+        state.routeGross.gull = gullGross;
+        state.routeCut.gull = gullGross * 0.28;
+        state.voyages = 2;
+      }
+      return state;
+    }
+    function purseValue(state, which, horizon) {
+      var cash = state.cash;
+      var rate = M.officeRate(state);
+      var bought = M.chooseDesk(state, 'request', which, 1);
+      if (!bought || bought.ok === false) return null;
+      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
+    }
+    var bare = gullDesk(0);
+    var signed = gullDesk(8000);
+    var purseBare = purseValue(copyOffice(bare), 'purse', 240);
+    var grantBare = purseValue(copyOffice(bare), 'grant', 240);
+    var purseSigned = purseValue(copyOffice(signed), 'purse', 240);
+    var grantSigned = purseValue(copyOffice(signed), 'grant', 240);
+    check('the purse and the gull each win a real desk (' + Math.round(purseBare) + ' / ' + Math.round(grantBare) + ' bare, ' + Math.round(purseSigned) + ' / ' + Math.round(grantSigned) + ' signed)', purseBare != null && grantBare != null && purseSigned != null && grantSigned != null && purseBare > grantBare && grantSigned > purseSigned);
 
     var active = SaltmarshPacing.simulate(M, 'active');
     var days = SaltmarshPacing.workdays(M);
@@ -1264,7 +1358,7 @@ document.querySelector('#run').onclick = async function () {
     lampWin.__saltmarsh.render();
     lampState.played = 200;
     lampWin.__saltmarsh.render();
-    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && /\/ 4/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /22% more/.test(lampsBox.contentDocument.querySelector('#provision').textContent));
+    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && /\/ 4/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /40% more/.test(lampsBox.contentDocument.querySelector('#provision').textContent));
     var packActions = lampsBox.contentDocument.querySelector('#provision-actions');
     var packSum = 0;
     Array.prototype.forEach.call(packActions.querySelectorAll('button'), function (button) {
@@ -2399,6 +2493,81 @@ document.querySelector('#run').onclick = async function () {
     }
     await phoneLayout(320, 568);
     await phoneLayout(390, 844);
+    async function followUpScreen(width, height) {
+      var box = await loadFrame('follow-up ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e9;
+      st.boats[1].owned = 10;
+      st.forks.sloop = 'fit';
+      st.fittings['sloop-hull'] = true;
+      win.__saltmarsh.render();
+      var h1 = doc.querySelector('h1');
+      var buy = doc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+      var trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+      trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var beforeH = h1.getBoundingClientRect().top;
+      var beforeB = buy.getBoundingClientRect().top;
+      var shifts = [];
+      if (win.PerformanceObserver) {
+        try {
+          var obs = new win.PerformanceObserver(function (list) {
+            list.getEntries().forEach(function (entry) {
+              if (!entry.hadRecentInput) shifts.push(entry.value);
+            });
+          });
+          obs.observe({ type: 'layout-shift', buffered: true });
+        } catch (e) { /* this browser does not report layout shift */ }
+      }
+      st.forks.sloop = null;
+      delete st.fittings['sloop-hull'];
+      win.__saltmarsh.render();
+      var moved = Math.max(Math.abs(h1.getBoundingClientRect().top - beforeH), Math.abs(buy.getBoundingClientRect().top - beforeB));
+      var choice = doc.querySelector('#choice');
+      var take = choice.querySelector('button');
+      var takeRect = take.getBoundingClientRect();
+      var hit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
+      var hitOk = !!(hit && (hit === take || take.contains(hit)));
+      var cardRect = trigger.getBoundingClientRect();
+      var cardHit = doc.elementFromPoint(cardRect.left + cardRect.width / 2, Math.min(win.innerHeight - 2, Math.max(2, cardRect.top + cardRect.height / 2)));
+      var covered = !!(cardHit && cardHit.closest && cardHit.closest('#choice'));
+      var shiftSum = shifts.reduce(function (n, v) { return n + v; }, 0);
+      check('at ' + width + ' the sheet shifts ' + moved.toFixed(1) + 'px (cls ' + shiftSum.toFixed(3) + ') and the Take button is what the pointer hits', moved <= 2 && hitOk && covered === false && choice.hidden === false);
+      st.forks.sloop = 'fit';
+      st.fittings['sloop-hull'] = true;
+      win.__saltmarsh.render();
+      var goal = doc.querySelector('#goal');
+      win.dispatchEvent(new win.PageTransitionEvent('pageshow', { persisted: true }));
+      var goalClip = goal.scrollHeight > goal.clientHeight + 2;
+      var away = doc.querySelector('#away');
+      away.hidden = false;
+      away.innerHTML = '<p style="min-height:140vh">You were gone.</p><button type="button" data-act="away">Close the log</button>';
+      var closeLog = away.querySelector('button');
+      var awayScrolls = away.scrollHeight > away.clientHeight + 8 || doc.documentElement.scrollHeight > win.innerHeight + 8;
+      closeLog.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      var closeRect = closeLog.getBoundingClientRect();
+      var barTop = doc.querySelector('.goalbar').getBoundingClientRect().top;
+      var closeHit = doc.elementFromPoint(closeRect.left + closeRect.width / 2, closeRect.top + closeRect.height / 2);
+      var closeOk = !!(closeHit && (closeHit === closeLog || closeLog.contains(closeHit))) && closeRect.bottom <= barTop + 1 && closeRect.height >= 44;
+      check('at ' + width + ' reopening leaves the goal whole and the away card can scroll to Close (' + (goalClip ? 'clipped' : 'whole') + ', scroll ' + awayScrolls + ')', goalClip === false && awayScrolls && closeOk);
+      st.boats[3].owned = 10;
+      st.captains[3].hired = false;
+      win.__saltmarsh.view.pellClosed = false;
+      win.__saltmarsh.render();
+      var banner = doc.querySelector('#pell-banner');
+      var explained = !!banner && banner.hidden === false && /Capt\. Pell's banner/.test(banner.textContent) && /names the boat/.test(banner.textContent);
+      var closeBanner = doc.querySelector('#pell-close');
+      if (closeBanner) closeBanner.click();
+      var ask = doc.querySelector('#ask');
+      check('at ' + width + ' Capt. Pell\'s banner explains itself and can be closed', explained && banner.hidden === true && ask.hidden === false && ask.textContent === win.Saltmarsh.askLine(3));
+    }
+    await followUpScreen(320, 568);
+    await followUpScreen(360, 640);
+    await followUpScreen(1280, 800);
     async function voyageNear(width, height) {
       var box = await loadFrame('voyage near ' + width, '&state=lamps');
       box.style.width = width + 'px';
@@ -2710,12 +2879,12 @@ document.querySelector('#run').onclick = async function () {
     quayState.routes.reed = 0;
     quayState.boats[3].owned = 12;
     quayWin.__saltmarsh.render();
-    var staleQuay = quayDoc.querySelector('button[data-light="quay"]');
-    check('the dark quay names the house lamp before it is taken', !!staleQuay && /Own 16 barks to light the house lamp, 4 to go/.test(staleQuay.textContent));
+    var staleCard = quayDoc.querySelector('[data-light="quay"]');
+    check('the dark quay names the house lamp and the routes before it is taken', !!staleCard && /The house lamp lights at 16 barks, 4 to go/.test(staleCard.textContent) && /Sign 2 more routes/.test(staleCard.textContent) && /Choose the quay lamp on the desk/.test(staleCard.textContent));
     quayState.forks.quay = 'lamp';
     quayWin.__saltmarsh.render();
-    staleQuay = quayDoc.querySelector('button[data-light="quay"]');
-    check('taking the lamp refreshes the quay, and it names the house lamp', !!staleQuay && /Own 16 barks to light the house lamp, 4 to go/.test(staleQuay.textContent) && /Choose the quay first/.test(staleQuay.textContent) === false);
+    staleCard = quayDoc.querySelector('[data-light="quay"]');
+    check('taking the lamp refreshes the quay, and it names the house lamp', !!staleCard && /The house lamp lights at 16 barks, 4 to go/.test(staleCard.textContent) && /Choose the quay lamp/.test(staleCard.textContent) === false);
     ['tea', 'headland', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
     quayState.boats[3].owned = 16;
     quayState.forks.quay = null;

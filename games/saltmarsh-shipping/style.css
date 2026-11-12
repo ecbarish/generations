@@ -112,6 +112,32 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   border-color: var(--timber);
 }
 .ask { background: var(--lamp); }
+.pell-banner {
+  position: fixed;
+  z-index: 5;
+  left: 50%;
+  top: 0.6rem;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 1.2rem));
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--ink);
+  box-shadow: 0 8px 20px rgba(35, 57, 76, 0.18);
+}
+.pell-banner p { margin: 0 0 0.45rem; }
+.pell-banner button { width: 100%; }
+#away:not([hidden]) {
+  position: fixed;
+  z-index: 5;
+  left: 50%;
+  top: 4.2rem;
+  bottom: 5.2rem;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 1rem));
+  margin: 0;
+  overflow: auto;
+}
 #ask.ask:not([hidden]) {
   position: static;
   z-index: auto;
@@ -437,11 +463,9 @@ html { scroll-padding-top: 6.5rem; }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }
   .goalbar #goal {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    max-height: calc(1.3em * 2 + 1.4rem);
+    overflow: visible;
+    max-height: none;
+    display: block;
   }
   #away button[data-act="away"] {
     display: block;
@@ -463,6 +487,7 @@ html { scroll-padding-top: 6.5rem; }
   width: min(40rem, calc(100% - 1rem));
   max-height: calc(100vh - 7.2rem);
   margin: 0;
+  padding: 0.45rem 0.7rem 0.4rem;
   overflow: auto;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
@@ -493,7 +518,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   display: flex;
   flex-direction: column;
 }
-#choice .choice-card .habit { white-space: normal; }
+#choice .choice-card .habit { white-space: normal; line-height: 1.25; margin: 0.1rem 0; }
 #choice .choice-card .actions {
   position: sticky;
   bottom: 0;
