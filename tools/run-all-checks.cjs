@@ -112,7 +112,7 @@ function findGodot(){
     results.push({name:'agent-context',ok:run.status===0,line});
     console.log((run.status===0?'ok  ':'FAIL')+'  agent-context  '+line);
   }
-  if(wanted('nm-audit')){                       // scripted Night Market new-player gaps and displayed prices
+  if(wanted('nm-audit')){
     const run=spawnSync(process.execPath,[path.join(ROOT,'tools/nm-audit/run.cjs'),'--check'],{encoding:'utf8',timeout:15*60*1000});
     const text=((run.stdout||'')+(run.stderr||'')).trim();
     const line=(text.split('\n').find(l=>/^(PASS|FAIL) nm-audit:/.test(l))||text.split('\n').pop()||'no nm-audit line');

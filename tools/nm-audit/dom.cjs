@@ -1,5 +1,3 @@
-/* A small document, enough for games/night-market/game.js to render.
-   It is not a browser. It keeps the nodes the page script reads and writes. */
 'use strict';
 
 const VOID = { meta: 1, link: 1, img: 1, input: 1, br: 1, hr: 1, source: 1, area: 1, base: 1, col: 1, embed: 1, wbr: 1 };
@@ -14,7 +12,7 @@ function decode(text) {
     if (ent === 'lt') return '<';
     if (ent === 'gt') return '>';
     if (ent === 'quot') return '"';
-    if (ent === 'apos' || ent === '#39') return "'";
+    if (ent === 'apos') return "'";
     if (ent === 'nbsp') return ' ';
     return all;
   });
@@ -189,7 +187,6 @@ class Element extends Node {
     if (this.ownerDocument) this.ownerDocument.activeElement = this;
   }
   addEventListener() {}
-  removeEventListener() {}
 }
 
 function classTokens(el) {
@@ -389,7 +386,6 @@ function createDocument(html) {
     return { selectNodeContents: function () {}, getClientRects: function () { return []; } };
   };
   doc.elementFromPoint = function () { return null; };
-  doc._listeners = [];
   doc.addEventListener = function () {};
   doc.removeEventListener = function () {};
   doc.hidden = false;
@@ -403,4 +399,4 @@ function createDocument(html) {
   return doc;
 }
 
-module.exports = { createDocument, Element, TextNode };
+module.exports = { createDocument };

@@ -1,6 +1,3 @@
-/* Headless new-player audit for Night Market.
-   Drives the real rules and the real page text. No new dependencies.
-   node tools/nm-audit/run.cjs [--check] [--seconds N] [--out dir] */
 'use strict';
 
 const fs = require('fs');
@@ -23,14 +20,6 @@ const MARKS = [60, 180, 300];
 
 function near(a, b) {
   return typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
-}
-
-function numbersIn(text) {
-  const out = [];
-  const re = /\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?/g;
-  let m;
-  while ((m = re.exec(text))) out.push(Number(m[0].replace(/,/g, '')));
-  return out;
 }
 
 function pairsIn(text) {
@@ -94,7 +83,6 @@ function labeledQty(text) {
 }
 
 function selfTest() {
-  if (numbersIn('6 to 5 and 2,200,000')[2] !== 2200000) throw new Error('number parse');
   if (pairsIn('Tea 0.45 to 0.52. Lanterns 700 to 770.').length !== 2) throw new Error('pair parse');
   if (clocksIn('opens at 15:00, or at 10')[0] !== 900) throw new Error('clock parse');
   if (countsIn('once ten tea stalls, or at 15:00, or at 10 trays').indexOf(15) >= 0) throw new Error('clock leaked into a count');
@@ -134,10 +122,16 @@ function catalogueValue(M, leaf) {
 function auditPatchLine(M, line, set, where, bag) {
   const leaves = leavesOf(set);
   pairsIn(line).forEach(function (pair) {
-    const hit = leaves.some(function (leaf) {
+    const hit = leaves.filter(function (leaf) {
       return near(leaf.value, pair[1]) && near(catalogueValue(M, leaf), pair[0]);
-    });
-    if (!hit) bag.add(where, line, pair[0] + ' to ' + pair[1], 'no matching rule value');
+    })[0];
+    if (!hit) bag.add(where, line, 'no matching rule value', pair[0] + ' to ' + pair[1]);
+    else if (hit.field === 'base') {
+      const charged = firstCopyCharge(M, where, hit);
+      if (charged && (!near(charged[0], pair[0]) || !near(charged[1], pair[1]))) {
+        bag.add(where, line, Math.round(charged[0]) + ' to ' + Math.round(charged[1]), pair[0] + ' to ' + pair[1]);
+      }
+    }
   });
   const instead = /(\d+(?:\.\d+)?)\s+[^.]*?\binstead of\s+(\d+(?:\.\d+)?)/g;
   let m;
@@ -147,7 +141,7 @@ function auditPatchLine(M, line, set, where, bag) {
     const hit = leaves.some(function (leaf) {
       return near(leaf.value, shown) && near(catalogueValue(M, leaf), old);
     });
-    if (!hit) bag.add(where, line, shown + ' instead of ' + old, 'no matching rule value');
+    if (!hit) bag.add(where, line, 'no matching rule value', shown + ' instead of ' + old);
   }
   const percent = /(?:about\s+)?(\d+(?:\.\d+)?)%\s+(more|less)/g;
   while ((m = percent.exec(line))) {
@@ -160,7 +154,7 @@ function auditPatchLine(M, line, set, where, bag) {
       const expect = dir === 'more' ? 1 + pct / 100 : 1 - pct / 100;
       return Math.abs(leaf.value / cat - expect) < 0.02;
     });
-    if (!hit) bag.add(where, line, pct + '% ' + dir, 'no matching rule value');
+    if (!hit) bag.add(where, line, 'no matching rule value', pct + '% ' + dir);
   }
   const insteadPct = /instead of\s+(\d+(?:\.\d+)?)%/g;
   while ((m = insteadPct.exec(line))) {
@@ -169,7 +163,7 @@ function auditPatchLine(M, line, set, where, bag) {
       const cat = catalogueValue(M, leaf);
       return leaf.field === 'growth' && typeof cat === 'number' && Math.abs((cat - 1) * 100 - pct) < 0.6;
     });
-    if (!hit) bag.add(where, line, 'instead of ' + pct + '%', 'no matching catalogue growth');
+    if (!hit) bag.add(where, line, 'no matching catalogue growth', 'instead of ' + pct + '%');
   }
 }
 
@@ -201,19 +195,18 @@ function makeBag(session) {
     count: 0,
     seen: {},
     items: [],
-    add: function (where, text, claimed, actual) {
-      const key = String(where).replace(/ @\d+/g, '') + '|' + claimed + '|' + actual;
+    add: function (where, text, rule, shown) {
+      const key = String(where).replace(/ @\d+/g, '') + '|' + rule + '|' + shown;
       if (this.seen[key]) { this.seen[key]++; return; }
       this.seen[key] = 1;
       this.count++;
       if (this.items.length < 30) {
         this.items.push({
           session: session || 'catalogue',
-          at: null,
           where: where,
           text: String(text || '').replace(/\s+/g, ' ').slice(0, 220),
-          claimed: String(claimed),
-          actual: String(actual)
+          rule: String(rule),
+          shown: String(shown)
         });
       }
     }
@@ -254,16 +247,13 @@ function loadPage() {
     document: doc,
     localStorage: localStorage,
     location: { search: '', hash: '', href: 'http://localhost/games/night-market/index.html', reload: function () {} },
-    navigator: { userAgent: 'nm-audit' },
     confirm: function () { return false; },
-    alert: function () {},
     innerWidth: 1400,
     innerHeight: 900,
     scrollY: 0,
     scrollTo: function () {},
     addEventListener: function () {},
     removeEventListener: function () {},
-    getComputedStyle: function () { return { getPropertyValue: function () { return ''; } }; },
     matchMedia: function (query) {
       const w = context.innerWidth;
       const h = context.innerHeight;
@@ -394,28 +384,43 @@ function answer(M, state) {
   const offer = state.night && state.night.offer;
   if (!offer || !offer.options || !offer.options.length) return null;
   if (offer.kind === 'omen') return M.choose(state, 0);
-  if (M.skipOffer(state)) return 'skip';
-  return M.choose(state, 0);
+  M.skipOffer(state);
+  return 'skip';
 }
 
-function liveRate(M, state, stallId) {
-  const stall = M.STALLS.filter(function (s) { return s.id === stallId; })[0];
-  if (!stall) return 0;
-  let rate = stall.rate;
-  const omen = state.night && M.omenById(state.night.omen);
-  if (omen && omen.set && omen.set[stallId] && omen.set[stallId].rate != null) rate = omen.set[stallId].rate;
-  const charms = (state.night && state.night.charms) || [];
-  for (let i = 0; i < charms.length; i++) {
-    const charm = M.charmById(charms[i]);
-    if (charm && charm.set && charm.set[stallId] && charm.set[stallId].rate != null) rate = charm.set[stallId].rate;
-  }
-  return rate;
+function firstCopyCharge(M, where, leaf) {
+  const parts = String(where).split(' ');
+  const kind = parts[0];
+  const id = parts.slice(1).join(' ');
+  const i = M.STALLS.findIndex(function (s) { return s.id === leaf.stall; });
+  if (i < 0 || (kind !== 'omen' && kind !== 'charm')) return null;
+  const fresh = M.fresh();
+  const before = M.cost(i, 0, 1, fresh);
+  if (kind === 'omen') fresh.night.omen = id;
+  else fresh.night.charms.push(id);
+  return [before, M.cost(i, 0, 1, fresh)];
+}
+
+function clockMatCharge(M, state) {
+  const mat = M.STALLS.length - 1;
+  const probe = M.fresh();
+  probe.stalls = state.stalls.map(function (s) {
+    return { owned: s.owned, serves: s.serves, hired: !!s.hired };
+  });
+  probe.stalls[mat].owned = 0;
+  probe.night.wallMs = 900 * 1000;
+  probe.night.matShown = 0;
+  probe.night.matOffer = 0;
+  probe.night.earlyQuote = 0;
+  probe.night.omen = null;
+  probe.night.charms = [];
+  return M.cost(mat, 0, 1, probe);
 }
 
 function auditChoice(M, state, kind, id, text, bag, at) {
   if (kind === 'omen') {
     const row = M.omenById(id);
-    if (row && text !== row.line) bag.add('choice ' + id + ' @' + at, text, row.line, 'button text');
+    if (row && text !== row.line) bag.add('choice ' + id + ' @' + at, text, row.line, text);
     return;
   }
   if (kind !== 'charm') return;
@@ -433,7 +438,7 @@ function auditChoice(M, state, kind, id, text, bag, at) {
     const after = M.cost(index, owned, 1, state);
     state.night.charms.pop();
     if (!moneyAgrees(pair[1].replace(/,/g, ''), before, fmtMoney) || !moneyAgrees(pair[2].replace(/,/g, ''), after, fmtMoney)) {
-      bag.add('choice ' + id + ' @' + at, text, fmtMoney(before) + ' to ' + fmtMoney(after), 'charged');
+      bag.add('choice ' + id + ' @' + at, text, fmtMoney(before) + ' to ' + fmtMoney(after), pair[1] + ' to ' + pair[2]);
     }
   }
   const opens = /opens at\s+(\d+)/.exec(text);
@@ -454,12 +459,16 @@ function auditChoice(M, state, kind, id, text, bag, at) {
   const plusRe = /\+(\d+)%/g;
   let plus;
   while ((plus = plusRe.exec(text))) pluses.push(Number(plus[1]));
-  if (pluses.length && row.set[stallId] && row.set[stallId].rate != null && !(state.night.boosts && state.night.boosts.length)) {
-    const now = liveRate(M, state, stallId);
-    const local = now > 0 ? Math.round((row.set[stallId].rate / now - 1) * 100) : 0;
-    const produced = M.production(state, index);
-    const totalInc = M.income(state);
-    const night = now > 0 && totalInc > 0 ? Math.round((produced / totalInc) * (row.set[stallId].rate / now - 1) * 100) : local;
+  if (pluses.length && row.set[stallId] && row.set[stallId].rate != null) {
+    const beforeProd = M.production(state, index);
+    const beforeInc = M.income(state);
+    state.night.charms.push(id);
+    const afterProd = M.production(state, index);
+    const afterInc = M.income(state);
+    state.night.charms.pop();
+    if (!(beforeProd > 0)) return;
+    const local = Math.round((afterProd / beforeProd - 1) * 100);
+    const night = beforeInc > 0 ? Math.round(((afterInc - beforeInc) / beforeInc) * 100) : local;
     const shownLocal = pluses[pluses.length - 1];
     const shownNight = pluses.length > 1 ? pluses[0] : null;
     if (shownLocal !== local || (shownNight != null && shownNight !== night)) {
@@ -574,6 +583,17 @@ function scrape(doc, M, state, bag, at) {
       bag.add('crowd unroll quote @' + at, button.textContent, fmt(Number(button.dataset.quote)), shown[1]);
     }
   });
+  const finale = doc.querySelector('#finale');
+  const summary = doc.querySelector('#finale-summary');
+  if (finale && !finale.hidden && summary) {
+    const stated = /Story Mat will cost\s+([\d,.]+(?:K|M|B|T)?)/.exec(summary.textContent);
+    if (stated) {
+      const charge = clockMatCharge(M, state);
+      if (!moneyAgrees(stated[1].replace(/,/g, ''), charge, fmt)) {
+        bag.add('dawn mat @' + at, summary.textContent, fmt(charge), stated[1]);
+      }
+    }
+  }
 }
 
 function runSession(env, surfaceName, policyName, seconds) {
@@ -691,7 +711,7 @@ function markdown(report) {
   lines.push('');
   lines.push('Mismatches: ' + report.mismatchCount + '.');
   report.mismatches.slice(0, 12).forEach(function (m) {
-    lines.push('- ' + m.session + ' ' + m.where + ': showed ' + m.actual + ', rule ' + m.claimed + '. ' + m.text);
+    lines.push('- ' + m.session + ' ' + m.where + ': showed ' + m.shown + ', rule ' + m.rule + '. ' + m.text);
   });
   if (report.mismatchCount > 12) lines.push('- … ' + (report.mismatchCount - 12) + ' more.');
   lines.push('');
