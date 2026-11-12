@@ -441,6 +441,7 @@
     var nextBuy = 0;
     var firstFun = null;
     var hireAt = null;
+    var moveAt = null;
     var firstBuy = null;
     var dry = 0;
     var maxDry = 0;
@@ -493,6 +494,7 @@
       var step = Math.min(dt, Math.round((limit - t) * 1000) / 1000);
       t = Math.round((t + step) * 1000) / 1000;
       M.addCash(state, M.income(state) * step);
+      if (moveAt == null && typeof M.MOVE_AT === 'number' && state.lifetime >= M.MOVE_AT) moveAt = t;
       if (t + 1e-9 >= nextHand) {
         actHand();
         nextHand = Math.round((nextHand + hand) * 1000) / 1000;
@@ -511,7 +513,7 @@
       }
     }
     return {
-      id: spec.id, firstFun: firstFun, hireAt: hireAt, firstBuy: firstBuy,
+      id: spec.id, firstFun: firstFun, hireAt: hireAt, firstBuy: firstBuy, moveAt: moveAt,
       maxDryFirst10Min: Math.round(maxDry * 100) / 100, buys: buys,
       owned: state.stalls.map(function (s) { return s.owned; }),
       income: M.income(state)

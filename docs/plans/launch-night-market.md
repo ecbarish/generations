@@ -66,7 +66,7 @@ These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint 
 
 - **NM-RETUNE.** 1M lifetime coins arrives in about 8 minutes. [office-idle-progression.md](../research/office-idle-progression.md) §8 wants the district move at about 45–75 minutes. Retune before that slice.
 - **NM-CLAMP.** The idle-core per-tick clamp under-credits a hidden tab that has been asleep more than 4 hours. Section 8 says there is no clamp while the page is loaded. Shared Systems Architect rules on this. It is off the blocking path.
-- Moving to a new district, permits, and a collection of vendor stories, once NM-RETUNE has landed.
+- Moving to a new district, permits, and a collection of vendor stories, once NM-RETUNE has landed. NM-DISTRICT (#676) is the batch that builds it, stacked on #654, and the first ten minutes stay as NM-POLISH left them.
 - IDLE-CS1 and IDLE-DP1. They stay on the shelf until Night Market has been playtested. IDLE-SS1 left that shelf. Evan approved it on 2026-10-23 and reconfirmed it on 2026-10-27. It is active. #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
 - More stall types beyond the first sitting.
 

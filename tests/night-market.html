@@ -157,6 +157,60 @@ document.querySelector('#run').onclick = async function () {
       check(spec.id + ' Mei takes the stall between 60s and 120s (' + row.hireAt + 's)', row.hireAt >= 60 && row.hireAt <= 120);
       check(spec.id + ' never goes 90s with nothing to buy in the first 10 min (' + row.maxDryFirst10Min + 's)', row.maxDryFirst10Min <= 90);
     });
+    NightMarketPacing.SESSION_POLICIES.forEach(function (spec) {
+      if (spec.id !== '2.5s' && spec.id !== '5s') return;
+      var long = NightMarketPacing.playPolicy(M, spec, 5400);
+      check(spec.id + ' district move is between 45 and 75 min (' + long.moveAt + 's)', long.moveAt >= 45 * 60 && long.moveAt <= 75 * 60);
+      var early = NightMarketPacing.playPolicy(M, spec, 900);
+      check(spec.id + ' still hires Mei between 60s and 120s after the long run (' + early.hireAt + 's)', early.hireAt >= 60 && early.hireAt <= 120);
+    });
+
+    var oldSave = { v: 1, game: 'night-market', cash: 40, lifetime: 40, stalls: [
+      { owned: 1, serves: 25, hired: true }, { owned: 0, serves: 0, hired: false },
+      { owned: 0, serves: 0, hired: false }, { owned: 0, serves: 0, hired: false },
+      { owned: 0, serves: 0, hired: false }, { owned: 0, serves: 0, hired: false }
+    ]};
+    var kept = M.restore(oldSave);
+    check('a version 1 save with no district still loads the lane', kept.place === 'lane' && kept.quay === null && kept.cash === 40 && kept.stalls[0].hired && kept.stalls[0].owned === 1);
+    var earlyMove = M.fresh();
+    earlyMove.lifetime = M.MOVE_AT - 1;
+    check('the move stays shut under 250 million', M.canMove(earlyMove) === false && M.move(earlyMove).ok === false && earlyMove.place === 'lane' && earlyMove.cash === 0);
+    var readyMove = M.fresh();
+    readyMove.lifetime = M.MOVE_AT;
+    readyMove.stalls[0].owned = 12;
+    readyMove.stalls[0].hired = true;
+    readyMove.cash = 80;
+    check('the move opens at 250 million', M.canMove(readyMove));
+    var homeOwned = readyMove.stalls.map(function (s) { return s.owned; });
+    check('moving takes Mei and leaves the coins and the other stalls', M.move(readyMove).ok && readyMove.place === 'quay' && readyMove.cash === 0 && readyMove.quay[0].hired && readyMove.quay[0].owned === 1 && readyMove.quay[1].hired === false && readyMove.quay[1].owned === 0 && readyMove.quay[1].serves === 0 && readyMove.stalls.map(function (s) { return s.owned; }).join() === homeOwned.join());
+    for (var cone = 0; cone < 10; cone++) M.handSell(readyMove, 1);
+    check('moving again does not wipe Lin\'s cones', M.move(readyMove).already === true && readyMove.quay[1].serves === 10);
+    check('on the quay the next permit is Lin\'s brazier', M.nextPermit(readyMove).name === "Lin's brazier");
+    var lin = M.fresh();
+    lin.lifetime = M.MOVE_AT;
+    M.move(lin);
+    check('Mei keeps one tea stall working', M.income(lin) === 0.45);
+    check('Max cannot buy the brazier before Lin takes it', M.quote(lin, 1, 'max').blocked === 'hire' && M.buy(lin, 1, 'max').ok === false);
+    for (var pour = 0; pour < 24; pour++) M.handSell(lin, 1);
+    check('24 cones are not a hire', M.canHire(lin, 1) === false);
+    M.handSell(lin, 1);
+    check('the 25th cone lets Lin take the brazier', M.canHire(lin, 1) && M.income(lin) === 0.45);
+    check('one brazier can be bought before Lin is hired', M.quote(lin, 1, 1).count === 1 && M.buy(lin, 1, 1).ok && lin.quay[1].owned === 1 && lin.quay[1].hired === false && M.income(lin) === 0.45);
+    M.hire(lin, 1);
+    check('Lin\'s brazier earns after she takes it', M.income(lin) === 0.45 + 4);
+    var named = M.fresh();
+    check('the next permit on a new lane is Mei\'s', M.nextPermit(named).name === "Mei's permit" && /Mei/.test(M.closerLead(named)));
+    M.handSell(named, 0);
+    named.stalls[0].serves = 25;
+    M.hire(named, 0);
+    check('after Mei the next permit is Bo\'s cart', M.nextPermit(named).name === "Bo's cart");
+    var meiTale = M.stories(named).filter(function (t) { return t.id === 'tea' && t.at === 'hired'; })[0];
+    var meiCrowd = M.stories(named).filter(function (t) { return t.id === 'tea' && t.at === '25'; })[0];
+    check('hiring Mei opens her first story and leaves the twenty-five stall story untold', meiTale.unlocked && meiTale.title === 'Mei Opens Early' && meiCrowd.unlocked === false);
+    var awayOnly = M.awayCopy({ away: 120, credited: 120, gained: 2, capped: false });
+    check('the welcome back still names the half rate without a district', /50%/.test(awayOnly.lead) && awayOnly.next === undefined);
+    var awayNext = M.awayCopy({ away: 120, credited: 120, gained: 2, capped: false }, named);
+    check('the welcome back names the next permit', awayNext.next === "Next in the book: Bo's cart.");
 
     var bulk = M.fresh();
     bulk.stalls[0].hired = true;
@@ -1915,6 +1969,28 @@ document.querySelector('#run').onclick = async function () {
     Object.keys(localStorage).forEach(function (k) {
       if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
     });
+    for (var districtWidth of [[1280, 800], [390, 844], [320, 568]]) {
+      var districtFrame = await openLane('../games/night-market/index.html', districtWidth[0], districtWidth[1]);
+      var dd = districtFrame.contentDocument;
+      var moveCard = dd.querySelector('#move');
+      var book = dd.querySelector('#book');
+      var pour = dd.querySelector('[data-act="serve"]');
+      var pourBox = pour.getBoundingClientRect();
+      var pourHit = dd.elementFromPoint(pourBox.left + pourBox.width / 2, pourBox.top + pourBox.height / 2);
+      var beforeTop = pourBox.top;
+      pour.click();
+      var afterTop = pour.getBoundingClientRect().top;
+      check(districtWidth[0] + ' wide: the move card is hidden, the book names Mei, the pour is hit, and a tap moves it by at most 2px',
+        moveCard && moveCard.hidden && book && /Mei's permit/.test(book.querySelector('summary').textContent) &&
+        (pourHit === pour || pour.contains(pourHit)) &&
+        Math.abs(afterTop - beforeTop) <= 2 &&
+        dd.documentElement.scrollWidth <= districtWidth[0] + 1);
+      districtFrame.remove();
+    }
+    Object.keys(localStorage).forEach(function (k) {
+      if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+    });
+
     check('other saves are left alone', Object.keys(localStorage).slice().sort().join('|') === before);
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {

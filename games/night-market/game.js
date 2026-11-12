@@ -35,6 +35,45 @@
   function lane(what, i, a, b) { var L = window.NightLane; if (L && L[what]) L[what](i, a, b); }
   if (window.NightLane && document.getElementById('lane')) window.NightLane.init(document.getElementById('lane'), function () { return state; }, M.unlocked);
 
+  function specsNow() { return M.activeSpecs(state); }
+  function slotsNow() { return M.activeSlots(state); }
+
+  function mountDistrict() {
+    var bar = $('#goal-bar');
+    if (bar && !$('#move')) {
+      var sec = document.createElement('section');
+      sec.id = 'move';
+      sec.hidden = true;
+      sec.innerHTML = '<h2>Willow Quay</h2><p>Mei will come with you and keep one tea stall. The coins stay on this lane. Lin is waiting with a cold brazier.</p><button type="button" data-act="move">Move to Willow Quay</button>';
+      bar.appendChild(sec);
+    }
+    var save = document.querySelector('details.save');
+    if (save && !$('#book')) {
+      var book = document.createElement('details');
+      book.className = 'book';
+      book.id = 'book';
+      book.innerHTML = '<summary></summary><div class="book-body"></div>';
+      save.parentNode.insertBefore(book, save);
+    }
+  }
+  mountDistrict();
+
+  function paintBook() {
+    var book = $('#book');
+    if (!book) return;
+    var next = M.nextPermit(state);
+    book.querySelector('summary').textContent = next ? 'Next permit: ' + next.name : 'Every permit is signed.';
+    var body = book.querySelector('.book-body');
+    var permits = M.permitList(state).map(function (p) {
+      return '<p><strong>' + p.name + '.</strong> ' + (p.done ? 'Signed.' : 'Not yet.') + '</p>';
+    }).join('');
+    var tales = M.stories(state).map(function (tale) {
+      if (!tale.unlocked) return '<p><strong>' + tale.title + '.</strong> Not yet told.</p>';
+      return '<p><strong>' + tale.title + '.</strong> ' + tale.text + '</p>';
+    }).join('');
+    body.innerHTML = permits + tales;
+  }
+
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
@@ -52,10 +91,10 @@
 
   /* Which pour still has to be done by hand. The Best tag belongs on a purchase, never here. */
   function handJobIndex() {
-    var i, lastHired = -1;
-    for (i = 0; i < M.STALLS.length; i++) {
+    var i, lastHired = -1, slots = slotsNow();
+    for (i = 0; i < slots.length; i++) {
       if (!M.unlocked(state, i)) continue;
-      if (!state.stalls[i].hired) return i;
+      if (!slots[i].hired) return i;
       lastHired = i;
     }
     return lastHired;
@@ -69,8 +108,9 @@
      stall you cannot afford yet is named here and never bought by the sim. */
   function bestUnitIndex() {
     var best = -1, score = Infinity, i, sec;
-    for (i = 0; i < M.STALLS.length; i++) {
-      if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
+    var slots = slotsNow();
+    for (i = 0; i < slots.length; i++) {
+      if (!slots[i].hired || !M.unlocked(state, i)) continue;
       sec = M.paybackSeconds(state, i, 1);
       if (!(sec < score)) continue;
       score = sec;
@@ -104,8 +144,9 @@
   }
 
   function fillRow(li, i) {
-    var stall = M.STALLS[i];
-    var st = state.stalls[i];
+    var stall = specsNow()[i];
+    var st = slotsNow()[i];
+    if (!stall || !st) return;
     var open = M.unlocked(state, i);
     li.className = 'stall' + (open ? '' : ' closed');
     var tag = li.querySelector('.best-tag');
@@ -124,8 +165,8 @@
       li.querySelector('.pour').hidden = li.querySelector('.count').hidden = true;
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
-      wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
-      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(stall.base) + ' coins.';
+      wait.textContent = i > 0 ? specsNow()[i - 1].next : '';
+      if (!M.onQuay(state) && i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(stall.base) + ' coins.';
       serve.hidden = ask.hidden = buy.hidden = true;
       ask.classList.remove('reserved');
       serve.classList.remove('best');
@@ -135,7 +176,7 @@
     var pouring = i === handJobIndex();
     serve.classList.remove('best');
     serve.textContent = !st.hired
-      ? (pouring && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
+      ? (pouring && i > 0 && !M.onQuay(state) ? 'This stall · ' + stall.serve : stall.serve)
       : (stall.serve + ' yourself · +' + stall.hand);
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
@@ -150,7 +191,7 @@
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
       if (st.owned > 0) wait.textContent += ' The ' + (st.owned === 1 ? 'one you bought waits' : 'ones you bought wait') + ' for ' + stall.vendor + '.';
-      if (i === M.STALLS.length - 1 && st.owned === 0) wait.textContent += ' The first Story Mat costs ' + money(M.quote(state, i, 1).cost) + ' coins.';
+      if (!M.onQuay(state) && i === M.STALLS.length - 1 && st.owned === 0) wait.textContent += ' The first Story Mat costs ' + money(M.quote(state, i, 1).cost) + ' coins.';
       /* The Ask button keeps its place before it can be used, so the pour
          does not shrink or drop when the words appear. */
       var ready = M.canHire(state, i);
@@ -170,7 +211,7 @@
     var rate = M.production(state, i);
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
     if (nextGoal) {
-      var chapter = i === M.STALLS.length - 1 ? M.chapterLine(state) : '';
+      var chapter = !M.onQuay(state) && i === M.STALLS.length - 1 ? M.chapterLine(state) : '';
       nextGoal.textContent = chapter ? chapter + ' ' + M.nextGoalLine(state, i) : M.nextGoalLine(state, i);
     }
     wait.textContent = M.paybackLine(state, i);
@@ -210,9 +251,11 @@
     $('#away-rule').textContent = M.awayRule();
     var rate = M.income(state);
     var waitingOn = '';
+    var liveSlots = slotsNow();
+    var liveSpecs = specsNow();
     if (!(rate > 0)) {
-      for (var w = 0; w < M.STALLS.length; w++) {
-        if (state.stalls[w].owned > 0 && !state.stalls[w].hired) { waitingOn = M.STALLS[w].vendor; break; }
+      for (var w = 0; w < liveSlots.length; w++) {
+        if (liveSlots[w].owned > 0 && !liveSlots[w].hired) { waitingOn = liveSpecs[w].vendor; break; }
       }
     }
     var rateLine = (rate > 0 ? money(rate) + ' coins a second' : waitingOn ? 'Nothing earns until ' + waitingOn + ' takes the stall.' : 'Nothing is earning yet.') + holdSuffix();
@@ -250,15 +293,23 @@
       finaleNote.hidden = !(M.finaleReached(state) && finaleDismissed);
       finaleNote.textContent = "Old Wen's last chapter is told. The lane stays open.";
     }
-    var hiring = state.stalls.some(function (s) { return s.hired; });
+    var scene = document.querySelector('.scene');
+    if (scene) scene.textContent = M.onQuay(state)
+      ? 'Ferry workers and evening walkers shop beside the quiet water.'
+      : 'Lanterns over a short lane of stalls. You work a stall yourself before anyone will run it.';
+    var moveCard = $('#move');
+    if (moveCard) moveCard.hidden = !M.canMove(state);
+    paintBook();
+    var hiring = liveSlots.some(function (s) { return s.hired; });
     $('#bulk').hidden = !hiring;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
       var on = String(state.bulk) === b.dataset.bulk;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     var list = $('#stalls');
-    if (!list.children.length) {
-      M.STALLS.forEach(function (stall, i) {
+    if (list.children.length !== liveSpecs.length) {
+      list.replaceChildren();
+      liveSpecs.forEach(function (stall, i) {
         var li = document.createElement('li');
         li.dataset.i = String(i);
         li.innerHTML = '<h2></h2><p class="best-tag" hidden>Best</p><p class="habit"></p><p class="facts"></p><p class="wait"></p>' +
@@ -346,12 +397,14 @@
   }
 
   function showAway(summary) {
-    var copy = M.awayCopy(summary);
+    var copy = M.awayCopy(summary, state);
     var box = $('#away');
     box.hidden = false;
     awayOn = true;
     box.innerHTML = '<h2>' + copy.title + '</h2><p class="payout">' + copy.payout + '</p><p>' + copy.lead + '</p><p>' +
-      copy.box + '</p><p>' + M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
+      copy.box + '</p><p>' + M.gossipLine(state) + '</p>' +
+      (copy.next ? '<p class="next-book">' + copy.next + '</p>' : '') +
+      '<button type="button" data-act="away">Put the box away</button>';
   }
 
   // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
@@ -368,7 +421,7 @@
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (laneEl && laneEl.scrollIntoView) laneEl.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
   }
-  function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
+  function atCount(i) { return !slotsNow()[i].hired && slotsNow()[i].serves >= specsNow()[i].serves; }
   function pumpHold() {
     if (!hold || !hold.live) return;
     var now = Date.now();
@@ -447,17 +500,26 @@
       $('#away').replaceChildren();
       return;
     }
+    if (b.dataset.act === 'move') {
+      if (M.move(state).ok) {
+        persist();
+        render();
+        if (window.NightLane && window.NightLane.still) window.NightLane.still();
+      }
+      return;
+    }
     var li = b.closest('[data-i]');
     if (!li) return;
     var i = +li.dataset.i;
     if (b.dataset.act === 'serve') { if (M.handSell(state, i).ok) lane('serve', i); }
     else if (b.dataset.act === 'hire') { if (M.hire(state, i).ok) lane('hire', i); }
     else if (b.dataset.act === 'buy') {
-      var had = state.stalls[i].owned;
+      var slots = slotsNow();
+      var had = slots[i].owned;
       var quoted = parseInt(b.dataset.count, 10);
       if (M.buyExact(state, i, quoted).ok) {
-        lane('buy', i, had, state.stalls[i].owned);
-        if (i === M.STALLS.length - 1 && had < M.FINALE_AT && state.stalls[i].owned >= M.FINALE_AT) revealFinale();
+        lane('buy', i, had, slots[i].owned);
+        if (!M.onQuay(state) && i === M.STALLS.length - 1 && had < M.FINALE_AT && slots[i].owned >= M.FINALE_AT) revealFinale();
       }
     }
     else return;

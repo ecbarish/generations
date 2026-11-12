@@ -24,11 +24,23 @@
   function box(c, x, y, w, h, fill) { rect(c, x, y, w, h, 'ink'); if (w > 2 && h > 2) rect(c, x + 1, y + 1, w - 2, h - 2, fill); }
   function look(owned) { var k = 0; MILESTONES.forEach(function (m) { if (owned >= m) k++; }); return k; }
   function st() { return getState(); }
+  function onQuay() { var s = st(); return !!(s && s.place === 'quay' && s.quay); }
+  function slotAt(i) {
+    var s = st();
+    if (!s) return null;
+    if (onQuay()) return s.quay[i] || null;
+    return s.stalls[i] || null;
+  }
+  function stallX(i) { return onQuay() ? 96 + i * 128 : i * SLOT; }
   function open(i) { return unlockedFn(st(), i); }
-  function busy(i) { var t = st().stalls[i]; return open(i) && (t.hired || t.serves > 0); }
+  function busy(i) { var t = slotAt(i); return !!(t && open(i) && (t.hired || t.serves > 0)); }
 
   /* ---- effect 0: the static lane, painted once per change of unlock / look ---- */
-  function signature() { return st().stalls.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + look(t.owned); }).join(','); }
+  function signature() {
+    var s = st();
+    var list = onQuay() ? s.quay : s.stalls;
+    return (onQuay() ? 'q:' : 'h:') + list.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + look(t.owned); }).join(',');
+  }
   function paintStatic() {
     var c = bx; rect(c, 0, 0, W, H, 'night');
     rect(c, 0, 1, W, 1, 'ink');                                      // the lantern string
@@ -36,7 +48,8 @@
     for (var x = 4; x < W; x += 12) rect(c, x, 70, 4, 1, 'timber');
     for (var x2 = 10; x2 < W; x2 += 12) rect(c, x2, 78, 4, 1, 'timber');
     rect(c, 0, H - 1, W, 1, 'ink');
-    for (var i = 0; i < 6; i++) { var x0 = i * SLOT, y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
+    var nDraw = onQuay() ? 2 : 6;
+    for (var i = 0; i < nDraw; i++) { var x0 = stallX(i), y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
   }
   function stallShut(c, x0, y0) {
     rect(c, x0 + 5, y0 + 13, 54, 42, 'mute');                       // a lighter rim so a shuttered stall has an edge on the night
@@ -44,7 +57,8 @@
     for (var y = y0 + 17; y < y0 + 52; y += 4) rect(c, x0 + 8, y, 48, 1, 'mute');
   }
   function stallOpen(c, i, x0, y0) {
-    var s = STRIPE[look(st().stalls[i].owned)];
+    var ownedNow = slotAt(i);
+    var s = STRIPE[look(ownedNow ? ownedNow.owned : 0)];
     rect(c, x0 + 7, y0 + 14, 3, 30, 'timber'); rect(c, x0 + 54, y0 + 14, 3, 30, 'timber');   // posts
     rect(c, x0 + 7, y0 + 14, 1, 30, 'amber');                                                 // lit from the upper left
     box(c, x0 + 3, y0 + 6, 58, 10, 'amber');                                                  // awning
@@ -54,7 +68,12 @@
     rect(c, x0 + 5, y0 + 37, 54, 1, 'wash'); rect(c, x0 + 5, y0 + 48, 54, 1, 'timber'); rect(c, x0 + 58, y0 + 37, 1, 12, 'timber');
     var cx0 = x0 + 32, cy = y0 + 36;                                                          // what the stall sells, on the counter
     if (i === 0) { box(c, cx0 - 4, cy - 6, 8, 6, 'amber'); rect(c, cx0 + 4, cy - 4, 2, 1, 'ink'); box(c, cx0 + 9, cy - 4, 4, 4, 'wash'); box(c, cx0 - 13, cy - 4, 4, 4, 'wash'); }
-    if (i === 1) { box(c, cx0 - 6, cy - 4, 12, 4, 'rule'); box(c, cx0 - 5, cy - 7, 10, 3, 'rule'); }
+    if (i === 1 && onQuay()) {
+      box(c, cx0 - 8, cy - 6, 16, 6, 'amber');
+      rect(c, cx0 - 6, cy - 8, 4, 2, 'lamp');
+      rect(c, cx0 + 2, cy - 9, 3, 3, 'lamp');
+      box(c, cx0 + 8, cy - 5, 4, 5, 'wash');
+    } else if (i === 1) { box(c, cx0 - 6, cy - 4, 12, 4, 'rule'); box(c, cx0 - 5, cy - 7, 10, 3, 'rule'); }
     if (i === 2) { rect(c, cx0 - 1, cy - 14, 1, 14, 'timber'); rect(c, cx0 + 10, cy - 14, 1, 14, 'timber'); }
     if (i === 3) { for (var m = 0; m < 3; m++) box(c, cx0 - 10 + m * 7, cy - 4, 5, 4, 'lamp'); }
     if (i === 4) { box(c, cx0 - 4, cy - 4, 8, 4, 'timber'); rect(c, cx0 - 1, cy - 9, 1, 5, 'mute'); rect(c, cx0 + 2, cy - 8, 1, 4, 'mute'); }
@@ -65,9 +84,10 @@
   function makeLanterns() {
     lanterns = [];
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
-    for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
+    var nLamp = onQuay() ? 2 : 6;
+    for (var i = 0; i < nLamp; i++) lanterns.push({ x: stallX(i) + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
-  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
+  function nightEnded() { var s = st(); if (!s || onQuay()) return false; return !!(s.stalls[5] && s.stalls[5].owned >= 10); }
   function finaleClock(now) {
     if (!nightEnded()) { finaleStart = 0; return null; }
     if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -94,6 +114,7 @@
   /* Chapters 5 to 9 each light one more overhead lantern with the existing halo,
      so a Story Mat that barely changes income still changes the lane. */
   function chapterGlow() {
+    if (onQuay()) return 0;
     var s = st();
     var owned = s && s.stalls[5] ? s.stalls[5].owned : 0;
     if (owned < 5 || owned >= 10) return 0;
@@ -143,7 +164,7 @@
     c.on = true; c.i = i; c.f = 0; return true;
   }
   function drawCoin(c) {
-    var x = c.i * SLOT + 30, y = TOP + 31 - [0, 2, 4, 6][c.f];
+    var x = stallX(c.i) + 30, y = TOP + 31 - [0, 2, 4, 6][c.f];
     if (c.f === 3) { rect(cx, x + 1, y + 1, 3, 1, 'lamp'); rect(cx, x + 2, y, 1, 3, 'lamp'); return; }  // the sparkle
     box(cx, x, y, 5, 5, 'lamp'); rect(cx, x + 1, y + 1, 1, 1, 'wash');
   }
@@ -151,7 +172,7 @@
   /* ---- effect 3: steam ---- */
   function drawSteam(i) {
     var col = STEAM[i]; if (!col || !busy(i)) return;
-    var bx0 = i * SLOT + 31, by = TOP + 30, t = reduce ? 0 : Math.floor(ticks * TICK / 166);
+    var bx0 = stallX(i) + 31, by = TOP + 30, t = reduce ? 0 : Math.floor(ticks * TICK / 166);
     for (var p = 0; p < 3; p++) {
       var f = (t + p * 2 + i) % 6, sz = [3, 3, 2, 2, 1, 1][f];
       rect(cx, bx0 + Math.floor(f / 2), by - f * 2 - p, sz, sz, col);
@@ -164,7 +185,7 @@
     flashes.push({ i: i, m: !!milestone, f: 0 });
   }
   function drawFlash(F) {
-    var x = F.i * SLOT, y = TOP - 1, w = SLOT, h = 56, col = F.m ? 'good' : 'lamp', last = F.m ? 3 : 1;
+    var x = stallX(F.i), y = TOP - 1, w = SLOT, h = 56, col = F.m ? 'good' : 'lamp', last = F.m ? 3 : 1;
     if (F.f >= last) return;
     rect(cx, x, y, w, 1, col); rect(cx, x, y + h - 1, w, 1, col); rect(cx, x, y, 1, h, col); rect(cx, x + w - 1, y, 1, h, col);
     if (F.m && F.f === 1) [[x, y], [x + w - 1, y], [x, y + h - 1], [x + w - 1, y + h - 1]].forEach(function (q) {
@@ -179,7 +200,7 @@
   function walkerCap() {
     if (reduce) return 0;
     var owned = 0;
-    for (var i = 0; i < 6; i++) if (open(i)) owned += st().stalls[i].owned;
+    for (var i = 0; i < (onQuay() ? 2 : 6); i++) { var row = slotAt(i); if (open(i) && row) owned += row.owned; }
     for (var k = 0; k < BUSY.length; k++) if (owned >= BUSY[k][0]) return BUSY[k][1];
     return 0;
   }
@@ -201,7 +222,8 @@
     var s = st();
     coins.forEach(function (c) { if (c.on && ++c.f > 3) c.on = false; });
     flashes.forEach(function (F) { F.f++; }); flashes = flashes.filter(function (F) { return F.f < (F.m ? 4 : 2); });
-    s.stalls.forEach(function (t, i) {                                                          // hired stalls: a visual coin every 2 s
+    var rows = onQuay() ? s.quay : s.stalls;
+    rows.forEach(function (t, i) {                                                          // hired stalls: a visual coin every 2 s
       if (!(t.hired && t.owned > 0 && open(i))) return;
       if (coinAt[i] === undefined) coinAt[i] = ticks + 2 + i * 3;
       if (ticks >= coinAt[i]) { pop(i); coinAt[i] = ticks + 16; }
@@ -212,11 +234,14 @@
     var cap = walkerCap(); if (!nightEnded() && walkers.length < cap && ticks >= nextWalker) spawn();
     if (momentOn()) walkers = [];
   }
+  var lampMode = '';
   function draw(now) {
+    var mode = onQuay() ? 'q' : 'h';
+    if (mode !== lampMode) { lampMode = mode; makeLanterns(); }
     var g = signature(); if (g !== sig) { sig = g; paintStatic(); }
     cx.drawImage(bg, 0, 0);
     lanterns.forEach(function (L, index) { drawLantern(L, index, now); });
-    for (var i = 0; i < 6; i++) drawSteam(i);
+    for (var i = 0; i < (onQuay() ? 2 : 6); i++) drawSteam(i);
     walkers.forEach(drawWalker);
     if (momentOn(now)) drawMoment();
     coins.forEach(function (c) { if (c.on) drawCoin(c); });

@@ -165,6 +165,16 @@ button[aria-pressed="true"], button.ask, button.best {
 .away .payout { margin: 0.1rem 0 0.35rem; font-size: 1.7rem; line-height: 1.15; color: var(--good); font-variant-numeric: tabular-nums; }
 .away p { margin: 0.3rem 0; }
 .away button { min-height: 44px; }
+#move { margin-top: 0.6rem; border: 1px solid var(--amber); background: #fbf6ec; padding: 0.8rem 0.85rem 0.9rem; }
+#move h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
+#move p { margin: 0.3rem 0; }
+#move button { min-height: 44px; }
+#move[hidden] { display: none; }
+.book { margin-top: 1.1rem; color: var(--ink); }
+.book summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; color: var(--good); }
+.book > summary::before { content: "▸"; display: inline-block; width: 1.1em; }
+.book[open] > summary::before { content: "▾"; }
+.book-body p { margin: 0.35rem 0; }
 .save { margin-top: 1.1rem; color: var(--mute); }
 /* Playtest fix: the save box's controls look and work like the rest of the buttons */
 .save .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.35rem 0.75rem;
@@ -263,7 +273,8 @@ button[aria-pressed="true"], button.ask, button.best {
   #finale:not([hidden]) { padding: 0.4rem 0.75rem 0.45rem; }
   #finale:not([hidden]) h2 { margin-bottom: 0.2rem; font-size: 1.35rem; }
   #finale:not([hidden]) p { margin-bottom: 0.4rem; }
-  .save { grid-column: 1 / -1; grid-row: 8; }
+  .book { grid-column: 1 / -1; grid-row: 8; margin-top: 0.2rem; }
+  .save { grid-column: 1 / -1; grid-row: 9; }
   .scene { margin-bottom: 0.25rem; }
   .bulk { margin-top: 0; flex-wrap: nowrap; gap: 0.15rem; }
   .bulk-name { position: static; width: auto; height: auto; min-height: 0; padding: 0 0.15rem 0 0; margin: 0; overflow: visible; clip: auto; font-size: 16px; line-height: 1; white-space: nowrap; border: 0; }
