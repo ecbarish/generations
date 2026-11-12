@@ -539,6 +539,29 @@ document.querySelector('#run').onclick = async function () {
     var pilotBoats = M.income(payOffice('pilot'));
     var chartBoats = M.income(payOffice('chart'));
     check('a bought chart pays the boats and a pilot brings the risky cargo back', chartBoats > pilotBoats && /still lose cargo/.test(M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0].choice[0].line));
+    function sideGain(risky, which) {
+      var s = M.fresh();
+      s.trips = 3;
+      s.boats[0].owned = 40;
+      s.boats[1].owned = 20;
+      s.boats[2].owned = 16;
+      s.boats[3].owned = 12;
+      s.routes.kelp = 2;
+      s.routeGross.kelp = 5000;
+      if (risky) {
+        s.routes.gull = 2;
+        s.routes.night = 1;
+        s.routeGross.gull = 8000;
+        s.routeGross.night = 6000;
+        s.routeCut.gull = 3600;
+        s.routeCut.night = 2160;
+        s.nightLeak = 0.12;
+      }
+      var before = M.officeRate(s);
+      s.prepDone = { pilot: which };
+      return M.officeRate(s) - before;
+    }
+    check('the chart wins when the routes are safe, and the pilot wins when cargo is still being lost', sideGain(false, 'chart') > sideGain(false, 'pilot') && sideGain(true, 'pilot') > sideGain(true, 'chart'));
     var jobs = M.preset('lamps');
     jobs.played = 1000;
     jobs.cash = 1e15;
@@ -581,6 +604,44 @@ document.querySelector('#run').onclick = async function () {
     var organic = SaltmarshPacing.organicRun(M, P);
     check('a normal office lights the first tower within 8 minutes and still reaches the ending (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, gap ' + organic.voyageGap + 's, misses ' + organic.missedCheap + ')', organic.firstLight > 0 && organic.firstLight <= 480 && organic.fourLights > organic.firstLight && organic.endingAt >= 720 && organic.endingAt <= 1560 && organic.voyageGap <= 90 && organic.missedCheap === 0);
     check('season 1 keeps the first light near 5 minutes and the ending between 12 and 14 minutes (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight >= 250 && organic.firstLight <= 400 && organic.endingAt >= 720 && organic.endingAt <= 840);
+    (function () {
+      var state = M.fresh();
+      var sim = 1700000000000;
+      var seen = '';
+      var ready = null;
+      var buys = [];
+      var sec;
+      for (sec = 1; sec <= 2000 && !state.ended; sec++) {
+        sim += 1000;
+        state.played = sec;
+        M.addCash(state, M.officeRate(state));
+        M.collectCaptains(state, sim, 1);
+        var act = SaltmarshPacing.goalAction(M, P, state, sim);
+        if (!act || !act.affordable) continue;
+        if (act.id !== seen) { seen = act.id; ready = null; }
+        if (ready == null) ready = sec;
+        if (sec - ready < 2) continue;
+        var rate = M.officeRate(state);
+        var choice = act.id.indexOf('desk:') === 0 || act.id === 'prep:victuals' || act.id === 'prep:pilot';
+        act.buy();
+        buys.push({ t: sec, key: act.id.split(':').slice(0, 2).join(':'), flat: !choice && Math.abs(M.officeRate(state) - rate) <= 0.05 });
+        seen = '';
+        ready = null;
+      }
+      var worst = 0;
+      var where = '';
+      var runT = 0;
+      var runKey = '';
+      buys.forEach(function (b) {
+        if (b.flat && b.key === runKey) {
+          if (b.t - runT > worst) { worst = b.t - runT; where = b.key; }
+        } else {
+          runKey = b.flat ? b.key : '';
+          runT = b.t;
+        }
+      });
+      check('no stretch longer than a minute is only the same buy with no new pay or choice (' + worst + 's ' + where + ')', worst <= 60);
+    })();
     var years = SaltmarshPacing.seasonRun(M, P);
     var secondOffice = years.second && years.second.state;
     check('year 2 meets Ives, signs Frost Lane, and lights the Glass Lighthouse', years.began && secondOffice && secondOffice.routes.frost >= 1 && secondOffice.lights.glass >= 2 && secondOffice.partner === 'ives' && secondOffice.ledger.length >= 1);
@@ -624,7 +685,37 @@ document.querySelector('#run').onclick = async function () {
     frostDesk.winter = 'wool';
     frostDesk.captains[0].hired = true;
     frostDesk.cash = 1e9;
-    check('when the goal names Frost Lane the card is that route', /Frost Lane/.test(P.goal(frostDesk)) && P.target(frostDesk).indexOf('frost') >= 0);
+    check('when another route pays more than Frost the hint names that route, and Frost is a storm shelter', (function () {
+      var s = M.fresh();
+      s.year = 2;
+      s.trips = 3;
+      s.boats[0].owned = 80;
+      s.boats[1].owned = 40;
+      s.boats[2].owned = 20;
+      s.boats[3].owned = 10;
+      s.reputation = 4;
+      s.partner = 'ives';
+      s.winter = 'wool';
+      s.captains[0].hired = true;
+      s.lights.glass = 2;
+      s.cash = 1e15;
+      var frost = null;
+      var best = null;
+      M.routeOffers(s, false).forEach(function (row) {
+        if (row.id === 'frost') frost = row;
+        else if (!best || row.gain > best.gain) best = row;
+      });
+      var goal = P.goal(s);
+      return !!frost && !!best && best.gain > frost.gain && goal.indexOf(best.name) >= 0 && /pays poorly/.test(frost.line) === false && /storm/.test(frost.line);
+    })());
+    var liveSloops = M.fresh();
+    liveSloops.trips = 3;
+    liveSloops.boats[0].owned = 40;
+    liveSloops.boats[1].owned = 5;
+    liveSloops.captains[0].hired = true;
+    liveSloops.forks.sloop = 'fit';
+    var liveSloopGoal = P.goal(liveSloops);
+    check('a sloop goal counts the boats still to buy, from the ones already tied up (' + liveSloopGoal.slice(0, 72) + ')', /5 more sloops/.test(liveSloopGoal) && /5 already tied up/.test(liveSloopGoal));
     var reedOffice = M.fresh();
     reedOffice.trips = 3;
     reedOffice.boats[0].owned = 40;
@@ -756,7 +847,7 @@ document.querySelector('#run').onclick = async function () {
     quayState.routes.gull = 1;
     quayState.forks = { sloop: null, schooner: null, quay: 'lamp' };
     var quayDark = M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]);
-    check('a dark Quay lighthouse names every unlock that is still shut', quayDark.indexOf('Sign 2 more routes') >= 0 && quayDark.indexOf('four routes are sailing') >= 0 && quayDark.indexOf('The house lamp lights at 16 barks, 16 to go.') >= 0);
+    check('a dark Quay lighthouse names the lamp from the real number, ahead of the choice', quayDark.indexOf('The house lamp lights at ' + M.BARK_LAMP + ' barks') === 0 && quayDark.indexOf('four routes are sailing') >= 0);
     quayState.boats[3].owned = 7;
     check('the quay count moves when barks are bought', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]).indexOf('The house lamp lights at 16 barks, 9 to go.') >= 0);
     quayState.boats[3].owned = 0;
@@ -3522,6 +3613,152 @@ document.querySelector('#run').onclick = async function () {
     }
     await awayModal(390, 844);
     await awayModal(320, 568);
+    async function phoneFindings(width, height) {
+      var box = await loadFrame('phone round ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e15;
+      st.boats[0].owned = 40;
+      st.boats[1].owned = 16;
+      st.boats[2].owned = 12;
+      st.boats[3].owned = 8;
+      st.routes = { kelp: 1, gull: 1, tea: 1, headland: 1, reed: 0, night: 0 };
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      st.captains[0].hired = true;
+      st.captains[1].hired = true;
+      st.captains[2].hired = true;
+      win.__saltmarsh.render();
+      var offsets = [];
+      Array.prototype.forEach.call(doc.querySelectorAll('#route-cards .route-card'), function (card) {
+        var btn = card.querySelector('button');
+        if (!btn) return;
+        var cardBox = card.getBoundingClientRect();
+        var btnBox = btn.getBoundingClientRect();
+        offsets.push(Math.round(btnBox.top - cardBox.top));
+      });
+      var offsetGap = offsets.length ? Math.max.apply(null, offsets) - Math.min.apply(null, offsets) : 99;
+      check('at ' + width + ' Sign sits at the same place on every route card (' + offsets.join(', ') + ')', offsets.length >= 3 && offsetGap < 3);
+      st.routes = { kelp: 4, gull: 4, tea: 4, headland: 4, reed: 4, night: 3 };
+      win.__saltmarsh.render();
+      var routeRow = doc.querySelector('#route-cards');
+      var beforeH = routeRow.getBoundingClientRect().height;
+      var nightBtn = doc.querySelector('#route-cards [data-route="night"] button');
+      if (nightBtn) nightBtn.click();
+      var afterH = doc.querySelector('#route-cards').getBoundingClientRect().height;
+      var nightStill = doc.querySelector('#route-cards [data-route="night"]');
+      check('at ' + width + ' the last Night Cut sign keeps the route slot (' + Math.abs(afterH - beforeH).toFixed(1) + 'px)', nightStill && Math.abs(afterH - beforeH) < 3);
+      var locked = doc.querySelector('#goal').textContent;
+      st.cash += win.Saltmarsh.officeRate(st) * 8;
+      win.__saltmarsh.render();
+      check('at ' + width + ' an income tick does not retarget the hint', doc.querySelector('#goal').textContent === locked);
+      st.boats[3].owned = 20;
+      st.captains[3].hired = false;
+      win.__saltmarsh.view.pellClosed = false;
+      win.scrollTo(0, 0);
+      win.__saltmarsh.render();
+      var banner = doc.querySelector('#pell-banner').getBoundingClientRect();
+      var settings = doc.querySelector('.arc-set-btn').getBoundingClientRect();
+      var bark = doc.querySelector('#boats [data-i="3"] [data-act="buy"]');
+      var barkBox = bark ? bark.getBoundingClientRect() : null;
+      function covers(a, b) {
+        return a && b && a.height > 4 && b.height > 4 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      }
+      var setHit = doc.elementFromPoint(settings.left + settings.width / 2, Math.min(height - 2, Math.max(2, settings.top + settings.height / 2)));
+      var barkHit = barkBox ? doc.elementFromPoint(barkBox.left + barkBox.width / 2, Math.min(height - 2, Math.max(2, barkBox.top + barkBox.height / 2))) : null;
+      check('at ' + width + ' Capt. Pell does not cover Settings or the bark buy', banner.height > 4 && !covers(banner, settings) && !(setHit && setHit.closest && setHit.closest('#pell-banner')) && (!barkBox || barkBox.bottom < 0 || barkBox.top > height || (!covers(banner, barkBox) && barkHit && (barkHit === bark || bark.contains(barkHit)))));
+      st.year = 2;
+      st.partner = null;
+      st.lights.glass = 2;
+      st.routes.frost = 1;
+      st.cash = 1e15;
+      win.__saltmarsh.view.choiceShut = false;
+      win.__saltmarsh.render();
+      var fold = doc.querySelector('#choice-fold');
+      if (fold) fold.click();
+      var choice = doc.querySelector('#choice');
+      var choiceH = choice.getBoundingClientRect().height;
+      check('at ' + width + ' a hidden choice leaves no strip (' + Math.round(choiceH) + 'px)', choice.hidden === true && choiceH < 2);
+      st.year = 1;
+      st.ended = true;
+      win.__saltmarsh.render();
+      var titleEl = doc.querySelector('#ending h2');
+      var title = titleEl.getBoundingClientRect();
+      var begin = doc.querySelector('#new-harbour .year-primary');
+      var beginBox = begin ? begin.getBoundingClientRect() : null;
+      var purse = doc.querySelector('#purse').getBoundingClientRect();
+      var titleHit = doc.elementFromPoint(title.left + title.width / 2, title.top + title.height / 2);
+      var beginHit = beginBox ? doc.elementFromPoint(beginBox.left + beginBox.width / 2, beginBox.top + beginBox.height / 2) : null;
+      check('at ' + width + ' the ending title and Begin year 2 are on screen', title.top >= 0 && title.bottom <= height && beginBox && beginBox.top >= 0 && beginBox.bottom <= height + 1 && beginBox.height >= 44 && titleEl.contains(titleHit) && begin.contains(beginHit));
+    }
+    await phoneFindings(390, 844);
+    await phoneFindings(320, 568);
+    async function hintStays() {
+      var box = await loadFrame('hint stays', '&state=fleet');
+      box.style.width = '1280px';
+      box.style.height = '800px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      st.trips = 3;
+      st.cash = 0;
+      st.boats[0].owned = 40;
+      st.boats[1].owned = 16;
+      st.boats[2].owned = 12;
+      st.routes.kelp = 1;
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      st.captains[0].hired = true;
+      st.captains[1].hired = true;
+      st.captains[2].hired = true;
+      win.__saltmarsh.render();
+      var card = doc.querySelector('#light-cards [data-light="pier"]');
+      var button = card.querySelector('button');
+      var beforeTop = card.getBoundingClientRect().top + (win.scrollY || 0);
+      var beforeH = card.getBoundingClientRect().height;
+      doc.querySelector('#goal').click();
+      await new Promise(function (resolve) { setTimeout(resolve, 1000); });
+      var after = card.getBoundingClientRect();
+      var afterTop = after.top + (win.scrollY || 0);
+      check('a hint that scrolls to Raise leaves the card where it was (' + Math.abs(after.height - beforeH).toFixed(1) + 'px, move ' + Math.abs(afterTop - beforeTop).toFixed(1) + 'px)', Math.abs(after.height - beforeH) < 2 && Math.abs(afterTop - beforeTop) < 2 && /Raise/.test(button.textContent));
+      st.year = 2;
+      st.boats[1].owned = 5;
+      st.boats[2].owned = 0;
+      st.routes.frost = 1;
+      st.reputation = 4;
+      win.__saltmarsh.render();
+      var above = doc.querySelector('#boats [data-i="1"]');
+      var aboveTop = above.getBoundingClientRect().top + (win.scrollY || 0);
+      st.boats[1].owned = 6;
+      win.__saltmarsh.render();
+      var aboveNow = doc.querySelector('#boats [data-i="1"]').getBoundingClientRect().top + (win.scrollY || 0);
+      var schooner = doc.querySelector('#boats [data-i="2"]');
+      check('a new Schooner row does not push the sloop (' + Math.abs(aboveNow - aboveTop).toFixed(1) + 'px)', schooner && Math.abs(aboveNow - aboveTop) < 2);
+      st.boats[3].owned = 20;
+      st.captains[3].hired = false;
+      st.events = { squall: 'sail', request: 'grant', windfall: 'stow' };
+      st.pilot = 'bell';
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      win.__saltmarsh.view.pellClosed = false;
+      win.__saltmarsh.render();
+      var pell = doc.querySelector('#pell-banner').getBoundingClientRect();
+      var choice = doc.querySelector('#choice').getBoundingClientRect();
+      var coveredBuy = false;
+      Array.prototype.forEach.call(doc.querySelectorAll('#boats [data-act="buy"]'), function (buy) {
+        if (buy.hidden || buy.offsetParent === null) return;
+        var rect = buy.getBoundingClientRect();
+        if (rect.height < 4) return;
+        function hit(box) {
+          return box.height > 4 && box.left < rect.right - 1 && box.right > rect.left + 1 && box.top < rect.bottom - 1 && box.bottom > rect.top + 1;
+        }
+        if (hit(pell) || (doc.querySelector('#choice').hidden === false && hit(choice))) coveredBuy = true;
+      });
+      check('at 1280 a banner and a choice do not cover a buy', coveredBuy === false);
+    }
+    await hintStays();
     async function routeGoalScroll() {
       var box = await loadFrame('route goal', '&state=fleet');
       box.style.width = '320px';

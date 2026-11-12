@@ -113,22 +113,47 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 }
 .ask { background: var(--lamp); }
 .pell-banner {
-  position: fixed;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  top: 7.4rem;
+  position: static;
+  z-index: 1;
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   width: 100%;
-  max-width: 100%;
   box-sizing: border-box;
-  margin: 0;
-  padding: 0.7rem 0.85rem;
+  margin: 0.35rem 0;
+  padding: 0.35rem 0.6rem;
   background: var(--panel);
   border: 1px solid var(--ink);
-  box-shadow: 0 8px 20px rgba(35, 57, 76, 0.18);
 }
-.pell-banner p { margin: 0 0 0.45rem; }
-.pell-banner button { width: 100%; }
+.pell-banner p { margin: 0; flex: 1 1 auto; }
+.pell-banner button { width: auto; flex: 0 0 auto; min-height: 44px; }
+@media (min-width: 900px) {
+  .pell-banner {
+    position: fixed;
+    top: 7.4rem;
+    right: 0.6rem;
+    left: auto;
+    width: 16rem;
+    max-width: 16rem;
+    display: block;
+    box-shadow: 0 8px 20px rgba(35, 57, 76, 0.18);
+  }
+  .pell-banner button { width: 100%; }
+}
+@media (max-width: 899px) and (min-height: 500px) {
+  #office:not([data-phase="dock"]) #pell-banner {
+    display: flex !important;
+    min-height: 3.4rem;
+  }
+  #office:not([data-phase="dock"]) #pell-banner[hidden] {
+    visibility: hidden;
+  }
+}
+.pell-banner p { margin: 0; }
+@media (min-width: 900px) {
+  .pell-banner button { width: 100%; }
+}
 /* The welcome names a choice already on the desk, so it has to sit above that sheet. */
 .away-back:not([hidden]) {
   position: fixed;
@@ -371,7 +396,7 @@ html { scroll-padding-top: 6.5rem; }
 .ending { background: var(--water); color: var(--mist); }
 #ending.ending:not([hidden]) {
   position: fixed;
-  z-index: 8;
+  z-index: 12;
   left: 0;
   right: 0;
   top: 0;
@@ -379,8 +404,17 @@ html { scroll-padding-top: 6.5rem; }
   margin: 0;
   max-height: none;
   overflow: auto;
-  padding: 1.2rem 1rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 0.6rem;
+  scroll-padding-top: 0.5rem;
 }
+#ending #new-harbour { order: 2; flex: 0 0 auto; }
+#ending #ending-lead { order: 3; flex: 0 1 auto; max-height: 4.8rem; overflow: auto; }
+#ending #ending-stats,
+#ending h3,
+#ending #credits { order: 4; }
+#ending #credits { overflow: auto; flex: 1 1 auto; min-height: 0; }
 .ending h2, .ending h3 { color: var(--lamp); }
 .ending li, .ending p { color: var(--mist); }
 .ending button { background: var(--sand); color: var(--ink); }
@@ -486,15 +520,55 @@ html { scroll-padding-top: 6.5rem; }
   .boat .facts,
   .boat .wait { display: none; }
   #choice.choice {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 4.6rem;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
     max-height: 11rem;
+    margin: 0;
     overflow: auto;
+    box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
   }
   #choice .choice-card .habit { display: block; }
   #choice h2 { font-size: 1rem; margin: 0 0 0.25rem; }
   .light-card[data-stage="2"] .habit { display: none; }
   #fleet, #sheds, #settled { display: none; }
-  .route-card, .light-card { height: auto; min-height: 0; overflow: visible; }
-  #route-gear { height: 12rem; min-height: 12rem; max-height: 12rem; overflow-x: auto; overflow-y: hidden; }
+  #route-cards {
+    height: 17.5rem;
+    align-items: stretch;
+  }
+  #route-cards .route-card {
+    height: 17.5rem;
+    min-height: 17.5rem;
+    max-height: 17.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #route-cards .route-card .habit {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+  #route-cards .route-card .actions {
+    margin-top: auto;
+    flex: 0 0 auto;
+  }
+  #light-cards {
+    height: auto;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  #light-cards .light-card .actions,
+  #light-cards .light-card .actions button {
+    height: auto;
+    max-height: none;
+    white-space: normal;
+  }
 }
 @media (max-width: 420px) {
   .goalbar .aim { display: none; }
@@ -511,7 +585,12 @@ html { scroll-padding-top: 6.5rem; }
 }
 .goalbar #goal::after { content: '  \203A'; }
 .goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
-.goal-target { box-shadow: inset 0 0 0 3px var(--lamp); }
+.goal-target { box-shadow: inset 0 0 0 3px var(--lamp); outline: none; }
+.boat.closed .actions button[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+.boat .actions { min-height: 44px; }
 #choice-back.choice-back { display: none !important; }
 #choice.choice {
   position: fixed;
@@ -550,15 +629,18 @@ html { scroll-padding-top: 6.5rem; }
 }
 #route-gear {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   height: 12rem;
   min-height: 12rem;
   max-height: 12rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  overflow: hidden;
+  box-sizing: border-box;
 }
+#route-gear h3 { margin: 0.1rem 0; }
+#route-gear .actions { margin-top: auto; }
+#route-gear .actions button { min-height: 44px; height: auto; }
 #route-gear .sail-card {
   flex: 0 0 100%;
   width: 100%;
@@ -579,7 +661,19 @@ html { scroll-padding-top: 6.5rem; }
     width: 100%;
     max-width: 100%;
   }
-  #choice.choice { max-height: 11rem; }
+  #choice.choice {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 4.6rem;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    max-height: 11rem;
+    margin: 0;
+    box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+  }
   #choice .choice-card .habit { font-size: 0.78rem; line-height: 1.2; }
   #choice .choice-bar { position: sticky; top: 0; background: var(--panel); z-index: 1; }
   #choice.choice.is-shut {
@@ -639,10 +733,16 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .window button, .window .home, .window .foot a, .window .btn { min-height: 44px; }
   .window .row, .window .ask { min-height: 64px; }
 }
-#route-cards .route-card .actions,
-#light-cards .light-card .actions {
+#route-cards .route-card .actions {
   min-height: 44px;
   height: 44px;
+}
+#light-cards .light-card .actions,
+#light-cards .light-card .actions button {
+  min-height: 44px;
+  height: auto;
+  max-height: none;
+  white-space: normal;
 }
 #provision-cards { min-height: 7.2rem; }
 #provision-note, #provision-title { min-height: 2.9em; }

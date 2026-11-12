@@ -139,11 +139,12 @@
     function boatAct() {
       var chunk = M.boatChunk ? M.boatChunk(state) : null;
       if (!chunk) return null;
-      var noun = chunk.count === 1 ? chunk.name.toLowerCase() : chunk.name.toLowerCase() + 's';
+      var have = state.boats[chunk.tier] ? state.boats[chunk.tier].owned : 0;
+      var noun = chunk.count === 1 ? 'one more ' + chunk.name.toLowerCase() : chunk.count + ' more ' + chunk.name.toLowerCase() + 's';
       return {
         kind: 'boat', id: 'boat', tier: chunk.tier, count: chunk.count, rank: 2, cost: chunk.cost,
         selector: '#boats [data-i="' + chunk.tier + '"]',
-        sentence: withNeed(state, 'Buy ' + chunk.count + ' ' + noun + ', ' + M.coins(chunk.cost), chunk.cost)
+        sentence: withNeed(state, 'Buy ' + noun + '. ' + have + ' already tied up', chunk.cost)
       };
     }
     function workAct() {
@@ -261,7 +262,7 @@
         add({
           kind: 'boat', tier: 3, count: 1, id: 'bark', cost: bark.cost, gain: M.marginalRate(state, 3), progress: true,
           selector: '#boats [data-i="3"]',
-          sentence: withNeed(state, 'Buy a bark. ' + lampLeft + ' to the house lamp', bark.cost)
+          sentence: withNeed(state, 'Buy a bark. ' + lampLeft + (lampLeft === 1 ? ' bark' : ' barks') + ' still to tie up before the house lamp', bark.cost)
         });
       }
     }
@@ -306,6 +307,16 @@
         sentence: choiceGoal(state)
       });
     }
+    if (state._hintLock) {
+      var lock = state._hintLock;
+      var kept = null;
+      steps.forEach(function (step) {
+        var tier = step.tier == null ? '' : step.tier;
+        var lockTier = lock.tier == null ? '' : lock.tier;
+        if (step.kind === lock.kind && String(step.id || '') === String(lock.id || '') && String(tier) === String(lockTier)) kept = step;
+      });
+      if (kept) return within(kept);
+    }
     function soonest(list) {
       var best = null;
       list.forEach(function (step) {
@@ -331,8 +342,16 @@
       });
       /* A winter price that is more than a few seconds away does not block a boat
          the purse can already buy. */
-      if (winterRoute && winterRoute.wait <= 15) return winterRoute;
       if (winterLight && winterLight.wait <= 15) return winterLight;
+      if (winterRoute && winterRoute.wait <= 15) {
+        var richerRoute = null;
+        steps.forEach(function (step) {
+          if (step === winterRoute || step.kind !== 'route' || step.wait > 15) return;
+          if (step.gain > winterRoute.gain) richerRoute = step;
+        });
+        if (richerRoute) return richerRoute;
+        return winterRoute;
+      }
       if (M.glassBurning(state) && winterPrep && winterPrep.wait <= 15) return winterPrep;
       [winterRoute, winterLight].forEach(function (step) {
         var at = step ? steps.indexOf(step) : -1;
@@ -453,10 +472,14 @@
         var sloopAll = M.quote(state, 1, left).cost;
         var sloopOne = M.quote(state, 1, 1).cost;
         var sloopRate = Math.max(1, M.officeRate(state));
+        var haveSloops = state.boats[1].owned;
+        var sloopAsk = left === 1 ? 'one more sloop' : left + ' more sloops';
+        if (haveSloops <= 0) sloopAsk = left === 1 ? 'a sloop' : left + ' sloops';
+        var sloopLive = haveSloops > 0 ? '. ' + haveSloops + ' already tied up' : '';
         if (left > 1 && Math.ceil(Math.max(0, sloopAll - state.cash) / sloopRate) > 15) {
-          return withNeed(state, 'Buy a sloop', sloopOne);
+          return withNeed(state, 'Buy ' + (haveSloops > 0 ? 'one more sloop' : 'a sloop') + sloopLive, sloopOne);
         }
-        return withNeed(state, 'Buy ' + (left === 1 ? 'a sloop' : left + ' sloops'), sloopAll);
+        return withNeed(state, 'Buy ' + sloopAsk + sloopLive, sloopAll);
       }
     }
     if (M.canHire(state, 1)) return M.askLine(1);

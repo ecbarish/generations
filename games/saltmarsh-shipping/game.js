@@ -134,6 +134,10 @@
       facts.textContent = '';
       showLine(wait, i === 0 ? 'Row three cargoes first.' : '');
       buy.hidden = true;
+      if (view.boatSlot && window.innerWidth >= 900) {
+        li.style.boxSizing = 'border-box';
+        li.style.minHeight = view.boatSlot + 'px';
+      }
       return;
     }
     var rate = M.production(state, i);
@@ -149,6 +153,7 @@
     buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
     buy.dataset.count = String(priced.count || 0);
     buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
+    if (!view.boatSlot && li.offsetHeight > 0) view.boatSlot = li.offsetHeight;
   }
 
   function fillSheds() {
@@ -338,10 +343,17 @@
     var offer = M.deskChoice(state);
     if (!offer) {
       box.hidden = true;
+      box.classList.remove('is-shut');
       if (back) back.hidden = true;
       box.style.top = '';
       box.style.bottom = '';
       box.style.maxHeight = '';
+      return;
+    }
+    if (view.choiceShut) {
+      box.hidden = true;
+      box.classList.remove('is-shut');
+      if (back) back.hidden = true;
       return;
     }
     /* The sheet floats above the goal bar. placeStack moves it if it would cover a buy. */
@@ -482,15 +494,6 @@
           ? 'A price stays while that card is on the desk. Signing one does not raise the others.'
           : 'The next contract is not on the desk yet.';
     var host = $('#route-cards');
-    if (done && M.finaleOffer && M.finaleOffer(state)) {
-      if (host.dataset.sig !== 'folded') {
-        host.dataset.sig = 'folded';
-        host.replaceChildren();
-      }
-      var gearFold = $('#route-gear');
-      if (gearFold) gearFold.hidden = true;
-      return;
-    }
     var offerById = {};
     offers.forEach(function (offer) { offerById[offer.id] = offer; });
     var rows = [];
@@ -501,7 +504,7 @@
       var offer = offerById[spec.id] || null;
       var signed = (state.routes && state.routes[spec.id]) || 0;
       if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
-      else if (signed > 0 && (signed < spec.depths || spec.depths === 1)) {
+      else if (signed > 0) {
         var peek = signed < spec.depths ? M.peekRoute(state, spec) : null;
         if (peek) waitingLine.push(spec.name + ' ' + money(peek.cost) + ' after the current one');
         rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: signed < spec.depths });
@@ -678,12 +681,27 @@
     }
   }
 
+  function freshenRaises() {
+    var rate = Math.max(1, M.officeRate(state));
+    if (!state.lightQuotes) return;
+    var specs = M.LIGHTS.slice();
+    specs.forEach(function (spec) {
+      if ((state.lights[spec.id] || 0) > 0) return;
+      var held = state.lightQuotes[spec.id + ':0'];
+      if (!held) return;
+      var fair = rate * spec.wait;
+      if (state.cash >= held.cost * 0.9) return;
+      if (fair > held.cost * 1.2) held.cost = fair;
+    });
+  }
+
   function fillLights() {
     var box = $('#lights');
     if (!box) return;
     var phase = P.read(state);
     box.hidden = !phase.lighthousesOpen || state.ended;
     if (box.hidden) return;
+    freshenRaises();
     var offers = M.lightOffers(state, true);
     var burning = M.lightsLit(state);
     var lightNote = burning >= 4
@@ -763,6 +781,7 @@
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
     });
+    Array.prototype.forEach.call(host.querySelectorAll('.light-card'), holdCard);
   }
 
   function fillWork() {
@@ -1006,7 +1025,6 @@
           name.textContent = cap.name;
           names.appendChild(name);
         });
-        actions.appendChild(names);
         var yearBtn = document.createElement('button');
         yearBtn.type = 'button';
         yearBtn.className = 'year-primary';
@@ -1014,6 +1032,7 @@
         yearBtn.dataset.captain = String(picked);
         yearBtn.textContent = 'Begin year 2 with ' + M.CAPTAINS[picked].name;
         actions.appendChild(yearBtn);
+        actions.appendChild(names);
       }
       var bookBtn = document.createElement('button');
       bookBtn.type = 'button';
@@ -1097,15 +1116,23 @@
     var purseH = purse ? Math.ceil(purse.getBoundingClientRect().height) : 0;
     var back = $('#away-back');
     if (choiceOpen) {
+      choice.style.position = '';
       choice.style.top = 'auto';
       choice.style.bottom = (goalH + gap) + 'px';
-      choice.style.maxHeight = awayOpen ? '4.4rem' : '';
+      choice.style.maxHeight = awayOpen ? '4.4rem' : (narrow ? '11rem' : '');
       choice.style.zIndex = '7';
       if (narrow) {
         choice.style.left = '0';
         choice.style.right = '0';
         choice.style.transform = 'none';
         choice.style.width = '100%';
+      }
+      if (goal) {
+        var goalRect = goal.getBoundingClientRect();
+        var choiceRect = choice.getBoundingClientRect();
+        if (choiceRect.height > 4 && choiceRect.bottom > goalRect.top - 4) {
+          choice.style.maxHeight = Math.max(72, Math.floor(goalRect.top - 8 - choiceRect.top)) + 'px';
+        }
       }
     }
     if (awayOpen) {
@@ -1121,14 +1148,9 @@
       away.style.zIndex = '9';
     } else if (back) back.hidden = true;
     var pell = $('#pell-banner');
-    if (pell && !pell.hidden) {
-      pell.style.top = (purseH + 8) + 'px';
-      pell.style.left = '0';
-      pell.style.right = '0';
-      pell.style.transform = 'none';
-      pell.style.width = '100%';
-      pell.style.zIndex = '3';
-    }
+    if (pell && !pell.hidden) pell.style.zIndex = '1';
+    var ending = $('#ending');
+    if (ending && !ending.hidden) ending.style.paddingTop = '1rem';
     var office = $('#office');
     var pad = purseH + 10;
     if (window.innerHeight < 450) pad = Math.min(pad, 70);
@@ -1177,8 +1199,32 @@
       awayPlay.textContent = '50% while away, up to ' + Math.round(M.offlineCap(state) / 3600) + 'h.';
     }
     var goalEl = $('#goal');
+    var hintRoutes = state.routes || {};
+    var hintLights = state.lights || {};
+    var hintWorld = [
+      state.year || 1,
+      state.ended ? 1 : 0,
+      state.trips || 0,
+      (state.boats || []).map(function (b) { return b.owned || 0; }).join(','),
+      ['kelp', 'gull', 'tea', 'headland', 'reed', 'night', 'frost'].map(function (id) { return hintRoutes[id] || 0; }).join(','),
+      ['pier', 'headland', 'reed', 'quay', 'glass'].map(function (id) { return hintLights[id] || 0; }).join(','),
+      (state.captains || []).map(function (c) { return c && c.hired ? 1 : 0; }).join(''),
+      state.forks ? [(state.forks.sloop || ''), (state.forks.schooner || ''), (state.forks.quay || '')].join(',') : '',
+      state.partner || '',
+      state.prepDone ? Object.keys(state.prepDone).sort().join(',') : ''
+    ].join('|');
+    if (view.hintWorld !== hintWorld) {
+      view.hintLock = null;
+      view.hintWorld = hintWorld;
+    }
+    state._hintLock = view.hintLock;
+    var sentence = P.goal(state);
     var focusStep = P.bestStep ? P.bestStep(state) : null;
-    goalEl.textContent = P.goal(state);
+    if (!view.hintLock && focusStep && sentence === focusStep.sentence && focusStep.kind !== 'boat' && focusStep.kind !== 'row') {
+      view.hintLock = { kind: focusStep.kind, id: focusStep.id || '', tier: focusStep.tier == null ? '' : focusStep.tier };
+    }
+    state._hintLock = null;
+    goalEl.textContent = sentence;
     if (focusStep && goalEl.textContent === focusStep.sentence) {
       goalEl.dataset.step = focusStep.kind + ':' + (focusStep.id || '');
       goalEl.dataset.wait = String(focusStep.wait || 0);
@@ -1213,6 +1259,18 @@
     ask.hidden = askIndex < 0 || deskOpen;
     var pellBanner = $('#pell-banner');
     if (pellBanner) pellBanner.hidden = askIndex !== 3 || view.pellClosed || deskOpen;
+    if (pellBanner && !pellBanner.hidden) {
+      if (!view.pellTimer) {
+        view.pellTimer = setTimeout(function () {
+          view.pellTimer = 0;
+          view.pellClosed = true;
+          render();
+        }, 6000);
+      }
+    } else if (view.pellTimer) {
+      clearTimeout(view.pellTimer);
+      view.pellTimer = 0;
+    }
     if (askIndex >= 0 && !deskOpen) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
@@ -1579,12 +1637,14 @@
       return;
     }
     if (b.id === 'choice-fold') {
+      view.choiceShut = true;
       var sheet = $('#choice');
       if (sheet) {
-        sheet.classList.toggle('is-shut');
-        b.textContent = sheet.classList.contains('is-shut') ? 'Show' : 'Hide';
-        b.setAttribute('aria-expanded', sheet.classList.contains('is-shut') ? 'false' : 'true');
+        sheet.hidden = true;
+        sheet.classList.remove('is-shut');
       }
+      var foldBack = $('#choice-back');
+      if (foldBack) foldBack.hidden = true;
       placeStack();
       return;
     }
@@ -1894,6 +1954,14 @@
   }
   /* The phone rows are sideways. Bring the named card to the front of its row
      without scrolling the page, so the rowboat is not what you see for a sloop. */
+  function holdCard(el) {
+    if (!el || el.dataset.holdH) return;
+    var h = el.offsetHeight;
+    if (!(h > 0)) return;
+    el.style.boxSizing = 'border-box';
+    el.dataset.holdH = String(h);
+    el.style.minHeight = h + 'px';
+  }
   function showInCarousel(el) {
     var scroller = carouselOf(el);
     if (!scroller || scroller.scrollWidth <= scroller.clientWidth + 4) return;
@@ -1910,8 +1978,15 @@
   }
   function showGoal() {
     var sel = P.target(state);
+    if (view.choiceShut && sel && String(sel).indexOf('choice') >= 0) {
+      view.choiceShut = false;
+      render();
+      sel = P.target(state);
+    }
     var el = sel ? document.querySelector(sel) : null;
     if (!el) return;
+    var card = el.closest('.light-card, .route-card, .boat') || el;
+    holdCard(card);
     Array.prototype.forEach.call(document.querySelectorAll('.goal-target'), function (node) {
       node.classList.remove('goal-target');
     });

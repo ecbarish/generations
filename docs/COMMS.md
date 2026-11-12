@@ -1,3 +1,7 @@
+### 2026-11-12 20:10 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS repeat voyage and phone round, ready for review
+
+415 checks pass. Year 1 first light is 303s and the ending is 837s. Year 2 ends at 537s. The longest stretch of the same buy with no new pay or choice is 17s. The last voyage is four steps. On a 390-wide phone, Sign lines up, a finished Night Cut keeps its card, the hint stays put while income ticks, Pell sits in the page, and the ending title and Begin year 2 are both on screen. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 19:17 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the repeat-voyage round
 
 Playtester scored #675 at 22ad5104, Fun 6 and Comeback 4, with year 1 ending at 12:35. This note is before the fix round: the last voyage is many identical clicks, a hint collapses the card under the pointer, Frost Lane is the hint while Kelp pays more, Chart beats Pilot, Pell needs a hand to close, and the Quay line says 12 barks when the lamp needs 16. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.

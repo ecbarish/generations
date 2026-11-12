@@ -774,7 +774,10 @@
     var lit = lightsLit(state);
     if (lit === 1) lines.push('One lighthouse is burning.');
     else if (lit > 1) lines.push(lit + ' lighthouses are burning.');
-    if (window.SaltmarshPhase && window.SaltmarshPhase.goal) lines.push('Next: ' + window.SaltmarshPhase.goal(state));
+    if (window.SaltmarshPhase && window.SaltmarshPhase.goal) {
+      var nextGoal = window.SaltmarshPhase.goal(state);
+      if (nextGoal) lines.push('Next: ' + nextGoal);
+    }
     if ((summary.away || 0) >= 60) ensureReturn(state);
     else markWaited(state);
     var waitedLine = waitedCopy(state);
@@ -784,17 +787,7 @@
       if (/coins/.test(row) && /no haul/.test(row) === false && /was out/.test(row) === false) cameBack = true;
     });
     if (cameBack) lines.unshift('The boats came back to the pier.');
-    var near = nextAffordLine(state);
-    if (near) lines.push(near);
     return { title: 'While you were away', lead: lead, lines: lines, box: lines.join(' ') };
-  }
-  function nextAffordLine(state) {
-    var phase = window.SaltmarshPhase;
-    if (!phase || !phase.bestStep) return '';
-    var step = phase.bestStep(state);
-    if (!step || !step.sentence) return '';
-    if (step.affordable) return 'Next you can afford: ' + step.sentence;
-    return 'Next, nearly in reach: ' + step.sentence;
   }
 
   /* What the welcome card can do straight away. A lighthouse the purse can
@@ -881,21 +874,21 @@
   function finiteNum(n) { return typeof n === 'number' && isFinite(n); }
 
   var ROUTES = [
-    { id: 'kelp', name: 'Kelp Road', order: 1, depths: 4, risk: 0, first: 12, mid: 13, later: 14, payback: 74, time: 'a short run inside the bar', line: 'Safe and close. The pay is sure.', perk: 'Best while the other runs are still cold or risky.' },
-    { id: 'gull', name: 'Gull Rock', order: 2, depths: 4, risk: 0.45, wren: true, first: 12, mid: 13, later: 14, payback: 56, time: 'a longer beat', line: 'More coin, if the gulls leave the pile alone.', perk: 'Best once a lighthouse is burning. Until then the gulls take a cut.' },
-    { id: 'tea', name: 'Tea Reach', order: 3, depths: 4, risk: 0, bramble: true, first: 12, mid: 13, later: 14, payback: 80, time: 'a kettle stop', line: 'Bramble knows this water. The run pays better once the kettle has been boiling.', perk: 'Best once Bramble\'s kettle has been boiling, and before the night runs are safe.' },
-    { id: 'headland', name: 'Hollis Headland', order: 4, depths: 4, risk: 0, first: 12, mid: 13, later: 14, payback: 78, time: 'a long leg', line: 'The headland shows once Hollis has marked the chart, or once two other routes are sailing.', perk: 'Hollis drew this one.' },
-    { id: 'reed', name: 'Reed Channel', order: 5, depths: 4, risk: 0, first: 12, mid: 13, later: 14, payback: 84, time: 'the deep water', line: 'Pell takes it slow, and it pays.', perk: 'Pell names the boat that goes.' },
-    { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 12, mid: 13, later: 14, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
+    { id: 'kelp', name: 'Kelp Road', order: 1, depths: 4, risk: 0, first: 12, mid: 15, later: 16, payback: 74, time: 'a short run inside the bar', line: 'Safe and close. The pay is sure.', perk: 'Best while the other runs are still cold or risky.' },
+    { id: 'gull', name: 'Gull Rock', order: 2, depths: 4, risk: 0.45, wren: true, first: 12, mid: 15, later: 16, payback: 56, time: 'a longer beat', line: 'More coin, if the gulls leave the pile alone.', perk: 'Best once a lighthouse is burning. Until then the gulls take a cut.' },
+    { id: 'tea', name: 'Tea Reach', order: 3, depths: 4, risk: 0, bramble: true, first: 14, mid: 15, later: 16, payback: 80, time: 'a kettle stop', line: 'Bramble knows this water. The run pays better once the kettle has been boiling.', perk: 'Best once Bramble\'s kettle has been boiling, and before the night runs are safe.' },
+    { id: 'headland', name: 'Hollis Headland', order: 4, depths: 4, risk: 0, first: 14, mid: 15, later: 16, payback: 78, time: 'a long leg', line: 'The headland shows once Hollis has marked the chart, or once two other routes are sailing.', perk: 'Hollis drew this one.' },
+    { id: 'reed', name: 'Reed Channel', order: 5, depths: 4, risk: 0, first: 14, mid: 15, later: 16, payback: 84, time: 'the deep water', line: 'Pell takes it slow, and it pays.', perk: 'Pell names the boat that goes.' },
+    { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 14, mid: 15, later: 16, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
   ];
   var LIGHTS = [
     { id: 'pier', name: 'Pier Lighthouse', needRoutes: 1, wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The tower is up. Lighting costs the same as raising it, and nights stay safer.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
-    { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The tower is up. Lighting costs the same as raising it, and the runs stay quicker.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
-    { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The tower is up. Lighting costs the same as raising it, and the far water stays on the chart.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 20, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The tower is up. Lighting costs the same as raising it, and the runs stay quicker.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 20, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The tower is up. Lighting costs the same as raising it, and the far water stays on the chart.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 22, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   /* Season 2 only. These stay off the first year's chart, so the first sitting does not grow. */
-  var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 12, mid: 12, later: 12, payback: 70, time: 'a winter crossing', line: 'Wool from the Glass Wharf. This lane pays poorly until the Glass Lighthouse is burning.', perk: 'A real crossing, not a cheap coin. The storm keeps half until the Glass light burns.' };
+  var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 18, mid: 18, later: 18, payback: 60, time: 'a winter crossing', line: 'Wool from the Glass Wharf. The wool takes the edge off the winter storm for every route.', perk: 'A winter shelter. Every route keeps more of its pay until the Glass light burns.' };
   var GLASS = { id: 'glass', name: 'Glass Lighthouse', needRoutes: 0, wait: 10, lines: ['Still dark. Raising the Glass Lighthouse starts to hold the winter storm.', 'The Glass Lighthouse\'s tower is up. Lighting it lifts the winter storm.', 'The Glass Lighthouse is burning. The winter storm has lifted.'] };
   var STORM_RATE = 0.84;
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
@@ -968,6 +961,7 @@
   function nightLeak(state) {
     if (!state || !(state.nightLeak > 0)) return 0;
     if (state.lights && state.lights.pier >= 2) return 0;
+    if (state.prepDone && state.prepDone.pilot === 'pilot') return 0;
     return state.nightLeak > 0.2 ? 0.2 : state.nightLeak;
   }
   function nightSafety(state) {
@@ -994,28 +988,38 @@
       var gross = state.routeGross[spec.id] || 0;
       if (!(gross > 0)) return;
       var cut = (state.routeCut && state.routeCut[spec.id]) || 0;
+      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') cut *= 0.35;
       if (spec.wren || spec.night) cut *= (1 - nightSafety(state));
-      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') cut *= 0.5;
       if ((spec.wren || spec.night) && nightLeak(state)) cut += gross * nightLeak(state);
       var g = gross - cut;
       if (g < 0) g = 0;
+      if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot' && (cut > 0 || (state.nightLeak > 0))) g *= 1.2;
       if (spec.wren) g *= (1 + wrenKeep(state));
       if (spec.wren && state.events && state.events.request === 'grant') g *= 1.35;
       if ((spec.wren || spec.night) && state.prepDone && state.prepDone.pilot === 'pilot') g += (state.routeCut && state.routeCut[spec.id]) || 0;
       if (spec.bramble) g *= (1 + brambleHaste(state));
-      if (spec.id === 'frost' && !glassBurning(state)) g *= 0.5;
       if (spec.id === 'frost' && state.partner === 'ives') g *= 1.2;
-      if (spec.id === 'frost' && state.winter === 'wool') g *= 1.3;
+      if (spec.id === 'frost' && state.winter === 'wool') g *= 1.35;
       if (state.routeGear && state.routeGear[spec.id]) g *= 1.2;
       n += g;
     });
     var total = n * headMult(state) * prepRouteFactor(state);
     if (yearOf(state) === 2 && !glassBurning(state)) {
       var storm = state.winter === 'oil' ? 0.94 : STORM_RATE;
-      if (state.bell && storm < 0.9) storm = 0.9;
+      if ((state.routes && state.routes.frost) >= 1 && storm < 0.94) storm = 0.94;
+      if (state.bell && storm < 0.92) storm = 0.92;
       total *= storm;
     }
     return total;
+  }
+  function frostShelter(state) {
+    if (!state || yearOf(state) !== 2 || glassBurning(state)) return 0;
+    if ((state.routes && state.routes.frost) >= 1) return 0;
+    var storm = state.winter === 'oil' ? 0.94 : STORM_RATE;
+    if (!(storm < 0.94)) return 0;
+    var now = routeIncome(state);
+    if (!(now > 0)) return 0;
+    return Math.max(0, now * (0.94 / storm - 1));
   }
   function officeRate(state) {
     return income(state) + captainRate(state) + routeIncome(state);
@@ -1093,9 +1097,11 @@
     var list = early.length ? early.slice(0, 3) : late.slice(0, 1);
     var mapped = list.map(function (spec) {
       var quote = quoteRoute(state, spec, !!lock);
+      var gain = offerGain(state, quote, spec);
+      if (spec.id === 'frost') gain += frostShelter(state);
       return {
         id: spec.id, name: spec.name, depth: quote.depth, depths: spec.depths,
-        cost: quote.cost, gain: offerGain(state, quote, spec), risk: quote.risk,
+        cost: quote.cost, gain: gain, risk: quote.risk,
         time: spec.time, line: spec.line, perk: spec.perk,
         affordable: state.cash >= quote.cost
       };
@@ -1107,7 +1113,7 @@
         var frostQuote = quoteRoute(state, FROST, !!lock);
         mapped.push({
           id: FROST.id, name: FROST.name, depth: frostQuote.depth, depths: FROST.depths,
-          cost: frostQuote.cost, gain: offerGain(state, frostQuote, FROST), risk: frostQuote.risk,
+          cost: frostQuote.cost, gain: offerGain(state, frostQuote, FROST) + frostShelter(state), risk: frostQuote.risk,
           time: FROST.time, line: FROST.line, perk: FROST.perk,
           affordable: state.cash >= frostQuote.cost
         });
@@ -1179,6 +1185,16 @@
   }
   /* One spare sail per route that is already sailing. Each price is fixed the
      first time that route's card appears, so a second tap cannot buy a different run. */
+  function sailAdded(state, id) {
+    if (!state.routeGear) state.routeGear = {};
+    var had = !!state.routeGear[id];
+    var before = routeIncome(state);
+    state.routeGear[id] = true;
+    var after = routeIncome(state);
+    if (had) state.routeGear[id] = true;
+    else delete state.routeGear[id];
+    return Math.max(0, after - before);
+  }
   function gearOffers(state) {
     if (!routesUnlocked(state) || !state || state.ended) return [];
     if (!state.routeGear) state.routeGear = {};
@@ -1193,16 +1209,19 @@
         return;
       }
       if (!(state.gearPrices[spec.id] > 0)) {
-        var gearCost = Math.round(Math.max(1, officeRate(state)) * 12);
+        var added = sailAdded(state, spec.id);
+        var gearCost = added > 1 ? Math.max(1, Math.round(added * 25)) : Math.round(Math.max(1, officeRate(state)) * 8);
         if (state.lastGearCost > 0 && gearCost > state.lastGearCost * 2) gearCost = Math.round(state.lastGearCost * 2);
         state.gearPrices[spec.id] = gearCost;
       }
+      var sailPay = sailAdded(state, spec.id);
       out.push({
         id: spec.id,
         name: 'A spare sail for ' + spec.name,
         cost: state.gearPrices[spec.id],
         fitted: false,
-        line: 'This run pays a little more. Each route keeps its own sail card.',
+        gain: sailPay,
+        line: 'A spare sail. This route pays 20% more' + (sailPay > 1 ? ', about ' + coins(Math.round(sailPay)) + ' a second.' : '.'),
         affordable: state.cash >= state.gearPrices[spec.id]
       });
     });
@@ -1282,10 +1301,10 @@
       }
       if (!state.forks || !state.forks.quay) {
         parts.push(barks < BARK_QUAY
-          ? 'The quay choice opens at 12 barks, ' + (BARK_QUAY - barks) + ' to go.'
+          ? 'The quay choice opens at ' + BARK_QUAY + ' barks, ' + (BARK_QUAY - barks) + ' to go.'
           : 'Choose the quay lamp on the desk, or the deeper holds.');
       }
-      if (barks < BARK_LAMP) parts.push('The house lamp lights at 16 barks, ' + (BARK_LAMP - barks) + ' to go.');
+      if (barks < BARK_LAMP) parts.unshift('The house lamp lights at ' + BARK_LAMP + ' barks, ' + (BARK_LAMP - barks) + ' to go.');
       if (parts.length) return parts.join(' ');
     }
     var need = spec.needRoutes || 1;
@@ -1350,40 +1369,20 @@
     commitGoal(state, 'light');
     return { ok: true, stage: state.lights[id] };
   }
-  /* The voyage list opens when the four lights are burning. Each price is locked
-     to the office at that moment, in seconds of pay, so a bigger fleet does not
-     make the list dearer and a slower office is not stuck on an old coin figure. */
   var VOYAGE_AT = 0;
-  /* Six errands, not a dozen small ones. Each one changes the office by
-     about a tenth, and the two sides of a fork do not cost the same. */
+  /* Four steps. Each one changes the pay or asks for a real choice.
+     The plain stores used to fill the watch with the same click. */
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Food for the crew', stake: 10, choice: [
+    { id: 'victuals', name: 'Food for the crew', stake: 38, choice: [
       { id: 'fresh', name: 'Fresh food', costMul: 1.1, route: 0.4, line: 'Fresh food. Every route pays 40% more. Best when the routes are the pay.' },
       { id: 'pork', name: 'Salt pork', costMul: 0.9, nextCut: 0.2, line: 'Salt pork. The priced steps still to come cost 20% less. Best when that list is dearer than the route pay.' }
     ]},
-    { id: 'canvas', name: 'Canvas for the sails', stake: 10, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
-    { id: 'pilot', name: 'A pilot for the bar', stake: 10, choice: [
-      { id: 'pilot', name: 'A pilot', costMul: 1, shield: true, line: 'A pilot. Best while Gull Rock or the Night Cut still lose cargo. The routes pay more, and the risky cut shrinks.' },
-      { id: 'chart', name: 'A bought chart', costMul: 0.96, boat: 0.1, line: 'A chart. Best when the fleet is the pay. Every boat earns 10% more.' }
+    { id: 'canvas', name: 'Canvas for the sails', stake: 38, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
+    { id: 'pilot', name: 'A pilot for the bar', stake: 38, choice: [
+      { id: 'pilot', name: 'A pilot', costMul: 1, shield: true, line: 'A pilot. Best while Gull Rock or the Night Cut still lose cargo. The squall loss shrinks, and those runs come back sooner.' },
+      { id: 'chart', name: 'A bought chart', costMul: 0.96, boat: 0.1, line: 'A chart. Best when the fleet is the pay and the routes are already safe. Every boat earns 10% more.' }
     ]},
-    { id: 'tide', name: 'The tide table', stake: 10, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' },
-    { id: 'water', name: 'Fresh water', stake: 10, plain: true, line: 'The casks are full for the voyage.' },
-    { id: 'spare', name: 'A spare lamp', stake: 10, plain: true, line: 'One more lamp goes below.' },
-    { id: 'medicine', name: 'The medicine chest', stake: 10, plain: true, line: 'The chest is closed and stowed.' },
-    { id: 'oil', name: 'Lamp oil', stake: 10, plain: true, line: 'The wicks have oil for the night.' },
-    { id: 'manifest', name: 'The manifest', stake: 10, plain: true, line: 'Every name is written down.' },
-    { id: 'tar', name: 'A barrel of tar', stake: 10, plain: true, line: 'The seams are sealed.' },
-    { id: 'lead', name: 'The sounding lead', stake: 10, plain: true, line: 'The depth is known.' },
-    { id: 'letters', name: 'Letters for the next port', stake: 10, plain: true, line: 'The packet is tied and dry.' },
-    { id: 'coil', name: 'A coil of spare line', stake: 10, plain: true, line: 'The spare line is coiled.' },
-    { id: 'coats', name: 'Warm coats', stake: 10, plain: true, line: 'The deck watch has coats.' },
-    { id: 'papers', name: 'The ship\'s papers', stake: 10, plain: true, line: 'The papers are in the box.' },
-    { id: 'biscuit', name: 'Biscuit for the watch', stake: 10, plain: true, line: 'The night watch has biscuit.' },
-    { id: 'pitch', name: 'A bucket of pitch', stake: 10, plain: true, line: 'The pitch is ready for the seams.' },
-    { id: 'mittens', name: 'Dry mittens', stake: 10, plain: true, line: 'The rowers have dry mittens.' },
-    { id: 'tarp', name: 'A dry tarp', stake: 10, plain: true, line: 'The tarp covers the stores.' },
-    { id: 'oar', name: 'The spare oar', stake: 10, plain: true, line: 'The spare oar is lashed down.' },
-    { id: 'twine', name: 'Twine for the parcels', stake: 10, plain: true, line: 'The parcels are tied.' }
+    { id: 'tide', name: 'The tide table', stake: 38, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' }
   ];
   var WORK_SPAN = 32;
   var WORK_VERBS = ['Tar', 'Oil', 'Mend', 'Paint', 'Coil', 'Hang', 'Caulk', 'Sweep'];
