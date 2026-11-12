@@ -322,7 +322,7 @@ button[aria-pressed="true"], button.ask, button.best {
    the same space, so the row is no taller and the stalls under it stay put. */
 .facts, .wait, .next-goal, .need { min-height: 4.2rem; display: block; }
 .facts { min-height: 4.8rem; }
-.need { color: var(--mute); margin: 0; min-height: 2.4rem; line-height: 1.2; }
+.need { color: var(--mute); margin: 0; min-height: 4.8rem; line-height: 1.2; }
 .facts:empty, .wait:empty, .next-goal:empty { display: block; }
 .pour { min-height: 1.35rem; }
 .count { min-height: 2.9rem; }
@@ -422,6 +422,7 @@ button[aria-pressed="true"], button.ask, button.best {
 @media (min-width: 1001px) and (max-width: 1199px) {
   .actions [data-act="serve"] { min-height: 4rem; }
 }
+#stalls [data-i="5"] [data-act="serve"] { min-height: 5.2rem; }
 .save summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }
 .save > summary::before { content: "▸"; display: inline-block; width: 1.1em; }
 .save[open] > summary::before { content: "▾"; }

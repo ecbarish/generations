@@ -810,6 +810,10 @@
     if (!(amount > 0) || !isFinite(amount)) return 0;
     state.cash += amount;
     state.lifetime += amount;
+    if (state.night) {
+      if (typeof state.night.earned !== 'number' || !isFinite(state.night.earned)) state.night.earned = 0;
+      state.night.earned += amount;
+    }
     return amount;
   }
 
@@ -4793,15 +4797,17 @@
       var c = charmById(id);
       return c ? c.name : id;
     });
+    var earnedNow = state.lifetime;
+    if (state.night && typeof state.night.earned === 'number' && isFinite(state.night.earned)) earnedNow = state.night.earned;
     var summary = names + '. ' + (omen ? omen.name : 'No omen') + '. ' +
       (charms.length ? charms.join(', ') : 'No charm') + '. ' +
-      (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime) : String(Math.round(typeof state.night.earned === 'number' ? state.night.earned : state.lifetime))) + ' coins earned tonight.';
+      moneyText(earnedNow) + ' coins earned tonight.';
     var nextSeed = stepSeed(state.night && state.night.seed ? state.night.seed : 1);
     var priced = fresh();
     armNight(priced, n + 1, nextSeed);
     var teaPrice = cost(0, 0, 1, priced);
     var matCharge = clockMatCharge(state);
-    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + ', with ' + moneyText(NIGHT_PURSE) + ' coins in the purse. ' + stallOpenLine(priced, 1) + '. The Story Mat will cost ' + moneyText(matCharge) + '.';
+    var nextGoal = 'Night ' + (n + 1) + ' starts at the Tea Stall for ' + moneyText(teaPrice) + ', with ' + moneyText(NIGHT_PURSE) + ' coins in the purse. ' + stallOpenLine(priced, 1) + '. The first Story Mat will cost ' + moneyText(matCharge) + ' when it opens at 15:00 or ' + unlockNeed(priced, STALLS.length - 1) + ' trays.';
     return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open', nextGoal: nextGoal };
   }
   function noteOffer(state) {

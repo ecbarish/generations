@@ -79,6 +79,11 @@ function labeledQty(text) {
   m = /^(?:Next|Max)\s+·\s+(\d+)/.exec(text);
   if (m) return Number(m[1]);
   if (/Unroll the Story Mat/.test(text)) return 1;
+  if (/mat · \d+ ·/.test(text)) {
+    const batch = /mat · (\d+) ·/.exec(text);
+    return batch ? Number(batch[1]) : 1;
+  }
+  if (/mat ·/.test(text)) return 1;
   return 0;
 }
 
@@ -519,16 +524,38 @@ function scrape(doc, M, state, bag, at) {
     if (dataCount > 0 && qty > 0 && dataCount !== qty) bag.add('buy count ' + M.STALLS[i].id + ' @' + at, text, String(qty), String(dataCount));
     const need = state.stalls[i].hired && li.querySelector('.need') ? li.querySelector('.need').textContent : '';
     const needMoney = /Need\s+(\S+)\s+more/.exec(need);
+    const asking = qty > 0 ? qty : 1;
+    const rowPrice = M.cost(i, owned, asking, state);
     if (needMoney) {
-      const price = M.cost(i, owned, qty > 0 ? qty : 1, state);
-      const gap = Math.ceil(price - state.cash - 1e-9);
+      const gap = Math.ceil(rowPrice - state.cash - 1e-9);
       if (!(gap > 0) || !moneyAgrees(needMoney[1], gap, fmt)) bag.add('need ' + M.STALLS[i].id + ' @' + at, need, fmt(Math.max(0, gap)), needMoney[1]);
+    }
+    const namedPrice = /Next\s+(.+?)\s+·\s+([0-9][0-9.,]*(?:K|M|B|T)?)/.exec(need);
+    if (namedPrice) {
+      if (namedPrice[1] !== M.STALLS[i].name) bag.add('need target ' + M.STALLS[i].id + ' @' + at, need, M.STALLS[i].name, namedPrice[1]);
+      if (!moneyAgrees(namedPrice[2], rowPrice, fmt)) bag.add('need price ' + M.STALLS[i].id + ' @' + at, need, fmt(rowPrice), namedPrice[2]);
     }
     const opens = /opens at\s+(\d+)/.exec(need);
     if (opens && i + 1 < M.STALLS.length && Number(opens[1]) !== M.unlockNeed(state, i + 1)) {
       bag.add('need unlock ' + M.STALLS[i].id + ' @' + at, need, String(M.unlockNeed(state, i + 1)), opens[1]);
     }
     const wait = li.querySelector('.wait') ? li.querySelector('.wait').textContent : '';
+    if (!open && i === M.STALLS.length - 1) {
+      const serveText = (li.querySelector('[data-act="serve"]') || {}).textContent || '';
+      const about = /about\s+([0-9][0-9.,]*(?:K|M|B|T)?)/.exec(serveText);
+      const shown = about ? about[1] : moneyToken(serveText);
+      const openPrice = clockMatCharge(M, state);
+      const early = /early buy/i.test(serveText);
+      if (shown && /then\b/.test(serveText)) {
+        if (!moneyAgrees(shown, openPrice, fmt)) bag.add('locked mat then @' + at, serveText, fmt(openPrice), shown);
+      } else if (shown && early) {
+        if (!moneyAgrees(shown, M.cost(i, 0, 1, state), fmt)) bag.add('locked mat early @' + at, serveText, fmt(M.cost(i, 0, 1, state)), shown);
+      } else if (shown) {
+        bag.add('locked mat headline @' + at, serveText, 'labeled then or early buy', shown);
+      } else if (!/then\b/.test(serveText)) {
+        bag.add('locked mat @' + at, serveText, 'the price when it opens', 'missing');
+      }
+    }
     if (!open && i > 0) {
       const trays = /at (\d+) incense trays/.exec(wait);
       if (trays && Number(trays[1]) !== M.unlockNeed(state, i)) bag.add('shutter ' + M.STALLS[i].id + ' @' + at, wait, String(M.unlockNeed(state, i)), trays[1]);
@@ -593,6 +620,10 @@ function scrape(doc, M, state, bag, at) {
         bag.add('dawn mat @' + at, summary.textContent, fmt(charge), stated[1]);
       }
     }
+    const earnedTok = /([0-9][0-9.,]*(?:K|M|B|T)?)\s+coins earned tonight/.exec(summary.textContent);
+    const played = state.stalls.some(function (s) { return s.owned > 0; });
+    const earnedValue = earnedTok ? tokenValue(earnedTok[1].replace(/,/g, '')) : 0;
+    if (played && !(earnedValue > 0)) bag.add('night total @' + at, summary.textContent, 'more than 0', earnedTok ? earnedTok[1] : 'missing');
   }
 }
 

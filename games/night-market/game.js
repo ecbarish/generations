@@ -190,7 +190,7 @@
       ask.textContent = stall.hire;
       serve.disabled = true;
       serve.textContent = i > 0 ? shutterLine(i) : 'Pour a cup to open the stall.';
-      serve.title = i > 0 ? (M.stallOpenLine(state, i) + (i === M.STALLS.length - 1 ? ' It costs ' + M.matPriceText(state) + '.' : '.')) : '';
+      serve.title = serve.textContent;
       buy.textContent = 'Buy 1';
       serve.classList.remove('best');
       return;
@@ -309,7 +309,7 @@
       buy.title = '';
       buy.textContent = firstMat
         ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
-        : buyLabel(i, offer);
+        : (i === M.STALLS.length - 1 && st.owned >= 1 ? matCopyLabel(st.owned, offer) : buyLabel(i, offer));
       buy.disabled = !(offer.count > 0);
     }
     var needLine = li.querySelector('.need');
@@ -320,7 +320,7 @@
       var shortfall = !(offer.count > 0) && livePrice > state.cash + 0.001 && !(state.bulk === 'max' && offer.blocked === 'payback' && !firstMat);
       var gap = Math.ceil(livePrice - state.cash - 1e-9);
       if (!(gap > 0)) gap = 0;
-      needLine.textContent = shortfall ? ('Need ' + money(gap) + ' more.') : '';
+      needLine.textContent = shortfall ? ('Next ' + stall.name + ' · ' + money(livePrice) + ' · Need ' + money(gap) + ' more.') : '';
       if (!shortfall && i < M.STALLS.length - 1 && !M.unlocked(state, i + 1)) {
         var openAt = M.unlockNeed(state, i + 1);
         if (st.owned < openAt) {
@@ -330,11 +330,24 @@
       }
     }
   }
+  function matCopyLabel(owned, offer) {
+    var which = owned + 1;
+    var word = which === 2 ? 'Second' : which === 3 ? 'Third' : which === 4 ? 'Fourth' : which === 5 ? 'Fifth' : (which + 'th');
+    var n = offer && offer.count > 1 ? offer.count : 1;
+    var priced = offer && offer.cost > 0 ? offer.cost : M.cost(M.STALLS.length - 1, owned, n, state);
+    if (n > 1) return word + ' mat · ' + n + ' · ' + money(priced) + ' coins';
+    return word + ' mat · ' + money(priced) + ' coins';
+  }
   function shutterLine(i) {
     var prev = M.STALLS[i - 1];
     var need = M.unlockNeed(state, i);
     var unit = { tea: 'teas', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
-    if (i === M.STALLS.length - 1) return '15:00 or ' + need + ' trays · ' + M.matPriceText(state);
+    if (i === M.STALLS.length - 1) {
+      var openPrice = M.clockMatCharge(state);
+      var rate = M.income(state);
+      if (!(rate > 0)) return '15:00 or ' + need + ' trays · twelve seconds then';
+      return '15:00 or ' + need + ' trays · about ' + money(openPrice) + ' then';
+    }
     return 'Opens at ' + need + ' ' + (unit[prev.id] || 'stalls');
   }
 
@@ -447,6 +460,7 @@
       finale.hidden = !finaleOn;
       if (finaleBackdrop) finaleBackdrop.hidden = !finaleOn;
       if (finaleOn) {
+        M.noteDawn(state);
         var copy = M.dawnCopy(state);
         $('#finale-title').textContent = copy.title;
         $('#finale-lead').textContent = copy.lead;

@@ -975,7 +975,7 @@ document.querySelector('#run').onclick = async function () {
       ferryAway && ferryAway.capped && ferryAway.credited === 2 * 3600 && near(ferryAway.gained, M.income(ferryNight) * 2 * 3600 * 0.75));
     check('the first Story Mat is dawn once every stall is open', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
     check('the ending card names the next Tea Stall price and the Story Mat price',
-      /starts at the Tea Stall for /.test(M.dawnCopy(ended).nextGoal) && /The Story Mat will cost /.test(M.dawnCopy(ended).nextGoal) &&
+      /starts at the Tea Stall for /.test(M.dawnCopy(ended).nextGoal) && /Story Mat will cost /.test(M.dawnCopy(ended).nextGoal) &&
       /open the Dumpling Cart/.test(M.dawnCopy(ended).nextGoal) && M.dawnCopy(ended).nextGoal.indexOf('Ten tea') < 0 &&
       M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.NIGHT_PURSE)) >= 0 &&
       M.dawnCopy(ended).nextGoal.indexOf(Arcade.fmt(M.clockMatCharge(ended))) >= 0);
@@ -1754,9 +1754,9 @@ document.querySelector('#run').onclick = async function () {
       longBtn && !longBtn.hidden && w.getComputedStyle(longBtn).visibility !== 'hidden' &&
       /Max · 1 ·/.test(longBtn.textContent) && freshHook.state.stalls[0].owned === slowOwned + 1);
     var matRow = d.querySelector('#stalls [data-i="5"]');
-    var matWords = w.NightMarket.matPriceText(freshHook.state);
-    check('the Story Mat shows the price it will actually charge while it is still shuttered',
-      matRow && matRow.textContent.indexOf(matWords) >= 0 && matWords === w.Arcade.fmt(w.NightMarket.cost(5, 0, 1, freshHook.state)));
+    var matOpen = w.Arcade.fmt(w.NightMarket.clockMatCharge(freshHook.state));
+    check('the Story Mat shows the price it will charge when it opens (' + matOpen + ')',
+      matRow && /then/.test(matRow.textContent) && matRow.textContent.indexOf(matOpen) >= 0 && matRow.textContent.indexOf(w.Arcade.fmt(w.NightMarket.STALLS[5].base)) < 0);
     freshHook.state.stalls = JSON.parse(laneBefore);
     freshHook.state.cash = cashBefore;
     freshHook.state.bulk = 'max';
@@ -2793,7 +2793,7 @@ document.querySelector('#run').onclick = async function () {
     lm.state.night.offer = null;
     lm.render();
     var needText = ld.querySelector('#stalls [data-i="0"] .need').textContent;
-    check('Need in 10 mode rounds tonight\'s price up (' + needText + ')', needText === 'Need ' + lw.Arcade.fmt(71) + ' more.');
+    check('Need in 10 mode rounds tonight\'s price up (' + needText + ')', needText === 'Next Tea Stall · ' + lw.Arcade.fmt(tenCost) + ' · Need ' + lw.Arcade.fmt(71) + ' more.');
     lw.NightLane.setReduce(true);
     lm.state.stalls[1].owned = 0;
     lm.render();
@@ -5403,7 +5403,7 @@ document.querySelector('#run').onclick = async function () {
         if (!PM.unlocked(pg.state, i)) {
           var gate = serve ? serve.textContent : '';
           if (gate.indexOf(String(PM.unlockNeed(pg.state, i))) < 0) priceMiss.push('need ' + i + ' ' + gate);
-          if (i === 5 && gate.indexOf(PM.matPriceText(pg.state)) < 0) priceMiss.push('mat ' + gate);
+          if (i === 5 && (gate.indexOf('then') < 0 || (PM.income(pg.state) > 0 && gate.indexOf(pw.Arcade.fmt(PM.clockMatCharge(pg.state))) < 0))) priceMiss.push('mat ' + gate);
           return;
         }
         if (!pg.state.stalls[i].hired || !buy || buy.classList.contains('reserved')) return;
