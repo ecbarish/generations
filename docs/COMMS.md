@@ -18,7 +18,7 @@ Night Market Stalls, one pull stacked on NM-POLISH (#654). A player can move to 
 - `tools/night-market-pacing.cjs`
 - `tools/playtest/night-market-phone.cjs`
 
-This pull stays off that branch and does not edit the roguelite plan, the phone-review workflow, the phone playtest script, `games/night-market/README.md`, or `games/night-market/index.html`. The district move lives in the stalls model, the stalls page script, the stalls stylesheet, the lane picture (so Lin's brazier can be drawn), the Night Market test, and the pacing tool. Those paths are also on the #625 list. The edits stay on this branch, on top of #654, and do not land on the roguelite branch.
+This pull stays off that branch and does not edit the roguelite plan, the phone-review workflow, the phone playtest script, `games/night-market/README.md`, or `games/night-market/index.html`. The lane picture is edited so Lin's brazier can be drawn, and `games/night-market/lane.js` is also on the #625 list. The district move lives in the stalls model, the stalls page script, the stalls stylesheet, the lane picture, the Night Market test, and the pacing tool. Those paths are also on the #625 list. The edits stay on this branch, on top of #654, and do not land on the roguelite branch.
 
 Owns `games/night-market/model.js`, `games/night-market/game.js`, `games/night-market/style.css`, `games/night-market/lane.js`, `tests/night-market.html`, and `tools/night-market-pacing.cjs`. No old-save migration. No version bump. No author merge. Draft pull request before the game edits. Generations Reviewer merges.
 

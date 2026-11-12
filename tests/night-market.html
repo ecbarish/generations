@@ -174,22 +174,37 @@ document.querySelector('#run').onclick = async function () {
     check('a version 1 save with no district still loads the lane', kept.place === 'lane' && kept.quay === null && kept.cash === 40 && kept.stalls[0].hired && kept.stalls[0].owned === 1);
     var earlyMove = M.fresh();
     earlyMove.lifetime = M.MOVE_AT - 1;
-    check('the move stays shut under 250 million', M.canMove(earlyMove) === false && M.move(earlyMove).ok === false && earlyMove.place === 'lane' && earlyMove.cash === 0);
+    earlyMove.cash = 9;
+    earlyMove.stalls[0].owned = 3;
+    earlyMove.stalls[2].serves = 4;
+    var earlyResult = M.move(earlyMove);
+    check('the move stays shut under 250 million', M.canMove(earlyMove) === false && earlyResult.ok === false && earlyResult.reason === 'early' && earlyMove.place === 'lane' && earlyMove.cash === 9 && earlyMove.stalls[0].owned === 3 && earlyMove.stalls[2].serves === 4 && earlyMove.quay === null);
     var readyMove = M.fresh();
     readyMove.lifetime = M.MOVE_AT;
-    readyMove.stalls[0].owned = 12;
-    readyMove.stalls[0].hired = true;
+    readyMove.stalls.forEach(function (s, i) {
+      if (i < 5) s.owned = 12;
+      if (i === 0) s.hired = true;
+    });
     readyMove.cash = 80;
     check('the move opens at 250 million', M.canMove(readyMove));
     var homeOwned = readyMove.stalls.map(function (s) { return s.owned; });
     check('moving takes Mei and leaves the coins and the other stalls', M.move(readyMove).ok && readyMove.place === 'quay' && readyMove.cash === 0 && readyMove.quay[0].hired && readyMove.quay[0].owned === 1 && readyMove.quay[1].hired === false && readyMove.quay[1].owned === 0 && readyMove.quay[1].serves === 0 && readyMove.stalls.map(function (s) { return s.owned; }).join() === homeOwned.join());
     for (var cone = 0; cone < 10; cone++) M.handSell(readyMove, 1);
-    check('moving again does not wipe Lin\'s cones', M.move(readyMove).already === true && readyMove.quay[1].serves === 10);
+    var conesCash = readyMove.cash;
+    check('moving again does not wipe Lin\'s cones', M.move(readyMove).already === true && readyMove.quay[1].serves === 10 && readyMove.cash === conesCash);
     check('on the quay the next permit is Lin\'s brazier', M.nextPermit(readyMove).name === "Lin's brazier");
+    var laneOpen = M.fresh();
+    laneOpen.lifetime = M.MOVE_AT;
+    laneOpen.stalls[0].hired = true;
+    laneOpen.stalls[0].owned = 12;
+    M.move(laneOpen);
+    check('an unlit lane stays ahead of Lin', M.nextPermit(laneOpen).name === 'The lane light');
     var lin = M.fresh();
     lin.lifetime = M.MOVE_AT;
     M.move(lin);
     check('Mei keeps one tea stall working', M.income(lin) === 0.45);
+    lin.stalls.forEach(function (s, i) { if (i < 5) { s.owned = 50; s.hired = true; } });
+    check('the lane light does not raise the quay', M.income(lin) === 0.45);
     check('Max cannot buy the brazier before Lin takes it', M.quote(lin, 1, 'max').blocked === 'hire' && M.buy(lin, 1, 'max').ok === false);
     for (var pour = 0; pour < 24; pour++) M.handSell(lin, 1);
     check('24 cones are not a hire', M.canHire(lin, 1) === false);
@@ -198,8 +213,13 @@ document.querySelector('#run').onclick = async function () {
     check('one brazier can be bought before Lin is hired', M.quote(lin, 1, 1).count === 1 && M.buy(lin, 1, 1).ok && lin.quay[1].owned === 1 && lin.quay[1].hired === false && M.income(lin) === 0.45);
     M.hire(lin, 1);
     check('Lin\'s brazier earns after she takes it', M.income(lin) === 0.45 + 4);
+    var quiet = M.fresh();
+    quiet.lifetime = M.MOVE_AT;
+    M.move(quiet);
+    for (var quietCone = 0; quietCone < 25; quietCone++) M.handSell(quiet, 1);
+    check('Lin earns nothing new until a brazier is bought', M.hire(quiet, 1).ok && quiet.quay[1].owned === 0 && M.income(quiet) === 0.45);
     var named = M.fresh();
-    check('the next permit on a new lane is Mei\'s', M.nextPermit(named).name === "Mei's permit" && /Mei/.test(M.closerLead(named)));
+    check('the next permit on a new lane is Mei\'s', M.nextPermit(named).name === "Mei's permit" && M.closerLead(named) === "Next in the book: Mei's permit.");
     M.handSell(named, 0);
     named.stalls[0].serves = 25;
     M.hire(named, 0);
@@ -1982,7 +2002,7 @@ document.querySelector('#run').onclick = async function () {
       var afterTop = pour.getBoundingClientRect().top;
       check(districtWidth[0] + ' wide: the move card is hidden, the book names Mei, the pour is hit, and a tap moves it by at most 2px',
         moveCard && moveCard.hidden && book && /Mei's permit/.test(book.querySelector('summary').textContent) &&
-        (pourHit === pour || pour.contains(pourHit)) &&
+        pourHit === pour &&
         Math.abs(afterTop - beforeTop) <= 2 &&
         dd.documentElement.scrollWidth <= districtWidth[0] + 1);
       districtFrame.remove();

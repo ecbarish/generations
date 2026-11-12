@@ -740,7 +740,7 @@
   ];
 
   function permitShown(state, id) {
-    return id === 'lin' ? onQuay(state) : true;
+    return id === 'lin' ? state.place === 'quay' : true;
   }
 
   function permitDone(state, id) {
@@ -760,11 +760,6 @@
 
   function nextPermit(state) {
     var list = permitList(state);
-    if (onQuay(state)) {
-      var lin = null, i;
-      for (i = 0; i < list.length; i++) if (list[i].id === 'lin') lin = list[i];
-      if (lin && !lin.done) return lin;
-    }
     for (var k = 0; k < list.length; k++) if (!list[k].done) return list[k];
     return null;
   }
@@ -847,11 +842,11 @@
   }
 
   function canMove(state) {
-    return !onQuay(state) && state.lifetime >= MOVE_AT;
+    return state.place !== 'quay' && state.lifetime >= MOVE_AT;
   }
 
   function move(state) {
-    if (onQuay(state)) return { ok: true, already: true };
+    if (state.place === 'quay') return { ok: true, already: true };
     if (!(state.lifetime >= MOVE_AT)) return { ok: false, reason: 'early' };
     state.place = 'quay';
     state.cash = 0;

@@ -45,7 +45,7 @@
       sec.id = 'move';
       sec.hidden = true;
       sec.innerHTML = '<h2>Willow Quay</h2><p>Mei will come with you and keep one tea stall. The coins stay on this lane. Lin is waiting with a cold brazier.</p><button type="button" data-act="move">Move to Willow Quay</button>';
-      bar.appendChild(sec);
+      bar.parentNode.insertBefore(sec, bar.nextSibling);
     }
     var save = document.querySelector('details.save');
     if (save && !$('#book')) {
@@ -79,7 +79,7 @@
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
     if (state.bulk === 'max' && q.blocked === 'payback') return 'Long payback: use 1, 10 or Next';
     if (state.bulk === 'next') {
-      var need = M.countToNext(state.stalls[i].owned);
+      var need = M.countToNext(slotsNow()[i].owned);
       if (!(need > 0)) return 'Next · lit';
       if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost) + ' coins';
       return 'Next · 1 · ' + money(q.cost) + ' coins';
@@ -298,7 +298,7 @@
       ? 'Ferry workers and evening walkers shop beside the quiet water.'
       : 'Lanterns over a short lane of stalls. You work a stall yourself before anyone will run it.';
     var moveCard = $('#move');
-    if (moveCard) moveCard.hidden = !M.canMove(state);
+    if (moveCard) moveCard.hidden = !(state.place === 'lane' && M.canMove(state));
     paintBook();
     var hiring = liveSlots.some(function (s) { return s.hired; });
     $('#bulk').hidden = !hiring;
@@ -429,7 +429,8 @@
     hold.since = now;
     hold.acc = step.acc;
     var n = step.pours;
-    if (!state.stalls[hold.i].hired) n = Math.min(n, Math.max(0, M.STALLS[hold.i].serves - state.stalls[hold.i].serves));
+    var held = slotsNow()[hold.i];
+    if (held && !held.hired) n = Math.min(n, Math.max(0, specsNow()[hold.i].serves - held.serves));
     var k;
     for (k = 0; k < n; k++) {
       if (atCount(hold.i)) break;
@@ -501,11 +502,10 @@
       return;
     }
     if (b.dataset.act === 'move') {
-      if (M.move(state).ok) {
-        persist();
-        render();
-        if (window.NightLane && window.NightLane.still) window.NightLane.still();
-      }
+      M.move(state);
+      persist();
+      render();
+      if (window.NightLane && window.NightLane.still) window.NightLane.still();
       return;
     }
     var li = b.closest('[data-i]');

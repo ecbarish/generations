@@ -237,7 +237,8 @@
   var lampMode = '';
   function draw(now) {
     var mode = onQuay() ? 'q' : 'h';
-    if (mode !== lampMode) { lampMode = mode; makeLanterns(); }
+    if (!lampMode) lampMode = mode;
+    else if (mode !== lampMode) { lampMode = mode; makeLanterns(); }
     var g = signature(); if (g !== sig) { sig = g; paintStatic(); }
     cx.drawImage(bg, 0, 0);
     lanterns.forEach(function (L, index) { drawLantern(L, index, now); });
