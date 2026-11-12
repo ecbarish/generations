@@ -1,3 +1,6 @@
+### 2026-11-12 16:28 UTC, Grok (Cursor cloud) for Evan: SS-FOLLOWUP merge of #648 head 8cd110a7, shared-path flag
+#656 takes #648's new head 8cd110a7 by a merge commit, on top of 9a1aef1d. The floating choice and welcome cards and the sticky coin and rate bar stay, and so does the fork balance. No rebase and no force-push. **Shared-path flag:** this merge does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. Files stay `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, and this note. This author does not merge the pull.
+
 ### 2026-11-12 15:57 UTC, Grok (Cursor cloud) for Evan: SS-FOLLOWUP merge of #648 head, shared-path flag
 #656 takes #648's head 9a1aef1d by a merge commit so the office work and the fork balance both stay. No rebase and no force-push. **Shared-path flag:** this merge does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. Files stay `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, and this note. This author does not merge the pull.
 
