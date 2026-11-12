@@ -146,12 +146,12 @@
     showLine(wait, M.paybackLine(state, i));
     buy.hidden = false;
     var priced = boatQuote(i);
-    var boatGoal = P.nextAct(state);
-    if (state.bulk === 'max' || !(boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i)) buy.textContent = buyLabel(i);
-    else {
-      priced = { count: boatGoal.count, cost: boatGoal.cost };
-      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + hullTitle(i, boatGoal.count) + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
-    }
+    var boatGoal = P.nextBlockingGoal ? P.nextBlockingGoal(state) : P.nextAct(state);
+    if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
+      priced = { count: boatGoal.count || 1, cost: boatGoal.cost };
+      var same = 'Buy ' + priced.count + ' · ' + hullTitle(i, priced.count) + ' · ' + money(priced.cost);
+      buy.textContent = state.cash >= priced.cost ? same : same + ' · ' + M.needMore(state, priced.cost);
+    } else buy.textContent = buyLabel(i);
     buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
     buy.dataset.count = String(priced.count || 0);
     buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
@@ -352,18 +352,19 @@
       box.style.maxHeight = '';
       return;
     }
+    if (box.parentElement !== $('#desk') && $('#desk')) $('#desk').appendChild(box);
     box.style.top = '';
     box.style.bottom = '';
     box.style.maxHeight = '';
     box.style.left = '';
     box.style.right = '';
-    if (box.parentElement !== document.body) document.body.appendChild(box);
     box.style.transform = '';
     box.style.width = '';
     box.style.position = '';
     if (back) back.hidden = true;
     var title = $('#choice-title');
-    if (title) title.textContent = offer.goal || 'A choice on the desk';
+    var waiting = M.choiceQueue ? M.choiceQueue(state).length : 1;
+    if (title) title.textContent = (offer.goal || 'A choice on the desk') + (waiting > 1 ? ' · 1 of ' + waiting : '');
     if (view.choiceShut) {
       box.hidden = true;
       box.classList.remove('is-shut');
@@ -492,9 +493,10 @@
     });
     /* On a phone the same price is already on the card, so the note stays one sentence. */
     if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
+    /* Price ticks must not rebuild the card. A new button between press and
+       click is how the first tap gets lost. */
     var sig = rows.map(function (row) {
-      var cost = row.offer ? Math.round(row.offer.cost) : 0;
-      return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
+      return row.spec.id + ':' + row.signed + ':' + (row.offer ? 1 : 0);
     }).join('|');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
@@ -557,8 +559,24 @@
       button.disabled = !offer.affordable;
       var signedNow = (state.routes && state.routes[id]) || 0;
       var rest = offer.depths - signedNow;
-      var label = (signedNow >= 2 && rest > 1 ? ('Sign the last ' + rest + ' · ') : 'Sign · ') + money(offer.cost);
-      button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+      if (button.dataset.sure === '1' && button.dataset.depth === String(signedNow)) {
+        button.textContent = 'Confirm ' + offer.name;
+      } else {
+        button.dataset.sure = '';
+        var label = (signedNow >= 2 && rest > 1 ? ('Sign the last ' + rest + ' · ') : 'Sign · ') + money(offer.cost);
+        button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+      }
+      var habit = button.closest('.route-card') && button.closest('.route-card').querySelector('.habit');
+      if (habit) {
+        var specRow = null;
+        (M.ROUTES || []).forEach(function (row) { if (row.id === id) specRow = row; });
+        if (specRow) {
+          var live = specRow.risk || 0;
+          if ((specRow.wren || specRow.night) && M.nightSafety) live = live * (1 - M.nightSafety(state));
+          var riskLine = live < 0.01 ? ' The light keeps this cargo.' : ' About ' + Math.round(live * 100) + '% can be lost.';
+          habit.textContent = specRow.line + ' It is ' + specRow.time + '.' + riskLine;
+        }
+      }
     });
     Array.prototype.forEach.call(host.querySelectorAll('button[disabled][data-route]'), function (button) {
       var spec = null;
@@ -591,7 +609,7 @@
     if (!current) sails.forEach(function (row) { if (!current && !row.fitted) current = row; });
     if (current) gearHost.dataset.pick = current.id;
     var sailSig = current
-      ? current.id + (current.fitted ? ':fit' : ':' + current.cost) + ':' + sails.map(function (row) { return row.id; }).join(',')
+      ? current.id + (current.fitted ? ':fit' : ':open') + ':' + sails.map(function (row) { return row.id; }).join(',')
       : 'wait';
     if (gearHost.dataset.sig !== sailSig) {
       gearHost.dataset.sig = sailSig;
@@ -688,7 +706,7 @@
     var burning = M.lightsLit(state);
     var lightNote = burning >= 4
       ? '4 lit. Every lighthouse on the coast is burning.'
-      : burning + ' lit. Four lighthouses. Each one changes the routes.';
+      : burning + ' lit. Four lighthouses. A bark is the deep-water boat. Sixteen of them raise the Quay Lighthouse.';
     if (M.yearOf && M.yearOf(state) === 2) {
       lightNote += M.glassBurning(state)
         ? ' The Glass Lighthouse is burning, and the winter storm has lifted.'
@@ -703,7 +721,7 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + ':r' + M.routesSailing(state) + (offers.length ? '' : ':done');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage; }).join('|') + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
@@ -1112,8 +1130,10 @@
     var waiting = deskWaiting();
     var shut = !!view.choiceShut && waiting > 0;
     if (pill) {
-      pill.hidden = !shut;
-      pill.textContent = waiting + (waiting === 1 ? ' choice waiting · open' : ' choices waiting · open');
+      pill.hidden = waiting < 1;
+      pill.textContent = shut
+        ? (waiting + (waiting === 1 ? ' choice waiting · open' : ' choices waiting · open'))
+        : (waiting + (waiting === 1 ? ' choice on the desk' : ' choices on the desk'));
     }
     var desk = $('#desk');
     if (desk) desk.classList.toggle('is-shut', shut);
@@ -1140,11 +1160,7 @@
     var goalPad = Math.max(goalH, view.goalPad || goalH);
     if (office && narrow) office.style.paddingBottom = (goalPad + gap + 12) + 'px';
     var choice = $('#choice');
-    var awayCard = $('#away');
-    if (choice && awayCard && awayCard.hidden === false && choice.hidden === false) {
-      var awayBottom = awayCard.getBoundingClientRect().bottom;
-      choice.style.setProperty('top', Math.max(awayBottom + 8, 144) + 'px', 'important');
-    } else if (choice) choice.style.removeProperty('top');
+    if (choice) choice.style.removeProperty('top');
     document.documentElement.style.scrollPaddingTop = (purseH + 12) + 'px';
     document.documentElement.style.scrollPaddingBottom = (goalPad + gap + 12) + 'px';
     syncDesk();
@@ -1622,8 +1638,8 @@
     if (b.id === 'desk-pill') {
       view.choiceShut = false;
       render();
-      var openBtn = document.querySelector('#choice-cards button');
-      if (openBtn && openBtn.focus) openBtn.focus({ preventScroll: true });
+      var desk = $('#desk');
+      if (desk && desk.scrollIntoView) desk.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
       return;
     }
     if (b.id === 'choice-fold') {
@@ -1688,7 +1704,11 @@
       (M.ROUTES || []).forEach(function (row) { if (row.id === b.dataset.route) routeSpec = row; });
       if (routeSpec && routeSpec.risk >= 0.3 && b.dataset.sure !== '1') {
         b.dataset.sure = '1';
-        b.textContent = 'Confirm ' + routeSpec.name + '. About ' + Math.round(routeSpec.risk * 100) + '% of the cargo can be lost.';
+        b.dataset.depth = String((state.routes && state.routes[routeSpec.id]) || 0);
+        b.textContent = 'Confirm ' + routeSpec.name;
+        var card = b.closest('.route-card');
+        var habit = card && card.querySelector('.habit');
+        if (habit) habit.textContent = 'About ' + Math.round(routeSpec.risk * 100) + '% of this cargo can be lost. Tap again to sign.';
         return;
       }
       if (M.signRoute(state, b.dataset.route).ok) {
@@ -1810,7 +1830,8 @@
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
     var labelled = /^Buy\s+(\d+)\b/.exec(b.textContent || '');
-    var shown = remembered(b) ? +b.getAttribute('data-count') : (labelled ? +labelled[1] : +b.getAttribute('data-count'));
+    var heldCount = remembered(b);
+    var shown = heldCount && heldCount.count ? +heldCount.count : (labelled ? +labelled[1] : +b.getAttribute('data-count'));
     if (!remembered(b) && labelled) b.dataset.count = String(shown);
     if (!(shown > 0)) return;
     var result = M.buy(state, i, shown);
@@ -2011,7 +2032,6 @@
     if (seen.top < 0 || seen.bottom > window.innerHeight || seen.height < 4) {
       el.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
     }
-    scrollTo(el);
     if (view.goalTimer) clearTimeout(view.goalTimer);
     view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
   }

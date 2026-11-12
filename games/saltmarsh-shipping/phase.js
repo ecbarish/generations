@@ -298,14 +298,15 @@
         var lampLeft = M.BARK_LAMP - barksOwned;
         add({
           kind: 'boat', tier: 3, count: 1, id: 'bark', cost: bark.cost, gain: M.marginalRate(state, 3), progress: true,
-          selector: '#boats [data-i="3"]',
-          sentence: withNeed(state, 'Buy a bark. ' + lampLeft + (lampLeft === 1 ? ' bark' : ' barks') + ' still to tie up before the house lamp', bark.cost)
+          selector: '#boats [data-i="3"] [data-act="buy"]',
+          sentence: withNeed(state, 'Buy 1 · Bark · ' + M.coins(bark.cost) + '. ' + lampLeft + ' still before the quay lamp', bark.cost)
         });
       }
     }
     var tier;
     for (tier = M.BOATS.length - 1; tier >= 0; tier--) {
       if (tier === 3 && barksOwned < M.BARK_LAMP) continue;
+      if (tier === 3 && barksOwned >= M.BARK_LAMP && !M.allLightsLit(state)) continue;
       if (!M.unlocked(state, tier)) continue;
       var one = M.quote(state, tier, 1);
       if (!(one.count > 0)) continue;
@@ -316,8 +317,8 @@
       if (pay > 90) continue;
       add({
         kind: 'boat', tier: tier, count: 1, id: 'boat', cost: one.cost, gain: added, progress: false,
-        selector: '#boats [data-i="' + tier + '"]',
-        sentence: withNeed(state, 'Buy a ' + M.BOATS[tier].name.toLowerCase() + ', ' + M.coins(one.cost) + '. Pays back in ' + Math.max(1, Math.ceil(pay)) + 's', one.cost)
+        selector: '#boats [data-i="' + tier + '"] [data-act="buy"]',
+        sentence: withNeed(state, 'Buy 1 · ' + M.BOATS[tier].name + ' · ' + M.coins(one.cost), one.cost)
       });
       break;
     }
@@ -437,7 +438,7 @@
       missingHull = {
         kind: 'boat', tier: hullTier, count: 1, id: 'boat', cost: hullQuote.cost, gain: 0,
         wait: 0, affordable: state.cash >= hullQuote.cost, payback: 0, progress: true,
-        selector: '#boats [data-i="' + hullTier + '"]',
+        selector: '#boats [data-i="' + hullTier + '"] [data-act="buy"]',
         sentence: 'Buy a ' + M.BOATS[hullTier].name.toLowerCase() + ', ' + M.coins(hullQuote.cost)
       };
       break;
@@ -477,17 +478,29 @@
     }
     var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
     if (affordPrep) return affordPrep;
+    var deskStep = null;
+    steps.forEach(function (step) { if (step.kind === 'choice' && !deskStep) deskStep = step; });
+    var routeStep = null;
+    steps.forEach(function (step) { if (step.kind === 'route' && !routeStep) routeStep = step; });
+    if (deskStep && deskStep.id === 'quay' && !routeStep) return deskStep;
+    var quayStep = null;
+    steps.forEach(function (step) {
+      if (step.kind === 'light' && step.id === 'quay') quayStep = step;
+    });
     var lampBark = pool.filter(function (step) { return step.id === 'bark'; })[0];
     var affordRoute = pool.filter(function (step) { return step.kind === 'route' && step.affordable; })[0];
     if (lampBark && !affordLights.length && !affordRoute) return within(settle(lampBark));
     var income = pool.filter(function (step) { return step.affordable && !step.progress && step.payback <= 90 && step.kind !== 'choice'; });
-    var affordChoice = pool.filter(function (step) { return step.kind === 'choice' && step.affordable; })[0];
-    if (affordChoice && !income.length) return affordChoice;
+    var quayReady = quayStep && state.boats[3] && state.boats[3].owned >= M.BARK_LAMP && M.lightsLit(state) >= 3;
+    var beside = pool.filter(function (step) {
+      return step.affordable && step !== quayStep && step.kind !== 'boat' && step.kind !== 'choice';
+    });
+    if (quayReady && !beside.length) return within(quayStep);
     var bestIncome = richest(income);
     if (bestIncome) return within(settle(bestIncome));
-    if (affordChoice) return affordChoice;
     var progressSoon = pool.filter(function (step) { return step.progress; });
-    if (progressSoon.length) return within(soonest(progressSoon));
+    if (progressSoon.length && !(deskStep && deskStep.id === 'quay')) return within(soonest(progressSoon));
+    if (deskStep) return deskStep;
     var worth = pool.filter(function (step) { return step.payback <= 120; });
     return within(settle(soonest(worth.length ? worth : pool)));
   }
@@ -574,7 +587,7 @@
     }
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
-    if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
+    if (sailing < 1) return routeOrBoat(state, 'Choose a route. Each run is different.');
     var best = bestStep(state);
     if (best) return best.sentence;
     if (choice) return choice;

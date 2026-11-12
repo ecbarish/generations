@@ -319,6 +319,7 @@
     if (!cap) return '';
     if (cap.tier === 0) return 'Ask ' + cap.name + ' to take the pier.';
     var boat = spec(cap.tier);
+    if (cap.tier === 3) return 'Ask ' + cap.name + ' to sail a bark you already have. The quay lamp keeps all sixteen.';
     return 'Ask ' + cap.name + ' to take a ' + boat.name.toLowerCase() + '.';
   }
 
@@ -893,7 +894,7 @@
     { id: 'pier', name: 'Pier Lighthouse', needRoutes: 1, wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The tower is up. Lighting costs the same as raising it, and nights stay safer.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
     { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 30, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The tower is up. Lighting costs the same as raising it, and the runs stay quicker.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
     { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 44, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The tower is up. Lighting costs the same as raising it, and the far water stays on the chart.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 46, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 54, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   /* Season 2 only. These stay off the first year's chart, so the first sitting does not grow. */
   var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 18, mid: 18, later: 18, payback: 60, time: 'a winter crossing', line: 'Wool from the Glass Wharf. The wool takes the edge off the winter storm for every route.', perk: 'A winter shelter. Every route keeps more of its pay until the Glass light burns.' };
@@ -1140,7 +1141,11 @@
     state.cash -= quote.cost;
     if (state.cash < 1e-6) state.cash = 0;
     var signedBefore = state.routes[id] || 0;
-    var bundle = signedBefore >= 2 ? Math.max(1, spec.depths - signedBefore) : 1;
+    var anotherDone = false;
+    ROUTES.forEach(function (row) {
+      if (row.id !== id && (state.routes[row.id] || 0) >= row.depths) anotherDone = true;
+    });
+    var bundle = signedBefore >= 2 || (anotherDone && signedBefore >= 1) ? Math.max(1, spec.depths - signedBefore) : 1;
     state.routes[id] = signedBefore + bundle;
     if (!state.routeGross) state.routeGross = {};
     if (!state.routeCut) state.routeCut = {};
@@ -1394,7 +1399,7 @@
     { id: 'canvas', name: 'Canvas for the sails', stake: 11, route: 0.2, line: 'New canvas. Every route pays 20% more.' },
     { id: 'pilot', name: 'A pilot for the bar', stake: 11, choice: [
       { id: 'pilot', name: 'A pilot', costMul: 0.98, shield: true, line: 'A pilot. Wins while Gull Rock or the Night Cut still lose cargo. The squall loss shrinks, and those runs come back sooner. The chart wins once those runs are safe.' },
-      { id: 'chart', name: 'A bought chart', costMul: 1, boat: 0.1, line: 'A chart. Wins when the fleet is the pay and the routes are already safe. Every boat earns 10% more. The pilot wins while a squall is still cutting the night runs.' }
+      { id: 'chart', name: 'A bought chart', costMul: 1, boat: 0.02, line: 'A chart. Wins when the fleet is the pay and the routes are already safe. Every boat earns a little more. The pilot wins while a squall is still cutting the night runs.' }
     ]},
     { id: 'tide', name: 'The tide table', stake: 11, route: 0.2, line: 'The hour is written down. Every route pays 20% more.' }
   ];
@@ -1855,8 +1860,8 @@
         goal: spec.goal,
         cards: spec.cards.map(function (card) {
           var line = card.line;
-          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(Math.max(1, officeRate(state)) * 16)) + ', more than this fee. Best while Gull Rock is still quiet. Letting Wren keep the coin wins once Gull Rock is earning.';
-          if (id === 'windfall' && card.which === 'sell') line = 'The crate pays ' + coins(Math.round(Math.max(1, officeRate(state)) * 11)) + ' now, a little over the fee. Best when a light or a boat is only a few coins short. Stowing wins when the voyage list is the dear bill.';
+          if (id === 'request' && card.which === 'purse') line = 'The purse adds ' + coins(Math.round(eventQuote(state, 'request') * 1.35)) + ' on top of this same fee. Best while Gull Rock is still quiet. Letting Wren keep the coin wins once Gull Rock is earning.';
+          if (id === 'windfall' && card.which === 'sell') line = 'The crate pays ' + coins(Math.round(eventQuote(state, 'windfall') * 1.5)) + ', half again this same fee. Best when a light or a boat is only a few coins short. Stowing wins when the voyage list is the dear bill.';
           return {
             which: card.which,
             name: card.name,
@@ -1906,17 +1911,28 @@
       pushLog(state, 'Capt. Wren keeps the gull\'s coin. Her count holds a little more of Gull Rock.', now);
     } else if (id === 'request') {
       state.events.request = 'purse';
-      addCash(state, Math.round(rate * 16));
+      addCash(state, Math.round(eventQuote(state, 'request') * 1.35));
       pushLog(state, 'The purse stays in the chest. Capt. Wren lets the gull have its coin.', now);
     } else if (id === 'windfall' && which === 'stow') {
       state.events.windfall = 'stow';
       pushLog(state, 'The crate is stowed. Food for the crew will cost less.', now);
     } else if (id === 'windfall') {
       state.events.windfall = 'sell';
-      addCash(state, Math.round(rate * 11));
+      addCash(state, Math.round(eventQuote(state, 'windfall') * 1.5));
       pushLog(state, 'The crate is sold for a little over the fee. The coins are in the chest.', now);
     } else return { ok: false, reason: 'closed' };
     return { ok: true, id: id, which: state.events[id] };
+  }
+  function choiceQueue(state) {
+    if (!state || state.ended) return [];
+    var list = [];
+    if (choiceOffer(state)) list.push('fork');
+    if (quayOffer(state)) list.push('quay');
+    if (partnerOffer(state)) list.push('partner');
+    EVENT_IDS.forEach(function (id) { if (eventWindow(state, id)) list.push(id); });
+    if (winterOffer(state)) list.push('winter');
+    if (pilotOffer(state)) list.push('pilot');
+    return list;
   }
   function deskChoice(state) {
     if (!state || state.ended) return null;
@@ -2689,6 +2705,8 @@
     chooseDesk: chooseDesk,
     settledForks: settledForks,
     wrenKeep: wrenKeep,
+    nightSafety: nightSafety,
+    choiceQueue: choiceQueue,
     brambleHaste: brambleHaste,
     wrenPerkLine: wrenPerkLine,
     bramblePerkLine: bramblePerkLine,

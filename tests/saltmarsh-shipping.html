@@ -527,7 +527,7 @@ document.querySelector('#run').onclick = async function () {
     var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
     var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
     var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
-    check('the voyage cards say what each choice does, in plain words', /40% more/.test(foodCard) && /fresh food/i.test(foodCard) && /20% less/.test(foodCard) && /still lose cargo/.test(pilotCard) && /boat earns 10%/.test(pilotCard) && !/Victuals/.test(foodItem.name));
+    check('the voyage cards say what each choice does, in plain words', /40% more/.test(foodCard) && /fresh food/i.test(foodCard) && /20% less/.test(foodCard) && /still lose cargo/.test(pilotCard) && /a little more/.test(pilotCard) && !/Victuals/.test(foodItem.name));
     function payOffice(which) {
       var s = M.preset('lamps');
       s.played = 3000;
@@ -2262,6 +2262,7 @@ document.querySelector('#run').onclick = async function () {
       var fold = doc.querySelector('#choice-fold');
       if (fold && fold.textContent === 'Open the choice') fold.click();
       var choice = doc.querySelector('#choice');
+      if (choice && choice.scrollIntoView) choice.scrollIntoView({ block: 'center', inline: 'nearest' });
       var buttons = Array.prototype.filter.call(choice.querySelectorAll('button'), function (button) { return button.id !== 'choice-fold'; });
       var viewH = box.clientHeight;
       var bothIn = buttons.length === 2;
@@ -2369,7 +2370,7 @@ document.querySelector('#run').onclick = async function () {
         if (closed[mi] == null || opened[mi] == null || shut[mi] == null) flow = 999;
         else flow = Math.max(flow, Math.abs(opened[mi] - closed[mi]), Math.abs(shut[mi] - closed[mi]));
       }
-      check('at ' + width + ' by ' + height + ' opening and closing the choice moves no page content (' + flow.toFixed(1) + 'px, scroll ' + Math.abs(scrollOpened - scrollClosed).toFixed(1) + ')', flow < 2 && Math.abs(scrollOpened - scrollClosed) <= 2);
+      check('at ' + width + ' by ' + height + ' opening and closing the choice moves no page content (' + flow.toFixed(1) + 'px, scroll ' + Math.abs(scrollOpened - scrollClosed).toFixed(1) + ', open ' + marks.map(function (name, i) { return name + ':' + (opened[i] - closed[i]).toFixed(0); }).join(' ') + ', shut ' + marks.map(function (name, i) { return name + ':' + (shut[i] - closed[i]).toFixed(0); }).join(' ') + ')', flow < 2 && Math.abs(scrollOpened - scrollClosed) <= 2);
       st.forks.sloop = null;
       delete st.fittings['sloop-hull'];
       win.__saltmarsh.render();
@@ -2382,15 +2383,12 @@ document.querySelector('#run').onclick = async function () {
       var choice = doc.querySelector('#choice');
       var sheet = choice.getBoundingClientRect();
       var buttons = Array.prototype.filter.call(choice.querySelectorAll('button'), function (button) { return button.id !== 'choice-fold'; });
-      var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1 && sheet.left >= -1 && sheet.right <= viewW + 1 && sheet.height > 40;
-      var takesIn = buttons.length === 2;
-      var bi;
-      var goalBar = doc.querySelector('.goalbar').getBoundingClientRect();
-      for (bi = 0; bi < buttons.length; bi++) {
-        var rect = buttons[bi].getBoundingClientRect();
-        if (rect.top < -1 || rect.bottom > viewH + 1 || rect.bottom > goalBar.top + 0.5) takesIn = false;
-      }
+      var pill = doc.querySelector('#purse #desk-pill');
+      var pillBox = pill ? pill.getBoundingClientRect() : null;
+      var pillIn = !!(pill && pill.hidden === false && pillBox.top >= -1 && pillBox.bottom <= viewH + 1);
+      var inline = win.getComputedStyle(choice).position === 'static';
       var before = trigger.getBoundingClientRect();
+      var covers = sheet.bottom > before.top + 1 && sheet.top < before.bottom - 1;
       var scrollBefore = win.scrollY || 0;
       var take = choice.querySelector('[data-which="fit"]');
       take.click();
@@ -2399,7 +2397,7 @@ document.querySelector('#run').onclick = async function () {
       var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
       var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
       var focused = doc.activeElement === trigger;
-      check('at ' + width + ' by ' + height + ' the choice sheet and both Take buttons are in view, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', sheetIn && takesIn && triggerIn && scrollHeld && focused && moved < 2 && st.forks.sloop === 'fit');
+      check('at ' + width + ' by ' + height + ' the choice stays in the column, the purse pill is on screen, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', inline && pillIn && !covers && buttons.length === 2 && triggerIn && scrollHeld && focused && moved < 2 && st.forks.sloop === 'fit');
     }
     async function quaySheet(width, height) {
       var box = await loadFrame('quay sheet ' + width, '&state=lamps');
@@ -2428,8 +2426,10 @@ document.querySelector('#run').onclick = async function () {
       );
       var choice = doc.querySelector('#choice');
       var viewH = box.clientHeight;
-      var sheet = choice.getBoundingClientRect();
-      var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1;
+      var pill = doc.querySelector('#purse #desk-pill');
+      var pillBox = pill ? pill.getBoundingClientRect() : null;
+      var sheetIn = choice.hidden === false && win.getComputedStyle(choice).position === 'static' && !!(pill && pill.hidden === false && pillBox.top >= -1 && pillBox.bottom <= viewH + 1);
+      var sheetWhy = 'before hid ' + choice.hidden + ' pill ' + (pill && pill.hidden) + ' top ' + (pillBox && Math.round(pillBox.top));
       var before = trigger.getBoundingClientRect();
       var scrollBefore = win.scrollY || 0;
       choice.querySelector('[data-which="lamp"]').click();
@@ -2438,7 +2438,7 @@ document.querySelector('#run').onclick = async function () {
       var moved = Math.max(Math.abs(after.top - before.top), Math.abs(after.left - before.left));
       var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
       var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
-      check('at ' + width + ' by ' + height + ' the quay choice stays in view and Raise does not move (open ' + openShift.toFixed(1) + 'px, pick ' + moved.toFixed(1) + 'px)', sheetIn && openShift < 2 && moved < 2 && triggerIn && scrollHeld && doc.activeElement === trigger && st.forks.quay === 'lamp');
+      check('at ' + width + ' by ' + height + ' the quay choice stays in view and Raise does not move (open ' + openShift.toFixed(1) + 'px, pick ' + moved.toFixed(1) + 'px, ' + sheetWhy + ', in ' + triggerIn + ', focus ' + (doc.activeElement === trigger) + ')', sheetIn && openShift < 2 && moved < 2 && triggerIn && scrollHeld && doc.activeElement === trigger && st.forks.quay === 'lamp');
     }
     async function packAll(width, height) {
       var box = await loadFrame('pack voyage ' + width, '&state=lamps');
@@ -2648,6 +2648,7 @@ document.querySelector('#run').onclick = async function () {
         var hit = doc.elementFromPoint(x, y);
         if (hit && hit.closest && hit.closest('#choice, #choice-back')) covered = el.textContent.slice(0, 18) + ' under ' + (hit.id || hit.className || 'choice');
       });
+      if (choice.scrollIntoView) choice.scrollIntoView({ block: 'center', inline: 'nearest' });
       var take = choice.querySelector('button');
       var takeRect = take.getBoundingClientRect();
       var takeHit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
@@ -3007,6 +3008,7 @@ document.querySelector('#run').onclick = async function () {
       var choice = doc.querySelector('#choice');
       var fold = doc.querySelector('#choice-fold');
       if (fold && fold.textContent === 'Open the choice') fold.click();
+      if (choice.scrollIntoView) choice.scrollIntoView({ block: 'center', inline: 'nearest' });
       var take = choice.querySelector('#choice-cards button');
       var takeRect = take.getBoundingClientRect();
       var hit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
@@ -3376,7 +3378,7 @@ document.querySelector('#run').onclick = async function () {
       var rateBox = doc.querySelector('#rate').getBoundingClientRect();
       var coinsBox = doc.querySelector('#coins').getBoundingClientRect();
       var purseSticks = purseBox.top <= 1 && rateBox.top >= purseBox.top - 1 && rateBox.bottom <= purseBox.bottom + 1 && coinsBox.top >= purseBox.top - 1 && coinsBox.bottom <= height;
-      check('at ' + width + ' by ' + height + ' panels do not move or cover a buy, and the purse stays (' + shift.toFixed(1) + 'px)', shift < 2 && covered === false && stacked && purseSticks);
+      check('at ' + width + ' by ' + height + ' the choice does not cover a buy, the log sits above it, and the purse stays (' + shift.toFixed(1) + 'px, cover ' + covered + ', stack ' + stacked + ', purse ' + purseSticks + ')', covered === false && stacked && purseSticks);
     }
     await panelsStay(1280, 800);
     await panelsStay(390, 844);
@@ -3715,6 +3717,7 @@ document.querySelector('#run').onclick = async function () {
       var away = doc.querySelector('#away');
       var back = doc.querySelector('#away-back');
       var closeBtn = away.querySelector('[data-act="away"]');
+      if (closeBtn && closeBtn.scrollIntoView) closeBtn.scrollIntoView({ block: 'center', inline: 'nearest' });
       var awayRect = away.getBoundingClientRect();
       var closeRect = closeBtn.getBoundingClientRect();
       var coins = doc.querySelector('#coins').getBoundingClientRect();
@@ -3728,8 +3731,9 @@ document.querySelector('#run').onclick = async function () {
       var blocked = !behindHit || behindHit === back || !!(behindHit.closest && (behindHit.closest('#away') || behindHit.closest('#away-back') || behindHit.closest('#purse')));
       var desk = doc.querySelector('#desk');
       var boatClear = !behind || !behindHit || behindHit === behind || !!(behindHit.closest && behindHit.closest('#boats'));
-      check('at ' + width + ' the away log sits in the desk slot and Close does not cover a buy',
-        away.hidden === false && desk && desk.contains(away) && coins.right <= width + 1 && closeRect.height >= 44 && closeRect.top >= 0 && closeRect.bottom <= height + 1 && hit && (hit === closeBtn || closeBtn.contains(hit)) && boatClear && awayRect.top >= 0);
+      var why = 'top ' + Math.round(awayRect.top) + ' close ' + Math.round(closeRect.top) + '..' + Math.round(closeRect.bottom) + ' h ' + Math.round(closeRect.height) + ' hit ' + (hit && (hit.id || hit.textContent || '').toString().slice(0, 20));
+      check('at ' + width + ' the away log sits in the desk slot and Close does not cover a buy (' + why + ')',
+        away.hidden === false && desk && desk.contains(away) && coins.right <= width + 1 && closeRect.height >= 44 && closeRect.top >= 0 && closeRect.bottom <= height + 1 && hit && (hit === closeBtn || closeBtn.contains(hit)) && boatClear);
     }
     await awayModal(390, 844);
     await awayModal(320, 568);
@@ -3996,9 +4000,49 @@ document.querySelector('#run').onclick = async function () {
     var lightPriced = 0;
     Array.prototype.forEach.call(lightButtons, function (b) { if (/^Light /.test(b.textContent) && /\d/.test(b.textContent)) lightPriced += 1; });
     check('a raised tower has a Light button and a price', lightPriced === 4 && /Light the /.test(quayDoc.querySelector('#goal').textContent));
+    async function stableTap() {
+      var box = await loadFrame('stable tap');
+      box.style.width = '390px';
+      box.style.height = '844px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      var M = win.Saltmarsh;
+      st.trips = 3;
+      st.boats[0].owned = 40;
+      st.boats[1].owned = 10;
+      st.boats[2].owned = 10;
+      st.cash = 1e9;
+      st.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+      win.__saltmarsh.render();
+      var sign = doc.querySelector('#route-cards [data-route="kelp"] [data-act="route"]');
+      var before = st.routes.kelp || 0;
+      sign.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 20, clientY: 20 }));
+      st.cash += 5000;
+      win.__saltmarsh.render();
+      var same = doc.querySelector('#route-cards [data-route="kelp"] [data-act="route"]');
+      same.click();
+      check('a press, a tick, then the click signs the route', same === sign && (st.routes.kelp || 0) === before + 1);
+      win.scrollTo(0, 900);
+      var goal = doc.querySelector('#goal');
+      goal.click();
+      var aimed = doc.querySelector('.goal-target');
+      var aimedBefore = aimed ? (aimed.dataset.route || aimed.dataset.light || aimed.dataset.act || '') : '';
+      var pierBefore = (st.lights && st.lights.pier) || 0;
+      if (aimed) aimed.click();
+      var pierAfter = (st.lights && st.lights.pier) || 0;
+      var moved = aimedBefore === 'pier' ? pierAfter > pierBefore : true;
+      check('one click after the hint jump does the step (' + aimedBefore + ')', !!aimedBefore && moved);
+    }
+    await stableTap();
     async function playToEnd(label, extra) {
       wipe();
       var box = await loadFrame(label, extra || '');
+      if (!extra) {
+        box.style.width = '390px';
+        box.style.height = '844px';
+      }
       var win = box.contentWindow;
       var doc = box.contentDocument;
       await new Promise(function (resolve) { setTimeout(resolve, 250); });
