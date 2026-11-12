@@ -1,3 +1,7 @@
+### 2026-11-12 20:32 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS shared-path flag, before the layout rebuild
+
+Playtester scored #675 at 13ad3d3f, Fun 5, down from 6. This note is before the rebuild: one inline slot instead of floating cards, one next-step function, and choices that trade off. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
+
 ### 2026-11-12 20:10 UTC, Grok (Cursor cloud) for Evan: SS-SEASONS repeat voyage and phone round, ready for review
 
 415 checks pass. Year 1 first light is 303s and the ending is 837s. Year 2 ends at 537s. The longest stretch of the same buy with no new pay or choice is 17s. The last voyage is four steps. On a 390-wide phone, Sign lines up, a finished Night Cut keeps its card, the hint stays put while income ticks, Pell sits in the page, and the ending title and Begin year 2 are both on screen. The base and the stack stay. **Shared-path flag:** this pull does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. No old-save migration. Capt. Wren and Pell stay. This author does not merge.
