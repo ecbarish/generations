@@ -569,7 +569,8 @@
             if (!cap || !(units > 0) || !state.captains[index]) return;
             var rate = state._awayRate > 0 ? state._awayRate : 1;
             var paid = haulCoins(cap, units, rate);
-            addCash(state, paid);
+            /* The office rate already pays this average every second.
+               A haul is the log, not a second purse. */
             var row = state.captains[index];
             row.brought = (row.brought || 0) + paid;
             row.hauls = (row.hauls || 0) + units;
@@ -752,6 +753,11 @@
       lead += ' The game was closed, so the boats earned ' + Math.round(OFFLINE_RATE * 100) + '%.';
       if (summary.capped) lead += ' ' + hold + ', so ' + hours + ' hours counted.';
     }
+    if (typeof detail.perSec === 'number' && summary && summary.credited > 0) {
+      var factor = openPage ? 1 : OFFLINE_RATE;
+      var promised = Math.round(detail.perSec * summary.credited * factor);
+      lead += ' The desk showed ' + coins(detail.perSec) + ' coins a second, so this stretch is ' + coins(promised) + ' coins.';
+    }
     var lines = [];
     if (typeof detail.before === 'number') lines.push('You left with ' + coins(detail.before) + ' coins.');
     var boatGain = typeof detail.boatGain === 'number' ? detail.boatGain : (summary.gained || 0);
@@ -880,10 +886,10 @@
     { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 29, mid: 31, later: 32, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
   ];
   var LIGHTS = [
-    { id: 'pier', name: 'Pier Lighthouse', needRoutes: 1, wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
-    { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
-    { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'pier', name: 'Pier Lighthouse', needRoutes: 1, wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The tower is up. Lighting costs the same as raising it, and nights stay safer.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
+    { id: 'headland', name: 'Headland Lighthouse', needRoutes: 2, wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The tower is up. Lighting costs the same as raising it, and the runs stay quicker.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Lighthouse', needRoutes: 3, wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The tower is up. Lighting costs the same as raising it, and the far water stays on the chart.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Lighthouse', needRoutes: 4, wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The tower is up. Lighting costs the same as raising it, and the captains still count for more.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   /* Season 2 only. These stay off the first year's chart, so the first sitting does not grow. */
   var FROST = { id: 'frost', name: 'Frost Lane', order: 7, depths: 1, risk: 0.12, first: 22, mid: 22, later: 22, payback: 48, time: 'a winter crossing', line: 'Wool from the Glass Wharf. The winter storm takes a cut until the Glass Lighthouse is burning.', perk: 'The harbour\'s regard opens this lane.' };
@@ -1301,7 +1307,13 @@
     var prevStage = (state.lights[id] || 0);
     state.lights[id] = prevStage + 1;
     if (state.lightQuotes) delete state.lightQuotes[id + ':' + prevStage];
-    pushLog(state, quote.line, now);
+    if (state.log && state.log.length) {
+      state.log = state.log.filter(function (row) {
+        return !(row && row.text && row.text.indexOf('Still dark') === 0 && row.text.indexOf(spec.name) >= 0);
+      });
+    }
+    var litLine = spec.lines[state.lights[id]] || spec.lines[spec.lines.length - 1];
+    pushLog(state, litLine, now);
     if (id === 'glass' && state.lights.glass >= 2) pushLog(state, 'The Glass Lighthouse is burning. The winter storm lifts off the routes.', now);
     if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. Pack the voyage list, then set sail.', now);
     commitGoal(state, 'light');
@@ -2452,7 +2464,7 @@
 
   function createIdle(state, save) {
     return Idle.create({
-      getRate: function () { return income(state) + routeIncome(state); },
+      getRate: function () { return officeRate(state); },
       apply: function (amount) { addCash(state, amount); },
       maxOfflineSec: offlineCap(state),
       offlineRate: OFFLINE_RATE,

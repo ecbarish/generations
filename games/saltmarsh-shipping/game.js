@@ -331,45 +331,6 @@
     return null;
   }
 
-  function placeChoice(box, offer) {
-    var trigger = choiceTrigger(offer);
-    var bar = document.querySelector('.goalbar');
-    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
-    var viewH = window.innerHeight || 800;
-    var cardMid = viewH * 0.45;
-    if (trigger) {
-      var card = trigger.getBoundingClientRect();
-      if (card.height > 0 && card.width > 0) cardMid = card.top + card.height / 2;
-    }
-    function pinBelow() {
-      box.style.top = 'auto';
-      box.style.bottom = (barH + 8) + 'px';
-      var cardBottom = trigger ? trigger.getBoundingClientRect().bottom : 0;
-      var room = viewH - (cardBottom > 0 ? cardBottom : 0) - barH - 16;
-      box.style.maxHeight = cardBottom > 8 && room > 140 ? Math.floor(room) + 'px' : '';
-    }
-    function pinAbove() {
-      box.style.bottom = 'auto';
-      box.style.top = '4.2rem';
-      var cardTop = trigger ? trigger.getBoundingClientRect().top : viewH;
-      var room = cardTop - 72 - 12;
-      box.style.maxHeight = cardTop < viewH && room > 140 ? Math.floor(room) + 'px' : '';
-    }
-    function overlapsCard() {
-      if (!trigger) return false;
-      var sheet = box.getBoundingClientRect();
-      var card = trigger.getBoundingClientRect();
-      if (!(sheet.height > 0) || !(card.height > 0)) return false;
-      return sheet.top < card.bottom - 1 && sheet.bottom > card.top + 1 && sheet.left < card.right && sheet.right > card.left;
-    }
-    if (cardMid < viewH * 0.5) pinBelow();
-    else pinAbove();
-    if (overlapsCard()) {
-      if (box.style.top === 'auto') pinAbove();
-      else pinBelow();
-    }
-  }
-
   function fillChoice() {
     var box = $('#choice');
     if (!box) return;
@@ -383,45 +344,35 @@
       box.style.maxHeight = '';
       return;
     }
-    placeChoice(box, offer);
-    box.hidden = false;
-    if (back) back.hidden = false;
-    placeChoice(box, offer);
-    /* A short phone keeps the sheet to the office cap, above the goal bar. */
-    var narrowSheet = window.matchMedia('(max-width: 899px)').matches;
-    var shortSheet = window.matchMedia('(max-height: 430px)').matches;
-    if (view.choiceFor !== offer.id) {
-      view.choiceFor = offer.id;
-      view.choiceShut = true;
-    }
-    if (!narrowSheet) view.choiceShut = false;
-    var fold = $('#choice-fold');
+    /* The sheet floats above the goal bar. placeStack moves it if it would cover a buy. */
     var title = $('#choice-title');
     if (title) title.textContent = offer.goal || 'A choice on the desk';
-    if (narrowSheet) {
-      if (!fold) {
-        fold = document.createElement('button');
-        fold.type = 'button';
-        fold.id = 'choice-fold';
-        fold.dataset.act = 'choice-fold';
-        var bar = box.querySelector('.choice-bar') || box;
-        bar.appendChild(fold);
-      }
-      fold.textContent = view.choiceShut ? 'Open the choice' : 'Hide the choice';
-    } else if (fold) {
-      fold.remove();
-    }
-    var shut = !!(narrowSheet && view.choiceShut);
-    box.classList.toggle('is-shut', shut);
-    if (shut) {
+    var bar = document.querySelector('#goalbar');
+    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var short = window.matchMedia('(max-height: 430px)').matches;
+    var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
+    var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
+    if (narrow) {
       box.style.top = 'auto';
-      box.style.bottom = '4.6rem';
-      box.style.maxHeight = '';
-    } else if (narrowSheet || shortSheet) {
-      var sheetCap = Math.floor(window.innerHeight * 0.46);
-      var sheetNow = parseFloat(box.style.maxHeight);
-      if (!sheetNow || sheetNow > sheetCap) box.style.maxHeight = Math.max(140, sheetCap) + 'px';
+      box.style.bottom = (barH + gap) + 'px';
+      box.style.maxHeight = '11rem';
+    } else if (fingerLow) {
+      box.style.top = topPx + 'px';
+      box.style.bottom = 'auto';
+      var room = window.innerHeight - barH - gap - topPx;
+      var cap = short ? Math.min(room, window.innerHeight * 0.46) : room;
+      box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
+    } else {
+      box.style.top = 'auto';
+      box.style.bottom = (barH + gap) + 'px';
+      var roomBottom = window.innerHeight - barH - gap;
+      var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
+      box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
     }
+    box.hidden = false;
+    if (back) back.hidden = false;
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -1083,6 +1034,62 @@
     el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
   }
 
+  function panelsOverlap(a, b) {
+    return a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+  }
+  function panelCoversBuy(rect) {
+    var nodes = document.querySelectorAll('#boats [data-act="buy"]');
+    var i;
+    for (i = 0; i < nodes.length; i++) {
+      var button = nodes[i];
+      if (button.hidden || button.offsetParent === null) continue;
+      var box = button.getBoundingClientRect();
+      if (box.width < 4 || box.height < 4) continue;
+      if (panelsOverlap(rect, box)) return true;
+    }
+    return false;
+  }
+  /* Choice and the welcome-back card float, so opening one does not move a button.
+     They stack above the goal, and move under the purse if that stack would cover a buy. */
+  function placeStack() {
+    var choice = $('#choice');
+    var away = $('#away');
+    var goal = $('#goalbar');
+    var purse = $('#purse');
+    var goalH = goal ? Math.ceil(goal.getBoundingClientRect().height) : 64;
+    var gap = 8;
+    var narrow = window.matchMedia('(max-width: 899px)').matches;
+    var choiceOpen = choice && !choice.hidden;
+    var awayOpen = away && !away.hidden;
+    if (choiceOpen) {
+      choice.style.top = 'auto';
+      choice.style.bottom = (goalH + gap) + 'px';
+      choice.style.maxHeight = narrow ? '8.5rem' : '';
+      choice.style.zIndex = '7';
+    }
+    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
+    if (awayOpen) {
+      away.style.top = 'auto';
+      away.style.bottom = (goalH + gap + (choiceH ? choiceH + gap : 0)) + 'px';
+      away.style.zIndex = '8';
+    }
+    var choiceRect = choiceOpen ? choice.getBoundingClientRect() : null;
+    var awayRect = awayOpen ? away.getBoundingClientRect() : null;
+    if ((choiceRect && panelCoversBuy(choiceRect)) || (awayRect && panelCoversBuy(awayRect))) {
+      var purseBottom = purse ? purse.getBoundingClientRect().bottom : gap;
+      var top = Math.max(gap, Math.ceil(purseBottom) + gap);
+      if (awayOpen) {
+        away.style.top = top + 'px';
+        away.style.bottom = 'auto';
+        top += Math.ceil(away.getBoundingClientRect().height) + gap;
+      }
+      if (choiceOpen) {
+        choice.style.top = top + 'px';
+        choice.style.bottom = 'auto';
+      }
+    }
+  }
+
   function render(fromClock) {
     var pin = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
     var pinTop = pin ? pin.getBoundingClientRect().top : null;
@@ -1242,6 +1249,7 @@
       el.setAttribute('title', el.textContent);
     });
     if (audio && audio.render) audio.render();
+    placeStack();
     var pinned = document.querySelector('#boats [data-i="0"] [data-act="buy"]');
     if (pinned && pinTop != null) {
       var shift = pinned.getBoundingClientRect().top - pinTop;
@@ -1281,6 +1289,7 @@
     btn.dataset.act = 'away';
     btn.textContent = 'Close the log';
     box.appendChild(btn);
+    placeStack();
   }
 
   function cheer(button, text) {
@@ -1716,7 +1725,8 @@
       after: state.cash,
       boatGain: cashAfterBoats - cashBeforeAway,
       captains: M.captainAwayLines(state, booksBeforeAway, haulsBeforeAway),
-      openPage: false
+      openPage: false,
+      perSec: M.officeRate(state)
     });
   }
   render();
@@ -1767,7 +1777,8 @@
         after: state.cash,
         boatGain: Math.max(0, state.cash - before - captainGain(books)),
         captains: M.captainAwayLines(state, books, hauls),
-        openPage: true
+        openPage: true,
+        perSec: M.officeRate(state)
       });
       render();
     }

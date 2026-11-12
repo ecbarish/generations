@@ -424,7 +424,7 @@
     for (sec = 1; sec <= limit && !state.ended; sec++) {
       sim += 1000;
       state.played = sec;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, sim, 1);
       var act = goalAction(M, P, state, sim);
       if (!act || !act.affordable) continue;
@@ -454,7 +454,7 @@
     var second = 0;
     function accrue(sec, mult, cap) {
       var span = cap ? Math.min(sec, M.offlineCap(state)) : sec;
-      M.addCash(state, (M.income(state) + M.routeIncome(state)) * span * mult);
+      M.addCash(state, M.officeRate(state) * span * mult);
       second += sec;
       state.played = second;
     }
@@ -531,7 +531,7 @@
     var ms;
     for (ms = 1000; ms <= limit && !state.ended; ms += 1000) {
       state.played = ms / 1000;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, ms, 1);
       var want = goalAction(M, P, state, ms);
       if (!want) continue;
@@ -575,7 +575,7 @@
     for (sec = 1; sec <= 12000 && !state.ended; sec++) {
       sim += 1000;
       state.played = sec;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, sim, 1);
       var best = P.bestStep ? P.bestStep(state) : null;
       if (best && P.goal(state) !== best.sentence) missedCheap += 1;
@@ -762,7 +762,7 @@ function browserGreedy() {
                 window.__saltmarshTime = sim;
                 state.played = (state.played || 0) + 1;
                 bridge.view.rowing = 0;
-                M.addCash(state, M.income(state) + M.routeIncome(state));
+                M.addCash(state, M.officeRate(state));
                 M.collectCaptains(state, sim, 1);
                 bridge.render();
                 const goal = (document.querySelector('#goal') || {}).textContent || '';

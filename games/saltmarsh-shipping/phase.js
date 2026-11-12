@@ -72,6 +72,8 @@
     if (!need) return base + '.';
     var rate = M.officeRate(state);
     var sec = rate > 0 ? Math.ceil((cost - state.cash) / rate) : 0;
+    if (sec > 90) return base + '. Row a cargo while you wait.';
+    if (sec > 20 && /^(Raise|Light) the /.test(base)) return base + '. ' + need + ', ' + sec + 's. Row a cargo while you wait.';
     if (sec > 0) return base + '. ' + need + ', ' + sec + 's.';
     return base + '. ' + need + ' more.';
   }
@@ -333,6 +335,21 @@
     }
     var soon = steps.filter(function (step) { return step.wait <= 90; });
     var pool = soon.length ? soon : steps;
+    function settle(step) {
+      if (!step) return step;
+      if (step.kind !== 'boat' && step.kind !== 'route') {
+        state._goalHold = null;
+        return step;
+      }
+      var hold = state._goalHold;
+      if (hold && hold.kind === 'route' && step.kind === 'boat') {
+        var live = null;
+        pool.forEach(function (row) { if (row.kind === 'route' && row.id === hold.id) live = row; });
+        if (live && live.wait <= 90) return live;
+      }
+      state._goalHold = step;
+      return step;
+    }
     var affordLights = pool.filter(function (step) { return step.kind === 'light' && step.affordable; });
     if (affordLights.length) {
       affordLights.sort(function (a, b) { return (b.stage === 1) - (a.stage === 1) || a.cost - b.cost; });
@@ -348,17 +365,18 @@
     var affordPrep = pool.filter(function (step) { return step.kind === 'prep' && step.affordable; })[0];
     if (affordPrep) return affordPrep;
     var lampBark = pool.filter(function (step) { return step.id === 'bark'; })[0];
-    if (lampBark && !affordLights.length) return lampBark;
+    var affordRoute = pool.filter(function (step) { return step.kind === 'route' && step.affordable; })[0];
+    if (lampBark && !affordLights.length && !affordRoute) return settle(lampBark);
     var income = pool.filter(function (step) { return step.affordable && !step.progress && step.payback <= 90 && step.kind !== 'choice'; });
     var affordChoice = pool.filter(function (step) { return step.kind === 'choice' && step.affordable; })[0];
     if (affordChoice && !income.length) return affordChoice;
     var bestIncome = richest(income);
-    if (bestIncome) return bestIncome;
+    if (bestIncome) return settle(bestIncome);
     if (affordChoice) return affordChoice;
     var progressSoon = pool.filter(function (step) { return step.progress; });
     if (progressSoon.length) return soonest(progressSoon);
     var worth = pool.filter(function (step) { return step.payback <= 120; });
-    return soonest(worth.length ? worth : pool);
+    return settle(soonest(worth.length ? worth : pool));
   }
 
   function progressSteps(state) {
@@ -409,6 +427,9 @@
       var schoonerRate = Math.max(1, M.officeRate(state));
       var schoonerWait = Math.ceil(Math.max(0, schoonerAll - state.cash) / schoonerRate);
       var schoonerNoun = left === 1 ? 'a schooner' : left + ' schooners';
+      if (state.boats[2].owned >= 1) {
+        return withNeed(state, 'Buy ' + (left === 1 ? 'one more schooner' : left + ' more schooners') + ' for the next tide', schoonerAll);
+      }
       if (schoonerWait > 90) return withNeed(state, 'Buy a schooner for the next tide', M.quote(state, 2, 1).cost);
       return withNeed(state, 'Buy ' + schoonerNoun + ' for the next tide', schoonerAll);
     }
