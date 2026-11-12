@@ -20,9 +20,8 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 
 - **Commit email:** only `206636510+ecbarish@users.noreply.github.com` (set it as the repo's `user.email`). Never a
   personal email.
-- **Browser games: plain HTML/JS, no build step.** From the repo folder, on Windows run
-  `powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1`. On macOS or Linux run `python3 -m http.server 8765`.
-  Open http://localhost:8765/ (the host name localhost is the one several games use for their test hooks). **Godot games** (`starfall-godot/`,
+- **Browser games: plain HTML/JS, no build step.** Run `powershell -ExecutionPolicy Bypass -File serve.ps1` (or
+  `python -m http.server 8765`) in the repo folder and open http://localhost:8765/. **Godot games** (`starfall-godot/`,
   Claude's): Godot 4.7.2 in `C:\Users\evanb\Godot`; the web preview lives in `play/starfall/` (see play/README.md).
 - **Tests must stay all-pass:** run `node tools/run-all-checks.cjs` for every browser test page and the Starfall Godot
   suite (install Godot or set `GODOT` to its console executable). The current suite list is in
@@ -46,28 +45,31 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 - Only Generations Reviewer merges; nobody merges their own PR. A ready PR merges after every PROCESS self-check line passes on the latest commit and the self-check
   is recorded in a PR comment. Generations Reviewer squash-merges, records the release/session notes and ticks the completed task.
 
-## Where we are (10 November 2026)
+## Where we are (rewritten 2026-10-08, night)
 
-Checked against the homepage, `launcher/games.js`, `shared/hub.js`, Realmbound's `LEVEL_CAP` and `PLAY_CAP`, and the top of [docs/QUEUE.md](docs/QUEUE.md). The public game list is the Games section of [README.md](README.md).
+**Read `docs/PROJECTS.md` "Read first" before anything else:** it lists every decision and lesson since 2026-10-07
+(Godot, the game window, depth, woven stories, player text, variety, friends' testing, the process). In short:
 
-- **Little Ranch** is the premier game. The homepage hero is Little Ranch, and Play now starts with it. The card says Test version: a toy for ages 2 to 4, with feeding, a bath, peekaboo and bedtime. The 10 November order does not open a new Little Ranch feature ahead of Keymaster. The queue still lists LR-VISIT (the sound choice survives a reload) and LRL-11 (a phone playtest).
-- **Near-term work** (Evan, 9 November 2026, written into the queue on 10 November): Keymaster, then Saltmarsh Shipping Office, then Night Market. Otherworld comes after those three. 3D worlds and 3D games wait.
-- **Play now**, from `Hub.CURRENT`: Little Ranch, Starfall Guild (the Godot town at `play/starfall/`, card status Early preview) and Realmbound (Beta).
-- **The Lab** lists the other `ArcadeGames` entries: Storm Front, Lighthouse Watch, Brisket's Crossing, Ember Bricks, Diamond Manager, Keymaster, Otherworld and Saltmarsh Shipping Office.
-- **In development**, as the queue describes them: Keymaster's completeness pass (listing variety, phone balance, progression, first-session pace; the finish pass is already merged). Saltmarsh's polish pass (a natural ending, mid-game events, an away summary and the feel of coming back; routes, lighthouses and a last voyage are already in this copy). Night Market's roguelite pulls, then a hall card. Night Market is playable at `games/night-market/` and is absent from `launcher/games.js`, so the site does not show it. Otherworld's follow-up (buttons that stay put, the next life's goal only after you enter that life, a larger traveller) waits behind those three. The Otherworld finish pass is already merged.
-- **Lantern Bowl** is shelved (Evan, 18 October 2026) and lives on `ArcadeOffShelf`. The folder and the direct link stay. No new Lantern Bowl work.
-- **Realmbound** is Beta. `LEVEL_CAP` is 60, and the zones run through level 60. Ordinary combat stops awarding levels at `PLAY_CAP`, which is 40. The queue's spare-effort line says no new Realmbound work.
-- **Also off the site**, with folders and direct links kept: Primordial (hidden from the hall), Diamond Career (shelved) and Starfall Guild Classic (the old browser edition).
-- **Wildbond** is a private passion project for Evan and select friends. This public checkout has no Wildbond game, Godot project or web build, and this handoff does not promote it.
-- **The Realmbound 3D trial** at `experiments/realmbound-3d/` is a walkable-inn experiment. It is not a catalogue game. 3D work is waiting.
+- **Wildbond** has moved to the private repository ecbarish/wildbond-project. This public checkout no longer has its Godot project, browser game, or plans.
+- **The Starfall village, in Godot** (`starfall-godot/`, Claude): a frontier guild town: the guild board,
+  adventurers who choose their own jobs, the inn's counter by hand then Bryn, Hob's plots, the Healer's Hut, a Training
+  Yard, the Smithy worked by hand then Garrick, the Apothecary with prices, ranks and newcomers, music. 85 checks.
+  Plays on the web at `play/starfall/`.
+- **Browser games** (all playable, linked from the arcade): Realmbound v1.6.0 (1-60, dungeons, guild with stories and commissions, a
+  raid), Diamond Career v0.4.0 (a baseball career, now in the game window, with a road trip), Otherworld v0.3.0
+  (the Between and three worlds: Asterhold with a living Lanthorn, Hearthmere, the Ashen Throne), Starfall Guild (the old browser version), Primordial.
+- **Friends are testing:** the Come Play page (`playtest.html`) with a one-minute trailer, first steps and "if you're
+  lost" per game. Windows builds in `Desktop\Game builds`.
+- **Lore and design decided** (Evan, 2026-10-08): the wild bond, the Unbound, heritages, reputation, the creature
+  catalogue and evolution, depth and first person one day (the fading took depth as well as colour). The lore ledger moved with the private Wildbond project.
 
-## Up next (10 November 2026)
+## Up next (2026-10-13: the cycle decides)
 
-Take the named task in [docs/QUEUE.md](docs/QUEUE.md) "This cycle". The live order at the top of that block is Keymaster, then Saltmarsh Shipping Office, then Night Market, then Otherworld. 3D work waits behind those. How to work: [docs/PROCESS.md](docs/PROCESS.md). [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md) section 4 is the older weekly shape. The queue's top block is the order to follow.
+**Your task is in [docs/QUEUE.md](docs/QUEUE.md) "This cycle"**: one week, each worker named with one to three tasks
+and a done-when line, a Play day on Sunday and a rollover by lane P on Monday ([docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)
+section 4). Take your named task, then the block's spare-effort order. How to work: [docs/PROCESS.md](docs/PROCESS.md).
 
-## Questions for Evan (record from 8–9 October 2026)
-
-The live order is "Where we are" and "Up next" above. These notes stay as the record of the answers from those days. Wildbond's later development moved to the private project.
+## Questions for Evan (work continues on the defaults until he answers)
 
 1. **Answered 2026-10-09: (a), the Godot Wildbond becomes the main one.** **What does "launch" (version 2.0) mean now?** The new Wildbond in Godot replaces the browser screens. Options: (a)
    launch when the Godot Wildbond reaches the full journey (all eight areas and the league), with the browser version
@@ -91,7 +93,6 @@ The live order is "Where we are" and "Up next" above. These notes stay as the re
 
 ## Session log (newest first; one or two lines each)
 
-- **2026-11-10, Grok (Cursor cloud), DOCS-ACC1:** The README games table, Layout and Run locally lines, and this handoff, now match the homepage, `launcher/games.js` and the 9–10 November queue. Little Ranch leads the site. Keymaster, Saltmarsh Shipping Office and Night Market are the near-term work, then Otherworld. Lantern Bowl stays shelved. Realmbound is Beta, and `LEVEL_CAP` is 60. Wildbond stays off the public list. Docs only. No game version was bumped, the README changelog was left as it was, and DEVELOPMENT-PATH has no DOCS-ACC1 row, so nothing is ticked. `docs/SITE-AND-GUIDES.md` was left untouched.
 - **2026-11-05, Grok (Cursor cloud), #630:** Saltmarsh Shipping Office is now v0.3.0. Ten schooners open the trade routes, four lighthouses stand on the coast, and Set sail ends the office once the last voyage is packed. You can open a new harbour and ask one captain to come across. Signing a route leaves Sign and Sail where they were, and the goal says "Pick bell or coal on the desk" when that choice arrives. Recorded for [#630](https://github.com/ecbarish/generations/pull/630) (5adf8807). The Feedback label reads v0.3.0. The page has no separate header version. The save stays version 1 (`saltmarsh-shipping-save-v1`). DEVELOPMENT-PATH ticks IDLE-SS1b.
 - **2026-11-05, Grok (Cursor cloud), #634:** Keymaster is now v0.1.1. Before you spend any cash, the worksheet says whether that home's first year would count. The sellers answer the same way on a desk and on a phone, and a higher offer is never a worse answer than a lower one. When the cash will not cover the offer, Make this offer stays shut and says "Not enough cash for this offer." Walking the street again deals the five homes in a new order. Recorded for [#634](https://github.com/ecbarish/generations/pull/634) (bdff048e). The version label in the Keymaster readme now reads v0.1.1. The page itself has no header version and no Feedback label. The save key stays `keymaster-save-v1`, and the save stays version 1. An older file with no home order is left untouched and the screen starts fresh. DEVELOPMENT-PATH ticks KM-FINISH.
 - **2026-11-05, Grok (Cursor cloud), #632:** Otherworld is now v0.4.2. A newcomer still has one goal for the life, and that goal moves on once Hesta has the name. Skip finishes the rest of a speech in one tap, and holding Go on walks through the lines. On a short phone the first world and the first gift can be tapped without scrolling. The traveller in the hay cart and at the guild counter is a person at 16 by 24, with the hair and skin the player chose. Recorded for [#632](https://github.com/ecbarish/generations/pull/632) (c808b362). The header and the Feedback label both read v0.4.2. The save key stays `otherworld-save-v1`. DEVELOPMENT-PATH ticks OW-FINISH. Draft #530 can close as superseded.
