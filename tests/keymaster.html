@@ -119,7 +119,7 @@ document.querySelector('#run').onclick=async()=>{
   H.S.phase='run';H.S.counter=null;H.S.price=150000;H.S.down=0.25;H.S.rehab='refresh';H.run().cash=cash;
   d.querySelector('#answer').hidden=true;H.render();
   for(let i=0;i<2;i++)click('[data-offer="-2000"]');click('[data-down="0.2"]');click('#offerBtn');await wait();
-  check('the cottage finishes the street: 3 of 3',/You own 31 Alder Street/.test(text('#answer'))&&/See your street/.test(text('#answer')));
+  check('the cottage finishes the street: 3 of 3',/You own 31 Alder Street/.test(text('#answer'))&&/See your street/.test(text('#replyActions'))&&/3 of 3/.test(text('#goal')));
   click('[data-act="next"]');await wait();
   check('your street: won, five homes listed, the worksheet put away',/You built a street that pays/.test(text('#finale'))&&d.querySelectorAll('#finale .yours li').length===5&&d.querySelector('.sheet').hidden&&!d.querySelector('#finale').hidden);
   const walked=[...d.querySelectorAll('#doors b')].map(b=>b.textContent).join();
@@ -200,7 +200,7 @@ document.querySelector('#run').onclick=async()=>{
    d.querySelector('#answer').hidden=true;H.render();
    const offerAt=d.querySelector('#offer').offsetTop;
    click('#offerBtn');await wait(300);
-   const btn=d.querySelector('#answer .actions button');
+   const btn=d.querySelector('#replyActions button');
    const r=btn.getBoundingClientRect();
    const inView=r.top>=-1&&r.bottom<=w.innerHeight+1&&r.left>=-1&&r.right<=w.innerWidth+1;
    const hit=d.elementFromPoint(r.left+r.width/2,r.top+Math.min(r.height/2,8));
@@ -356,7 +356,7 @@ document.querySelector('#run').onclick=async()=>{
    replay=fin.querySelector('[data-act="again"]');
    const replayBox=replay.getBoundingClientRect();
    const offerLine=fin.textContent.match(/made (\d+) offer/);
-   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px, goal hold '+(goalMatch==null?'missing':goalMatch.toFixed(1))+'px',goalSpare<=24&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden&&goalMatch!=null&&goalMatch<=2);
+   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px, goal hold '+(goalMatch==null?'missing':goalMatch.toFixed(1))+'px',goalSpare<=36&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden&&goalMatch!=null&&goalMatch<=2);
    if(width===390){
     check('the win title is visible once ('+titles.join(', ')+')',titles.length===1);
     check('the win summary counts the offers ('+(offerLine?offerLine[0]:'none')+')',!!offerLine&&+offerLine[1]===H.run().offers&&+offerLine[1]>=1&&!/made 0 offers/.test(fin.textContent));
@@ -393,10 +393,9 @@ document.querySelector('#run').onclick=async()=>{
   const make=d.querySelector('#offerBtn'),pass=d.querySelector('#passBtn'),makeBox=make.getBoundingClientRect();
   const disabledAbove=!!(make.disabled&&pass.disabled&&makeBox.height>1&&makeBox.bottom<=take.getBoundingClientRect().top+1);
   const head=d.querySelector('#answer h2').getBoundingClientRect();
-  const buttonsAboveCopy=take.getBoundingClientRect().bottom<=head.top+1;
   const replyOutlook=d.querySelector('#answer .outlook-slot');
   const takeAboveOutlook=!!replyOutlook&&take.getBoundingClientRect().bottom<=replyOutlook.getBoundingClientRect().top+2;
-  check('at 390 Take and Walk sit above the reply outlook, and Make this offer and Pass are hidden',seen(take)&&seen(walk)&&!disabledAbove&&!buttonsAboveCopy&&d.querySelector('#dealActions').hidden&&takeAboveOutlook);
+  check('at 390 Take and Walk sit in the offer row, above the reply',seen(take)&&seen(walk)&&d.querySelector('#dealButtons').hidden&&!d.querySelector('#replyActions').hidden&&take.getBoundingClientRect().bottom<=head.top+1&&takeAboveOutlook&&makeBox.height<1);
   H.begin();await wait(20);
   H.S.price=230000;H.S.down=0.25;H.S.rehab='full';H.render();
   const at25=text('#outlook');click('[data-down="0.2"]');const at20=text('#outlook');
@@ -484,6 +483,159 @@ document.querySelector('#run').onclick=async()=>{
   d.querySelector('#answer').innerHTML='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>';
   d.querySelector('#answer').hidden=true;
   H.S.phase='run';H.S.counter=null;H.S.noes=0;H.S.price=260000;H.S.down=0.25;H.S.rehab='refresh';H.render();
+  // ---- the five fixes, variety, and a street a careful player can win
+  const moneyOf=s=>+String(s).replace(/[^0-9.]/g,'');
+  H.begin();await wait(30);
+  H.S.price=240000;H.S.down=0.25;H.S.rehab='asis';H.S.phase='run';H.render();
+  const greenOne=()=>{const li=d.querySelector('[data-m="one"]'),v=li.querySelector('.v');const mark=w.getComputedStyle(v,'::before').content;return li.classList.contains('good')||/✓/.test(mark);};
+  const showHome=id=>{const ids=M.POOL.map(h=>h.id);const run=H.run();run.order=[id].concat(ids.filter(x=>x!==id)).slice(0,5);run.at=0;run.homes=[];run.cash=M.START_CASH;H.S.phase='run';H.S.sure=false;H.next();};
+  const expensiveGreen=[];
+  for(const h of M.POOL){
+   showHome(h.id);await wait(10);
+   for(const price of [h.ask,h.lowest])for(const rehab of ['asis','refresh','full'])for(const down of [0.2,0.25]){
+    const y=M.yearOutlook({price,down,rehab},h);
+    if(y.onCash>=0)continue;
+    H.S.price=price;H.S.down=down;H.S.rehab=rehab;H.S.phase='run';H.render();
+    if(greenOne())expensiveGreen.push(h.id+' '+price+' '+rehab);
+   }
+  }
+  check('no costly buy wears the green 1% check'+(expensiveGreen.length?' ('+expensiveGreen.slice(0,4).join(', ')+')':''),expensiveGreen.length===0);
+  showHome('alder9');await wait(10);
+  H.S.price=190000;H.S.down=0.25;H.S.rehab='refresh';H.render();
+  check('9 Alder is a costly buy whose rent clears 1%, and the green check stays hidden ('+d.querySelector('[data-m="one"] .v').textContent+')',/^9 Alder/.test(text('#addr'))&&M.yearOutlook({price:190000,down:0.25,rehab:'refresh'},M.POOL.find(h=>h.id==='alder9')).onCash<0&&moneyOf(text('#rent'))*100>=moneyOf(text('#offer'))&&!greenOne());
+  H.begin();await wait(20);
+  H.S.price=180000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.render();
+  check('a cheap buy that clears 1% still gets the green check ('+d.querySelector('[data-m="one"] .v').textContent+')',M.yearOutlook({price:180000,down:0.25,rehab:'refresh'},M.LISTING).onCash>=0&&moneyOf(text('#rent'))*100>=moneyOf(text('#offer'))&&greenOne());
+  const replyMoves=[], doorShift=[];
+  for(const [width,height] of [[1280,800],[390,600],[375,812],[320,568],[844,390]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.begin();await wait(30);w.scrollTo(0,0);
+   H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;H.S.noes=0;H.render();
+   const offerAt=d.querySelector('#offerBtn').getBoundingClientRect().top+w.scrollY;
+   click('#offerBtn');await wait(40);
+   const replyBtn=d.querySelector('#replyActions button');
+   const moved=Math.abs(replyBtn.getBoundingClientRect().top+w.scrollY-offerAt);
+   replyMoves.push(width+' '+moved.toFixed(1));
+   check(width+'×'+height+' the seller buttons stay within 2px ('+moved.toFixed(1)+')',moved<=2&&replyBtn.getBoundingClientRect().height>=44);
+   H.begin();await wait(20);w.scrollTo(0,0);
+   const doorsAt=d.querySelector('#doors').getBoundingClientRect().top;
+   click('#passBtn');await wait(20);click('[data-act="next"]');await wait(20);
+   const doorMoved=Math.abs(d.querySelector('#doors').getBoundingClientRect().top-doorsAt);
+   doorShift.push(width+' '+doorMoved.toFixed(1));
+   check(width+'×'+height+' the give-up bar does not push the doors ('+doorMoved.toFixed(1)+')',!d.querySelector('#giveup').hidden&&doorMoved<=2);
+  }
+  check('reply rows and doors stay put ('+replyMoves.join(', ')+'; '+doorShift.join(', ')+')',replyMoves.length===5&&doorShift.length===5);
+  frame.style.width='320px';frame.style.height='568px';await wait(80);
+  H.begin();await wait(30);
+  const costLine=d.querySelector('#planLive'), costStyle=w.getComputedStyle(costLine), costBox=costLine.getBoundingClientRect();
+  check('at 320 the plan cost and rent are visible at about 11px ('+costStyle.fontSize+')',parseFloat(costStyle.fontSize)>=11&&/then/.test(costLine.textContent)&&/\$/.test(costLine.textContent)&&costBox.height>=11&&costBox.width>40&&costBox.left>=-1&&costBox.right<=w.innerWidth+1&&costStyle.visibility!=='hidden');
+  frame.style.width='390px';frame.style.height='600px';await wait(60);
+  H.begin();await wait(20);w.scrollTo(0,0);
+  const cue=d.querySelector('#countCue').getBoundingClientRect(), offerBox=d.querySelector('#offerBtn').getBoundingClientRect();
+  check('on a phone the offer says whether this year would count',/would not count/i.test(text('#countCue'))&&cue.height>=10&&cue.top>=-1&&cue.bottom<=offerBox.top+1&&w.scrollY===0);
+  H.begin();await wait(20);
+  const holdBtn=d.querySelector('[data-offer="-2000"]');
+  holdBtn.dispatchEvent(new w.PointerEvent('pointerdown',{bubbles:true,pointerId:1,pointerType:'touch'}));
+  await wait(900);
+  holdBtn.dispatchEvent(new w.PointerEvent('pointerup',{bubbles:true,pointerId:1,pointerType:'touch'}));
+  await wait(30);
+  const held=moneyOf(text('#offer'));
+  check('holding the offer step moves more than one $2,000 notch ('+text('#offer')+')',held<=234000&&held>=180000&&(240000-held)%2000===0);
+  click('[data-offer="-2000"]');
+  check('a single tap still moves $2,000',moneyOf(text('#offer'))===held-2000);
+  check('replays draw homes the first street does not sell',M.POOL.length>5&&M.dealFor(0,0).some(id=>!M.STREET.some(h=>h.id===id))&&M.POOL.every(h=>h.lowest/h.ask>0.925&&h.mood));
+  const hardIds=M.dealFor(0,1), firstSeen=new Set(M.STREET.map(h=>h.id));
+  const hardOpener=M.POOL.find(h=>h.id===hardIds[0]);
+  const hardCash=hardIds.map(id=>M.cheapestPaying(M.POOL.find(h=>h.id===id))).filter(Boolean).map(p=>p.cashIn).sort((a,b)=>a-b).slice(0,3).reduce((a,b)=>a+b,0);
+  const firstCash=M.STREET.map(h=>M.cheapestPaying(h)).filter(Boolean).map(p=>p.cashIn).sort((a,b)=>a-b).slice(0,3).reduce((a,b)=>a+b,0);
+  check('a win opens a harder block of homes you have not seen, and it does not start as a free yes',hardIds.every(id=>!firstSeen.has(id))&&hardIds.join('|')!==M.STREET.map(h=>h.id).join('|')&&!M.yearOutlook({price:hardOpener.ask,down:0.25,rehab:'refresh'},hardOpener).counts&&hardCash>firstCash+8000&&hardCash<=200000&&M.placeOf(hardIds)==='Birch Street');
+  const sensible=ids=>{const run=M.newRun();run.order=ids.slice();run.at=0;run.homes=[];run.cash=M.START_CASH;run.offers=0;
+   while(!M.finished(run)){const home=M.current(run),take=M.lowestOf(home);let best=null;
+    for(const down of [0.25,0.2])for(const rehab of ['refresh','asis','full']){const choice={price:take,down,rehab};
+     if(M.respond(take,home).answer!=='yes'||!M.yearOutlook(choice,home).counts)continue;
+     if(M.analyze(choice,home).cashIn>run.cash||M.dooms(run,choice))continue;best=choice;break;}
+    if(best)M.buyHome(run,best);else M.passHome(run);}return M.won(run);};
+  const sample=[M.STREET.map(h=>h.id),M.dealFor(0,0),M.dealFor(1,0),M.dealFor(2,0),M.dealFor(0,1)];
+  const wins=sample.filter(sensible).length;
+  check('a careful player wins most blocks, phone or desk ('+wins+' of '+sample.length+')',wins>=4&&wins===sample.length);
+  check('the goal stays on the screen',/Own 3 homes/.test(text('#goal'))&&/of 3/.test(text('#goal'))&&d.querySelector('#goal').offsetParent);
+  H.begin();await wait(20);
+  H.S.price=232000;H.S.down=0.2;H.S.rehab='refresh';H.S.sure=true;H.S.phase='run';H.render();
+  click('#offerBtn');await wait(30);
+  check('the first yes names the home you own and the next one',/You own 1 home that pays/.test(text('#answer'))&&!/1 home that pay[^s]/.test(text('#answer'))&&/Next: 2 more homes that pay/.test(text('#answer'))&&/a month/.test(text('#answer'))&&/1 of 3/.test(text('#goal')));
+  M.passHome(H.run());M.buyHome(H.run(),{price:247000,down:0.2,rehab:'refresh'});M.passHome(H.run());M.buyHome(H.run(),{price:146000,down:0.2,rehab:'refresh'});
+  H.next();await wait(30);
+  check('a win sums up what you earn and names the next block',/Your homes earn \$[\d,]+ a month/.test(text('#finale'))&&/You own 3 homes that pay, earning/.test(text('#finale'))&&/Next is Birch Street/.test(text('#finale'))&&/Walk Birch Street/.test(d.querySelector('#finale [data-act="again"]').textContent)&&!/harder block/.test(text('#finale'))&&/Alder Street/.test(text('#goal')));
+  click('#finale [data-act="again"]');await wait(40);
+  check('the next block is Birch Street and the goal and header say so',/^12 Birch Street/.test(text('#addr'))&&/Birch Street/.test(text('#goal'))&&!/Alder Street/.test(text('#goal'))&&/Birch Street, Millbrook/.test(d.querySelector('#placeTag').textContent)&&/costly buy/i.test(text('#outlook')));
+  H.begin();await wait(20);
+  const prior=M.serialize(M.newRun());delete prior.tier;
+  check('an older save with no block number still loads and is not migrated',M.SAVE_VERSION===1&&!M.migrates&&M.valid(prior)&&M.restore(prior).tier===0&&M.restore(prior).order.join('|')===prior.order.join('|'));
+  const fits=()=>d.documentElement.scrollWidth<=w.innerWidth+1;
+  for(const [width,height] of [[320,844],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(60);
+   H.begin();await wait(40);w.scrollTo(0,0);
+   check(width+'×'+height+' does not pan on load ('+d.documentElement.scrollWidth+')',fits());
+   H.S.price=232000;H.S.down=0.2;H.S.rehab='refresh';H.S.sure=true;H.S.phase='run';H.render();
+   click('#offerBtn');await wait(30);
+   check(width+'×'+height+' does not pan after a yes ('+d.documentElement.scrollWidth+')',/You own/.test(text('#answer'))&&fits());
+   H.begin();await wait(20);
+   H.run().at=3;H.run().homes=[{id:'alder14',bought:false},{id:'alder3',bought:false},{id:'alder22',bought:false}];
+   H.next();await wait(30);
+   check(width+'×'+height+' does not pan on a costly listing ('+d.documentElement.scrollWidth+')',/^9 Alder/.test(text('#addr'))&&/costly buy/i.test(text('#outlook'))&&fits());
+   H.begin();await wait(20);
+   M.buyHome(H.run(),{price:232000,down:0.2,rehab:'refresh'});M.passHome(H.run());
+   M.buyHome(H.run(),{price:247000,down:0.2,rehab:'refresh'});M.passHome(H.run());
+   M.buyHome(H.run(),{price:146000,down:0.2,rehab:'refresh'});
+   H.next();await wait(30);
+   const walk=d.querySelector('#finale [data-act="again"]');
+   const walkBox=walk.getBoundingClientRect();
+   check(width+'×'+height+' does not pan on the win, and Walk is a full tap ('+d.documentElement.scrollWidth+')',/Your homes earn/.test(text('#finale'))&&fits()&&walkBox.height>=44&&walkBox.left>=-1&&walkBox.right<=w.innerWidth+1);
+   if(width===320&&height===568){
+    H.begin();await wait(20);
+    const runB=H.run(); runB.order=M.dealFor(0,1); runB.at=2; runB.tier=1; runB.cash=200000;
+    runB.homes=[{id:'birch12',bought:true,onCash:1,choice:{price:238000,down:0.2,rehab:'refresh'},cashFlow:1},{id:'birch5',bought:false}];
+    H.next();await wait(30);
+    check('21 Birch does not pan at the asking price ('+d.documentElement.scrollWidth+')',/^21 Birch/.test(text('#addr'))&&fits());
+    click('[data-offer="-2000"]');await wait(20);
+    const faces=[...d.querySelectorAll('.rehab .face')];
+    check('21 Birch does not pan after one step down, and the work labels fit ('+d.documentElement.scrollWidth+')',text('#offer')==='$283,000'&&fits()&&faces.length>=3&&faces.every(f=>f.scrollWidth<=f.clientWidth+1&&f.closest('button').getBoundingClientRect().height>=44));
+   }
+  }
+  frame.style.width='320px';frame.style.height='568px';await wait(40);
+  H.begin();await wait(30);w.scrollTo(0,0);
+  const downA=d.querySelector('[data-down="0.2"]').getBoundingClientRect(), downB=d.querySelector('[data-down="0.25"]').getBoundingClientRect();
+  const planLine=d.querySelector('#planLive');
+  check('at 320×568 the down payment sits in one row and the work line is whole',Math.abs(downA.top-downB.top)<=2&&downA.height>=44&&downB.height>=44&&/floors, fixtures/.test(planLine.textContent)&&planLine.scrollWidth<=planLine.clientWidth+2);
+  const longPlace='Alder Street, Birch Street, Cedar Lane, Dock Street and Elm Court';
+  check('the reserved goal, header and walk lines name the longest block',d.querySelector('.goal-hold').textContent.includes(longPlace)&&d.querySelector('.tag-hold').textContent.includes(longPlace)&&d.querySelector('.give-hold').textContent.includes('Walk '+longPlace+' again'));
+  for(const [width,height] of [[1280,800],[390,600],[390,844],[375,812],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(40);
+   H.begin();await wait(20);w.scrollTo(0,0);
+   const doorA=docTop('#doors');
+   const runM=H.run(); runM.order=['alder14','birch16','cedar4','dock27','elm2']; runM.at=0; runM.homes=[]; runM.tier=0; runM.cash=200000;
+   H.next();await wait(20);
+   const doorB=docTop('#doors');
+   H.run().cash=1;H.render();await wait(20);
+   const doorC=docTop('#doors');
+   check(width+'×'+height+' a mixed block does not move the doors ('+(doorB-doorA).toFixed(1)+' then '+(doorC-doorB).toFixed(1)+')',Math.abs(doorB-doorA)<=2&&Math.abs(doorC-doorB)<=2&&d.querySelector('#giveup [data-act="again"]').textContent.includes(longPlace)&&text('#goal').includes('Elm Court'));
+  }
+  for(const [width,height] of [[320,568],[390,600]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(40);
+   H.begin();await wait(20);w.scrollTo(0,0);
+   const plus=d.querySelector('[data-offer="2000"]'), twenty=d.querySelector('[data-down="0.2"]');
+   const pr=plus.getBoundingClientRect(), tr=twenty.getBoundingClientRect();
+   const shares=!(pr.right<=tr.left+0.5||tr.right<=pr.left+0.5||pr.bottom<=tr.top+0.5||tr.bottom<=pr.top+0.5);
+   const hit=d.elementFromPoint(pr.left+pr.width/2, pr.top+pr.height/2);
+   check(width+'×'+height+' plus is the control under its centre and it does not cover 20%',!shares&&!!hit&&(hit===plus||plus.contains(hit)));
+  }
+  frame.style.width='320px';frame.style.height='568px';await wait(40);
+  H.begin();await wait(20);w.scrollTo(0,0);
+  d.querySelector('#offerBtn').scrollIntoView({block:'center'});await wait(20);
+  const goalBox=d.querySelector('#goal').getBoundingClientRect(), offerHit=d.querySelector('#offerBtn'), offerNow=offerHit.getBoundingClientRect();
+  const hitGoal=d.elementFromPoint(offerNow.left+offerNow.width/2, offerNow.top+Math.min(offerNow.height/2,12));
+  check('the goal stays on screen and does not cover Make this offer',goalBox.top<=4&&goalBox.bottom>8&&goalBox.height<=56&&(hitGoal===offerHit||offerHit.contains(hitGoal)));
+  H.begin();await wait(20);
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
