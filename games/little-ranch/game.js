@@ -19,7 +19,8 @@
    toothbrush, a cup of water and goodnight to each friend come before the lullaby. The device's own voice says the
    creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. A big soft ball sits in the grass (LR16): tap it and it rolls, and the baby runs over and kicks it. The Toy Yard has its own stage (Barn Band) and block shelf (Block Tower). Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.19.3', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, BEDTIME_GRACE = 6, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const V = window.LittleRanchVisit;
+  const VERSION = '0.19.3', PREF = V.PREF, BEDTIME_ACTS = V.BEDTIME_ACTS, BEDTIME_SECS = V.BEDTIME_SECS, BEDTIME_GRACE = V.BEDTIME_GRACE, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'dsign', 'tsign', 'stage', 'shelf'];
   const AREA_TOYS = [['ksign', 'tsign', 'cloud', 'puddle'], ['bowl', 'sponge', 'bush', 'flowers', 'baby', 'friend', 'sun'], ['stage', 'shelf', 'basket', 'ball', 'baby'], ['dsign', 'sign', 'wsign', 'baby']];
@@ -34,7 +35,7 @@
   // LR7: the bedtime routine. At dusk, before the lullaby: tap the toothbrush (the baby brushes, foamy), then the cup (a big
   // drink), then say goodnight to each friend (the flowers, and the Pebblit when it's visiting): tap them and they wave and
   // yawn. Then the lullaby and sleep. Nothing to fail and never stuck: a step left alone for a few seconds does itself.
-  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 9, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
+  const ROUTINE = V.ROUTINE, ROUTINE_WAIT = V.ROUTINE_WAIT, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = V.DUSK_SECS; let useRoutine = true;
   const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
   // LR16: the meadow ball. Tap it and it rolls to the other side of the grass; the baby runs over and kicks. Every third kick is one happy thing. Nothing to miss. At night a tap only boings.
@@ -86,7 +87,7 @@
     return 'rgb(' + p.map((v, i) => Math.round(lerp(v, q[i], clamp(k, 0, 1)))).join(',') + ')'; };
   const pick3 = (a, b, c, k) => k < .5 ? mixHex(a, b, k * 2) : mixHex(b, c, (k - .5) * 2);
   let W = 0, H = 0, S = 1, L = {};
-  let prefs = { sound: true }; try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF) || '{}')); } catch (e) {}
+  let prefs = V.loadPrefs(localStorage);
 
   /* ---------------- gentle sound, made live ---------------- */
   let ac = null, master = null;
@@ -138,9 +139,9 @@
   /* ---------------- the visit ---------------- */
   let st;
   function newVisit() {
-    st = { t: 0, mode: 'play', dusk: 0, acts: 0, played: {}, yawned: 0, miss: null, bedtimeAt: null, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0, perk: -9 },
-      bowl: { food: 0, pop: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
-      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, stage: { shake: 0 }, shelf: { shake: 0 }, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
+    st = Object.assign(V.blank(), { played: {}, miss: null, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0, perk: -9 },
+      bowl: { food: 0, pop: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, stir: 0, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, stage: { shake: 0 }, shelf: { shake: 0 }, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 } });
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 0, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1, hurry: false, lag: 0 };
     cam.area = 1; cam.dur = 0; glideQueued = null; releaseBack(); layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
     if (st.friend) { st.friend.x = cam.x + W + L.fz; fgo(L.fhome.x, null); } // wanders in from just off the meadow
@@ -601,9 +602,10 @@
   // LR12: tapping the sleeping baby. Each tap it stirs and its zzz get smaller; on the sixth it wakes up happy and a
   // fresh sunny day starts (the same reset as New visit), with the sky brightening from night.
   function nudge() {
-    st.wake++; st.stir = 1; sfx('stir', st.wake); fx('zzz', st.baby.x + L.size * .6, L.home.y - L.size * 1.3);
-    if (st.wake < WAKE_TAPS) return;
-    newVisit(); st.dusk = 1; st.dawn = true; st.baby.act = 'giggle'; st.baby.at = 0; st.baby.happy = 1; sfx('wake');
+    const up = V.step(st, { type: 'wake', taps: WAKE_TAPS });
+    st.stir = 1; sfx('stir', st.wake); fx('zzz', st.baby.x + L.size * .6, L.home.y - L.size * 1.3);
+    if (!up) return;
+    newVisit(); V.step(st, { type: 'arm-dawn' }); st.baby.act = 'giggle'; st.baby.at = 0; st.baby.happy = 1; sfx('wake');
     for (let i = 0; i < 5; i++) fx('heart', babyCentre().x + (i - 2) * L.size * .4, babyCentre().y - L.size);
   }
   // LR13: the sun surprise. Daytime only (no sun at night). Each tap brightens it; the fifth brings a rainbow over the
@@ -1027,12 +1029,11 @@
     // the yawn with an old meal/peek callback; a lifted finger must not act on that place.
     st.baby.tx = null; st.baby.then = null; st.down = null;
     st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false;
-    st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0;
     goArea(1);
     // The view glides home. The pup is already there, yawning, with no leftover walk.
     st.baby.x = L.homes[1].x; st.baby.tx = null; st.baby.then = null; st.baby.hurry = false;
     if (st.friend) { st.friend.x = L.fhomes[1].x; st.friend.tx = null; st.friend.then = null; st.friend.hurry = false; st.friend.lag = 0; st.friend.act = null; }
-    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
+    V.step(st, { type: 'begin-dusk', routine: useRoutine }); st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
     refreshArrows();
   }
 
@@ -1040,10 +1041,7 @@
     st.t += dt; const b = st.baby;
     if (L.homes) { L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
     // Before the place-specific returns: the first visit ends wherever she is playing.
-    if (st.mode === 'play' && st.t >= BEDTIME_SECS && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) {
-      if (st.bedtimeAt === null) st.bedtimeAt = st.t;
-      if (!bedtimeWaiting() || st.t - st.bedtimeAt >= BEDTIME_GRACE) bedtime();
-    }
+    if (V.step(st, { type: 'clock', hold: bedtimeWaiting() }) === 'bedtime') bedtime();
     if (st.place === 'wagon') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); wagonUpdate(dt); return; }
     if (st.place === 'kitchen') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); kitchenUpdate(dt); return; }
     if (st.place === 'dough') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doughUpdate(dt); return; }
@@ -1059,7 +1057,7 @@
     if (st.place === 'ranch' && st.t - st.idleAt > 2 && st.t >= st.nextWig) { const k = SIGNS[st.wigI++ % SIGNS.length]; if (!reduce()) st[k].shake = Math.max(st[k].shake, 1); st.nextWig = st.t + SIGN_WIGGLE_GAP; }
     st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
-      if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
+      if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } V.step(st, { type: 'dawn', dt });
     if (b.tx !== null) { const sp = b.hurry ? Math.max(L.U * 2.4, Math.abs(b.tx - b.x) / 1.1) : L.U * .9, d = b.tx - b.x; if (Math.abs(d) <= sp * dt) { b.x = b.tx; b.tx = null; b.hurry = false; const f = b.then; b.then = null; if (f) f(); } else b.x += Math.sign(d) * sp * dt; }
     if (b.hurry) { const pad = Math.max(L.size * .55, L.U * .08); b.x = clamp(b.x, cam.x + pad, cam.x + W - pad); }
     const since = st.t - b.at;
@@ -1076,8 +1074,7 @@
     if (b.act === 'splash' && since > SPLASH_SECS) { b.act = null; done('puddle'); home(); }
     if (b.act === 'dance') { if (since > 1.3) b.act = null; else if (Math.floor(since / .32) !== Math.floor((since - dt) / .32)) b.dir = -b.dir; }
     for (const f of st.flowers) f.bob = Math.max(0, f.bob - dt * 1.6);
-    if (st.mode === 'play' && !st.yawned) { const warn = clamp((st.t - (BEDTIME_SECS - 40)) / 40, 0, 1);
-      if (warn > .55 && !busy() && !st.sponge.drag && !st.sponge.auto && !st.down && b.act !== 'sleep') { st.yawned = 1; b.act = 'yawn'; b.at = st.t; sfx('yawn'); } }
+    if (V.step(st, { type: 'yawn', idle: !busy() && !st.sponge.drag && !st.sponge.auto && !st.down && b.act !== 'sleep' })) { b.act = 'yawn'; b.at = st.t; sfx('yawn'); }
     // the sponge: dragged, or gliding over by itself after a tap
     const s = st.sponge, bc = babyCentre();
     if (s.auto) { const k = st.t - s.auto.at; if (k < .6) { s.x = lerp(L.sponge.x, bc.x, k / .6); s.y = lerp(L.sponge.y, bc.y, k / .6); }
@@ -1089,10 +1086,11 @@
     for (const u of st.bubbles) u.y -= L.U * .08 * dt; st.bubbles = st.bubbles.filter(u => st.t - u.at < 7 && u.y > -u.r);
     st.fx = st.fx.filter(f => st.t - f.at < (f.kind === 'zzz' ? 3 : 1.4));
     // bedtime: the sky turns orange, then night; a lullaby; the baby curls up
-    if (st.mode === 'dusk') { routineUpdate(dt); st.dusk = Math.min(st.routine && st.routine.step < 3 ? .22 : 1, st.dusk + dt / DUSK_SECS); // LR-POLISH: a slower fade (16 s, was 10) // LR7: the sky waits at sunset for the routine
-      if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
-      if (st.dusk > .55 && !busy()) { if (b.act !== 'sleep') speakNight(); b.act = 'sleep'; b.at = st.t; }
-      if (st.dusk >= 1 && b.act === 'sleep') { st.mode = 'sleep'; st.paint = null; } } // bedtime washes the paint off
+    if (st.mode === 'dusk') { routineUpdate(dt);
+      const cues = V.step(st, { type: 'dusk', dt, quiet: !busy(), sleeping: b.act === 'sleep' });
+      if (cues.includes('lullaby')) sfx('lullaby');
+      if (cues.includes('curl')) { if (b.act !== 'sleep') speakNight(); b.act = 'sleep'; b.at = st.t; }
+      if (cues.includes('sleep')) { V.step(st, { type: 'sleep' }); st.paint = null; } }
     if (b.act === 'sleep' && Math.floor(st.t / 1.2) !== Math.floor((st.t - dt) / 1.2)) fx('zzz', b.x + L.size * .6, L.home.y - L.size * 1.3);
   }
 
@@ -1605,7 +1603,7 @@
     if (st.place === 'band') return drawBand();
     pinSky(); refreshArrows();
     const g = st.dusk, U = L.U, worldW = L.U * 6.2, sun = sunAt(), moon = moonAt();
-    const clockWarm = st.mode === 'sleep' ? 0 : clamp((st.t - (BEDTIME_SECS - 40)) / 40, 0, 1) * .34, skyG = Math.max(g, clockWarm);
+    const clockWarm = V.lateness(st), skyG = Math.max(g, clockWarm);
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', skyG)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', skyG));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
     if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5 || st.moon.song) { const sz = st.moon.song && (i % 3 === (st.moon.song.i % 3)) ? 2 : 1; cx.fillRect(R(x), R(y), sz, sz); } } }
@@ -1775,7 +1773,7 @@
   press(document.getElementById('gX'), closePanel);
   press(document.getElementById('gClose'), closePanel);
   press(document.getElementById('gNew'), () => { newVisit(); closePanel(); });
-  press(document.getElementById('gSound'), () => { prefs.sound = !prefs.sound; try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} if (!prefs.sound) { if (ac) { ac.close(); ac = null; } try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} } soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); });
+  press(document.getElementById('gSound'), () => { V.toggleSound(prefs); try { V.savePrefs(localStorage, prefs); } catch (e) {} if (!prefs.sound) { if (ac) { ac.close(); ac = null; } try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} } soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); });
   press(document.getElementById('gHome'), () => { location.href = document.getElementById('gHome').href; });
   press(document.getElementById('gExit'), () => { closePanel(); try { window.LittleRanchApp && window.LittleRanchApp.exit(); } catch (e) {} });
 
