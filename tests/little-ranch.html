@@ -1432,7 +1432,72 @@ document.querySelector('#run').onclick = async () => {
       check('Garden, back: still in the game, home on the Meadow', LR.camera.area === 1 && S().place === 'ranch' && S().mode === 'play');
       w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
       check('Back from the Meadow itself is not trapped in the game', LR.camera.area === 1 && S().place === 'ranch');
-      LR.newVisit(); LR.advance(.1);
+      {
+        const settle = area => { LR.newVisit(); LR.advance(.1); LR.go(area); LR.advance(.8); };
+        const sky = () => {
+          const y = L().ground - L().U * .36;
+          if (!(y < L().ground - L().U * .28 - 1)) return null;
+          for (const f of [.62, .5, .74, .4, .84]) {
+            const p = { x: LR.camera.x + cv.width * f, y };
+            if (p.x > LR.camera.x + 4 && p.x < LR.camera.x + cv.width - 4 && !LR.ranchTarget(p)) return p;
+          }
+          return null;
+        };
+        const flick = (dxU, dyU) => {
+          const a = sky();
+          if (!a) return null;
+          const before = LR.tones;
+          drag(a, { x: a.x + L().U * dxU, y: a.y + L().U * dyU }, 6);
+          return { area: LR.camera.area, x: LR.camera.x, tones: LR.tones - before };
+        };
+        frame.style.width = '1280px'; frame.style.height = '800px'; await sleep(160);
+        settle(1);
+        const right = flick(.45, .02);
+        check('A long sideways swipe looks one place to the right', !!right && right.area === 2 && right.tones === 0);
+        LR.advance(.8);
+        check('The wooden arrows stay after a swipe', !!(L().arrows.left && L().arrows.right));
+        tap(L().arrows.left);
+        check('The left arrow still walks back after a swipe', LR.camera.area === 1);
+        settle(1);
+        const left = flick(-.45, .02);
+        check('A long sideways swipe looks one place to the left', !!left && left.area === 0 && left.tones === 0);
+        settle(0);
+        const garden = flick(-.45, 0);
+        check('A swipe past the Garden stays in the Garden', !!garden && garden.area === 0 && garden.tones === 0);
+        settle(3);
+        const barn = flick(.45, 0);
+        check('A swipe past the Barn Yard stays in the Barn Yard', !!barn && barn.area === 3 && barn.tones === 0);
+        settle(1);
+        const short = flick(.2, 0);
+        check('A short drag on empty sky stays put and still sparkles', !!short && short.area === 1 && short.tones > 0);
+        const steep = flick(.45, .3);
+        check('A steep drag on empty sky stays put and still sparkles', !!steep && steep.area === 1 && steep.tones > 0);
+        const held = LR.camera.area;
+        drag(L().sponge, { x: L().sponge.x + L().U * .5, y: L().sponge.y }, 8);
+        drag(L().flowers[0], L().flowers[4], 8);
+        check('A long drag that starts on the sponge or the flowers never moves the camera', LR.camera.area === held);
+        settle(1);
+        tap(L().arrows.right);
+        const mid = LR.camera.area;
+        const during = flick(.5, 0);
+        check('A swipe during a glide does nothing', !!during && mid === 2 && LR.camera.area === mid);
+        const mm = w.matchMedia;
+        w.matchMedia = q => ({ matches: /reduce/.test(String(q)), addEventListener() {}, addListener() {} });
+        settle(1);
+        const far = LR.camera.parallax.far, near = LR.camera.parallax.near, skyOff = LR.camera.parallax.sky;
+        const cut = flick(.45, 0);
+        check('Under reduced motion a swipe cuts to the next place and the hills stay still', !!cut && cut.area === 2 && Math.abs(cut.x - LR.world.areas[2].stop) < 1 && LR.camera.parallax.far === far && LR.camera.parallax.near === near && LR.camera.parallax.sky === skyOff);
+        w.matchMedia = mm;
+        frame.style.width = '390px'; frame.style.height = '844px'; await sleep(160);
+        settle(1);
+        const phone = flick(.45, .02);
+        check('On a phone a sideways swipe still looks one place over', !!phone && phone.area === 2 && !!L().arrows.left);
+        LR.setRoutine(false); settle(1); LR.bedtime(); LR.advance(.3);
+        const night = flick(.45, 0);
+        check('A swipe at bedtime stays home', !!night && LR.camera.area === 1 && S().place === 'ranch');
+        frame.style.width = '375px'; frame.style.height = '812px'; await sleep(160);
+        LR.newVisit(); LR.advance(.1);
+      }
     }
     // ---- LRL-4: reload the real document, not only its stored JSON or in-memory preferences.
     // These run last because every reload replaces the LR/document handles used above.
