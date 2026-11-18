@@ -67,6 +67,12 @@ window.ArcadeGames=[
    tags:['Shipping office','Routes and lights','A real ending'],cover:'saltmarsh',
    kind:'build',goal:'Build the fleet, choose the routes, light the coast, and send the last voyage.',
    controls:'Mouse or tap: Row the cargo, buy boats, and choose a route or a light when the desk offers one. The game remembers the office on this device.'},
+  {id:'night-market',title:'Night Market Stalls',tcls:'t-mmo',status:['Test version','s-proto'],href:'games/night-market/index.html',image:'images/lab/night-market.jpg',
+   alt:'Night Market Stalls: the Tea Stall open on a lantern lane',
+   blurb:'Lanterns over a short lane of stalls. You work the Tea Stall yourself before Mei will run it.',
+   tags:['Night market','Work the stall','Ask Mei'],cover:'night-market',
+   kind:'build',goal:'Work the Tea Stall yourself, then ask Mei to take the stall.',
+   controls:'Mouse or tap. Hold Pour a cup, then ask Mei to take the stall. The lane is remembered on this device.'},
 ];
 
 /* AR-SHELVE (Evan, 2026-10-13): off the site but kept. Their code, folders and save keys stay; old direct links still open.
