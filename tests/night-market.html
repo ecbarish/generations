@@ -16,6 +16,7 @@
 <ol id="results"></ol>
 <div id="game"></div>
 <script src="../shared/engine.js"></script>
+<script src="../shared/payback-label.js"></script>
 <script src="../shared/idle-core.js"></script>
 <script src="../games/night-market/model.js"></script>
 <script src="../tools/night-market-pacing.cjs"></script>
@@ -129,6 +130,24 @@ document.querySelector('#run').onclick = async function () {
     var jumpAdded = M.STALLS[0].rate * 25 * Idle.milestoneMult(25) - M.STALLS[0].rate * 24 * Idle.milestoneMult(24);
     check('the 25th tea stall counts the income that purchase adds', jumpAdded > M.STALLS[0].rate && near(M.paybackSeconds(jump, 0), jumpCost / jumpAdded));
     check('times show whole seconds: 22.04 reads "22s", never "22.0s"', M.paybackLabel(22.04) === '22s' && M.paybackLabel(21.96) === '22s' && M.paybackLabel(9.6) === '10s' && M.paybackLabel(0.3) === '1s' && !/\.0s/.test(M.paybackLabel(22.0)) && M.paybackLabel(59.4) === '59s' && M.paybackLabel(100) === Arcade.fmtTime(100));
+    (function () {
+      /* Frozen copies of the helpers this page used to keep, so the shared wording cannot drift. */
+      function legacyNightMarket(seconds) {
+        if (!(seconds > 0) || !isFinite(seconds)) return '';
+        if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
+        return Math.max(1, Math.round(seconds)) + 's';
+      }
+      function legacySaltmarsh(seconds) {
+        if (!(seconds > 0) || !isFinite(seconds)) return '';
+        if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
+        return Math.max(1, Math.round(seconds)) + 's';
+      }
+      var samples = [NaN, Infinity, -Infinity, -5, 0, 0.3, 0.49, 0.5, 1, 9.6, 21.96, 22, 22.04, 22.0, 59.4, 59.49, 59.5, 59.6, 60, 61, 90, 100, 3599, 3600, 86400, 90000];
+      var same = samples.every(function (n) {
+        return PaybackLabel(n) === legacyNightMarket(n) && PaybackLabel(n) === legacySaltmarsh(n) && M.paybackLabel(n) === PaybackLabel(n);
+      });
+      check('the shared payback label matches the old Night Market and Saltmarsh copies', same && PaybackLabel(59.5) === '60s' && PaybackLabel(59.6) === '60s' && PaybackLabel(60) === '1m 0s' && PaybackLabel(100) === '1m 40s');
+    })();
     var mat = M.fresh();
     mat.stalls[5].hired = true;
     check('a long payback uses Arcade.fmtTime', near(M.paybackSeconds(mat, 5), firstPayback(5)) && M.paybackLine(mat, 5) === 'The next one pays for itself in ' + M.paybackLabel(firstPayback(5)) + '.' && Arcade.fmtTime(100) === '1m 40s');

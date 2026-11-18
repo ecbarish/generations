@@ -2,7 +2,7 @@
    Exports { run, checks, validate, malformed, loadModel, BANDS, LIMITS }. With no `module` it sets window.NightMarketGossipChecks;
    there the caller passes { data, stalls, offlineCap } to checks(), because a page has no file system. validate(data, model)
    returns a list of problems (empty = fine). `model` is { stalls: [{ id, vendor, gossip }], offlineCap }; in Node it is read from the real
-   games/night-market/model.js and shared/idle-core.js in a throw-away vm context, the way tools/night-market-pacing.cjs and
+   games/night-market/model.js, shared/idle-core.js and shared/payback-label.js in a throw-away vm context, the way tools/night-market-pacing.cjs and
    tests/nm-vendor-tales.cjs read it, so nothing in the game is changed or loaded. */
 (function (root, factory) {
   const api = factory(typeof require === 'function' ? require : null);
@@ -55,7 +55,7 @@
   /* The real stall ids, vendors, existing one-line gossip and offline cap, from the game's own files, read and never changed. */
   function loadModel() {
     const ctx = { console: console, window: null, Arcade: {} }; ctx.window = ctx; vm.createContext(ctx);
-    ['shared/idle-core.js', 'games/night-market/model.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f }));
+    ['shared/idle-core.js', 'shared/payback-label.js', 'games/night-market/model.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f }));
     return {
       stalls: ctx.NightMarket.STALLS.map(s => ({ id: s.id, vendor: s.vendor, gossip: s.gossip })),
       offlineCap: ctx.NightMarket.OFFLINE_CAP, offlineRate: ctx.NightMarket.OFFLINE_RATE
