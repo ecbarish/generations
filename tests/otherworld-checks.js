@@ -567,6 +567,23 @@ function otherworldChecks() {
       return true;
     }finally{panel().hidden=true;ow.S=old;}
   });
+  check('OW-FOLLOWUP: the next life\'s goal waits until that life begins',()=>{
+    const old=ow.S;try{
+      ow.S={...fresh(),name:'Ren',met:true,mem:{},lives:[{world:'asterhold',gift:'pocket',name:'Ren',ending:'e_walls',at:1}],life:null};
+      panel().hidden=true;toBetween(null,[]);
+      begin('hearthmere',Object.keys(GIFTS.hearthmere)[0]);
+      const during=document.getElementById('goal').textContent,where=document.getElementById('where').textContent;
+      if(bg!=='between')throw Error('scene left the Between early: '+bg);
+      if(during!=='Listen to the Archivist, or choose a world when you are ready.')throw Error('goal while still in the Between: '+during);
+      if(where!=='The Between')throw Error('place while still in the Between: '+where);
+      D.skip();
+      const afterGoal=document.getElementById('goal').textContent,afterWhere=document.getElementById('where').textContent;
+      if(bg==='between')throw Error('still in the Between after entering');
+      if(!/Life 2/.test(afterWhere))throw Error('place after entering: '+afterWhere);
+      if(!/Reedlight/.test(afterGoal))throw Error('goal after entering: '+afterGoal);
+      return true;
+    }finally{panel().hidden=true;ow.S=old;}
+  });
   check('OW-FINISH: Go on stays put between narration and a speaker',()=>{
     const old=ow.S;try{
       const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_wake',silver:0,status:false,mem:{}});
@@ -628,7 +645,7 @@ function otherworldChecks() {
       if(!(pix(4,5)[3]&&pix(7,8)[3]&&lum(pix(4,5))>lum(pix(7,8))))throw Error('face is not lighter on the upper left');
       const oldW=W,oldH=H;W=1280;H=800;heroMarks.road=0;heroMarks.guild=0;
       SCENES.road(0);SCENES.guild(0);W=oldW;H=oldH;
-      if(heroBlit.w!==16||heroBlit.h!==24)throw Error('drawn at '+heroBlit.w+'x'+heroBlit.h);
+      if(heroBlit.w!==32||heroBlit.h!==48)throw Error('drawn at '+heroBlit.w+'x'+heroBlit.h+' instead of 32 by 48');
       return heroMarks.road>=1&&heroMarks.guild>=1;
     }finally{S.look=old;heroCache.clear();}
   });
@@ -772,6 +789,58 @@ function otherworldFinishFrame() {
         return choiceHit('memories') && !document.getElementById('ledger').hidden && document.getElementById('status').hidden;
       });
     }
+    check(innerWidth + '×' + innerHeight + ': Go on and Skip keep their x between narration, a speaker, and Skip hiding', () => {
+      const life = ow.prepareLife({ world: 'asterhold', gift: 'pocket', name: 'Ren', flags: {}, at: 'a_wake', silver: 0, status: false, mem: {} });
+      ow.S = { ...fresh(), name: 'Ren', life }; panel().hidden = true; ow.run('a_wake');
+      sceneState.shown = 1e9;
+      const go = ow.D.el.querySelector('.dlg-continue'), skip = document.querySelector('.dlg-skip');
+      const left = el => el.getBoundingClientRect().left;
+      if (!ow.D.el.classList.contains('narr')) throw Error('expected narration');
+      const narrGo = left(go), narrSkip = left(skip);
+      ow.D.advance();
+      if (ow.D.el.classList.contains('narr')) throw Error('still narration');
+      const sayGo = left(go), saySkip = left(skip);
+      if (Math.abs(narrGo - sayGo) > 2 || Math.abs(narrSkip - saySkip) > 2) throw Error('narration ' + Math.round(narrGo) + ',' + Math.round(narrSkip) + ' speaker ' + Math.round(sayGo) + ',' + Math.round(saySkip));
+      ow.run('a_mira');
+      const withSkip = left(go);
+      ow.D.skip();
+      const withoutSkip = left(go);
+      if (Math.abs(withSkip - withoutSkip) > 2) throw Error('Skip toggle moved Go on from ' + Math.round(withSkip) + ' to ' + Math.round(withoutSkip));
+      const gb = go.getBoundingClientRect();
+      if (gb.width < 44 || gb.height < 44) throw Error('Go on ' + Math.round(gb.width) + 'x' + Math.round(gb.height));
+      return true;
+    });
+    check(innerWidth + '×' + innerHeight + ': Be born keeps one width for every world', () => {
+      const widths = ['asterhold', 'hearthmere', 'ashen'].map(id => {
+        chooseSelf(id, Object.keys(GIFTS[id])[0]);
+        const button = document.querySelector('.go'), r = button.getBoundingClientRect();
+        if (r.width < 44 || r.height < 44) throw Error(id + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
+        return r.width;
+      });
+      const span = Math.max(...widths) - Math.min(...widths);
+      if (span > 2) throw Error('widths ' + widths.map(w => Math.round(w)).join(', '));
+      return true;
+    });
+    check(innerWidth + '×' + innerHeight + ': the feedback row stays when Status unlocks', () => {
+      document.getElementById('status').hidden = true; document.getElementById('ledger').hidden = true;
+      ow.S = fresh(); panel().hidden = true; renderHUD(); placeBelowHud();
+      const feedback = document.querySelector('.feedback-container button');
+      const beforeFeedback = feedback.getBoundingClientRect().top, beforeGoal = document.getElementById('goal').getBoundingClientRect().top;
+      const life = ow.prepareLife({ world: 'asterhold', gift: 'appraisal', name: 'Ren', flags: {}, at: 'a_guild', silver: 0, status: true, mem: {} });
+      ow.S = { ...fresh(), name: 'Ren', life }; renderHUD(); placeBelowHud();
+      const movedFeedback = Math.abs(feedback.getBoundingClientRect().top - beforeFeedback);
+      const movedGoal = Math.abs(document.getElementById('goal').getBoundingClientRect().top - beforeGoal);
+      if (movedFeedback > 2 || movedGoal > 2) throw Error('feedback ' + Math.round(movedFeedback) + 'px, goal ' + Math.round(movedGoal) + 'px');
+      if (document.getElementById('statusBtn').hidden) throw Error('Status stayed locked');
+      return feedback.getBoundingClientRect().height >= 44;
+    });
+    check(innerWidth + '×' + innerHeight + ': the traveller is drawn at twice the 16 by 24 sheet', () => {
+      const sheet = heroSheet();
+      if (sheet.width !== 16 || sheet.height !== 24) throw Error('sheet ' + sheet.width + 'x' + sheet.height);
+      W = innerWidth; H = innerHeight; heroMarks.road = 0; SCENES.road(0);
+      if (heroBlit.w !== 32 || heroBlit.h !== 48) throw Error('drawn ' + heroBlit.w + 'x' + heroBlit.h);
+      return heroMarks.road >= 1;
+    });
     if ((innerWidth === 390 && innerHeight === 600) || (innerWidth === 375 && innerHeight === 600)) {
       const inView = el => {
         const r = el.getBoundingClientRect();

@@ -113,7 +113,7 @@ function chooseSelf(world, gift) {
       ${STORY_NAMES.map(n => `<button class="chip" data-pick="${n}">${n}</button>`).join('')}</div>
     <div class="row"><span class="lbl">Hair</span>${sw(HAIR, S.look.hair, 'hair')}</div>
     <div class="row"><span class="lbl">Skin</span>${sw(SKIN, S.look.skin, 'skin')}</div>
-    <div class="row end"><button class="go" data-begin="${world}" data-gift="${gift}">Be born in ${WORLDS[world].name}</button></div>`);
+    <div class="row end"><button class="go" data-begin="${world}" data-gift="${gift}"><span>Be born in ${WORLDS[world].name}</span>${Object.values(WORLDS).map(w => `<span class="go-reserve" aria-hidden="true">Be born in ${w.name}</span>`).join('')}</button></div>`);
 }
 function begin(world, gift) {
   S.name = (document.getElementById('pname').value || '').trim().replace(/[<>&"]/g, '').slice(0, 16) || STORY_NAMES[0];
@@ -155,7 +155,7 @@ document.addEventListener('click', e => { if (e.target.closest('#status [data-cl
 
 /* ---------------------------------------------------------------- the corner of the screen */
 function renderHUD() {
-  const l = S.life;
-  document.getElementById('where').textContent = l ? `${WORLDS[l.world].name} · Life ${S.lives.length + 1}` : 'The Between';
-  document.getElementById('statusBtn').hidden = !(l && l.status);
+  const l = S.life, showingLife = !!(l && bg !== 'between');
+  document.getElementById('where').textContent = showingLife ? `${WORLDS[l.world].name} · Life ${S.lives.length + 1}` : 'The Between';
+  document.getElementById('statusBtn').hidden = !(showingLife && l.status);
 }

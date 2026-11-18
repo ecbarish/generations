@@ -43,18 +43,24 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
 .dlg-otherworld .dlg-choices{display:none;flex-direction:column;align-items:stretch}
 .dlg-otherworld.asking .dlg-choices{display:flex}
 .dlg-otherworld .dlg-choices button:focus-visible{outline:3px solid #ffe3a0;outline-offset:2px}
-.dlg.dlg-otherworld.narr .dlg-face{display:block!important;visibility:hidden;width:64px;min-width:64px;height:64px}
+.dlg.dlg-otherworld .dlg-face{display:block!important;width:64px;min-width:64px;height:64px}
+.dlg.dlg-otherworld.narr .dlg-face{visibility:hidden}
 .dlg-otherworld .dlg-body{position:relative;padding-bottom:52px}
 .dlg-otherworld .dlg-continue,.dlg-otherworld .dlg-skip{position:absolute;bottom:4px;z-index:1}
 .dlg-otherworld .dlg-continue{left:0}
 .dlg-otherworld .dlg-skip{left:96px}
 .dlg-otherworld.asking .dlg-skip{display:none}
 .dlg-otherworld.asking .dlg-continue.go-slot{visibility:hidden;pointer-events:none}
-@media(max-width:560px){.dlg-otherworld.dlg{bottom:8px;max-height:calc(100dvh - 130px)}.dlg-otherworld .dlg-choices button{font-size:13px}.dlg-otherworld .choice-why{font-size:12px}}
+@media(max-width:560px){
+  .dlg-otherworld.dlg{bottom:8px;max-height:calc(100dvh - 130px)}
+  .dlg.dlg-otherworld .dlg-face,.dlg.dlg-otherworld.narr .dlg-face{width:44px;min-width:44px;height:44px}
+  .dlg-otherworld .dlg-choices button{font-size:13px}
+  .dlg-otherworld .choice-why{font-size:12px}
+}
 /* A wide world still needs readable people and choices. */
 @media(min-width:1600px){
  .dlg-otherworld.dlg{width:min(1040px,90vw);padding:16px;gap:16px}
- .dlg.dlg-otherworld .dlg-face{width:80px;height:80px}
+ .dlg.dlg-otherworld .dlg-face,.dlg.dlg-otherworld.narr .dlg-face{width:80px;min-width:80px;height:80px}
  .dlg.dlg-otherworld .dlg-who{font-size:24px}
  .dlg.dlg-otherworld .dlg-role{font-size:16px}
  .dlg.dlg-otherworld .dlg-say{font-size:20px}
@@ -78,6 +84,10 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
 .goal{pointer-events:none;flex:1 0 100%;min-width:0;margin:6px 0 0;padding:8px 12px;background:#121028;border:1px solid var(--line);border-radius:12px;color:var(--gold);font-weight:700;font-size:calc(15px * var(--arc-text,1));line-height:1.35;overflow-wrap:anywhere}
 .stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .dlg-skip,.stage .between-shortcut,.stage .row input,.arc-set .arc-set-x,.arc-set .arc-set-opts button,.arc-set .arc-set-opts a,.stage .feedback-menu a{min-height:44px;min-width:44px}
 .stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .dlg-skip,.stage .between-shortcut{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+#statusBtn[hidden]{display:inline-flex!important;visibility:hidden;pointer-events:none}
+.stage .row.end .go{display:inline-grid;place-items:center;white-space:nowrap}
+.stage .row.end .go>span{grid-area:1/1}
+.stage .row.end .go .go-reserve{visibility:hidden}
 .stage .feedback-menu{max-width:calc(100vw - 16px)}
 .stage .feedback-menu a{display:flex;align-items:center;white-space:normal;box-sizing:border-box;padding:8px 12px}
 .dlg-otherworld.dlg{max-height:calc(100dvh - var(--ow-below-hud,120px) - 12px)}

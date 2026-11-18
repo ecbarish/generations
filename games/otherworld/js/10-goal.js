@@ -52,12 +52,13 @@ function roadWaiting(life) {
 }
 function currentGoalText() {
   const life = S.life;
-  if (life && life.ending && ENDINGS[life.ending]) {
+  const inLife = bg !== 'between' && life;
+  if (inLife && life.ending && ENDINGS[life.ending]) {
     return ENDINGS[life.ending].death
       ? 'This life is ending. Listen. Death still has something to teach.'
       : 'This life is ending. Listen, then return to the Between.';
   }
-  if (life) {
+  if (inLife) {
     const raw = LIFE_GOALS[life.at];
     const beat = sceneState && sceneState.lines ? sceneState.i || 0 : 0;
     let text = typeof raw === 'function' ? raw(life, beat) : (raw || (WORLDS[life.world] ? `Live this day in ${WORLDS[life.world].name}.` : 'Choose your next step.'));

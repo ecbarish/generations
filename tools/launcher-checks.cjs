@@ -46,6 +46,7 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
   await p.goto(origin+'/lab.html');await p.waitForFunction(()=>document.querySelector('#lab .cab'));
   const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));const expectLab=games.filter(g=>!['little-ranch','starfall-preview','realmbound'].includes(g.id)).map(g=>g.id);
   check(JSON.stringify(lab)===JSON.stringify(expectLab),'Lab holds every other catalogue game');check(!lab.includes('little-ranch'),'Little Ranch is on the hub, not in the Lab');
+  check(await p.locator('#lab [data-game="otherworld"] a.play').getAttribute('href')==='games/otherworld/','hub links Otherworld to /games/otherworld/');
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);
