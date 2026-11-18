@@ -174,13 +174,6 @@
     return state.boats[i - 1].owned >= UNLOCK_AT;
   }
 
-  function lookIndex(owned) {
-    if (owned >= 100) return 3;
-    if (owned >= 50) return 2;
-    if (owned >= 25) return 1;
-    return 0;
-  }
-
   function timesWord(owned) {
     var m = Idle.milestoneMult(owned);
     if (m >= 8) return 'eight times as much';
@@ -682,7 +675,7 @@
     var owned = state.boats[i].owned;
     var boat = spec(i);
     if (!(owned > 0)) return boat.name + 's wait on the price list.';
-    var look = pluralLook(boat.looks[lookIndex(owned)], owned);
+    var look = pluralLook(boat.looks[LookIndex(owned)], owned);
     if (Idle.milestoneMult(owned) <= 1) return look + '.';
     return owned + ' ' + boat.name.toLowerCase() + 's. Each earns ' + timesWord(owned) + '.';
   }
@@ -1890,6 +1883,6 @@
     restore: restore,
     openSave: openSave,
     createIdle: createIdle,
-    lookIndex: lookIndex
+    lookIndex: LookIndex
   };
 })();

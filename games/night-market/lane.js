@@ -12,7 +12,6 @@
   var STALL_BOTTOM = 66, WALK_Y = 67, WALK_W = 16, WALK_H = 20;      // stalls end at row 66; a walker's box is 16x20 from row 67
   var STEAM = ['rule', 'rule', null, 'rule', 'mute', null];         // tea, dumpling, lantern, mooncake, incense, story mat
   var STRIPE = ['wash', 'lamp', 'rule', 'good'];                     // the awning's light stripe, by look (0, 25, 50, 100 owned)
-  var MILESTONES = [25, 50, 100];
   var FLASHES = [25, 50, 100, 150, 200, 300, 400];
 
   var cv, cx, bg, bx, watch, getState, unlockedFn, seed = 7, sig = '', raf = 0, last = 0, acc = 0, live = false;
@@ -22,13 +21,12 @@
   function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
   function rect(c, x, y, w, h, col) { c.fillStyle = C[col]; c.fillRect(x, y, w, h); }
   function box(c, x, y, w, h, fill) { rect(c, x, y, w, h, 'ink'); if (w > 2 && h > 2) rect(c, x + 1, y + 1, w - 2, h - 2, fill); }
-  function look(owned) { var k = 0; MILESTONES.forEach(function (m) { if (owned >= m) k++; }); return k; }
   function st() { return getState(); }
   function open(i) { return unlockedFn(st(), i); }
   function busy(i) { var t = st().stalls[i]; return open(i) && (t.hired || t.serves > 0); }
 
   /* ---- effect 0: the static lane, painted once per change of unlock / look ---- */
-  function signature() { return st().stalls.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + look(t.owned); }).join(','); }
+  function signature() { return st().stalls.map(function (t, i) { return (open(i) ? 1 : 0) + ':' + LookIndex(t.owned); }).join(','); }
   function paintStatic() {
     var c = bx; rect(c, 0, 0, W, H, 'night');
     rect(c, 0, 1, W, 1, 'ink');                                      // the lantern string
@@ -44,7 +42,7 @@
     for (var y = y0 + 17; y < y0 + 52; y += 4) rect(c, x0 + 8, y, 48, 1, 'mute');
   }
   function stallOpen(c, i, x0, y0) {
-    var s = STRIPE[look(st().stalls[i].owned)];
+    var s = STRIPE[LookIndex(st().stalls[i].owned)];
     rect(c, x0 + 7, y0 + 14, 3, 30, 'timber'); rect(c, x0 + 54, y0 + 14, 3, 30, 'timber');   // posts
     rect(c, x0 + 7, y0 + 14, 1, 30, 'amber');                                                 // lit from the upper left
     box(c, x0 + 3, y0 + 6, 58, 10, 'amber');                                                  // awning

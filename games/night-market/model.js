@@ -133,13 +133,6 @@
     return state.stalls[i - 1].owned >= unlockNeed(i);
   }
 
-  function lookIndex(owned) {
-    if (owned >= 100) return 3;
-    if (owned >= 50) return 2;
-    if (owned >= 25) return 1;
-    return 0;
-  }
-
   /* 25, 50, 100, 150, 200, 300 and 400 each double the row again. */
   function stallMult(owned) {
     return Idle.milestoneMult(owned, STALL_MILESTONES);
@@ -561,7 +554,7 @@
     var stall = spec(i);
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
-    var look = stall.looks[lookIndex(owned)];
+    var look = stall.looks[LookIndex(owned)];
     return stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
   }
 

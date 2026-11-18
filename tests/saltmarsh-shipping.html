@@ -18,6 +18,7 @@
 <script src="../shared/engine.js"></script>
 <script src="../shared/idle-core.js"></script>
 <script src="../shared/roster.js"></script>
+<script src="../shared/look-index.js"></script>
 <script src="../games/saltmarsh-shipping/model.js"></script>
 <script src="../games/saltmarsh-shipping/phase.js"></script>
 <script src="../tools/saltmarsh-pacing.cjs"></script>
@@ -182,6 +183,25 @@ document.querySelector('#run').onclick = async function () {
       s.boats[3].owned = 2;
       return M.lookLine(s, 0) === '2 boats tied at the dock.' && M.lookLine(s, 1) === '2 sloops on the mooring.' && M.lookLine(s, 2) === '2 schooners outside the bar.' && M.lookLine(s, 3) === '2 barks on the deep mooring.';
     })());
+    (function () {
+      /* Frozen copies of the helpers this page used to keep. Night Market's lane counted the same steps with a loop. */
+      function legacyModel(owned) {
+        if (owned >= 100) return 3;
+        if (owned >= 50) return 2;
+        if (owned >= 25) return 1;
+        return 0;
+      }
+      function legacyLane(owned) {
+        var k = 0;
+        [25, 50, 100].forEach(function (m) { if (owned >= m) k++; });
+        return k;
+      }
+      var samples = [-1, 0, 1, 24, 24.9, 25, 49, 49.9, 50, 99, 99.9, 100, 101, 1000, NaN, Infinity, null, undefined];
+      var same = samples.every(function (n) {
+        return LookIndex(n) === legacyModel(n) && LookIndex(n) === legacyLane(n) && M.lookIndex(n) === LookIndex(n);
+      });
+      check('the shared look index matches the old Night Market and Saltmarsh copies', same && LookIndex(24) === 0 && LookIndex(25) === 1 && LookIndex(50) === 2 && LookIndex(100) === 3);
+    })();
     check('the skiff keeps paying after Wren arrives', (function () {
       var s = ready();
       s.boats[0].owned = 10;
