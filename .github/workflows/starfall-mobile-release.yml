@@ -17,7 +17,7 @@ jobs:
   committed-pack-review:
     # Release-PR verification only: no re-export, preview mutation or deployment.
     if: github.event.pull_request.number == 222 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/starfall-mobile-preview'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       SOURCE_COMMIT: 1a37f695fa6f271da74cb983e909f5968501d032

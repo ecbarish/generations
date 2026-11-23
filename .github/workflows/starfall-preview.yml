@@ -13,7 +13,7 @@ concurrency:
 jobs:
   web-review:
     if: github.event_name == 'pull_request' && github.event.pull_request.number == 206 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/starfall-opening-preview'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       SOURCE_COMMIT: 0af5b92cf4ae03fbbb2dd83bf67b0e06332e38fd
@@ -67,7 +67,7 @@ jobs:
 
   verify-live:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
