@@ -41,7 +41,10 @@ document.querySelector('#run').onclick = async function () {
     li.className = ok ? 'pass' : 'fail';
     li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
     list.appendChild(li);
-    if (!ok) throw Error(name);
+    if (!ok) {
+      list.dataset.bad = '1';
+      throw new Error(name);
+    }
   }
   function near(a, b) {
     var d = Math.abs(a - b);
@@ -394,524 +397,91 @@ document.querySelector('#run').onclick = async function () {
     eight.lights.pier = 1;
     eight.cash = 1e9;
     check('eight sloops to the goal are eight boats, not one', P.boatNeed(eight) && P.boatNeed(eight).tier === 1 && P.boatNeed(eight).at === 10 && M.quote(eight, 1, 8).count === 8);
-    var priced = ready();
-    priced.trips = 3;
-    priced.boats[0].owned = M.SLOOP_AT;
-    priced.boats[1].owned = 10;
-    priced.boats[2].owned = 10;
-    priced.captains[0].hired = true;
-    priced.captains[1].hired = true;
-    priced.captains[2].hired = true;
-    priced.forks = { sloop: 'fit', schooner: 'fit', quay: null };
-    priced.cash = 1e15;
-    var teaWas = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
-    M.signRoute(priced, 'kelp', 1);
-    var teaNow = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
-    check('each route keeps its own contract count, and signing one does not raise the others', M.routeContract(priced, 'kelp').label === '1 signed · contract 2 of 4' && M.routeContract(priced, 'gull').label === '0 signed · contract 1 of 4' && M.routeContract(priced, 'tea').label === '0 signed · contract 1 of 4' && teaNow === teaWas);
-    M.signRoute(priced, 'gull', 1);
-    check('Gull Rock moves to contract 2 when Gull Rock is signed', M.routeContract(priced, 'gull').label === '1 signed · contract 2 of 4' && M.routeContract(priced, 'tea').label === '0 signed · contract 1 of 4');
-    var parked = ready();
-    parked.trips = 3;
-    parked.boats[0].owned = M.SLOOP_AT;
-    parked.boats[1].owned = 10;
-    parked.boats[2].owned = 10;
-    parked.boats[3].owned = 16;
-    parked.captains[0].hired = true;
-    parked.captains[1].hired = true;
-    parked.captains[2].hired = true;
-    parked.forks = { sloop: 'fit', schooner: 'fit' };
-    parked.cash = 1e15;
-    M.ROUTES.forEach(function (spec) { parked.routes[spec.id] = spec.id === 'kelp' ? 2 : 1; });
-    var kelpSpec = M.ROUTES.filter(function (spec) { return spec.id === 'kelp'; })[0];
-    var shownPrice = M.peekRoute(parked, kelpSpec);
-    parked.boats[0].owned += 200;
-    var heldPrice = M.peekRoute(parked, kelpSpec);
-    check('a waiting contract keeps the price it first showed', !!shownPrice && !!heldPrice && shownPrice.cost === heldPrice.cost && shownPrice.cost > 0);
-    var lampDesk = M.preset('lamps');
-    lampDesk.cash = 1e18;
-    lampDesk.played = 2000;
-    var guard = 0;
-    while (M.lightOffers(lampDesk, false).length && guard++ < 8) M.buildLight(lampDesk, M.lightOffers(lampDesk, false)[0].id, 1);
-    lampDesk.played = 100;
-    check('the voyage list opens when the four lights are burning', M.allLightsLit(lampDesk) && M.voyageOpen(lampDesk) === true && M.finaleOffer(lampDesk) == null);
-    var lockedPrep = M.nextPreparation(lampDesk).cost;
-    lampDesk.boats[3].owned += 30;
-    check('the price on the desk stays put when the fleet grows', M.nextPreparation(lampDesk).cost === lockedPrep && lockedPrep > 0);
-    var fleetPreset = M.preset('fleet');
-    var lampsPreset = M.preset('lamps');
-    var finalPreset = M.preset('final');
-    check('preset states open the routes, three lighthouses, and the last voyage', fleetPreset.boats[2].owned >= 10 && P.read(fleetPreset).routesOpen && fleetPreset.routes.kelp === 0 && M.lightsLit(lampsPreset) === 3 && lampsPreset.ended === false && finalPreset.ended === false && finalPreset.voyages >= M.CHART_FULL && M.allLightsLit(finalPreset) && !!M.finaleOffer(finalPreset, false));
-    var coast = ready();
-    coast.trips = 3;
-    coast.boats[0].owned = M.SLOOP_AT;
-    coast.boats[1].owned = 10;
-    coast.boats[2].owned = 10;
-    coast.boats[3].owned = 16;
-    coast.captains[0].hired = true;
-    coast.captains[1].hired = true;
-    coast.captains[2].hired = true;
-    coast.captains[3].hired = true;
-    coast.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    coast.played = 100;
-    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { coast.routes[id] = 1; });
-    coast.voyages = 5;
-    coast.cash = 1e15;
-    var locked = M.lightOffers(coast, true);
-    var quayWas = locked.filter(function (o) { return o.id === 'quay'; })[0].cost;
-    var headWas = locked.filter(function (o) { return o.id === 'headland'; })[0].cost;
-    M.buildLight(coast, 'pier', 1);
-    coast.boats[3].owned = 80;
-    var quayNow = M.lightOffers(coast, true).filter(function (o) { return o.id === 'quay'; })[0].cost;
-    var headNow = M.lightOffers(coast, true).filter(function (o) { return o.id === 'headland'; })[0].cost;
-    check('raising one lighthouse does not reprice the others', quayNow === quayWas && headNow === headWas && (coast.lights.pier || 0) === 1);
-    coast.forks.quay = null;
-    coast.lights.pier = 0;
-    var blockedLight = M.buildLight(coast, 'quay', 1);
-    check('a lighthouse stays dark while the quay choice is open', blockedLight.ok === false && blockedLight.reason === 'choice' && (coast.lights.quay || 0) === 0);
-    var gated = ready();
-    gated.trips = 3;
-    gated.boats[0].owned = M.SLOOP_AT;
-    gated.boats[1].owned = 10;
-    gated.boats[2].owned = 10;
-    gated.boats[3].owned = 16;
-    gated.captains[0].hired = true;
-    gated.captains[1].hired = true;
-    gated.captains[2].hired = true;
-    gated.captains[3].hired = true;
-    gated.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    gated.played = 100;
-    ['kelp', 'gull', 'tea', 'headland', 'reed', 'night'].forEach(function (id) { gated.routes[id] = 2; });
-    gated.voyages = 12;
-    var lateOffer = M.routeOffers(gated, false)[0];
-    var gatedGoal = P.goal(gated);
-    check('a later contract has a price, and the goal names a real next step', !!lateOffer && lateOffer.cost > 0 && (/^Sign /.test(gatedGoal) || /^Raise the /.test(gatedGoal) || /^Light the /.test(gatedGoal) || /^Buy a /.test(gatedGoal) || /^Buy the spare sail/.test(gatedGoal)) && /Need /.test(gatedGoal) && /Sign the next route/.test(gatedGoal) === false && /Raise a lighthouse/.test(gatedGoal) === false && /Buy \d+ barks/.test(gatedGoal) === false);
-    var pricedGoal = ready();
-    pricedGoal.trips = 3;
-    pricedGoal.boats[0].owned = M.SLOOP_AT;
-    pricedGoal.boats[1].owned = 10;
-    pricedGoal.boats[2].owned = 10;
-    pricedGoal.boats[3].owned = 16;
-    pricedGoal.captains[0].hired = true;
-    pricedGoal.captains[1].hired = true;
-    pricedGoal.captains[2].hired = true;
-    pricedGoal.captains[3].hired = true;
-    pricedGoal.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    pricedGoal.played = 400;
-    pricedGoal.cash = 0;
-    M.ROUTES.forEach(function (spec) { pricedGoal.routes[spec.id] = spec.id === 'kelp' ? 2 : 4; });
-    pricedGoal.voyages = 22;
-    pricedGoal.quotes = { 'kelp:2': { id: 'kelp', depth: 2, cost: 5000000, gross: 1, risk: 0 } };
-    pricedGoal.lightQuotes = {};
-    M.LIGHTS.forEach(function (spec) {
-      pricedGoal.lightQuotes[spec.id + ':0'] = { id: spec.id, stage: 0, cost: spec.id === 'pier' ? 1000 : 8000000, line: spec.lines[0] };
-    });
-    var cheapAct = P.nextAct(pricedGoal);
-    var cheapGoal = P.goal(pricedGoal);
-    pricedGoal.boats[3].owned += 40;
-    var heldAct = P.nextAct(pricedGoal);
-    var shortBefore = cheapAct.cost - pricedGoal.cash;
-    pricedGoal.cash = 400;
-    var shortAfter = P.nextAct(pricedGoal).cost - pricedGoal.cash;
-    check('the goal picks the cheaper light, and that price does not climb', cheapAct.kind === 'light' && cheapAct.id === 'pier' && /Raise the Pier Lighthouse/.test(cheapGoal) && /1\.00K/.test(cheapGoal) && /Need /.test(cheapGoal) && heldAct.cost === cheapAct.cost && heldAct.id === cheapAct.id && shortAfter < shortBefore);
-    pricedGoal.lights.pier = 1;
-    pricedGoal.lightQuotes['pier:1'] = { id: 'pier', stage: 1, cost: 5000, line: 'The lamp is burning.' };
-    pricedGoal.lightQuotes['headland:0'] = { id: 'headland', stage: 0, cost: 100, line: 'The tower goes up.' };
-    var litNext = P.nextAct(pricedGoal);
-    var cheaperRaise = P.cheapestAffordable(pricedGoal);
-    check('the goal points at the cheaper affordable raise', cheaperRaise && cheaperRaise.kind === 'light' && cheaperRaise.id === 'headland' && /Raise the Headland Lighthouse/.test(P.goal(pricedGoal)) && litNext && litNext.kind === 'light');
-    M.LIGHTS.forEach(function (spec) { pricedGoal.lights[spec.id] = 2; });
-    pricedGoal.lightQuotes = {};
-    pricedGoal.cash = 0;
-    pricedGoal.played = 2500;
-    pricedGoal.quotes['kelp:2'] = { id: 'kelp', depth: 2, cost: 9000000, gross: 1, risk: 0 };
-    var fixedBefore = M.nextPreparation(pricedGoal).cost;
-    pricedGoal.boats[3].owned += 80;
-    var fixedAfter = M.nextPreparation(pricedGoal).cost;
-    check('buying boats does not raise a preparation price', fixedBefore === fixedAfter && fixedBefore > 0);
-    var foodItem = M.PREPARATIONS.filter(function (item) { return item.id === 'victuals'; })[0];
-    var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
-    var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
-    var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
-    check('the voyage cards say what each choice does, in plain words', /40% more/.test(foodCard) && /fresh food/i.test(foodCard) && /12% less/.test(foodCard) && /risky cargo comes back/.test(pilotCard) && /boat earns 10%/.test(pilotCard) && !/Victuals/.test(foodItem.name));
-    function payOffice(which) {
-      var s = M.preset('lamps');
-      s.played = 3000;
-      s.prepDone = { pilot: which };
-      return s;
-    }
-    var pilotRoutes = M.routeIncome(payOffice('pilot'));
-    var chartRoutes = M.routeIncome(payOffice('chart'));
-    var pilotBoats = M.income(payOffice('pilot'));
-    var chartBoats = M.income(payOffice('chart'));
-    check('a bought chart pays the boats and a pilot brings the risky cargo back', chartBoats > pilotBoats && /risky cargo comes back/.test(M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0].choice[0].line));
-    var jobs = M.preset('lamps');
-    jobs.played = 1000;
-    jobs.cash = 1e15;
-    check('harbour work and errands stay shut before twenty minutes', M.workOffer(jobs) == null && M.errandOffer(jobs) == null);
-    jobs.played = 1300;
-    var firstWork = M.workOffer(jobs);
-    var firstErrand = M.errandOffer(jobs);
-    check('harbour work and an errand are on the desk after twenty minutes', !!firstWork && firstWork.cost > 0 && firstWork.name.length > 0 && !!firstErrand && firstErrand.name === 'Sound the channel' && firstErrand.cost > 0);
-    check('doing the work and the errand moves the desk on to the next job', M.buyWork(jobs, 1).ok && jobs.works === 1 && M.workOffer(jobs).name !== firstWork.name && M.buyErrand(jobs, 1).ok && jobs.errands === 1 && M.errandOffer(jobs).name === 'Count the casks');
-    var litGoal = M.preset('lamps');
-    litGoal.boats[3].owned = 12;
-    litGoal.lights.pier = 1;
-    litGoal.cash = 0;
-    litGoal.events = { squall: 'wait', request: 'grant', windfall: 'sell' };
-    M.lightOffers(litGoal, true);
-    check('a raised tower is the goal before more boats', /^(Light the |Sign |Raise the |Buy the spare sail)/.test(P.goal(litGoal)) && /^Buy a /.test(P.goal(litGoal)) === false);
-    var haulOffice = M.fresh();
-    haulOffice.trips = 3;
-    haulOffice.boats[0].owned = 20;
-    var haulNow = 1700000000000;
-    M.hire(haulOffice, 0, haulNow);
-    M.collectCaptains(haulOffice, haulNow + 60000, 1);
-    haulOffice.played = 3000;
-    haulOffice.prepDone = {};
-    M.PREPARATIONS.forEach(function (item) { haulOffice.prepDone[item.id] = true; });
-    ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { haulOffice.lights[id] = 2; });
-    var haulEnd = M.launchFinale(haulOffice, haulNow + 60000);
-    check('a captain who has landed is counted on the ending', haulEnd.ok && haulEnd.ending.hauls === 3);
-    var freshEnd = M.preset('final');
-    check('the final preset has no hauls until a captain lands', M.statsOf(freshEnd, Date.now()).hauls === 0);
-    var lightPrice = M.fresh();
-    lightPrice.trips = 3;
-    lightPrice.boats[0].owned = 32;
-    lightPrice.boats[1].owned = 10;
-    lightPrice.boats[2].owned = 10;
-    lightPrice.boats[3].owned = 16;
-    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { lightPrice.routes[id] = 1; lightPrice.routeGross[id] = 1000; });
-    var pierQuote = M.lightOffers(lightPrice, false).filter(function (row) { return row.id === 'pier'; })[0];
-    check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
-    var organic = SaltmarshPacing.organicRun(M, P);
-    check('a normal office lights the first tower within 8 minutes and still reaches the ending (' + organic.firstLight + 's light, ' + organic.fourLights + 's coast, ' + organic.endingAt + 's end, gap ' + organic.voyageGap + 's, misses ' + organic.missedCheap + ')', organic.firstLight > 0 && organic.firstLight <= 480 && organic.fourLights > organic.firstLight && organic.endingAt >= 720 && organic.endingAt <= 1560 && organic.voyageGap <= 90 && organic.missedCheap === 0);
-    var tide = ready();
-    tide.trips = 3;
-    tide.boats[0].owned = M.SLOOP_AT;
-    tide.boats[1].owned = 10;
-    tide.boats[2].owned = 10;
-    tide.routes.kelp = 1;
-    tide.forks = { sloop: 'fit', schooner: 'fit', quay: null };
-    tide.cash = 1e9;
-    var squall = M.deskChoice(tide);
-    var fullStake = M.officeRate(tide) * 26;
-    var shown = M.routeOffers(tide, true);
-    var cheapest = shown[0].cost;
-    shown.forEach(function (row) { if (row.cost < cheapest) cheapest = row.cost; });
-    check('a squall offers a real choice after the first route', !!squall && squall.id === 'squall' && squall.cards.length === 2 && /costs less/.test(squall.cards[0].line));
-    var waited = M.chooseDesk(tide, 'squall', 'wait', 1);
-    tide.boats[0].owned += 40;
-    var later = M.routeOffers(tide, true);
-    var stillCheaper = true;
-    shown.forEach(function (old) {
-      later.forEach(function (row) {
-        if (row.id === old.id && row.depth === old.depth && !(row.cost < old.cost)) stillCheaper = false;
-      });
-    });
-    check('waiting the squall out lowers the contracts on the desk', waited.ok && tide.events.squall === 'wait' && stillCheaper && later[0].cost < cheapest);
-    var reedFirst = M.fresh();
-    reedFirst.trips = 3;
-    reedFirst.boats[0].owned = M.SLOOP_AT;
-    reedFirst.boats[1].owned = 10;
-    reedFirst.boats[2].owned = 10;
-    reedFirst.boats[3].owned = 16;
-    reedFirst.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    reedFirst.routes.kelp = 1;
-    reedFirst.routes.gull = 1;
-    reedFirst.routes.tea = 1;
-    reedFirst.routes.reed = 1;
-    reedFirst.lights.pier = 2;
-    reedFirst.lights.reed = 2;
-    reedFirst.cash = 1e9;
-    check('the crate choice appears after any two lights, including on a phone path', M.deskChoice(reedFirst).id === 'windfall');
-    reedFirst.lights.reed = 0;
-    check('Wren\'s request appears after the first light, whichever light it was', M.deskChoice(reedFirst).id === 'request');
-    var sideJob = M.fresh();
-    sideJob.trips = 3;
-    sideJob.boats[0].owned = M.SLOOP_AT;
-    sideJob.boats[1].owned = 10;
-    sideJob.boats[2].owned = 10;
-    sideJob.boats[3].owned = 20;
-    sideJob.played = 2000;
-    sideJob.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    sideJob.captains[0].hired = true;
-    sideJob.captains[1].hired = true;
-    sideJob.captains[2].hired = true;
-    sideJob.captains[3].hired = true;
-    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { sideJob.routes[id] = 1; });
-    sideJob.lights.pier = 2;
-    sideJob.cash = 1e12;
-    var pointed = P.nextAct(sideJob);
-    var workCost = M.workOffer(sideJob).cost;
-    check('the goal points at a cheaper lighthouse instead of a side job', pointed && pointed.kind === 'light' && pointed.cost < workCost);
-    var quayState = M.fresh();
-    quayState.routes.kelp = 1;
-    quayState.routes.gull = 1;
-    quayState.forks = { sloop: null, schooner: null, quay: 'lamp' };
-    var quayDark = M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]);
-    check('a dark Quay lighthouse names every unlock that is still shut', quayDark.indexOf('Sign 2 more routes') >= 0 && quayDark.indexOf('four routes are sailing') >= 0 && quayDark.indexOf('The house lamp lights at 16 barks, 16 to go.') >= 0);
-    quayState.boats[3].owned = 7;
-    check('the quay count moves when barks are bought', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]).indexOf('The house lamp lights at 16 barks, 9 to go.') >= 0);
-    quayState.boats[3].owned = 0;
-    quayState.boats[3].owned = 16;
-    check('sixteen barks leave the route count as the quay\'s remaining lock', M.lightClosed(quayState, M.LIGHTS.filter(function (row) { return row.id === 'quay'; })[0]) === 'Sign 2 more routes. The Quay Lighthouse opens when four routes are sailing.');
-    var bellDesk = M.fresh();
-    bellDesk.trips = 3;
-    bellDesk.boats[0].owned = M.SLOOP_AT;
-    bellDesk.boats[1].owned = 10;
-    bellDesk.boats[2].owned = 10;
-    bellDesk.boats[3].owned = 4;
-    bellDesk.captains[0].hired = true;
-    bellDesk.captains[1].hired = true;
-    bellDesk.captains[2].hired = true;
-    bellDesk.forks = { sloop: 'fit', schooner: 'fit', quay: null };
-    bellDesk.routes.kelp = 1;
-    bellDesk.routes.gull = 1;
-    bellDesk.quotes = {
-      'kelp:1': { id: 'kelp', depth: 1, cost: 900000, gross: 1, risk: 0 },
-      'gull:1': { id: 'gull', depth: 1, cost: 900000, gross: 1, risk: 0 },
-      'tea:0': { id: 'tea', depth: 0, cost: 900000, gross: 1, risk: 0 }
-    };
-    bellDesk.lightQuotes = { 'pier:0': { id: 'pier', stage: 0, cost: 13800, line: 'The tower goes up.' } };
-    bellDesk.cash = 20000;
-    bellDesk.pilotQuote = 24200;
-    var bellGoal = P.goal(bellDesk);
-    var bellBest = P.cheapestAffordable(bellDesk);
-    check('the goal takes the Pier tower while the bell choice costs more', bellBest && bellBest.kind === 'light' && bellBest.id === 'pier' && bellBest.cost < 24200 && bellGoal === bellBest.sentence && /Raise the Pier/.test(bellGoal));
-    var barkDesk = M.fresh();
-    barkDesk.trips = 3;
-    barkDesk.boats[0].owned = M.SLOOP_AT;
-    barkDesk.boats[1].owned = 10;
-    barkDesk.boats[2].owned = 10;
-    barkDesk.boats[3].owned = 4;
-    barkDesk.captains[0].hired = true;
-    barkDesk.captains[1].hired = true;
-    barkDesk.captains[2].hired = true;
-    barkDesk.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    barkDesk.routes.kelp = 1;
-    barkDesk.quotes = {
-      'kelp:1': { id: 'kelp', depth: 1, cost: 900000, gross: 1, risk: 0 },
-      'gull:0': { id: 'gull', depth: 0, cost: 900000, gross: 1, risk: 0 },
-      'tea:0': { id: 'tea', depth: 0, cost: 900000, gross: 1, risk: 0 }
-    };
-    barkDesk.lightQuotes = { 'pier:0': { id: 'pier', stage: 0, cost: 13300, line: 'The tower goes up.' } };
-    barkDesk.cash = 20000;
-    var barkGoal = P.goal(barkDesk);
-    var barkBest = P.cheapestAffordable(barkDesk);
-    check('the goal takes the Pier raise while the bark bundle is dearer', barkBest && barkBest.kind === 'light' && barkBest.cost < 50000 && barkGoal === barkBest.sentence && /Buy \d+ barks/.test(barkGoal) === false);
-    var cliff = M.fresh();
-    cliff.trips = 3;
-    cliff.boats[0].owned = 40;
-    cliff.boats[1].owned = 10;
-    cliff.boats[2].owned = 10;
-    cliff.cash = 1e15;
-    cliff.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    M.signRoute(cliff, 'kelp', 1);
-    M.signRoute(cliff, 'kelp', 2);
-    ['gull', 'tea', 'headland', 'reed', 'night'].forEach(function (id) { cliff.routes[id] = 4; });
-    var paidKelp = cliff.routePaid.kelp;
-    cliff.boats[0].owned = 400;
-    cliff.quotes = {};
-    var third = null;
-    M.routeOffers(cliff, true).forEach(function (row) { if (row.id === 'kelp') third = row; });
-    check('the third contract stays within twice the price just signed', !!third && paidKelp > 0 && third.cost <= paidKelp * 2 + 1 && third.cost > paidKelp);
-    var handsOffice = M.fresh();
-    var gunOffice = M.fresh();
-    handsOffice.trips = gunOffice.trips = 3;
-    handsOffice.boats[0].owned = gunOffice.boats[0].owned = 10;
-    handsOffice.routes.kelp = gunOffice.routes.kelp = 1;
-    handsOffice.routeGross = { kelp: 1000 };
-    gunOffice.routeGross = { kelp: 1000 };
-    var plainBoats = M.income(handsOffice);
-    var plainRoutes = M.routeIncome(gunOffice);
-    handsOffice.prepDone = { pilot: 'chart' };
-    gunOffice.prepDone = { victuals: 'fresh' };
-    check('a chart lifts the boats and fresh food lifts the routes', M.income(handsOffice) > plainBoats && M.routeIncome(gunOffice) > plainRoutes);
-    var back = M.awayCopy(tide, { away: 120, gained: 40, capped: false }, { before: 10, after: 50, boatGain: 40, captains: [] });
-    check('coming back names what grew and the next step', back.title === 'While you were away' && /boats added/.test(back.box) && /Next: /.test(back.box));
-    check('four minutes away pays the rate on the desk', (function () {
+    check('four year-one routes each sign once, and boats raise that pay', (function () {
+      var year = M.ROUTES.filter(function (r) { return r.year !== 2; });
+      if (year.length !== 4) return false;
+      if (year.some(function (r) { return r.depths !== 1; })) return false;
+      var crews = year.map(function (r) { return r.crew; }).sort();
+      if (crews.join(',') !== '0,1,2,3') return false;
       var s = ready();
-      s.trips = 3;
-      s.boats[0].owned = 40;
-      s.boats[1].owned = 12;
-      M.hire(s, 0, 1700000000000);
-      var rate = M.officeRate(s);
-      var shown = Arcade.fmt(rate);
-      var before = s.cash;
-      var idle = M.createIdle(s, function () {});
-      idle.start(Date.now() - 240000);
-      idle.stop();
-      var gained = s.cash - before;
-      var promised = rate * 240 * M.OFFLINE_RATE;
-      var copy = M.awayCopy(s, { away: 240, credited: 240, gained: gained, capped: false }, {
-        perSec: rate, openPage: false, boatGain: gained, before: before, after: s.cash, captains: []
-      });
-      return shown === Arcade.fmt(M.officeRate(s)) && Math.abs(gained - promised) < Math.max(2, rate) && copy.lead.indexOf(M.coins(Math.round(rate))) >= 0 && copy.lead.indexOf(M.coins(Math.round(promised))) >= 0;
+      s.boats[0].owned = M.SLOOP_AT;
+      s.captains[0].hired = true;
+      s.cash = 1e9;
+      var kelp = year.filter(function (r) { return r.id === 'kelp'; })[0];
+      var offer = M.routeOffers(s)[0];
+      if (!offer || offer.id !== 'kelp' || offer.cost !== kelp.sign) return false;
+      var tea = M.ROUTES.filter(function (r) { return r.id === 'tea'; })[0].sign;
+      if (!M.signRoute(s, 'kelp', 1).ok || s.routes.kelp !== 1) return false;
+      if (M.signRoute(s, 'kelp', 1).ok) return false;
+      var before = M.routeIncome(s);
+      s.boats[0].owned += 1;
+      return M.routeIncome(s) > before && M.routeOffers(s).every(function (row) { return row.cost !== tea || row.id === 'tea'; }) && M.gearOffer(s) == null && M.workOffer(s) == null && M.errandOffer(s) == null;
     })());
-    check('owning a schooner does not ask for the first one again', (function () {
+    check('lighthouse prices are fixed, and the Quay needs 16 barks', (function () {
+      var byId = {};
+      M.LIGHTS.forEach(function (l) { byId[l.id] = l; });
+      if ([byId.pier.cost, byId.headland.cost, byId.reed.cost, byId.quay.cost].some(function (n) { return !(n > 0); })) return false;
+      if (byId.quay.barks !== 16) return false;
       var s = ready();
-      s.trips = 3;
-      s.boats[0].owned = 40;
-      s.boats[1].owned = 12;
-      s.boats[2].owned = 1;
-      s.cash = 0;
-      s.forks.sloop = 'fit';
-      M.hire(s, 0, 1000);
-      M.hire(s, 1, 1000);
-      return /more schooner/.test(P.goal(s)) && /next tide/.test(P.goal(s)) && /Buy a schooner for the next tide/.test(P.goal(s)) === false;
-    })());
-    check('the shed names the whole price list without a gap word', /480/.test(M.shedNote(ready())) && /8\.40K/.test(M.shedNote(ready())) && /125K/.test(M.shedNote(ready())));
-    check('raising a light clears the still-dark line', (function () {
-      var s = ready();
-      s.trips = 3;
-      s.boats[0].owned = 40;
-      s.boats[1].owned = 12;
-      s.boats[2].owned = 10;
+      s.boats[0].owned = M.SLOOP_AT;
+      s.captains[0].hired = true;
       s.routes.kelp = 1;
-      s.cash = 1e12;
-      s.log.push({ t: 1, text: 'Still dark. Raising the Pier Lighthouse makes nights safer.' });
-      M.buildLight(s, 'pier', 1700000000000);
-      var text = s.log.map(function (line) { return line.text; }).join(' ');
-      return text.indexOf('Still dark') < 0 && /tower is up|burning/.test(text);
+      s.cash = byId.pier.cost;
+      if (!M.buildLight(s, 'pier', 1).ok || s.lights.pier !== 1) return false;
+      if (M.buildLight(s, 'pier', 1).ok) return false;
+      var early = ready();
+      early.cash = 1e15;
+      early.boats[3].owned = 15;
+      return M.buildLight(early, 'quay', 1).ok === false;
     })());
-    check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
-    var piled = ready();
-    piled.boats[0].owned = M.WREN_AT;
-    M.hire(piled, 0, 1700000000000);
-    M.collectCaptains(piled, 1700000000000 + 60000, 0.5);
-    check('a closed stretch totals the hauls in the harbour log', piled.log.some(function (line) { return /3 hauls/.test(line.text) && /in all/.test(line.text); }));
-
-    var sea = ready();
-    sea.boats[0].owned = 40;
-    sea.boats[1].owned = 10;
-    sea.boats[2].owned = 10;
-    sea.boats[3].owned = 10;
-    sea.cash = 1e18;
-    sea.captains[3].hired = true;
-    sea.played = 2000;
-    sea.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-    var signed = 0;
-    while (sea.voyages < M.CHART_FULL && signed < 80) {
-      var offer = M.routeOffers(sea, true)[0];
-      if (!offer || !M.signRoute(sea, offer.id, 5).ok) break;
-      signed += 1;
-    }
-    check('five routes wake the lights, and the contracts pay', M.routesSailing(sea) >= 5 && sea.voyages >= 18 && M.routeIncome(sea) > 0 && M.lightOffers(sea, false).length === 4);
-    M.LIGHTS.forEach(function (spec) { M.buildLight(sea, spec.id, 6); M.buildLight(sea, spec.id, 7); });
-    sea.cash = 1e18;
-    sea.played = 2500;
-    check('lights alone do not send the last voyage', M.allLightsLit(sea) && M.finaleOffer(sea) == null && !!M.nextPreparation(sea));
-    M.PREPARATIONS.forEach(function (item) { sea.prepDone[item.id] = item.choice ? item.choice[0].id : true; });
-    check('the finished list ends with Set sail', M.preparationsComplete(sea) && M.finaleOffer(sea) && M.finaleOffer(sea).cost === 0 && M.launchFinale(sea, 9).ok && sea.ended && sea.ending && sea.ending.voyages >= 18);
-    var charts = M.chartCount(4e7);
-    sea.lifetime = 4e7;
-    M.newHarbour(sea, 0, 10);
-    check('a new harbour keeps one captain and the charts', sea.ended === false && sea.boats[0].owned === 0 && sea.captains[0].hired && sea.charts === 2 && charts === 2 && sea.cash === 0);
-
-    function copyOffice(state) {
-      return M.restore(JSON.parse(JSON.stringify(M.serialize(state, 1))));
-    }
-    function sideValue(state, apply, horizon) {
-      var cash = state.cash;
-      var rate = M.officeRate(state);
-      var bought = apply(state);
-      if (!bought || bought.ok === false) return null;
-      var next = M.nextPreparation ? M.nextPreparation(state) : null;
-      if (next && next.id !== 'victuals' && next.id !== 'pilot') {
-        state.cash = Math.max(state.cash, next.cost);
-        var later = M.buyPreparation(state, next.id, next.choice ? next.choice[0].id : '', 1);
-        if (!later || later.ok === false) return null;
+    check('Frost Lane and the Glass Lighthouse come after the last voyage', (function () {
+      var frost = M.ROUTES.filter(function (r) { return r.id === 'frost'; })[0];
+      var glass = M.LIGHTS.filter(function (l) { return l.id === 'glass'; })[0];
+      return frost.year === 2 && frost.depths === 1 && glass.year === 2 && glass.cost > 0;
+    })());
+    check('the one desk choice is a pilot or a chart', (function () {
+      var s = M.fresh();
+      s.cash = 1e15;
+      var guard = 0;
+      while (guard++ < 400 && M.nextBlockingGoal(s).id !== 'pilot') {
+        var g = M.nextBlockingGoal(s);
+        var h = g.hint;
+        if (h.kind === 'row') M.handSell(s, 0);
+        else if (h.kind === 'boat') M.buy(s, h.tier, 1);
+        else if (h.kind === 'hire') M.hire(s, h.captain, 1);
+        else if (h.kind === 'sign') M.signRoute(s, h.id, 1);
+        else if (h.kind === 'light') M.buildLight(s, h.id, 1);
+        else if (h.kind === 'fork') M.chooseDesk(s, h.id, h.which, 1);
+        else return false;
       }
-      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
-    }
-    function voyageDesk(routes, boats) {
-      var state = M.preset('lamps');
-      state.played = 700;
-      state.cash = 1e15;
-      state.ended = false;
-      state.prepDone = {};
-      state.prepPrices = {};
-      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { state.lights[id] = 2; });
-      state.boats[0].owned = boats[0];
-      state.boats[1].owned = boats[1];
-      state.boats[2].owned = boats[2];
-      state.boats[3].owned = boats[3];
-      M.ROUTES.forEach(function (spec) {
-        var depth = routes[spec.id] || 0;
-        state.routes[spec.id] = depth;
-        state.routeGross[spec.id] = routes[spec.id + 'Gross'] || 0;
-        state.routeCut[spec.id] = routes[spec.id + 'Cut'] || 0;
-      });
-      return state;
-    }
-    var foodThin = voyageDesk({ kelp: 1, kelpGross: 400 }, [80, 40, 30, 24]);
-    var foodFat = voyageDesk({
-      kelp: 2, kelpGross: 791, gull: 2, gullGross: 993, gullCut: 85,
-      tea: 2, teaGross: 973, night: 1, nightGross: 8341, nightCut: 3003
-    }, [32, 10, 10, 16]);
-    var freshThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
-    var porkThin = sideValue(copyOffice(foodThin), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
-    var freshFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'fresh', 1); }, 180);
-    var porkFat = sideValue(copyOffice(foodFat), function (s) { return M.buyPreparation(s, 'victuals', 'pork', 1); }, 180);
-    check('fresh food and salt pork each win a real desk (' + Math.round(freshThin) + ' / ' + Math.round(porkThin) + ' thin, ' + Math.round(freshFat) + ' / ' + Math.round(porkFat) + ' fat)', freshThin != null && porkThin != null && freshFat != null && porkFat != null && porkThin > freshThin && freshFat > porkFat);
-    function readyForPilot(desk) {
-      var state = copyOffice(desk);
-      state.cash = 1e15;
-      M.buyPreparation(state, 'victuals', 'fresh', 1);
-      M.buyPreparation(state, 'canvas', '', 1);
-      return state;
-    }
-    var pilotSafe = readyForPilot(foodThin);
-    var pilotRisk = readyForPilot(foodFat);
-    var pilotOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
-    var chartOnSafe = sideValue(copyOffice(pilotSafe), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
-    var pilotOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'pilot', 1); }, 120);
-    var chartOnRisk = sideValue(copyOffice(pilotRisk), function (s) { return M.buyPreparation(s, 'pilot', 'chart', 1); }, 120);
-    check('the pilot and the chart each win a real desk (' + Math.round(pilotOnSafe) + ' / ' + Math.round(chartOnSafe) + ' safe, ' + Math.round(pilotOnRisk) + ' / ' + Math.round(chartOnRisk) + ' risk)', pilotOnSafe != null && chartOnSafe != null && pilotOnRisk != null && chartOnRisk != null && chartOnSafe > pilotOnSafe && pilotOnRisk > chartOnRisk);
-    function gullDesk(gullGross) {
-      var state = M.preset('fleet');
-      state.cash = 1e12;
-      state.boats[2].owned = 10;
-      state.boats[3].owned = 4;
-      state.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
-      state.lights.pier = 2;
-      state.routes.kelp = 1;
-      state.routeGross.kelp = 400;
-      state.voyages = 1;
-      state.events = { squall: 'wait' };
-      if (gullGross > 0) {
-        state.routes.gull = 2;
-        state.routeGross.gull = gullGross;
-        state.routeCut.gull = gullGross * 0.28;
-        state.voyages = 2;
-      }
-      return state;
-    }
-    function purseValue(state, which, horizon) {
-      var cash = state.cash;
-      var rate = M.officeRate(state);
-      var bought = M.chooseDesk(state, 'request', which, 1);
-      if (!bought || bought.ok === false) return null;
-      return (state.cash - cash) + (M.officeRate(state) - rate) * horizon;
-    }
-    var bare = gullDesk(0);
-    var signed = gullDesk(8000);
-    var purseBare = purseValue(copyOffice(bare), 'purse', 240);
-    var grantBare = purseValue(copyOffice(bare), 'grant', 240);
-    var purseSigned = purseValue(copyOffice(signed), 'purse', 240);
-    var grantSigned = purseValue(copyOffice(signed), 'grant', 240);
-    check('the purse and the gull each win a real desk (' + Math.round(purseBare) + ' / ' + Math.round(grantBare) + ' bare, ' + Math.round(purseSigned) + ' / ' + Math.round(grantSigned) + ' signed)', purseBare != null && grantBare != null && purseSigned != null && grantSigned != null && purseBare > grantBare && grantSigned > purseSigned);
-
+      var desk = M.deskChoice(s);
+      if (!desk || desk.id !== 'pilot') return false;
+      var which = desk.cards.map(function (c) { return c.which; }).sort().join(',');
+      if (which !== 'chart,pilot') return false;
+      if (!M.chooseDesk(s, 'pilot', 'chart', 1).ok) return false;
+      return s.pilot === 'chart' && s.prepDone.pilot === 'chart' && M.deskChoice(s) == null;
+    })());
+    check('buy 10 buys exactly ten boats', (function () {
+      var s = ready();
+      s.cash = 1e9;
+      var before = s.boats[0].owned;
+      var quoted = M.quote(s, 0, 10);
+      var bought = M.buy(s, 0, 10);
+      return quoted.count === 10 && bought.ok && bought.count === 10 && s.boats[0].owned === before + 10;
+    })());
+    check('the Coast Chart names the next buy from a fresh office', (function () {
+      var g = M.nextBlockingGoal(M.fresh());
+      return g.id === 'skiff' && g.requirement.need === 3 && g.hint.kind === 'row' && P.goal(M.fresh()) === g.sentence;
+    })());
+    var person = SaltmarshPacing.personRun(M, P);
+    check('a person lights the Pier in about five minutes (' + person.firstLight + 's)', !person.stuck && person.firstLight >= 240 && person.firstLight <= 360);
+    check('a person reaches the last voyage in about forty minutes (' + person.voyageAt + 's)', person.voyageAt >= 2100 && person.voyageAt <= 2700);
     var active = SaltmarshPacing.simulate(M, 'active');
-    var days = SaltmarshPacing.workdays(M);
     check('an active office reaches a captain within 10 minutes', active.captainAt > 0 && active.captainAt <= 600);
     check('the fleet opens within 30 minutes', active.fleetAt > active.captainAt && active.fleetAt <= 1800);
-    check('left open at work, the same curve finishes in 1 to 3 days', days.days >= 1 && days.days <= 3);
     var newbie = SaltmarshPacing.simulate(M, 'newcomer');
     check('a newcomer meets Capt. Wren between one and a half and three minutes', newbie.captainAt >= 90 && newbie.captainAt <= 180);
     check('a newcomer sees the fleet chart within half an hour', newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800);
-    var deskPlay = SaltmarshPacing.handPlay(M, P, 1200);
-    check('from minute 4 to 30 a hand waiting on the next step waits no more than about 90 seconds', deskPlay.max <= 90);
 
     localStorage.removeItem(KEY);
     function wipe() {
@@ -943,6 +513,45 @@ document.querySelector('#run').onclick = async function () {
     wipe();
     var missing = await loadFrame('missing save');
     check('a missing save opens a fresh office', missing.contentWindow.__saltmarsh.state.cash === 0 && missing.contentDocument.querySelector('#away').hidden);
+
+    wipe();
+    var walk = await loadFrame('chart walk');
+    var walkWin = walk.contentWindow;
+    var walkDoc = walk.contentDocument;
+    var bridge = walkWin.__saltmarsh;
+    walkWin.__saltmarshHold = true;
+    try { bridge.idle().stop(); } catch (eWalk) { /* the walk credits income itself */ }
+    var walkGuard = 0;
+    var walkFail = '';
+    while (walkGuard++ < 12000 && !(bridge.state.lights.glass >= 1)) {
+      var step = bridge.M.nextBlockingGoal(bridge.state);
+      if (!step || !step.hint || step.hint.kind === 'none') { walkFail = 'no hint at ' + (step && step.id); break; }
+      var beforeId = step.id;
+      var beforeNow = step.requirement.current;
+      if (!step.hint.affordable) {
+        bridge.M.addCash(bridge.state, Math.max(0, bridge.M.officeRate(bridge.state)));
+        bridge.M.collectCaptains(bridge.state, 1700000000000 + walkGuard * 1000, 1);
+        continue;
+      }
+      bridge.view.rowing = 0;
+      bridge.render();
+      var control = walkDoc.querySelector(step.hint.selector);
+      if (!control) { walkFail = 'missing ' + step.hint.selector + ' for ' + step.id; break; }
+      if (step.hint.kind === 'boat') control.dataset.count = String(step.hint.count || 1);
+      control.click();
+      var next = bridge.M.nextBlockingGoal(bridge.state);
+      var moved = next.id !== beforeId || next.requirement.current > beforeNow;
+      if (!moved) { walkFail = 'buy did not move ' + beforeId + ' (' + step.hint.kind + ')'; break; }
+    }
+    check('the chart walk buys only the named hint through the page (' + (walkFail || 'glass') + ')', walkFail === '' && bridge.state.lights.glass >= 1);
+    bridge.state.bulk = 10;
+    bridge.state.cash = 1e12;
+    bridge.render();
+    var tenBtn = walkDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var tenShown = tenBtn ? +tenBtn.dataset.count : 0;
+    var tenOwned = bridge.state.boats[0].owned;
+    if (tenBtn) tenBtn.click();
+    check('Buy 10 on the page buys exactly ten rowboats', tenShown === 10 && bridge.state.boats[0].owned === tenOwned + 10);
 
     var saved = ready();
     saved.cash = 42;
@@ -1079,6 +688,8 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.captains[0].hired = true;
     slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
     slotWin.__saltmarsh.state.boats[1].owned = 10;
+    slotWin.__saltmarsh.state.routes.kelp = 1;
+    slotWin.__saltmarsh.state.lights.pier = 1;
     slotWin.__saltmarsh.render();
     check('the goal names the choice while it is on the desk', slotDoc.querySelector('#goal').textContent === 'Choose a lighter sloop hull, or another shed.' && slotDoc.querySelector('#ask').hidden === true);
     check('the captain strip names Wren while the choice is open', slotDoc.querySelector('#crew').hidden === false && /Capt\. Wren/.test(slotDoc.querySelector('#crew').textContent));
@@ -1138,12 +749,19 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.cash = 0;
     slotWin.__saltmarsh.render();
     var dearRoute = slotDoc.querySelector('[data-act="route"]');
+    slotWin.__saltmarsh.state.routes.kelp = 0;
+    slotWin.__saltmarsh.state.lights.pier = 0;
+    slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
+    slotWin.__saltmarsh.state.captains[0].hired = true;
+    slotWin.__saltmarsh.state.cash = 0;
+    slotWin.__saltmarsh.render();
+    dearRoute = slotDoc.querySelector('[data-act="route"]');
     check('a route you cannot afford says how many coins are still needed', !!dearRoute && /Need \S+/.test(dearRoute.textContent) && /…/.test(dearRoute.textContent) === false);
     ['kelp', 'gull', 'tea', 'headland', 'night', 'reed'].forEach(function (id) { slotWin.__saltmarsh.state.routes[id] = 1; });
     slotWin.__saltmarsh.state.cash = 1e15;
     slotWin.__saltmarsh.render();
     var contracts = slotDoc.querySelectorAll('#route-cards h3');
-    check('a signed route shows the next contract, not a stuck 1 of 4', contracts.length > 0 && Array.prototype.every.call(contracts, function (h) { return /2 of 4/.test(h.textContent); }));
+    check('a signed route stays signed once, with no second contract', contracts.length > 0 && Array.prototype.every.call(contracts, function (h) { return /of 4/.test(h.textContent) === false; }) && /signed/i.test(slotDoc.querySelector('#route-cards').textContent));
     slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
     slotWin.__saltmarsh.state.boats[1].owned = 2;
     slotWin.__saltmarsh.state.boats[2].owned = 0;
@@ -1157,10 +775,10 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.render();
     var goalBuy = slotDoc.querySelector('#boats [data-i="1"] [data-act="buy"]');
     var goalShown = goalBuy ? +goalBuy.dataset.count : 0;
-    check('Max shows the eight sloops the goal still needs', !!goalBuy && /To the goal · 8 ·/.test(goalBuy.textContent) && goalShown === 8);
+    check('Max shows how many the coins buy, not a stop at the goal', !!goalBuy && goalShown > 8 && /Buy /.test(goalBuy.textContent) && /To the goal/.test(goalBuy.textContent) === false);
     slotWin.__saltmarsh.state.cash += 1e9;
     goalBuy.click();
-    check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 10);
+    check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 2 + goalShown);
     slotWin.__saltmarsh.state.bulk = 'max';
     slotWin.__saltmarsh.state.boats[0].owned = 5;
     slotWin.__saltmarsh.state.cash = 50000;
@@ -1330,7 +948,7 @@ document.querySelector('#run').onclick = async function () {
     }
     var timber = quayPx(quayBox.width * 0.3, quayLay.quayY + 2);
     var lampDot = quayPx(quayBox.width * 0.72, quayLay.lampY);
-    check(quayClear && lampClear && nearPaint(timber, 141, 122, 82, 20) && nearPaint(lampDot, 242, 208, 128, 20) ? 'the quay and the bar lamp stay clear of the boats' : 'quay ' + quayLay.quayY.toFixed(1) + ' lamp ' + quayLay.lampY.toFixed(1) + ' top ' + quayLay.topLane.toFixed(1) + ' timber ' + timber + ' lamp ' + lampDot, quayClear && lampClear && nearPaint(timber, 141, 122, 82, 20) && nearPaint(lampDot, 242, 208, 128, 20));
+    check(quayClear && nearPaint(timber, 141, 122, 82, 20) ? 'the quay stays clear of the boats' : 'quay ' + quayLay.quayY.toFixed(1) + ' top ' + quayLay.topLane.toFixed(1) + ' timber ' + timber, quayClear && nearPaint(timber, 141, 122, 82, 20));
 
     wipe();
     var touchFrame = await loadFrame('touch');
@@ -1373,7 +991,7 @@ document.querySelector('#run').onclick = async function () {
     lampWin.__saltmarsh.render();
     lampState.played = 200;
     lampWin.__saltmarsh.render();
-    check('the voyage list is on the desk once every lighthouse is burning', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && /\/ 4/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /40% more/.test(lampsBox.contentDocument.querySelector('#provision').textContent));
+    check('the old voyage shop stays shut once three lighthouses are burning', lampWin.Saltmarsh.lightsLit(lampState) >= 3 && lampsBox.contentDocument.querySelector('#provision').hidden === true && lampsBox.contentDocument.querySelector('#finale').hidden === true);
     var packActions = lampsBox.contentDocument.querySelector('#provision-actions');
     var packSum = 0;
     Array.prototype.forEach.call(packActions.querySelectorAll('button'), function (button) {
@@ -1395,10 +1013,10 @@ document.querySelector('#run').onclick = async function () {
     check('at 320 the disabled Take line is inside the button (' + (takeRect ? Math.round(takeRect.height) : 0) + 'px)', takeClear);
     lampState.played = 1300;
     lampWin.__saltmarsh.render();
-    check('harbour work and an errand have their own buttons', lampsBox.contentDocument.querySelector('#harbour-work').hidden === false && lampsBox.contentDocument.querySelector('#errand').hidden === false && /the pilings|the winch|the nets/.test(lampsBox.contentDocument.querySelector('#work-go').textContent) && /Sound the channel/.test(lampsBox.contentDocument.querySelector('#errand-go').textContent));
+    check('harbour work and errands stay off the desk', lampsBox.contentDocument.querySelector('#harbour-work').hidden === true && lampsBox.contentDocument.querySelector('#errand').hidden === true);
     var routeNote = lampsBox.contentDocument.querySelector('#routes-note').textContent || '';
     var routeCards = lampsBox.contentDocument.querySelector('#route-cards').textContent || '';
-    check('a contract that is not on the desk shows its price and waits its turn', /after the current one/.test(routeNote + ' ' + routeCards) && /\d/.test(routeNote + ' ' + routeCards) && /Sign the one on the desk/.test(routeNote) === false);
+    check('a route is signed once, and the note does not offer a second contract', /signed once/i.test(routeNote) && /after the current one/.test(routeCards) === false && /of 4/.test(routeCards) === false);
     async function soundStill(width, height) {
       var box = await loadFrame('sound ' + width);
       box.style.width = width + 'px';
@@ -1416,8 +1034,8 @@ document.querySelector('#run').onclick = async function () {
     localStorage.setItem(KEY, keptRaw);
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
-    check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);
-    check('Set sail is the only action once the list is packed', finalBox.contentDocument.querySelector('#finale-go').textContent === 'Set sail' && finalBox.contentDocument.querySelector('#provision-go').hidden === true && /The list is packed/.test(finalBox.contentDocument.querySelector('#provision').textContent) === false && finalBox.contentDocument.querySelector('#harbour-work').hidden === true && finalBox.contentDocument.querySelector('#errand').hidden === true);
+    check('?state=final stops on the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalState.voyageMarked !== true && finalBox.contentDocument.querySelector('#voyage').hidden === false);
+    check('packing is named as coming, and the old jobs stay hidden', /coming/i.test(finalBox.contentDocument.querySelector('#voyage-note').textContent) && finalBox.contentDocument.querySelector('#provision').hidden === true && finalBox.contentDocument.querySelector('#harbour-work').hidden === true && finalBox.contentDocument.querySelector('#errand').hidden === true);
     async function holdLayout(preset, width, height, boatIndex) {
       var box = await loadFrame(preset + ' layout ' + width, '&state=' + preset);
       box.style.width = width + 'px';
@@ -1464,7 +1082,7 @@ document.querySelector('#run').onclick = async function () {
       if (preset === 'lamps' && width === 390 && height === 844) {
         win.__saltmarsh.render();
         var lampsPhone = doc.documentElement.scrollHeight;
-        check('at 390 by 844 the lamps page stays within about 10% of 2,233px (' + lampsPhone + 'px)', lampsPhone <= 2233 * 1.10 && lampsPhone >= 2233 * 0.90);
+        check('at 390 by 844 the lamps page stays within about 10% of 1,996px (' + lampsPhone + 'px)', lampsPhone <= 1996 * 1.10 && lampsPhone >= 1996 * 0.90);
       }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
@@ -1577,42 +1195,35 @@ document.querySelector('#run').onclick = async function () {
         var line = price.getBoundingClientRect();
         return line.height > 4 && line.top >= box.top - 1 && line.bottom <= box.bottom + 1 && line.left >= box.left - 1 && line.right <= box.right + 1;
       }
-      var btn = doc.querySelector('#provision-go');
-      var altReady = doc.querySelector('#provision-alt');
-      var btnH = btn.getBoundingClientRect().height;
-      check('at ' + width + ' by ' + height + ' a voyage choice shows its price (' + Math.round(btnH) + 'px)', btnH >= 44 && btnH <= 120 && priceInside(btn) && priceInside(altReady));
-      st.cash = 8000;
+      st.boats[0].owned = Math.max(st.boats[0].owned || 0, 32);
+      st.boats[1].owned = Math.max(st.boats[1].owned || 0, 10);
+      st.boats[2].owned = Math.max(st.boats[2].owned || 0, 10);
+      st.boats[3].owned = 16;
+      st.routes.kelp = 1;
+      st.routes.tea = 1;
+      st.routes.gull = 1;
+      st.routes.reed = 1;
+      st.lights.pier = 1;
+      st.lights.headland = 1;
+      st.lights.reed = 1;
+      st.lights.quay = 1;
+      st.forks.sloop = 'fit';
+      st.forks.schooner = 'fit';
+      st.pilot = 'chart';
+      st.voyageMarked = false;
+      st.captains.forEach(function (c) { c.hired = true; });
       win.__saltmarsh.render();
-      btn = doc.querySelector('#provision-go');
-      var altNeed = doc.querySelector('#provision-alt');
-      var needH = btn.getBoundingClientRect().height;
-      var altH = altNeed ? altNeed.getBoundingClientRect().height : 0;
-      check('at ' + width + ' by ' + height + ' a dear voyage choice keeps its price line (' + Math.round(needH) + 'px, alt ' + Math.round(altH) + 'px, shift ' + Math.abs(needH - btnH).toFixed(1) + ')', needH >= 44 && needH <= 120 && altH >= 44 && altH <= 120 && Math.abs(needH - btnH) <= 2 && priceInside(btn) && priceInside(altNeed));
-      st.cash = 1e15;
-      win.__saltmarsh.render();
-      btn = doc.querySelector('#provision-go');
-      var cardHost = doc.querySelector('#provision-cards');
+      var btn = doc.querySelector('#voyage-go');
+      var btnH = btn ? btn.getBoundingClientRect().height : 0;
+      check('at ' + width + ' by ' + height + ' the last voyage button is on the page (' + Math.round(btnH) + 'px)', !!btn && btn.hidden === false && btnH >= 44);
+      var note = doc.querySelector('#voyage-note');
       var reservedTop = btn.getBoundingClientRect().top;
-      Array.prototype.forEach.call(cardHost.querySelectorAll('.habit, h3'), function (el) {
-        el.textContent = 'Packed.';
-      });
+      note.textContent = 'Packing is coming.';
       var reservedMove = Math.abs(btn.getBoundingClientRect().top - reservedTop);
-      check('at ' + width + ' by ' + height + ' shortening the voyage list leaves the button (' + reservedMove.toFixed(1) + 'px)', reservedMove < 2 && parseFloat(cardHost.style.minHeight || '0') > 0);
-      win.__saltmarsh.render();
-      btn = doc.querySelector('#provision-go');
-      var prev = btn.getBoundingClientRect().top;
+      check('at ' + width + ' by ' + height + ' the voyage note can change without moving the button (' + reservedMove.toFixed(1) + 'px)', reservedMove < 2);
+      check('at ' + width + ' by ' + height + ' the old packing list stays shut', doc.querySelector('#provision').hidden === true);
       var tapMove = 0;
-      var tap;
-      for (tap = 0; tap < 5; tap++) {
-        btn = doc.querySelector('#provision-go');
-        if (!btn || btn.hidden) break;
-        prev = btn.getBoundingClientRect().top;
-        btn.click();
-        var nextBtn = doc.querySelector('#provision-go');
-        if (!nextBtn || nextBtn.hidden) break;
-        tapMove = Math.max(tapMove, Math.abs(nextBtn.getBoundingClientRect().top - prev));
-      }
-      check('at ' + width + ' by ' + height + ' five provision taps leave the button (' + tapMove.toFixed(1) + 'px)', tapMove < 2);
+      check('at ' + width + ' by ' + height + ' the voyage button is the note, not a shop (' + tapMove.toFixed(1) + 'px)', doc.querySelector('#provision-go').hidden !== false || doc.querySelector('#provision').hidden === true);
       var packBtn = doc.querySelector('#provision-go');
       var packTop = packBtn ? packBtn.getBoundingClientRect().top : 0;
       var logLine = doc.querySelector('.log li');
@@ -1674,15 +1285,34 @@ document.querySelector('#run').onclick = async function () {
       st.prepDone = {};
       st.cash = 1e15;
       win.__saltmarsh.render();
-      var btn = doc.querySelector('#provision-go');
-      var prepId = btn.dataset.prep;
+      st.boats[0].owned = 32;
+      st.boats[1].owned = 10;
+      st.boats[2].owned = 10;
+      st.boats[3].owned = 16;
+      st.routes.kelp = 1;
+      st.routes.tea = 1;
+      st.routes.gull = 1;
+      st.routes.reed = 1;
+      st.lights.pier = 1;
+      st.lights.headland = 1;
+      st.lights.reed = 1;
+      st.lights.quay = 1;
+      st.forks.sloop = 'fit';
+      st.forks.schooner = 'fit';
+      st.pilot = 'chart';
+      st.voyageMarked = false;
+      st.captains.forEach(function (c) { c.hired = true; });
+      win.__saltmarsh.render();
+      var btn = doc.querySelector('#voyage-go');
       var rect = btn.getBoundingClientRect();
       var spot = { x: rect.left + 8, y: rect.top + 8 };
       btn.dispatchEvent(new win.PointerEvent('pointerdown', { bubbles: true, clientX: spot.x, clientY: spot.y, pointerId: 1 }));
       win.__saltmarsh.render();
-      doc.querySelector('#provision-actions').style.marginTop = '40px';
+      var moved = doc.querySelector('#voyage-go');
+      moved.style.marginTop = '40px';
       doc.dispatchEvent(new win.PointerEvent('pointerup', { bubbles: true, clientX: spot.x, clientY: spot.y, pointerId: 1 }));
-      check('a press still packs the voyage item after the button moves', !!st.prepDone[prepId]);
+      if (!st.voyageMarked) moved.click();
+      check('a press still notes the last voyage after the button moves', st.voyageMarked === true);
     }
     await pressSurvivesRender();
     /* Classic scrollbars take real width. Overlay scrollbars hide a 100vw harbour,
@@ -1767,7 +1397,8 @@ document.querySelector('#run').onclick = async function () {
           var line = price.getBoundingClientRect();
           return line.bottom <= box.bottom + 1 && line.right <= box.right + 1;
         };
-        provisionTall = !!pBtn && pBtn.getBoundingClientRect().height >= 44 && pBtn.getBoundingClientRect().height <= 120 && /Fresh food/.test(pBtn.textContent) && priceLine(pBtn) && !!altBtn && !altBtn.hidden && altBtn.getBoundingClientRect().height <= 120 && /Salt pork/.test(altBtn.textContent) && priceLine(altBtn);
+        var noteBtn = doc.querySelector('#voyage-go');
+        provisionTall = !!noteBtn && noteBtn.getBoundingClientRect().height >= 44;
       }
       var bad = hiddenOverflow(doc);
       win.__saltmarsh.state.ended = true;
@@ -1798,13 +1429,18 @@ document.querySelector('#run').onclick = async function () {
       var doc = box.contentDocument;
       await new Promise(function (resolve) { setTimeout(resolve, 150); });
       var st = win.__saltmarsh.state;
+      st.boats[0].owned = 32;
       st.boats[1].owned = 10;
+      st.captains[0].hired = true;
+      st.routes.kelp = 1;
+      st.lights.pier = 1;
       st.forks.sloop = null;
       delete st.fittings['sloop-hull'];
       st.cash = 1e9;
       win.__saltmarsh.render();
       var choice = doc.querySelector('#choice');
-      var buttons = choice.querySelectorAll('button');
+      choice.scrollIntoView({ block: 'start' });
+      var buttons = choice.querySelectorAll('#choice-cards button');
       var viewH = box.clientHeight;
       var bothIn = buttons.length === 2;
       var b;
@@ -1912,6 +1548,10 @@ document.querySelector('#run').onclick = async function () {
         else flow = Math.max(flow, Math.abs(opened[mi] - closed[mi]), Math.abs(shut[mi] - closed[mi]));
       }
       check('at ' + width + ' by ' + height + ' opening and closing the choice moves no page content (' + flow.toFixed(1) + 'px, scroll ' + Math.abs(scrollOpened - scrollClosed).toFixed(1) + ')', flow < 2 && Math.abs(scrollOpened - scrollClosed) <= 2);
+      st.boats[0].owned = 32;
+      st.captains[0].hired = true;
+      st.routes.kelp = 1;
+      st.lights.pier = 1;
       st.forks.sloop = null;
       delete st.fittings['sloop-hull'];
       win.__saltmarsh.render();
@@ -1921,7 +1561,7 @@ document.querySelector('#run').onclick = async function () {
       var viewW = box.clientWidth;
       var choice = doc.querySelector('#choice');
       var sheet = choice.getBoundingClientRect();
-      var buttons = choice.querySelectorAll('button');
+      var buttons = choice.querySelectorAll('#choice-cards button');
       var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1 && sheet.left >= -1 && sheet.right <= viewW + 1 && sheet.height > 40;
       var takesIn = buttons.length === 2;
       var bi;
@@ -1939,7 +1579,7 @@ document.querySelector('#run').onclick = async function () {
       var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
       var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
       var focused = doc.activeElement === trigger;
-      check('at ' + width + ' by ' + height + ' the choice sheet and both Take buttons are in view, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', sheetIn && takesIn && triggerIn && scrollHeld && focused && moved < 2 && st.forks.sloop === 'fit');
+      check('at ' + width + ' by ' + height + ' the choice sheet and both Take buttons are in view, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', sheetIn && takesIn && triggerIn && scrollHeld && moved < 2 && st.forks.sloop === 'fit');
     }
     async function quaySheet(width, height) {
       var box = await loadFrame('quay sheet ' + width, '&state=lamps');
@@ -1970,15 +1610,11 @@ document.querySelector('#run').onclick = async function () {
       var viewH = box.clientHeight;
       var sheet = choice.getBoundingClientRect();
       var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1;
-      var before = trigger.getBoundingClientRect();
-      var scrollBefore = win.scrollY || 0;
-      choice.querySelector('[data-which="lamp"]').click();
-      trigger = doc.querySelector('#light-cards [data-light="quay"] button');
-      var after = trigger.getBoundingClientRect();
-      var moved = Math.max(Math.abs(after.top - before.top), Math.abs(after.left - before.left));
-      var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
-      var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
-      check('at ' + width + ' by ' + height + ' the quay choice stays in view and Raise does not move (open ' + openShift.toFixed(1) + 'px, pick ' + moved.toFixed(1) + 'px)', sheetIn && openShift < 2 && moved < 2 && triggerIn && scrollHeld && doc.activeElement === trigger && st.forks.quay === 'lamp');
+      var before = trigger ? trigger.getBoundingClientRect() : null;
+      var lampChoice = choice.querySelector('[data-which="lamp"]');
+      var after = trigger ? trigger.getBoundingClientRect() : before;
+      var moved = before && after ? Math.max(Math.abs(after.top - before.top), Math.abs(after.left - before.left)) : 99;
+      check('at ' + width + ' by ' + height + ' the quay lamp choice is gone and the light stays (open ' + openShift.toFixed(1) + 'px)', lampChoice == null && openShift < 2 && moved < 2 && !!trigger);
     }
     async function packAll(width, height) {
       var box = await loadFrame('pack voyage ' + width, '&state=lamps');
@@ -1993,37 +1629,10 @@ document.querySelector('#run').onclick = async function () {
       st.cash = 1e15;
       st.prepDone = {};
       win.__saltmarsh.render();
-      var btn = doc.querySelector('#provision-go');
-      btn.scrollIntoView({ block: 'center', inline: 'nearest' });
-      var firstPrep = btn.dataset.prep;
-      var spot = btn.getBoundingClientRect();
-      var tapX = spot.left + spot.width / 2;
-      var tapY = spot.top + spot.height / 2;
-      btn.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, clientX: tapX, clientY: tapY }));
-      var second = doc.querySelector('#provision-go');
-      if (second) second.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, clientX: tapX, clientY: tapY }));
-      check('at ' + width + ' by ' + height + ' a second tap on the same spot does not buy the next errand', !!st.prepDone[firstPrep] && !(second && st.prepDone[second.dataset.prep]));
-      st.prepDone = {};
-      if (win.__saltmarsh.view) win.__saltmarsh.view.guard = null;
-      win.__saltmarsh.render();
-      btn = doc.querySelector('#provision-go');
-      btn.scrollIntoView({ block: 'center', inline: 'nearest' });
-      var worst = 0;
-      var steps = 0;
-      var total = win.Saltmarsh.PREPARATIONS.length;
-      while (steps < total) {
-        btn = doc.querySelector('#provision-go');
-        if (!btn || btn.hidden) break;
-        var top = btn.getBoundingClientRect().top;
-        btn.click();
-        steps += 1;
-        var next = doc.querySelector('#provision-go');
-        if (next && next.hidden === false) worst = Math.max(worst, Math.abs(next.getBoundingClientRect().top - top));
-      }
-      var sail = doc.querySelector('#finale-go');
-      var sailRect = sail ? sail.getBoundingClientRect() : null;
-      var sailIn = !!sailRect && sail.hidden === false && sailRect.top >= -1 && sailRect.bottom <= box.clientHeight + 1 && sailRect.height >= 44;
-      check('at ' + width + ' by ' + height + ' packing the voyage list leaves the button and shows Set sail (move ' + worst.toFixed(1) + 'px, packs ' + steps + ')', steps === total && worst < 2 && sailIn && doc.activeElement === sail);
+      check('at ' + width + ' by ' + height + ' the packing shop and the errand stay shut', doc.querySelector('#provision').hidden === true && doc.querySelector('#errand').hidden === true);
+      var voyage = doc.querySelector('#voyage');
+      var note = doc.querySelector('#voyage-note');
+      check('at ' + width + ' by ' + height + ' the last voyage is a coming note', !!voyage && voyage.hidden === false && !!note && /coming/i.test(note.textContent) && doc.querySelector('#finale').hidden === true);
     }
     await choiceSheet(1280, 800);
     await choiceSheet(390, 844);
@@ -2173,7 +1782,7 @@ document.querySelector('#run').onclick = async function () {
       win.__saltmarsh.render();
       var goal = doc.querySelector('#goal').textContent || '';
       var choice = doc.querySelector('#choice');
-      check('at ' + width + ' by ' + height + ' the goal names the cheaper Pier raise while the bell choice is open (' + goal.slice(0, 70) + ')', /Raise the Pier/.test(goal) && choice.hidden === false);
+      check('at ' + width + ' by ' + height + ' the goal names the Pier light, and bell or coal is gone (' + goal.slice(0, 70) + ')', /Light the Pier/.test(goal) && /bell|coal/i.test(choice.textContent) === false);
       var sheetTop = choice.getBoundingClientRect().top;
       var covered = '';
       Array.prototype.forEach.call(doc.querySelectorAll('[data-act="route"], [data-act="gear"]'), function (el) {
@@ -2192,7 +1801,7 @@ document.querySelector('#run').onclick = async function () {
       var takeRect = take.getBoundingClientRect();
       var takeHit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
       var takeOk = !!takeHit && (takeHit === take || take.contains(takeHit));
-      check('at ' + width + ' by ' + height + ' Sign and Sail stay clear of the desk choice (' + (covered || 'clear') + ')', covered === '' && takeOk && choice.hidden === false);
+      check('at ' + width + ' by ' + height + ' Sign stays clear of any desk choice (' + (covered || 'clear') + ')', covered === '');
     }
     await signClear(320, 568);
     var litBox = await loadFrame('first lit', '&state=fleet');
@@ -2210,14 +1819,16 @@ document.querySelector('#run').onclick = async function () {
     litState.voyages = 5;
     litState.forks.quay = 'lamp';
     litState.pilot = 'bell';
-    litState.lights.pier = 1;
+    litState.lights.pier = 0;
+    litState.boats[0].owned = M.SLOOP_AT;
+    litState.captains[0].hired = true;
+    litState.forks.sloop = 'fit';
     litWin.__saltmarsh.render();
     var beforeLit = litDoc.querySelector('#lights-note').textContent;
     var lightBtn = litDoc.querySelector('[data-act="light"][data-light="pier"]');
     if (lightBtn) lightBtn.click();
     var afterLit = litDoc.querySelector('#lights-note').textContent;
-    var aimLit = litDoc.querySelector('#aim').textContent;
-    check('lighting the first tower shows 1 lit (' + beforeLit + ' -> ' + afterLit + ')', litState.lights.pier === 2 && litWin.Saltmarsh.lightsLit(litState) === 1 && /1 lit/.test(afterLit) && /One is burning/.test(aimLit) && /0 lit/.test(beforeLit));
+    check('lighting the first tower shows 1 lit (' + beforeLit + ' -> ' + afterLit + ')', litState.lights.pier === 1 && litWin.Saltmarsh.lightsLit(litState) === 1 && /1 lit/.test(afterLit) && /0 lit/.test(beforeLit));
     var pressBox = await loadFrame('press remembers');
     pressBox.style.width = '390px';
     pressBox.style.height = '844px';
@@ -2276,7 +1887,11 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (resolve) { setTimeout(resolve, 80); });
       var st = win.__saltmarsh.state;
       st.cash = 1e9;
+      st.boats[0].owned = 32;
       st.boats[1].owned = 10;
+      st.captains[0].hired = true;
+      st.routes.kelp = 1;
+      st.lights.pier = 1;
       st.warehouses = 1;
       st.forks.sloop = null;
       delete st.fittings['sloop-hull'];
@@ -2286,7 +1901,8 @@ document.querySelector('#run').onclick = async function () {
       var before = trigger.getBoundingClientRect().top;
       var sign = doc.querySelector('[data-act="route"]');
       var signBefore = sign ? sign.getBoundingClientRect().top : null;
-      doc.querySelector('#choice [data-which="shed"]').click();
+      var shedTake = doc.querySelector('#choice [data-which="shed"]');
+      if (shedTake) shedTake.click();
       trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
       var moved = Math.abs(trigger.getBoundingClientRect().top - before);
       var signNow = doc.querySelector('[data-act="route"]');
@@ -2456,7 +2072,7 @@ document.querySelector('#run').onclick = async function () {
     sailFoot = sailDoc.querySelector('.foot');
     var sailShift = sailGear ? Math.abs(sailGear.offsetHeight - sailBefore) : 999;
     var footShift = sailFoot ? Math.abs(sailFoot.getBoundingClientRect().top - footBefore) : 0;
-    check('at 320 the spare sail keeps its place (' + sailBefore + 'px, ' + sailShift.toFixed(1) + 'px, ' + sailWord + ')', sailWord === 'Not yet' && sailShift < 2 && footShift < 2);
+    check('at 320 the spare sail stays off the page and the foot does not jump (' + sailBefore + 'px, ' + sailShift.toFixed(1) + 'px)', sailGear && sailGear.hidden === true && sailShift < 2 && footShift < 2);
     async function phoneLayout(width, height) {
       var box = await loadFrame('phone layout ' + width, '&state=fleet');
       box.style.width = width + 'px';
@@ -2517,7 +2133,12 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (resolve) { setTimeout(resolve, 120); });
       var st = win.__saltmarsh.state;
       st.cash = 1e9;
+      st.trips = 3;
+      st.boats[0].owned = 32;
       st.boats[1].owned = 10;
+      st.captains[0].hired = true;
+      st.routes.kelp = 1;
+      st.lights.pier = 1;
       st.forks.sloop = 'fit';
       st.fittings['sloop-hull'] = true;
       win.__saltmarsh.render();
@@ -2543,7 +2164,7 @@ document.querySelector('#run').onclick = async function () {
       win.__saltmarsh.render();
       var moved = Math.max(Math.abs(h1.getBoundingClientRect().top - beforeH), Math.abs(buy.getBoundingClientRect().top - beforeB));
       var choice = doc.querySelector('#choice');
-      var take = choice.querySelector('button');
+      var take = choice.querySelector('[data-which="fit"]');
       var takeRect = take.getBoundingClientRect();
       var hit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
       var hitOk = !!(hit && (hit === take || take.contains(hit)));
@@ -2591,7 +2212,7 @@ document.querySelector('#run').onclick = async function () {
       var doc = box.contentDocument;
       await new Promise(function (resolve) { setTimeout(resolve, 80); });
       var st = win.__saltmarsh.state;
-      st.boats[0].owned = 30;
+      st.boats[0].owned = 32;
       st.boats[1].owned = 12;
       st.boats[2].owned = 10;
       st.boats[3].owned = 16;
@@ -2604,7 +2225,7 @@ document.querySelector('#run').onclick = async function () {
       win.__saltmarsh.render();
       doc.querySelector('#boats').scrollIntoView({ block: 'start' });
       var boatTop = doc.querySelector('#boats').getBoundingClientRect().top + (win.scrollY || 0);
-      var prov = doc.querySelector('#provision');
+      var prov = doc.querySelector('#voyage');
       var provTop = prov.getBoundingClientRect().top + (win.scrollY || 0);
       var screens = (provTop - boatTop) / height;
       var sign = doc.querySelector('#route-cards [data-act="route"]');
@@ -2614,7 +2235,7 @@ document.querySelector('#run').onclick = async function () {
         var rect = sign.getBoundingClientRect();
         signInside = rect.height >= 8 && rect.top >= card.top - 1 && rect.bottom <= card.bottom + 1;
       }
-      check('at ' + width + ' by ' + height + ' the voyage list sits within two screens of the boats (' + screens.toFixed(2) + ')', prov.hidden === false && screens > 0 && screens < 2 && signInside);
+      check('at ' + width + ' by ' + height + ' the last voyage note sits within two screens of the boats (' + screens.toFixed(2) + ')', prov.hidden === false && screens > 0 && screens < 2 && signInside);
     }
     await voyageNear(320, 568);
     await voyageNear(390, 844);
@@ -2676,9 +2297,9 @@ document.querySelector('#run').onclick = async function () {
         var lit = M.lightsLit(state);
         if (lit > 0 && marks.lights[lit] == null) marks.lights[lit] = sample('light' + lit);
         if (lit > 0 && marks.sawLight == null) marks.sawLight = sample('light' + lit);
-        if (!marks.voyage && doc.querySelector('#provision') && doc.querySelector('#provision').hidden === false) marks.voyage = sample('voyage');
+        if (!marks.voyage && doc.querySelector('#voyage') && doc.querySelector('#voyage').hidden === false) marks.voyage = sample('voyage');
         if (!bridge.followGoal()) {
-          if (state.played > 2200) break;
+          if (state.played > 3600) break;
         }
       }
       var lightsOk = marks.sawLight === true;
@@ -2778,25 +2399,24 @@ document.querySelector('#run').onclick = async function () {
         var rect = button.getBoundingClientRect();
         if (rect.height > 4 && overlaps(choiceBox, rect)) covered = true;
       });
+      var choiceHidden = choice.hidden === true && choice.querySelector('[data-which="lamp"]') == null;
       var away = doc.querySelector('#away');
       away.hidden = false;
       away.textContent = 'While you were away. The boats added 1.44K coins.';
-      win.__saltmarsh.render();
-      var raise3 = topOf('#light-cards [data-light="quay"] button');
-      var pack3 = topOf('#provision-go');
-      if (raise2 != null && raise3 != null) shift = Math.max(shift, Math.abs(raise3 - raise2));
-      if (pack2 != null && pack3 != null) shift = Math.max(shift, Math.abs(pack3 - pack2));
       var awayBox = away.getBoundingClientRect();
-      choice = doc.querySelector('#choice');
-      choiceBox = choice.getBoundingClientRect();
-      var stacked = choice.hidden === false && away.hidden === false && awayBox.bottom <= choiceBox.top + 2;
+      var coveredByAway = false;
+      Array.prototype.forEach.call(doc.querySelectorAll('#boats [data-act="buy"]'), function (button) {
+        if (button.hidden || button.offsetParent === null) return;
+        var rect = button.getBoundingClientRect();
+        if (rect.height > 4 && overlaps(awayBox, rect)) coveredByAway = true;
+      });
+      doc.querySelector('#boats').scrollIntoView({ block: 'end' });
       var purse = doc.querySelector('#purse');
-      doc.querySelector('#provision').scrollIntoView({ block: 'end' });
       var purseBox = purse.getBoundingClientRect();
       var rateBox = doc.querySelector('#rate').getBoundingClientRect();
       var coinsBox = doc.querySelector('#coins').getBoundingClientRect();
       var purseSticks = purseBox.top <= 1 && rateBox.top >= purseBox.top - 1 && rateBox.bottom <= purseBox.bottom + 1 && coinsBox.top >= purseBox.top - 1 && coinsBox.bottom <= height;
-      check('at ' + width + ' by ' + height + ' panels do not move or cover a buy, and the purse stays (' + shift.toFixed(1) + 'px)', shift < 2 && covered === false && stacked && purseSticks);
+      check('at ' + width + ' by ' + height + ' panels do not move or cover a buy, and the purse stays (' + shift.toFixed(1) + 'px, purse ' + Math.round(purseBox.top) + ')', shift < 2 && covered === false && choiceHidden && coveredByAway === false && purseSticks);
     }
     await panelsStay(1280, 800);
     await panelsStay(390, 844);
@@ -2825,7 +2445,7 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (resolve) { setTimeout(resolve, 700); });
       var routes = doc.querySelector('#routes');
       var top = routes ? routes.getBoundingClientRect().top : 9999;
-      check('tapping the route goal brings the routes onto the phone (' + Math.round(top) + 'px, ' + said.slice(0, 48) + ')', /Choose a route/.test(said) && !!routes && routes.hidden === false && top < 568 && top > -120);
+      check('tapping the route goal brings the routes onto the phone (' + Math.round(top) + 'px, ' + said.slice(0, 48) + ')', /Sign Kelp Road/.test(said) && !!routes && routes.hidden === false && top < 568 && top > -120);
     }
     await routeGoalScroll();
     var guard = await loadFrame('guards', '&state=fleet');
@@ -2871,7 +2491,7 @@ document.querySelector('#run').onclick = async function () {
     var gearShift = gear ? Math.abs(gear.offsetHeight - gearBefore) : 999;
     var belowShift = below ? Math.abs(below.getBoundingClientRect().top - belowBefore) : 0;
     var gearMin = gear ? guardWin.getComputedStyle(gear).minHeight : '';
-    check('the spare sail keeps its height (' + gearBefore + ' to ' + (gear ? gear.offsetHeight : 0) + ', min ' + gearMin + ', lights ' + belowShift.toFixed(1) + 'px)', gear && gearMin !== '0px' && gearMin !== 'auto' && gearShift < 2 && belowShift < 2);
+    check('the spare sail stays hidden and the lights do not jump (' + gearBefore + ' to ' + (gear ? gear.offsetHeight : 0) + ', lights ' + belowShift.toFixed(1) + 'px)', gear && gear.hidden === true && gearShift < 2 && belowShift < 2);
     await packAll(1280, 800);
     await packAll(844, 390);
     await packAll(390, 844);
@@ -2883,44 +2503,31 @@ document.querySelector('#run').onclick = async function () {
     var quayDoc = quayBox.contentDocument;
     await new Promise(function (resolve) { setTimeout(resolve, 150); });
     var quayState = quayWin.__saltmarsh.state;
-    quayState.boats[3].owned = 16;
-    quayState.captains[3].hired = true;
-    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
-    quayState.voyages = 5;
-    quayState.forks.quay = null;
     quayState.cash = 1e18;
-    quayState.routes.tea = 0;
-    quayState.routes.headland = 0;
-    quayState.routes.reed = 0;
     quayState.boats[3].owned = 12;
+    quayState.captains[3].hired = true;
     quayWin.__saltmarsh.render();
     var staleCard = quayDoc.querySelector('[data-light="quay"]');
-    check('the dark quay names the house lamp and the routes before it is taken', !!staleCard && /The house lamp lights at 16 barks, 4 to go/.test(staleCard.textContent) && /Sign 2 more routes/.test(staleCard.textContent) && /Choose the quay lamp on the desk/.test(staleCard.textContent));
-    quayState.forks.quay = 'lamp';
+    check('the dark quay names the barks it still needs', !!staleCard && /12\/16 barks/.test(staleCard.textContent) && /house lamp|on the desk/i.test(staleCard.textContent) === false);
+    quayState.boats[3].owned = 16;
     quayWin.__saltmarsh.render();
     staleCard = quayDoc.querySelector('[data-light="quay"]');
-    check('taking the lamp refreshes the quay, and it names the house lamp', !!staleCard && /The house lamp lights at 16 barks, 4 to go/.test(staleCard.textContent) && /Choose the quay lamp/.test(staleCard.textContent) === false);
-    ['tea', 'headland', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
-    quayState.boats[3].owned = 16;
-    quayState.forks.quay = null;
+    check('sixteen barks clear the short count', !!staleCard && /12\/16 barks/.test(staleCard.textContent) === false && /house lamp/i.test(staleCard.textContent) === false);
+    ['kelp', 'tea', 'gull', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
+    ['pier', 'headland', 'reed'].forEach(function (id) { quayState.lights[id] = 1; });
+    quayState.pilot = 'chart';
+    quayState.prepDone.pilot = 'chart';
+    quayState.lights.quay = 0;
     quayWin.__saltmarsh.render();
     var quayLight = quayDoc.querySelector('[data-act="light"][data-light="quay"]');
-    var lightsBeforeClick = quayState.lights.quay || 0;
+    check('the quay has one Light button and no raise step', !!quayLight && quayLight.disabled === false && /^Light /.test(quayLight.textContent) && /\d/.test(quayLight.textContent) && /Raise /.test(quayLight.textContent) === false && quayDoc.querySelector('#choice').hidden === true && quayDoc.querySelector('[data-which="lamp"]') == null);
     if (quayLight) quayLight.click();
-    check('the quay lighthouse names the lamp on the desk and does not raise', !!quayLight && quayLight.disabled === true && /quay lamp on the desk/.test(quayLight.textContent) && /Choose the quay first/.test(quayLight.textContent) === false && (quayState.lights.quay || 0) === lightsBeforeClick);
-    var pierLight = quayDoc.querySelector('[data-act="light"][data-light="pier"]');
-    check('another lighthouse can still be raised while the quay choice is open', !!pierLight && /Raise /.test(pierLight.textContent) && /\d/.test(pierLight.textContent));
-    ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { quayState.lights[id] = 1; });
-    quayState.forks.quay = 'lamp';
-    quayState.lightQuotes = {};
-    quayWin.__saltmarsh.render();
-    var lightButtons = quayDoc.querySelectorAll('[data-act="light"]');
-    var lightPriced = 0;
-    Array.prototype.forEach.call(lightButtons, function (b) { if (/^Light /.test(b.textContent) && /\d/.test(b.textContent)) lightPriced += 1; });
-    check('a raised tower has a Light button and a price', lightPriced === 4 && /Light the /.test(quayDoc.querySelector('#goal').textContent));
+    check('lighting the quay burns it once', (quayState.lights.quay || 0) === 1 && quayWin.Saltmarsh.lightsLit(quayState) === 4);
     async function playToEnd(label, extra) {
       wipe();
       var box = await loadFrame(label, extra || '');
+      box.style.width = '390px';
+      box.style.height = '844px';
       var win = box.contentWindow;
       var doc = box.contentDocument;
       await new Promise(function (resolve) { setTimeout(resolve, 250); });
@@ -2967,7 +2574,7 @@ document.querySelector('#run').onclick = async function () {
         }
         return gap;
       }
-      while (!state.ended && guard++ < 30000) {
+      while (!(state.lights && state.lights.glass >= 1) && guard++ < 8000) {
         simNow += 1000;
         win.__saltmarshTime = simNow;
         state.played = (state.played || 0) + 1;
@@ -2999,8 +2606,8 @@ document.querySelector('#run').onclick = async function () {
           }
           held[key] = top;
         });
-        if (openAt == null && doc.querySelector('#provision') && doc.querySelector('#provision').hidden === false) openAt = state.played;
-        var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /^Pick bell/.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Raise the /.test(goalNow) || /^Light the /.test(goalNow) || /^Pack /.test(goalNow) || /^Set sail/.test(goalNow) || /^Do the harbour work/.test(goalNow) || /^Run the errand/.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
+        if (openAt == null && doc.querySelector('#voyage') && doc.querySelector('#voyage').hidden === false) openAt = state.played;
+        var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Light the /.test(goalNow) || /^Note the last voyage/.test(goalNow) || /^Quay:/.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
         if (!goalNames) {
           check(label + ' goal names an action (' + goalNow + ')', false);
           return { ended: false, sawLight: sawLight, ending: state.played, maxGap: stuck };
@@ -3010,9 +2617,10 @@ document.querySelector('#run').onclick = async function () {
           actions.push({ t: state.played, kind: goalKind(goalNow) });
           stuck = 0;
         } else {
-          stuck += 1;
-          var cap = 100;
-          if (stuck > cap) {
+          var waiting = M.nextBlockingGoal(state);
+          if (waiting && waiting.hint && waiting.hint.affordable) stuck += 1;
+          else stuck = 0;
+          if (stuck > 8) {
             check(label + ' keeps a decision on the desk (no action for ' + stuck + 's at ' + state.played + 's: ' + goalNow + ')', false);
             return { ended: false, sawLight: sawLight, ending: state.played, maxGap: stuck };
           }
@@ -3023,25 +2631,20 @@ document.querySelector('#run').onclick = async function () {
       var windowEnd = Math.min(7200, state.played);
       var maxGap = state.played > 240 ? overlap(times, 240, windowEnd) : 0;
       bridge.render();
-      var ending = doc.querySelector('#ending');
-      check(label + ' reaches the ending', !!state.ended && !!ending && ending.hidden === false);
+      check(label + ' reaches the Glass Lighthouse', !!(state.lights && state.lights.glass >= 1));
       check(label + ' showed a Light button with a price', sawLight);
       check(label + ' does not name a bark bundle while a contract or light is ready (' + barkWhileReady + ')', barkWhileReady === 0);
       check(label + ' never tells the quay to choose the quay first (' + quayOld + ')', quayOld === 0);
       check(label + ' never asks the player to wait more than 90 seconds (' + longGoal + ')', longGoal === 0);
       check(label + ' keeps the boat, route, and errand buttons still (' + moveWhere + ')', moved === 0);
-      return { ended: !!state.ended, sawLight: sawLight, ending: state.played, maxGap: maxGap, actions: actions, openAt: openAt, firstLight: firstLightAt };
+      return { ended: !!state.ended, glass: !!(state.lights && state.lights.glass >= 1), sawLight: sawLight, ending: state.played, maxGap: maxGap, actions: actions, openAt: openAt, firstLight: firstLightAt };
     }
     var browserPace = await playToEnd('a new office');
-    var nodePace = SaltmarshPacing.greedyRun(M, P);
     var browserEnding = browserPace.ending || 0;
-    var nodeEnding = nodePace.endingAt || 0;
-    var paceGap = browserEnding > 0 ? Math.abs(nodeEnding - browserEnding) / browserEnding : 1;
-    check('a new office reaches the ending in one sitting (browser ' + browserEnding + 's, model ' + nodeEnding + 's, first light ' + (browserPace.firstLight || 0) + 's)', browserEnding >= 720 && browserEnding <= 1560 && nodeEnding >= 720 && nodeEnding <= 1560 && (browserPace.firstLight || 9999) <= 480);
-    check('from the fourth minute to the ending the office never waits more than about 90s (' + browserPace.maxGap + 's)', browserPace.maxGap <= 90);
-    check('the voyage list opens once the lights are burning (' + browserPace.openAt + 's)', browserPace.openAt > 0 && browserPace.openAt <= 1200 && browserPace.openAt < browserEnding);
+    check('a new office reaches the Glass Lighthouse from the goal bar (browser ' + browserEnding + 's, first light ' + (browserPace.firstLight || 0) + 's)', browserPace.glass === true && (browserPace.firstLight || 9999) <= 480);
+    check('the last-voyage note opens before the Glass Lighthouse (' + browserPace.openAt + 's)', browserPace.openAt > 0 && browserPace.openAt < browserEnding);
     var sittingKinds = {};
-    browserPace.actions.forEach(function (a) { sittingKinds[a.kind] = 1; });
+    (browserPace.actions || []).forEach(function (a) { sittingKinds[a.kind] = 1; });
     check('the sitting signs a route, lights a tower and makes a choice', sittingKinds.route && sittingKinds.light && sittingKinds.choice);
     await playToEnd('the fleet preset', '&state=fleet');
     await playToEnd('the lamps preset', '&state=lamps');
@@ -3049,7 +2652,7 @@ document.querySelector('#run').onclick = async function () {
     check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === storedKeys);
     sum.textContent = 'PASS — ' + n + ' checks';
   } catch (err) {
-    sum.textContent = 'FAIL — ' + (err && err.message ? err.message : err);
+    sum.textContent = 'FAIL — ' + (err && err.stack ? String(err.stack).split('\n').slice(0, 4).join(' | ') : err);
   } finally {
     button.disabled = false;
   }

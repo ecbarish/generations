@@ -405,6 +405,7 @@ html { scroll-padding-top: 6.5rem; }
   #routes { order: 6; }
   #lights { order: 7; }
   #provision { order: 8; }
+  #voyage { order: 8; }
   #finale { order: 9; }
   /* Full cards in a row, so the stack stays short and a Sign or Raise is never cut off. */
   #route-cards, #light-cards, #boats {
@@ -577,6 +578,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .tools-row button, .arc-set-btn, .home { min-height: 44px; padding: 0.1rem 0.45rem; }
   .harbour-wrap canvas,
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
+  .coast-chart { display: none; }
   .goalbar #goal {
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
@@ -650,31 +652,66 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   overflow: hidden;
   white-space: nowrap;
 }
+@media (max-height: 430px) {
+  #desk:not(:has(#choice:not([hidden]))) {
+    height: 0;
+    min-height: 0;
+    max-height: 0;
+    margin: 0;
+  }
+}
 @media (max-height: 430px), (max-width: 400px) and (max-height: 600px) {
   .coast-chart { height: 32px; }
   .coast-captions { display: none; }
 }
+#desk {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  height: 8.5rem;
+  min-height: 8.5rem;
+  max-height: 8.5rem;
+  overflow: hidden;
+  margin: 0 0 0.35rem;
+  background: var(--paper);
+}
 #choice.choice {
-  position: static;
-  left: auto;
-  right: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
   bottom: auto;
   transform: none;
   width: auto;
-  max-height: none;
-  z-index: auto;
+  max-height: 8.5rem;
+  z-index: 1;
   box-shadow: none;
-  margin: 0.4rem 0;
+  margin: 0;
 }
 #choice.choice.is-shut #choice-cards { display: none; }
 #choice .choice-bar { display: flex; align-items: center; gap: 0.4rem; }
 #choice .choice-bar h2 { flex: 1 1 auto; margin: 0; }
 #choice-fold { flex: 0 0 auto; min-height: 44px; }
-.route-card, .light-card {
+#route-cards .route-card,
+#light-cards .light-card {
+  display: flex;
+  flex-direction: column;
   height: 11.5rem;
   min-height: 11.5rem;
   max-height: 11.5rem;
   overflow: hidden;
   box-sizing: border-box;
+}
+#route-cards .route-card .habit,
+#route-cards .route-card .facts,
+#light-cards .light-card .habit {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+#route-cards .route-card .actions,
+#light-cards .light-card .actions {
+  margin-top: auto;
+  flex: 0 0 auto;
 }
 .boat { min-height: 9.5rem; }

@@ -39,14 +39,15 @@
   <div class="work">
     <button type="button" id="row" class="row">Row this cargo</button>
     <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
-    <section id="choice" class="choice" hidden aria-labelledby="choice-title">
-      <div class="choice-bar">
-        <h2 id="choice-title">A choice on the desk</h2>
-        <button type="button" id="choice-fold" aria-expanded="true">Hide</button>
-      </div>
-      <div id="choice-cards"></div>
-    </section>
-    <button type="button" id="choice-reopen" hidden>Show the choice</button>
+    <div id="desk" class="desk">
+      <section id="choice" class="choice" hidden aria-labelledby="choice-title">
+        <div class="choice-bar">
+          <h2 id="choice-title">A choice on the desk</h2>
+          <button type="button" id="choice-fold" aria-expanded="true">Hide</button>
+        </div>
+        <div id="choice-cards"></div>
+      </section>
+    </div>
     <aside id="pell-banner" class="pell-banner" hidden>
       <p>Capt. Pell's banner. She takes a bark and names the boat she sailed.</p>
       <button type="button" id="pell-close">Close</button>

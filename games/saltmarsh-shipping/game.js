@@ -1557,10 +1557,9 @@
       return;
     }
     if (b.dataset.act === 'light') {
-      var raised = (state.lights[b.dataset.light] || 0) === 0;
       if (M.buildLight(state, b.dataset.light).ok) {
-        cheer(b, raised ? 'Raised' : 'Lit');
-        if (state.sound) audio.sfx(raised ? 'quest' : 'level');
+        cheer(b, 'Lit');
+        if (state.sound) audio.sfx('level');
         keepPlace(function () { persist(); render(); });
       }
       return;
@@ -1791,11 +1790,12 @@
     var sel = P.target(state);
     var el = sel ? document.querySelector(sel) : null;
     if (!el) return;
+    var mark = el.closest('#boats > li, .route-card, .light-card, #choice, #voyage') || el;
     Array.prototype.forEach.call(document.querySelectorAll('.goal-target'), function (node) {
       node.classList.remove('goal-target');
     });
-    el.classList.add('goal-target');
-    scrollTo(el);
+    mark.classList.add('goal-target');
+    scrollTo(mark);
     if (view.goalTimer) clearTimeout(view.goalTimer);
     view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
   }
