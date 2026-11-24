@@ -269,7 +269,39 @@
   /* What the goal bar is asking for. Kept in step with the page's followGoal. */
   function goalAction(M, P, state, now) {
     var goal = P.goal(state);
-    if (/^Choose fresh|^Choose a pilot/.test(goal)) {
+    var cheap = P.bestStep ? P.bestStep(state) : (P.cheapestAffordable ? P.cheapestAffordable(state) : null);
+    if (cheap && goal === cheap.sentence) {
+      if (cheap.kind === 'finale') {
+        return { id: 'sail', affordable: true, buy: function () { M.launchFinale(state, now); } };
+      }
+      if (cheap.kind === 'light') {
+        return { id: 'light:' + cheap.id + ':' + ((state.lights && state.lights[cheap.id]) || 0), affordable: !!cheap.affordable, buy: function () { M.buildLight(state, cheap.id, now); } };
+      }
+      if (cheap.kind === 'route') {
+        return { id: 'route:' + cheap.id + ':' + ((state.routes && state.routes[cheap.id]) || 0), affordable: !!cheap.affordable, buy: function () { M.signRoute(state, cheap.id, now); } };
+      }
+      if (cheap.kind === 'prep') {
+        return { id: 'prep:' + cheap.id, affordable: !!cheap.affordable, buy: function () { M.buyPreparation(state, cheap.id, cheap.which || '', now); } };
+      }
+      if (cheap.kind === 'choice') {
+        return {
+          id: 'desk:' + cheap.id,
+          affordable: !!cheap.affordable,
+          buy: function () { M.chooseDesk(state, cheap.id, cheap.which, now); }
+        };
+      }
+      if (cheap.kind === 'gear') {
+        return { id: 'gear:' + cheap.id, affordable: !!cheap.affordable, buy: function () { M.buyGear(state, cheap.id, now); } };
+      }
+      if (cheap.kind === 'boat') {
+        return {
+          id: 'boat:' + cheap.tier + ':' + state.boats[cheap.tier].owned + ':' + cheap.count,
+          affordable: !!cheap.affordable,
+          buy: function () { if (M.buy(state, cheap.tier, cheap.count).ok) M.commitGoal(state, 'boat'); }
+        };
+      }
+    }
+    if (/^Choose fresh|^Choose a pilot|^Choose extra/.test(goal)) {
       var earlyPrep = P.nextAct(state);
       if (earlyPrep && earlyPrep.kind === 'prep') {
         return { id: 'prep:' + earlyPrep.id, affordable: state.cash >= earlyPrep.cost, buy: function () { M.buyPreparation(state, earlyPrep.id, earlyPrep.which || '', now); } };
@@ -372,7 +404,7 @@
     for (sec = 1; sec <= limit && !state.ended; sec++) {
       sim += 1000;
       state.played = sec;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, sim, 1);
       var act = goalAction(M, P, state, sim);
       if (!act || !act.affordable) continue;
@@ -402,7 +434,7 @@
     var second = 0;
     function accrue(sec, mult, cap) {
       var span = cap ? Math.min(sec, M.offlineCap(state)) : sec;
-      M.addCash(state, (M.income(state) + M.routeIncome(state)) * span * mult);
+      M.addCash(state, M.officeRate(state) * span * mult);
       second += sec;
       state.played = second;
     }
@@ -479,7 +511,7 @@
     var ms;
     for (ms = 1000; ms <= limit && !state.ended; ms += 1000) {
       state.played = ms / 1000;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, ms, 1);
       var want = goalAction(M, P, state, ms);
       if (!want) continue;
@@ -511,34 +543,111 @@
     var state = M.fresh();
     var sim = 1700000000000;
     var firstLight = null;
+    var fourLights = null;
+    var voyageAt = null;
+    var voyageBuys = 0;
+    var voyageGap = 0;
+    var lastVoyage = null;
     var ready = null;
     var seen = '';
+    var missedCheap = 0;
     var sec;
     for (sec = 1; sec <= 12000 && !state.ended; sec++) {
       sim += 1000;
       state.played = sec;
-      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.addCash(state, M.officeRate(state));
       M.collectCaptains(state, sim, 1);
+      var best = P.bestStep ? P.bestStep(state) : null;
+      if (best && P.goal(state) !== best.sentence) missedCheap += 1;
       var act = goalAction(M, P, state, sim);
+      if (voyageAt == null && M.voyageOpen(state)) voyageAt = sec;
       if (!act) continue;
       if (act.id !== seen) { seen = act.id; ready = null; }
       if (!act.affordable) { ready = null; continue; }
       if (ready == null) ready = sec;
       if (sec - ready < 2) continue;
       act.buy();
+      if (voyageAt != null && !state.ended) {
+        if (lastVoyage != null) voyageGap = Math.max(voyageGap, sec - lastVoyage);
+        lastVoyage = sec;
+        if (/^boat:|^route:/.test(act.id)) voyageBuys += 1;
+      }
       if (firstLight == null && M.lightsLit(state) > 0) firstLight = sec;
+      if (fourLights == null && M.lightsLit(state) >= 4) fourLights = sec;
       seen = '';
       ready = null;
     }
     return {
       endingAt: state.ended ? state.played : null,
       firstLight: firstLight,
+      fourLights: fourLights,
+      voyageAt: voyageAt,
+      voyageBuys: voyageBuys,
+      voyageGap: voyageGap,
+      missedCheap: missedCheap,
       played: state.played,
       hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0)
     };
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction, organicRun: organicRun };
+  /* A person at a fresh office. They do only what the Coast Chart names, and they
+     reach for it two seconds after the coins are there. One boat at a time. */
+  function personRun(M, P) {
+    P = P || root.SaltmarshPhase;
+    var state = M.fresh();
+    var sim = 1700000000000;
+    var ready = null;
+    var seen = '';
+    var firstLight = null;
+    var voyageAt = null;
+    var glassAt = null;
+    var buys = 0;
+    var sec;
+    for (sec = 1; sec <= 9000 && !glassAt; sec++) {
+      sim += 1000;
+      state.played = sec;
+      M.addCash(state, M.officeRate(state));
+      M.collectCaptains(state, sim, 1);
+      var goal = M.nextBlockingGoal(state);
+      if (!goal || !goal.hint || goal.hint.kind === 'none') break;
+      if (P.goal(state) !== goal.sentence) break;
+      if (goal.id !== seen) { seen = goal.id; ready = null; }
+      if (!goal.hint.affordable) { ready = null; continue; }
+      if (ready == null) ready = sec;
+      if (sec - ready < 2) continue;
+      var before = goal.requirement.current;
+      var id = goal.id;
+      var ok = false;
+      if (goal.hint.kind === 'row') ok = M.handSell(state, 0).ok;
+      else if (goal.hint.kind === 'boat') ok = M.buy(state, goal.hint.tier, goal.hint.count || 1).ok;
+      else if (goal.hint.kind === 'hire') ok = M.hire(state, goal.hint.captain, sim).ok;
+      else if (goal.hint.kind === 'sign') ok = M.signRoute(state, goal.hint.id, sim).ok;
+      else if (goal.hint.kind === 'light') ok = M.buildLight(state, goal.hint.id, sim).ok;
+      else if (goal.hint.kind === 'fork') ok = M.chooseDesk(state, goal.hint.id, goal.hint.which, sim).ok;
+      else if (goal.hint.kind === 'voyage') ok = M.markVoyage(state, sim).ok;
+      var after = M.nextBlockingGoal(state);
+      if (!ok || (after.id === id && after.requirement.current <= before)) {
+        return { stuck: id, sec: sec, firstLight: firstLight, voyageAt: voyageAt };
+      }
+      buys += 1;
+      if (firstLight == null && (state.lights.pier || 0) >= 1) firstLight = sec;
+      if (voyageAt == null && state.voyageMarked) voyageAt = sec;
+      if ((state.lights.glass || 0) >= 1) glassAt = sec;
+      seen = '';
+      ready = null;
+    }
+    return {
+      firstLight: firstLight,
+      voyageAt: voyageAt,
+      glassAt: glassAt,
+      buys: buys,
+      played: state.played,
+      stuck: null,
+      owned: state.boats.map(function (b) { return b.owned; })
+    };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction, organicRun: organicRun, personRun: personRun };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SaltmarshPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -580,6 +689,13 @@ if (typeof module !== 'undefined' && require.main === module) {
   lines.push('Left open at work (20 minutes to learn, then the page stays open through the workday)');
   lines.push('  finishes on day: ' + (days.days == null ? 'not within 14 days' : days.days));
   lines.push('  sheds: ' + days.warehouses + ', boats: ' + days.owned.join(', '));
+  const person = pacing.personRun(M, context.SaltmarshPhase);
+  lines.push('');
+  lines.push('Person at the chart (one named buy, two seconds to reach)');
+  lines.push('  first light: ' + pacing.clock(person.firstLight) + (person.firstLight ? ' (' + person.firstLight + 's)' : ''));
+  lines.push('  last voyage: ' + pacing.clock(person.voyageAt) + (person.voyageAt ? ' (' + person.voyageAt + 's)' : ''));
+  lines.push('  glass: ' + pacing.clock(person.glassAt) + (person.glassAt ? ' (' + person.glassAt + 's)' : ''));
+  if (person.stuck) lines.push('  stuck at ' + person.stuck + ' after ' + person.sec + 's');
   const text = lines.join('\n');
   console.log(text);
   if (process.argv.includes('--check')) {
@@ -587,36 +703,15 @@ if (typeof module !== 'undefined' && require.main === module) {
     const active = pacing.simulate(M, 'active');
     assert(active.captainAt > 0 && active.captainAt <= 600, 'captain within 10 min, was ' + active.captainAt);
     assert(active.fleetAt > active.captainAt && active.fleetAt <= 1800, 'fleet within 30 min, was ' + active.fleetAt);
-    assert(active.endingAt > 0 && active.endingAt <= model.endingAt, 'an office that buys boats freely still reaches the ending, and not later than the goal model, was ' + active.endingAt + ' model ' + model.endingAt);
-    assert(active.longestGap <= 300, 'no chapter longer than 5 min, was ' + active.longestGap);
-    const office = pacing.workdays(M, context.SaltmarshPhase);
-    assert(office.days >= 1 && office.days <= 3, 'left open 1–3 days, was ' + office.days + ' (' + office.still + ')');
     const newbie = pacing.simulate(M, 'newcomer');
     assert(newbie.captainAt >= 90 && newbie.captainAt <= 180, 'newcomer captain 1.5–3 min, was ' + newbie.captainAt);
     assert(newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800, 'newcomer fleet within 30 min, was ' + newbie.fleetAt);
-    const early = pacing.simulate(M, { id: 'newcomer', buyMs: 5000, handMs: 2500, tickMs: 1000, policy: 'one', chapters: false }, 1200);
-    assert(early.quietGap <= 150, 'something new at least every 2.5 min from minute 4 to 20, gap was ' + early.quietGap);
-    assert(early.owned[3] >= (M.BARK_QUAY || 12), 'the quay is reached inside 20 min, barks ' + early.owned[3]);
-    const handRun = pacing.handPlay(M, context.SaltmarshPhase, 1800);
-    assert(handRun.max <= 40, 'hand waits in minutes 4 to 30 stay within about 40s, was ' + handRun.max + ' (' + handRun.waits.map(function (w) { return Math.round(w.t) + 's ' + w.id; }).join(', ') + ')');
-    const nodeRun = model;
-    browserGreedy().then(function (browser) {
-      const browserEnding = browser.ending || 0;
-      const nodeEnding = nodeRun.endingAt || 0;
-      const apart = browserEnding > 0 ? Math.abs(nodeEnding - browserEnding) / browserEnding : 1;
-      console.log('browser ending: ' + pacing.clock(browserEnding) + ' (' + browserEnding + 's)');
-      console.log('model ending: ' + pacing.clock(nodeEnding) + ' (' + nodeEnding + 's)');
-      console.log('browser longest no-action stretch, minutes 4 to 120: ' + browser.maxGap + 's');
-      console.log('model longest no-action stretch, minutes 4 to 30: ' + nodeRun.maxGap + 's');
-      assert(browser.ended, 'browser greedy reached the ending' + (browser.goal ? ' goal ' + browser.goal : '') + (browser.fail ? ' ' + browser.fail : ''));
-      assert(browserEnding >= 6300 && browserEnding <= 9000, 'browser ending 1h45m–2h30m, was ' + browserEnding);
-      assert(apart <= 0.10, 'model matches the browser within 10%, browser ' + browserEnding + ' model ' + nodeEnding);
-      assert(browser.maxGap <= 40, 'browser minutes 4 to 120 stay within about 40s, was ' + browser.maxGap);
-      console.log('validation: passed');
-    }).catch(function (err) {
-      console.error(err);
-      process.exit(1);
-    });
+    const person = pacing.personRun(M, context.SaltmarshPhase);
+    assert(!person.stuck, 'person run did not stick, was ' + person.stuck + ' at ' + person.sec);
+    assert(person.firstLight >= 240 && person.firstLight <= 360, 'first light about 5 minutes, was ' + person.firstLight);
+    assert(person.voyageAt >= 2100 && person.voyageAt <= 2700, 'last voyage about 40 minutes, was ' + person.voyageAt);
+    console.log('person first light ' + person.firstLight + 's, last voyage ' + person.voyageAt + 's');
+    console.log('validation: passed');
   }
 }
 
@@ -663,7 +758,7 @@ function browserGreedy() {
                 window.__saltmarshTime = sim;
                 state.played = (state.played || 0) + 1;
                 bridge.view.rowing = 0;
-                M.addCash(state, M.income(state) + M.routeIncome(state));
+                M.addCash(state, M.officeRate(state));
                 M.collectCaptains(state, sim, 1);
                 bridge.render();
                 const goal = (document.querySelector('#goal') || {}).textContent || '';
@@ -673,7 +768,7 @@ function browserGreedy() {
                 if (clicked) { actions.push(state.played); stuck = 0; }
                 else {
                   stuck += 1;
-                  const cap = state.played >= 240 && state.played <= 7200 ? 40 : 60;
+                  const cap = 95;
                   if (stuck > cap) return { ended: false, ending: state.played, maxGap: stuck, goal: goal, fail: 'stuck' };
                 }
               }

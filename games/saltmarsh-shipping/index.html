@@ -10,18 +10,16 @@
 <body>
 <main class="window" id="office" data-phase="dock">
   <div id="choice-back" class="choice-back" hidden></div>
-  <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
-    <h2 id="choice-title">A choice on the desk</h2>
-    <div id="choice-cards"></div>
-  </section>
   <header>
-    <div class="top">
-      <a class="home" href="../../index.html">Back to the arcade</a>
-      <p class="coins"><span id="coins">0</span> coins</p>
+    <div class="purse" id="purse">
+      <div class="top">
+        <a class="home" href="../../index.html">Back to the arcade</a>
+        <p class="coins"><span id="coins">0</span> coins</p>
+      </div>
+      <p class="rate" id="rate">Nothing is earning yet.</p>
     </div>
     <h1>Saltmarsh Shipping Office</h1>
     <p class="scene">The Saltmarsh coast, from the office window. You row the first cargoes yourself.</p>
-    <p class="rate" id="rate">Nothing is earning yet.</p>
     <p class="rate" id="away-rule"></p>
     <div class="tools-row">
       <button type="button" id="sound">Sound: off</button>
@@ -30,12 +28,30 @@
     </div>
   </header>
   <div class="harbour-wrap">
+    <section id="coast" class="coast-chart" aria-label="Coast chart" data-year="1">
+      <div class="coast-art" id="coast-art"></div>
+      <ol class="coast-captions" id="coast-captions"></ol>
+    </section>
     <canvas id="harbour" aria-hidden="true"></canvas>
     <p class="float" id="float" hidden></p>
+  <p class="cheer" id="cheer" hidden></p>
   </div>
   <div class="work">
     <button type="button" id="row" class="row">Row this cargo</button>
     <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
+    <div id="desk" class="desk">
+      <section id="choice" class="choice" hidden aria-labelledby="choice-title">
+        <div class="choice-bar">
+          <h2 id="choice-title">A choice on the desk</h2>
+          <button type="button" id="choice-fold" aria-expanded="true">Hide</button>
+        </div>
+        <div id="choice-cards"></div>
+      </section>
+    </div>
+    <aside id="pell-banner" class="pell-banner" hidden>
+      <p>Capt. Pell's banner. She takes a bark and names the boat she sailed.</p>
+      <button type="button" id="pell-close">Close</button>
+    </aside>
     <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
     <section id="away" class="away" hidden></section>
     <div class="bulk" id="bulk" hidden role="group" aria-label="How many boats to buy at once">
@@ -44,16 +60,6 @@
       <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     </div>
     <ol class="boats" id="boats"></ol>
-    <section id="sheds" hidden></section>
-    <section id="settled" class="settled" hidden>
-      <h2>Settled on the desk</h2>
-      <ul id="settled-list"></ul>
-    </section>
-    <section id="fleet" class="fleet" hidden>
-      <h2>The fleet</h2>
-      <div class="chart" id="chart"></div>
-      <ol class="captains" id="captains"></ol>
-    </section>
     <section id="routes" class="routes" hidden>
       <h2>Trade routes</h2>
       <p id="routes-note"></p>
@@ -64,6 +70,16 @@
       <h2>Lighthouses</h2>
       <p id="lights-note"></p>
       <div id="light-cards"></div>
+    </section>
+    <section id="sheds" hidden></section>
+    <section id="settled" class="settled" hidden>
+      <h2>Settled on the desk</h2>
+      <ul id="settled-list"></ul>
+    </section>
+    <section id="fleet" class="fleet" hidden>
+      <h2>The fleet</h2>
+      <div class="chart" id="chart"></div>
+      <ol class="captains" id="captains"></ol>
     </section>
     <section id="harbour-work" class="finale" hidden>
       <h2>Harbour work</h2>
@@ -80,6 +96,11 @@
       <p id="provision-note"></p>
       <div id="provision-cards"></div>
       <div class="actions" id="provision-actions"><button type="button" id="provision-go" data-act="prep">Pack the next item</button></div>
+    </section>
+    <section id="voyage" class="finale" hidden>
+      <h2>The last voyage</h2>
+      <p id="voyage-note">Packing for the last voyage is coming.</p>
+      <div class="actions"><button type="button" id="voyage-go" data-act="voyage">Note the last voyage</button></div>
     </section>
     <section id="finale" class="finale" hidden>
       <h2>The last voyage</h2>

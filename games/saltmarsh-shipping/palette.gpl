@@ -1,0 +1,23 @@
+GIMP Palette
+Name: Saltmarsh Shipping Office
+Columns: 6
+# House art rules: 1px #1e1a22 outline, #f2d080 lamplight, light from the upper left.
+# At most 32 colours per game. This file is the whole Saltmarsh set (18).
+ 30  26  34	#1e1a22 ink — outline (house ink)
+ 35  57  76	#23394c water — deep water, night, UI ink, deep shade
+ 58  85 104	#3a5568 water_m — wave face, wet stone, glass shade
+156 190 203	#9cbecb sky — day sky, sail shade, frost shadow, water highlight
+212 229 228	#d4e5e4 mist — sea mist, sails, ice, glass light
+231 240 239	#e7f0ef paper — page, chart ground, snow mid
+244 250 248	#f4faf8 panel — cards, snow light, sail light, foam, shine
+200 197 160	#c8c5a0 sand — beach, pale stone
+154 149 110	#9a956e sand_d — beach shade, stone mid
+181 154 104	#b59a68 timber_l — lit timber, upper-left faces
+141 122  82	#8d7a52 timber — timber mid (existing)
+110  88  64	#6e5840 hull — hull mid, timber shade, quiet text (existing)
+ 74  56  40	#4a3828 hull_d — hull and timber deep shade
+242 208 128	#f2d080 lamp — lamplight, current glow, flags, stern light (house)
+196 146  74	#c4924a lamp_d — lamp shade, warm ember
+138 154 106	#8a9a6a reed_l — sunlit reed
+107 122  84	#6b7a54 reed — reed mid, headland grass
+ 74  86  64	#4a5640 reed_d — reed shade
