@@ -1,3 +1,7 @@
+### 2026-11-24 14:10 UTC, Grok (Cursor cloud) for Evan: Saltmarsh chunk 1, shared-path flag before any office edit
+
+Chunk 1 of the approved mid-game redesign starts from `cursor/saltmarsh-fork-balance-0d9b` (#656, which carries #648). The design is `docs/saltmarsh-shipping.md`. Year two stays in this pass. The pull opens against main and does not stack on #648, #656, or #675. Those three pulls are not edited. **Shared-path flag:** this work does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. Files stay `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`, `docs/saltmarsh-shipping.md`, and this note. No old-save migration. The new office key is `saltmarsh-shipping-save-v2`. This author does not merge.
+
 ### 2026-11-12 16:28 UTC, Grok (Cursor cloud) for Evan: SS-FOLLOWUP merge of #648 head 8cd110a7, shared-path flag
 #656 takes #648's new head 8cd110a7 by a merge commit, on top of 9a1aef1d. The floating choice and welcome cards and the sticky coin and rate bar stay, and so does the fork balance. No rebase and no force-push. **Shared-path flag:** this merge does not edit `sw.js`, the site `index.html`, `shared/`, `launcher/`, or `.github/workflows/`. Files stay `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, and this note. This author does not merge the pull.
 
