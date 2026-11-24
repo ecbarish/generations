@@ -15,7 +15,7 @@ jobs:
   exported-browser-review:
     # Temporary source-PR QA only. No export is written to play/, and no deployment runs here.
     if: github.event.pull_request.number == 221 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/starfall-mobile-fit'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       BASE_SHA: ${{ github.event.pull_request.base.sha }}

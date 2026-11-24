@@ -9,51 +9,70 @@ and the hub page shows where you left off in every one.
 
 ## Games
 
-The homepage leads with Little Ranch. Statuses match the cards in `launcher/games.js`.
+Little Ranch is the premier game. The homepage hero is Little Ranch, and Play now lists Little Ranch, Starfall Guild and Realmbound. Those three ids are `CURRENT` in `shared/hub.js`. The Lab, linked from the homepage, lists every other game in `window.ArcadeGames` inside `launcher/games.js`. A status word such as Beta or Test version is the first string of that game's `status` in `launcher/games.js`.
 
-| Game | Status | What it is |
-|---|---|---|
-| [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
-| [Starfall Guild](play/starfall/) | Early preview (Godot) | Build a frontier guild town: post jobs for adventurers, serve meals at the inn, work the forge, grow the town |
-| [Realmbound](games/realmbound/) | Beta | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–60, quests, loot and addons ([design](docs/realmbound-design.md)) |
-| [Diamond Manager](games/diamond-manager/) | Test version | Take over the worst baseball club in the league: lineups, trades, free agents and a ballpark that grows with the gate money |
-| [Keymaster](games/keymaster/) | Test version (launch game) | A property game built on a real deal analyzer: five homes for sale on Alder Street, $200,000, and a goal of three homes that pay |
-| [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
-| Arcade cabinets: [Storm Front](games/storm-front/), [Lighthouse Watch](games/lighthouse-watch/), [Brisket's Crossing](games/briskets-crossing/), [Ember Bricks](games/ember-bricks/) | Test versions | Quick arcade games with high scores and two-player turns |
+The work order at the top of [docs/QUEUE.md](docs/QUEUE.md) (Evan, 9 November 2026, written in on 10 November) is Keymaster, then Saltmarsh Shipping Office, then Night Market. Otherworld comes after those three. Lantern Bowl is shelved. Realmbound has no new work in that order. 3D work waits. Wildbond has no folder in this public repository, so it has no row here.
 
-**Not on the homepage on purpose** (each still opens by its direct link, and its saves are kept):
+A row marked **In development** is still being built. The last column says what the queue asks for next. That work may be an open pull, so it is not necessarily already in this copy of the game.
+
+| Game | Where it shows | Status | What it is |
+|---|---|---|---|
+| [Little Ranch](games/little-ranch/) | Homepage hero and Play now | Test version | A toy for ages 2 to 4. Feed a baby Cindercub, give it a bath, play peekaboo, and end at bedtime. No reading, and nothing to lose. |
+| [Starfall Guild](play/starfall/) | Play now | Early preview | The Godot frontier town. Post jobs for adventurers, serve meals at the inn, work the forge, and grow the town. |
+| [Realmbound](games/realmbound/) | Play now | Beta | A classic-MMO adventure for the Concord and the Wildclans, with five classes, including a pet-taming Hunter, plus quests, loot and addons. The card and `LEVEL_CAP` are levels 1–60, and the zones run through The Crown's Heart at levels 52–60. Ordinary combat stops awarding levels at 40 (`PLAY_CAP`) and says the level cap for this version is reached. The queue asks for no new Realmbound work. [Design](docs/realmbound-design.md). |
+| [Storm Front](games/storm-front/) | The Lab | Test version | An arcade cabinet. Clear the clouds over Saltmarsh harbour before they reach the boats, and post a high score. Two players take turns on one device. |
+| [Lighthouse Watch](games/lighthouse-watch/) | The Lab | Test version | An arcade cabinet. Aim the lighthouse beam and burst the sparks before they land on the boats. |
+| [Brisket's Crossing](games/briskets-crossing/) | The Lab | Test version | An arcade cabinet. Lead Pell's mule Brisket across the wagon road and the log river, and light a lantern at every post. |
+| [Ember Bricks](games/ember-bricks/) | The Lab | Test version | An arcade cabinet. Keep a coal in the air with a baker's peel until the kiln bricks are glowing. |
+| [Diamond Manager](games/diamond-manager/) | The Lab | Test version | Take over the worst club in the league. Set the lineup, trade, sign free agents, and grow the ballpark with the gate money. |
+| [Keymaster](games/keymaster/) | The Lab | Test version. In development | Five homes for sale on Alder Street, with $200,000, and a goal of three homes that each pay in their first year. The finish pass is merged. Still in development: a completeness pass for listing variety, phone balance, progression and the pace of the first session. |
+| [Saltmarsh Shipping Office](games/saltmarsh-shipping/) | The Lab | Test version. In development | Row the first cargoes, then buy boats, choose routes and light the coast. This copy includes the routes, the lighthouses and a last voyage. Still in development: a polish pass for a natural ending, mid-game events, an away summary and the feel of coming back. |
+| [Otherworld](games/otherworld/) | The Lab | Prototype. In development | A story of lives. In the Between you choose a world and a gift, and you carry memories into the next life. The worlds in this copy are Asterhold, Hearthmere and the Ashen Throne. The finish pass is merged. Still in development, after Keymaster, Saltmarsh Shipping Office and Night Market: buttons that stay put, the next life's goal only after you enter that life, and a larger traveller on screen. |
+| [Night Market](games/night-market/) | Hidden | In development | Hidden on purpose. `launcher/games.js` has no Night Market entry, so the homepage and the Lab do not list it. Open [games/night-market/index.html](games/night-market/index.html). Six stalls stand on one lane. You work a stall yourself, then its vendor can run it. Still in development: the queue's roguelite pulls, then a hall card so a newcomer can open the stall from the site. |
+
+Night Market is in the table above because it is in the current work order and hidden from the site. The next table is every other game kept off the homepage and the Lab. Each direct link still opens, and each game keeps its own save.
 
 | Game | Why it is hidden | What it is |
 |---|---|---|
-| [Lantern Bowl](games/lantern-bowl/) | Shelved by Evan, 2026-10-18 (Retro Bowl and Super Tiny Football already do this well) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
-| [Night Market](games/night-market/) | Launch game still being finished; its hall entry (NM-HUB) is not built yet | Work a lantern-lit stall yourself before anyone will run it |
-| [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
-| [Diamond Career](games/diamond-career/) | Shelved (AR-SHELVE) | A baseball player's career: at-bats, a call-up, a contract and a life beyond the ballpark |
-| [Starfall Guild Classic](games/starfall-guild/) | Shelved Classic (AR-SHELVE): the original browser edition, kept as it was | The finished first version; new Starfall work goes into the Godot edition |
+| [Lantern Bowl](games/lantern-bowl/) | Shelved by Evan on 18 October 2026. It is on `ArcadeOffShelf`. The folder and the direct link stay, and no new Lantern Bowl work is queued. | One football game at Lamplight Field. You call the snaps for the Lanterns against Millrace. |
+| [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT). The folder stays, and the site does not show its card. | Grow from a single cell, draft mutations, and restart through extinctions. The unused card text says Playable. |
+| [Diamond Career](games/diamond-career/) | Shelved (AR-SHELVE). Diamond Manager replaced it. The folder and the direct link stay. | A baseball player's career: at-bats, a call-up, a contract and a life past the ballpark. |
+| [Starfall Guild Classic](games/starfall-guild/) | Shelved classic (AR-SHELVE). The browser edition stays as it was. | Recruit heroes, send them into the dungeon, and hire staff to run the town. New Starfall work is the Godot preview on Play now. |
+| [Realmbound 3D trial](experiments/realmbound-3d/) | An experiment, outside the catalogue. 3D work is waiting, so it sits outside the current order. | A separate walkable inn at `experiments/realmbound-3d/`. It uses a follow camera and keeps no player save. |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
 
 ## Layout
 
 ```
-index.html            the hub (the "stable")
-shared/engine.js      saves, export/import, number formatting, hub progress cards
-games/<name>/         one folder per game, plain HTML + JS, no build step
-serve.ps1             local test server on Windows: http://localhost:8765/
-play/                 web build of the Godot game (Starfall Guild)
+index.html            homepage: the Little Ranch hero, then Play now
+lab.html              the Lab, linked from the homepage
+launcher/             the catalogue. launcher/games.js lists every card, and ArcadeOffShelf is the hidden set
+shared/hub.js         Play now: Little Ranch, Starfall Guild, Realmbound
+shared/engine.js      saves, export and import, number formatting, hub progress
+games/<name>/         one folder per browser game, plain HTML and JS, no build step
+play/starfall/        web build of the Godot Starfall town
+guides/               field guides. The index links Realmbound, Realmbound tips and Otherworld
+serve.ps1             local server at http://localhost:8765/
+                      Windows: powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1
+                      macOS or Linux, from this folder: python3 -m http.server 8765
 ```
 
 ## Run locally
 
-Windows:
+From the repository folder, then open http://localhost:8765/. Use the name localhost. Several games attach their test hooks only when the host name is localhost.
+
+Windows, beside `serve.ps1`:
+
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1
 ```
-macOS or Linux (any static server works; this one comes with Python 3):
+
+macOS or Linux (Python 3 is enough, and any other static server also works):
+
 ```
 python3 -m http.server 8765
 ```
-then open http://localhost:8765/ (use the name localhost: some games only switch on their test hooks there).
 
 ## Picking up the work
 

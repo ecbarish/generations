@@ -1,5 +1,101 @@
 # Guest backlog
 
+## Saltmarsh (Nov 23)
+
+Requested by Evan on Nov 23 2026 ("tell both Dev Leads to launch big batches and the Director to deepen the backlogs"), relayed by Token Warden and Generations Director. Saltmarsh still comes first (Nov 12 rule). Other games stay parked until Evan reopens them.
+
+These ten rows are unclaimed. Five are for dot and five are for Grok. All of them are parallel-safe: tests, tools or docs only, and none of them edit `games/saltmarsh-shipping/`, so they never conflict with the #648, #656 and #675 stack. No old-save or migration work. Capt. Wren and Pell stay. Acceptance for each row: a draft pull titled with the ID, the tests pass, and no game file is edited.
+
+### SS-G1. Phone layout harness
+
+**Status:** Unclaimed. For dot.
+
+- **Guest:** dot.
+- **Scope:** A phone layout harness for Saltmarsh. It covers the 13 house sizes from #675's reviews. It asserts that Sound, Settings and Feedback can be hit, that targets are at least 44px, and that nothing overlaps the purse or the goal bar.
+- **Files:** `tests/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G1. The tests pass. No game file is edited.
+
+### SS-G2. Copy-versus-state checker
+
+**Status:** Unclaimed. For dot.
+
+- **Guest:** dot.
+- **Scope:** A checker that every number on the Saltmarsh screen matches the model's charge.
+- **Files:** `tests/` or `tools/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G2. The tests pass. No game file is edited.
+
+### SS-G3. Pacing table
+
+**Status:** Unclaimed. For dot.
+
+- **Guest:** dot.
+- **Scope:** A pacing table in `docs/saltmarsh-pacing.md`, taken from the audit, for three player types.
+- **Files:** `docs/saltmarsh-pacing.md` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G3. The tests pass. No game file is edited.
+
+### SS-G4. Accessibility report
+
+**Status:** Unclaimed. For dot.
+
+- **Guest:** dot.
+- **Scope:** An accessibility report for Saltmarsh: contrast, focus order and keyboard play. The report is the whole pull. Do not change the game.
+- **Files:** `docs/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G4. The tests pass. No game file is edited.
+
+### SS-G5. Screenshot capture tool
+
+**Status:** Unclaimed. For dot.
+
+- **Guest:** dot.
+- **Scope:** A screenshot capture tool for the 13 house sizes, for Game Art Director reviews.
+- **Files:** `tools/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G5. The tests pass. No game file is edited.
+
+### SS-G6. Save round-trip
+
+**Status:** Unclaimed. For Grok.
+
+- **Guest:** Grok.
+- **Scope:** A save round-trip test for the current Saltmarsh save shape only. No migration.
+- **Files:** `tests/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G6. The tests pass. No game file is edited.
+
+### SS-G7. Late-game performance bench
+
+**Status:** Unclaimed. For Grok.
+
+- **Guest:** Grok.
+- **Scope:** A headless late-game performance bench for frame time with 600 or more boats, plus a short report.
+- **Files:** `tools/` and a short report in `docs/`. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G7. The tests pass. No game file is edited.
+
+### SS-G8. Away-return harness
+
+**Status:** Unclaimed. For Grok.
+
+- **Guest:** Grok.
+- **Scope:** An away-return harness. Away time runs from 60 seconds to 8 hours, and every return has something to claim.
+- **Files:** `tests/` or `tools/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G8. The tests pass. No game file is edited.
+
+### SS-G9. Price-curve sensitivity
+
+**Status:** Unclaimed. For Grok.
+
+- **Guest:** Grok.
+- **Scope:** A price-curve sensitivity script, with a report.
+- **Files:** `tools/` and a report in `docs/`. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G9. The tests pass. No game file is edited.
+
+### SS-G10. Glossary and first-session tips
+
+**Status:** Unclaimed. For Grok.
+
+- **Guest:** Grok.
+- **Scope:** A Saltmarsh glossary and a first-session tips draft for SS-GUIDE.
+- **Files:** `docs/` only. Do not edit `games/saltmarsh-shipping/`.
+- **Done check:** A draft pull titled SS-G10. The tests pass. No game file is edited.
+
 **Lantern Bowl is shelved (Evan, 2026-10-18).** Skip every LB row (LB-G12, LB-G13, LB-G14, LB-PAL and the rest) and take the next non-Lantern Bowl row in your order.
 
 Standing work for the guest AIs, Grok and dot (Adam's). This page is the list they take from. Issue #373 is where a guest claims the next row. [QUEUE.md](../QUEUE.md) "This cycle" still says what the launch is. A row here is ready to start. It does not wait on another bot's approval.

@@ -1,7 +1,9 @@
 /* T44 browser regressions. Run against an isolated local server with Playwright installed.
    Every page uses a fresh browser context: the player's saves/settings are never read or changed. */
 const {chromium}=require('playwright'),fs=require('fs'),os=require('os'),nodePath=require('path'),browserPath=require('./find-browser.cjs');
-// Screenshots go to the system temp folder (TEMP on Windows, /tmp elsewhere), or ACCESSIBILITY_SHOTS.
+// CHROME_PATH wins. Otherwise find-browser looks for Chrome, Chromium or Edge on Windows,
+// macOS and Linux (google-chrome, chromium, chromium-browser, and a Puppeteer-cached browser).
+// Screenshots go to ACCESSIBILITY_SHOTS, or os.tmpdir(), which already honours TEMP, TMP and TMPDIR.
 const shots=process.env.ACCESSIBILITY_SHOTS||os.tmpdir();
 async function auditText(page) { return page.evaluate(() => {
  const parse=s=>s.match(/[\d.]+/g)?.map(Number), luminance=a=>{const x=a.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});return x[0]*.2126+x[1]*.7152+x[2]*.0722};
