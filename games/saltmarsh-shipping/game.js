@@ -10,7 +10,7 @@
   var VERSION = '0.3.0';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
-  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
+  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0, choiceShut: false };
   var taps = [];
   var idle = null;
   var awayOn = false;
@@ -131,14 +131,10 @@
     showLine(wait, M.paybackLine(state, i));
     buy.hidden = false;
     var priced = boatQuote(i);
-    var boatGoal = P.nextAct(state);
-    if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
-      priced = { count: boatGoal.count, cost: boatGoal.cost };
-      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
-    } else buy.textContent = buyLabel(i);
-    buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
+    buy.textContent = buyLabel(i);
+    buy.disabled = !(priced.count > 0);
     buy.dataset.count = String(priced.count || 0);
-    buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
+    buy.dataset.chunk = '';
   }
 
   function fillSheds() {
@@ -334,33 +330,18 @@
       box.style.maxHeight = '';
       return;
     }
-    /* The sheet stays on the half the finger is not on, and it stops above the goal bar.
-       On a phone it is a short banner, and placeStack moves it if it would cover a buy. */
-    var bar = document.querySelector('#goalbar');
-    var barH = bar ? Math.ceil(bar.getBoundingClientRect().height) : 74;
-    var gap = 8;
-    var narrow = window.matchMedia('(max-width: 899px)').matches;
-    var short = window.matchMedia('(max-height: 430px)').matches;
-    var fingerLow = (view.lastY || 0) > window.innerHeight * 0.42;
-    var topPx = fingerLow ? Math.round(4.2 * 16) : 0;
-    if (narrow) {
-      box.style.top = 'auto';
-      box.style.bottom = (barH + gap) + 'px';
-      box.style.maxHeight = '11rem';
-    } else if (fingerLow) {
-      box.style.top = topPx + 'px';
-      box.style.bottom = 'auto';
-      var room = window.innerHeight - barH - gap - topPx;
-      var cap = short ? Math.min(room, window.innerHeight * 0.46) : room;
-      box.style.maxHeight = Math.max(140, Math.floor(cap)) + 'px';
-    } else {
-      box.style.top = 'auto';
-      box.style.bottom = (barH + gap) + 'px';
-      var roomBottom = window.innerHeight - barH - gap;
-      var capBottom = short ? Math.min(roomBottom, window.innerHeight * 0.46) : roomBottom;
-      box.style.maxHeight = Math.max(140, Math.floor(capBottom)) + 'px';
-    }
+    box.style.top = '';
+    box.style.bottom = '';
+    box.style.maxHeight = '';
     box.hidden = false;
+    box.classList.toggle('is-shut', !!view.choiceShut);
+    var fold = $('#choice-fold');
+    if (fold) {
+      fold.textContent = view.choiceShut ? 'Show' : 'Hide';
+      fold.setAttribute('aria-expanded', view.choiceShut ? 'false' : 'true');
+    }
+    var reopen = $('#choice-reopen');
+    if (reopen) reopen.hidden = true;
     if (back) back.hidden = false;
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
@@ -481,21 +462,16 @@
     /* Only the contracts on the desk. A signed route stays in its card,
        so a new name is not inserted above a button the player can already see. */
     var waitingLine = [];
+    note.textContent = 'Each route is signed once. Buying the boat that crews it raises that route.';
     M.ROUTES.forEach(function (spec) {
+      if (spec.year === 2 && !state.voyageMarked) return;
       var offer = offerById[spec.id] || null;
       var signed = (state.routes && state.routes[spec.id]) || 0;
-      if (offer) rows.push({ spec: spec, offer: offer, signed: signed, waiting: false, queued: false });
-      else if (signed > 0 && signed < spec.depths) {
-        var peek = M.peekRoute(state, spec);
-        if (peek) waitingLine.push(spec.name + ' ' + money(peek.cost) + ' after the current one');
-        rows.push({ spec: spec, offer: null, signed: signed, waiting: false, queued: true });
-      }
+      rows.push({ spec: spec, offer: offer, signed: signed, waiting: !offer && signed < 1, queued: false });
     });
-    /* On a phone the same price is already on the card, so the note stays one sentence. */
-    if (waitingLine.length && window.innerWidth >= 900) note.textContent = note.textContent + ' ' + waitingLine.join('. ') + '.';
+    /* Price is not part of the card's identity. A price tick must not replace the button under a finger. */
     var sig = rows.map(function (row) {
-      var cost = row.offer ? Math.round(row.offer.cost) : 0;
-      return row.spec.id + ':' + row.signed + ':' + cost + ':' + (row.offer ? 1 : 0);
+      return row.spec.id + ':' + (row.signed >= 1 ? 1 : 0) + ':' + (row.offer ? 1 : 0);
     }).join('|');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
@@ -584,6 +560,8 @@
     /* Sail stays above the route cards, so a new Sign row cannot push it down. */
     if (host && gearHost.compareDocumentPosition(host) & Node.DOCUMENT_POSITION_PRECEDING) box.insertBefore(gearHost, host);
     if (!gear) {
+      gearHost.hidden = true;
+      return;
       if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig === sig) gearHost.hidden = false;
       else if (gearHost.dataset.id && gearHost.hidden === false && gearHost.offsetHeight > 0) {
         var held = gearHost.offsetHeight;
@@ -673,8 +651,8 @@
     var offers = M.lightOffers(state, true);
     var burning = M.lightsLit(state);
     $('#lights-note').textContent = burning >= 4
-      ? '4 lit. Every lighthouse on the coast is burning.'
-      : burning + ' lit. Four lighthouses. Each one changes the routes.';
+      ? '4 lit. The year-one lighthouses are burning. Packing the last voyage is coming.'
+      : burning + ' lit. Pier, Headland, Reed, then Quay. Each price stays put.';
     var host = $('#light-cards');
     if (M.allLightsLit(state) && M.finaleOffer && M.finaleOffer(state)) {
       if (host.dataset.sig !== 'folded') {
@@ -683,24 +661,27 @@
       }
       return;
     }
-    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + ':b' + ((state.boats[3] && state.boats[3].owned) || 0) + ':r' + M.routesSailing(state) + (offers.length ? '' : ':done');
+    var visibleLights = M.LIGHTS.filter(function (spec) { return spec.year !== 2 || state.voyageMarked; });
+    /* Lit or not is the identity. The coin price is painted on the same button. */
+    var sig = visibleLights.map(function (spec) {
+      return spec.id + ':' + (((state.lights && state.lights[spec.id]) || 0) >= 1 ? 1 : 0);
+    }).join('|');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
-      M.LIGHTS.forEach(function (spec) {
+      visibleLights.forEach(function (spec) {
         var stage = state.lights[spec.id] || 0;
         var offer = null;
         for (var i = 0; i < offers.length; i++) if (offers[i].id === spec.id) offer = offers[i];
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
         wrap.dataset.light = spec.id;
-        wrap.dataset.stage = String(stage);
+        wrap.dataset.stage = String(stage >= 1 ? 1 : 0);
         var h = document.createElement('h3');
-        h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
+        h.textContent = spec.name + (stage >= 1 ? ' · burning' : ' · dark');
         var p = document.createElement('p');
         p.className = 'habit';
-        var lineAt = stage >= 2 ? spec.lines.length - 1 : stage;
-        p.textContent = spec.lines[lineAt] || spec.lines[0];
+        p.textContent = stage >= 1 ? (spec.coming || spec.lines[1] || spec.lines[0]) : (spec.lines[0] || '');
         wrap.appendChild(h);
         wrap.appendChild(p);
         var actions = document.createElement('div');
@@ -711,7 +692,7 @@
         if (offer) button.dataset.act = 'light';
         else {
           button.disabled = true;
-          button.textContent = M.lightClosed ? M.lightClosed(state, spec) : (stage >= 2 ? 'Burning' : 'Not yet');
+          button.textContent = stage >= 1 ? 'Burning' : (M.lightClosed ? M.lightClosed(state, spec) : 'Not yet');
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -723,7 +704,7 @@
       for (var s = 0; s < M.LIGHTS.length; s++) if (M.LIGHTS[s].id === button.dataset.light) spec = M.LIGHTS[s];
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
-      if (spec && spec.id === 'quay' && (state.lights.quay || 0) < 2) {
+      if (spec && spec.id === 'quay' && (state.lights.quay || 0) < 1) {
         var habit = button.closest('.light-card') && button.closest('.light-card').querySelector('.habit');
         var needs = M.lightClosed(state, spec);
         var story = spec.lines[(state.lights.quay || 0)] || spec.lines[0];
@@ -737,7 +718,7 @@
         return;
       }
       button.dataset.act = 'light';
-      var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
+      var verb = 'Light';
       button.disabled = !offer.affordable;
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
@@ -994,12 +975,12 @@
     var choiceOpen = choice && !choice.hidden;
     var awayOpen = away && !away.hidden;
     if (choiceOpen) {
-      choice.style.top = 'auto';
-      choice.style.bottom = (goalH + gap) + 'px';
-      choice.style.maxHeight = narrow ? '8.5rem' : '';
-      choice.style.zIndex = '7';
+      choice.style.top = '';
+      choice.style.bottom = '';
+      choice.style.maxHeight = '';
+      choice.style.zIndex = '';
     }
-    var choiceH = choiceOpen ? Math.ceil(choice.getBoundingClientRect().height) : 0;
+    var choiceH = 0;
     if (awayOpen) {
       away.style.top = 'auto';
       away.style.bottom = (goalH + gap + (choiceH ? choiceH + gap : 0)) + 'px';
@@ -1016,9 +997,123 @@
         top += Math.ceil(away.getBoundingClientRect().height) + gap;
       }
       if (choiceOpen) {
-        choice.style.top = top + 'px';
-        choice.style.bottom = 'auto';
+        choice.style.top = '';
+        choice.style.bottom = '';
       }
+    }
+  }
+
+  var COAST_STOPS = [
+    { id: 'pier', short: 'Pier', full: 'Pier' },
+    { id: 'headland', short: 'Head', full: 'Headland' },
+    { id: 'reed', short: 'Reed', full: 'Reed' },
+    { id: 'quay', short: 'Quay', full: 'Quay' },
+    { id: 'voyage', short: 'Voyage', full: 'Voyage' },
+    { id: 'frost', short: 'Frost', full: 'Frost Lane' },
+    { id: 'glass', short: 'Glass', full: 'Glass' }
+  ];
+  function coastDone(id) {
+    if (id === 'voyage') return !!state.voyageMarked;
+    if (id === 'frost') return ((state.routes && state.routes.frost) || 0) >= 1;
+    return ((state.lights && state.lights[id]) || 0) >= 1;
+  }
+  function coastCurrentIndex() {
+    var i;
+    for (i = 0; i < COAST_STOPS.length; i++) if (!coastDone(COAST_STOPS[i].id)) return i;
+    return COAST_STOPS.length;
+  }
+  function coastPhase(id) {
+    var at = coastIndex(id);
+    var cur = coastCurrentIndex();
+    if (at < cur) return 'done';
+    if (at === cur) return 'current';
+    return 'locked';
+  }
+  function coastIndex(id) {
+    var i;
+    for (i = 0; i < COAST_STOPS.length; i++) if (COAST_STOPS[i].id === id) return i;
+    return 0;
+  }
+  function coastCaption(stop, phase, wide) {
+    if (!wide) return stop.short;
+    if (phase !== 'current') return stop.full;
+    if (stop.id === 'quay' && ((state.lights && state.lights.quay) || 0) < 1) {
+      var n = (state.boats && state.boats[3] && state.boats[3].owned) || 0;
+      return 'Quay: ' + n + '/16 barks';
+    }
+    if (stop.id === 'frost') return 'Frost: ' + (((state.routes && state.routes.frost) || 0) >= 1 ? '1' : '0') + '/1';
+    if (stop.id === 'voyage') return 'Voyage: packing is coming';
+    return stop.full;
+  }
+  function fillCoast() {
+    var art = $('#coast-art');
+    var caps = $('#coast-captions');
+    var band = $('#coast');
+    if (!art || !caps || !band) return;
+    var year = state.voyageMarked ? '2' : '1';
+    band.dataset.year = year;
+    var wide = window.matchMedia('(min-width: 700px)').matches;
+    var sig = COAST_STOPS.map(function (stop) { return stop.id + coastPhase(stop.id); }).join('') + year + (wide ? 'w' : 'n');
+    if (art.dataset.sig !== sig) {
+      art.dataset.sig = sig;
+      art.replaceChildren();
+      caps.replaceChildren();
+      COAST_STOPS.forEach(function (stop, i) {
+        var phase = coastPhase(stop.id);
+        var cell = document.createElement('div');
+        cell.className = 'coast-stop';
+        cell.dataset.stop = stop.id;
+        var icon = document.createElement('img');
+        icon.className = 'icon';
+        icon.alt = '';
+        icon.width = 24;
+        icon.height = 24;
+        icon.src = 'assets/coast-chart/stop-' + stop.id + '-' + phase + '.png';
+        cell.appendChild(icon);
+        if (i < COAST_STOPS.length - 1) {
+          var bit = document.createElement('span');
+          bit.className = 'connector-px';
+          bit.setAttribute('aria-hidden', 'true');
+          cell.appendChild(bit);
+        }
+        art.appendChild(cell);
+        var cap = document.createElement('li');
+        cap.dataset.stop = stop.id;
+        caps.appendChild(cap);
+      });
+    }
+    COAST_STOPS.forEach(function (stop) {
+      var phase = coastPhase(stop.id);
+      var icon = art.querySelector('[data-stop="' + stop.id + '"] .icon');
+      var want = 'assets/coast-chart/stop-' + stop.id + '-' + phase + '.png';
+      if (icon && icon.getAttribute('src') !== want) icon.src = want;
+      var cap = caps.querySelector('[data-stop="' + stop.id + '"]');
+      if (!cap) return;
+      var text = coastCaption(stop, phase, wide);
+      if (cap.textContent !== text) cap.textContent = text;
+      cap.title = text;
+    });
+    Array.prototype.forEach.call(art.querySelectorAll('.coast-stop'), function (cell) {
+      var bit = cell.querySelector('.connector-px');
+      if (!bit) return;
+      var phase = coastPhase(cell.dataset.stop);
+      var x = phase === 'current' ? -16 : phase === 'done' ? -32 : 0;
+      bit.style.backgroundPosition = x + 'px 0';
+    });
+  }
+  function fillVoyage() {
+    var box = $('#voyage');
+    if (!box) return;
+    var goal = M.nextBlockingGoal(state);
+    box.hidden = !(goal && (goal.id === 'voyage' || state.voyageMarked));
+    var button = $('#voyage-go');
+    if (!button) return;
+    if (state.voyageMarked) {
+      button.disabled = true;
+      button.textContent = 'Noted. Packing is coming.';
+    } else {
+      button.disabled = false;
+      button.textContent = 'Note the last voyage';
     }
   }
 
@@ -1113,10 +1208,12 @@
       fillBoat(li, +li.dataset.i);
       li.classList.toggle('is-now', !!(focusStep && focusStep.kind === 'boat' && String(focusStep.tier) === li.dataset.i));
     });
+    fillCoast();
     fillChoice();
     fillSettled();
     fillRoutes();
     fillLights();
+    fillVoyage();
     var nextLight = null;
     Array.prototype.forEach.call(document.querySelectorAll('#light-cards .light-card'), function (card) {
       var burning = card.querySelector('h3') && /burning/.test(card.querySelector('h3').textContent);
@@ -1502,6 +1599,19 @@
       }
       return;
     }
+    if (b.id === 'voyage-go' || b.dataset.act === 'voyage') {
+      if (M.markVoyage(state, actNow()).ok) {
+        if (state.sound) audio.sfx('level');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.id === 'choice-fold') {
+      view.choiceShut = !view.choiceShut;
+      render();
+      return;
+    }
     if (b.id === 'finale-go') {
       if (M.launchFinale(state, Date.now()).ok) {
         cheer(b, 'Under way');
@@ -1706,6 +1816,19 @@
   /* One click of whatever the goal bar is asking for. The pacing run uses this,
      so a measured wait is a wait on the step the player can see. */
   function followGoal() {
+    var chartGoal = M.nextBlockingGoal(state);
+    if (chartGoal && chartGoal.hint && chartGoal.hint.affordable && chartGoal.hint.selector) {
+      var hit = document.querySelector(chartGoal.hint.selector);
+      if (chartGoal.hint.kind === 'boat' && hit) hit.dataset.count = String(chartGoal.hint.count || 1);
+      if (usableControl(hit)) {
+        var x = window.scrollX;
+        var y = window.scrollY;
+        hit.click();
+        if (window.scrollX !== x || Math.abs((window.scrollY || 0) - y) > 1) window.scrollTo(x, y);
+        return true;
+      }
+      return false;
+    }
     var goal = ($('#goal') && $('#goal').textContent) || '';
     function press(el) {
       var x = window.scrollX;

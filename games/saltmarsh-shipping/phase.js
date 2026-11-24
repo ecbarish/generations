@@ -10,7 +10,7 @@
     var M = window.Saltmarsh;
     var boats = state && state.boats;
     var owned = function (i) { return boats && boats[i] ? boats[i].owned : 0; };
-    var routesReady = owned(2) >= M.UNLOCK_AT;
+    var routesReady = M.routesUnlocked ? M.routesUnlocked(state) : owned(2) >= M.UNLOCK_AT;
     var hauled = false;
     if (state && state.captains) {
       for (var i = 0; i < state.captains.length; i++) {
@@ -80,7 +80,30 @@
 
   /* Pending Light beats a new Raise. Otherwise the desk rotates through
      different kinds of work so the late watch is not one repeated button. */
+  function actFromChart(state) {
+    var M = window.Saltmarsh;
+    if (!state || !M.nextBlockingGoal) return null;
+    var g = M.nextBlockingGoal(state);
+    if (!g || !g.hint || g.hint.kind === 'none') return null;
+    var kind = g.hint.kind;
+    if (kind === 'sign') kind = 'route';
+    if (kind === 'fork') kind = 'choice';
+    return {
+      kind: kind,
+      id: g.hint.id,
+      tier: g.hint.tier,
+      count: g.hint.count || 1,
+      which: g.hint.which || '',
+      cost: 0,
+      affordable: !!g.hint.affordable,
+      selector: g.selector,
+      sentence: g.sentence,
+      progress: true
+    };
+  }
+
   function nextAct(state) {
+    return actFromChart(state);
     var M = window.Saltmarsh;
     if (!state || state.ended || !M.routesUnlocked(state)) return null;
     if (M.finaleOffer && M.finaleOffer(state)) {
@@ -206,6 +229,7 @@
      cheap boat that does not. A light, the next errand, and Set sail are
      progress: they win when the purse can pay them. */
   function bestStep(state) {
+    return actFromChart(state);
     var M = window.Saltmarsh;
     if (!state || state.ended || !M.routesUnlocked(state)) return null;
     if (M.finaleOffer && M.finaleOffer(state)) {
@@ -373,6 +397,8 @@
 
   /* One sentence, always. The player should be able to read it and know what to do. */
   function goal(state) {
+    var chartGoal = window.Saltmarsh.nextBlockingGoal(state);
+    return chartGoal ? chartGoal.sentence : '';
     var M = window.Saltmarsh;
     var phase = read(state);
     var left, i, owned, nextAt, choice, sailing, lit;
@@ -436,6 +462,9 @@
 
   /* How many of one boat the sentence on the bar is asking for. Null when the next step is not a boat. */
   function boatNeed(state) {
+    var chartGoal = window.Saltmarsh.nextBlockingGoal(state);
+    if (chartGoal && chartGoal.hint && chartGoal.hint.kind === 'boat') return { tier: chartGoal.hint.tier, at: chartGoal.requirement.need };
+    return null;
     var M = window.Saltmarsh;
     var phase = read(state);
     if (!state || state.ended || !phase.boats) return null;
@@ -466,6 +495,9 @@
 
   /* Shown from the fleet onward, beside the one next step. */
   function aim(state) {
+    var chartGoal = window.Saltmarsh.nextBlockingGoal(state);
+    if (!chartGoal || chartGoal.id === 'skiff' || chartGoal.id === 'done') return '';
+    return chartGoal.name + '. ' + chartGoal.requirement.text;
     var M = window.Saltmarsh;
     if (!state || state.trips < M.HAND_TRIPS || state.boats[1].owned < M.UNLOCK_AT) return '';
     if (state.ended) return '';
@@ -486,6 +518,8 @@
 
   /* The element the goal sentence is talking about. */
   function target(state) {
+    var chartGoal = window.Saltmarsh.nextBlockingGoal(state);
+    return chartGoal && chartGoal.selector ? chartGoal.selector : '#boats';
     var M = window.Saltmarsh;
     var phase = read(state);
     var step;

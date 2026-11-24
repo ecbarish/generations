@@ -1,0 +1,282 @@
+{
+  "towers": [
+    "pier",
+    "headland",
+    "reed",
+    "quay",
+    "glass"
+  ],
+  "tower_standard": {
+    "w": 16,
+    "h": 48,
+    "sheet": "towers-16x48.png",
+    "frames": {
+      "pier-unlit": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "headland-unlit": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "reed-unlit": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "quay-unlit": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "glass-unlit": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "pier-lit": {
+        "x": 0,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "headland-lit": {
+        "x": 16,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "reed-lit": {
+        "x": 32,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "quay-lit": {
+        "x": 48,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "glass-lit": {
+        "x": 64,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      }
+    }
+  },
+  "tower_short": {
+    "w": 16,
+    "h": 32,
+    "sheet": "towers-16x32.png",
+    "frames": {
+      "pier-unlit": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 32
+      },
+      "headland-unlit": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 32
+      },
+      "reed-unlit": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 32
+      },
+      "quay-unlit": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 32
+      },
+      "glass-unlit": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 32
+      },
+      "pier-lit": {
+        "x": 0,
+        "y": 32,
+        "w": 16,
+        "h": 32
+      },
+      "headland-lit": {
+        "x": 16,
+        "y": 32,
+        "w": 16,
+        "h": 32
+      },
+      "reed-lit": {
+        "x": 32,
+        "y": 32,
+        "w": 16,
+        "h": 32
+      },
+      "quay-lit": {
+        "x": 48,
+        "y": 32,
+        "w": 16,
+        "h": 32
+      },
+      "glass-lit": {
+        "x": 64,
+        "y": 32,
+        "w": 16,
+        "h": 32
+      }
+    }
+  },
+  "tower_year2_standard": {
+    "w": 16,
+    "h": 48,
+    "sheet": "towers-16x48-year2.png",
+    "frames": {
+      "pier-unlit": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "headland-unlit": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "reed-unlit": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "quay-unlit": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "glass-unlit": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 48
+      },
+      "pier-lit": {
+        "x": 0,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "headland-lit": {
+        "x": 16,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "reed-lit": {
+        "x": 32,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "quay-lit": {
+        "x": 48,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      },
+      "glass-lit": {
+        "x": 64,
+        "y": 48,
+        "w": 16,
+        "h": 48
+      }
+    }
+  },
+  "bark": {
+    "w": 48,
+    "h": 32,
+    "frames": 4,
+    "fps": 8,
+    "sheet": "bark-48x32.png",
+    "rows": {
+      "leaving": "right / bow seaward",
+      "home": "left / bow to the pier"
+    },
+    "coords": {
+      "leaving-0": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 32
+      },
+      "leaving-1": {
+        "x": 48,
+        "y": 0,
+        "w": 48,
+        "h": 32
+      },
+      "leaving-2": {
+        "x": 96,
+        "y": 0,
+        "w": 48,
+        "h": 32
+      },
+      "leaving-3": {
+        "x": 144,
+        "y": 0,
+        "w": 48,
+        "h": 32
+      },
+      "home-0": {
+        "x": 0,
+        "y": 32,
+        "w": 48,
+        "h": 32
+      },
+      "home-1": {
+        "x": 48,
+        "y": 32,
+        "w": 48,
+        "h": 32
+      },
+      "home-2": {
+        "x": 96,
+        "y": 32,
+        "w": 48,
+        "h": 32
+      },
+      "home-3": {
+        "x": 144,
+        "y": 32,
+        "w": 48,
+        "h": 32
+      }
+    },
+    "stern_lamp": "aft, opposite the bow"
+  },
+  "js_hooks": {
+    "tower_x_frac": {
+      "pier": 0.42,
+      "headland": 0.52,
+      "reed": 0.62,
+      "quay": 0.72,
+      "glass": 0.85
+    },
+    "note": "Matches games/saltmarsh-shipping/harbour.js (lx = w * (0.42 + i * 0.1)). Glass is new."
+  }
+}

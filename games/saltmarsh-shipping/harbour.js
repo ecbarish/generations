@@ -11,6 +11,37 @@
   var LAMP = '#f2d080';
   var TIMBER = '#8d7a52';
   var HULL = '#6e5840';
+  var TOWER_X = { pier: 0.42, headland: 0.52, reed: 0.62, quay: 0.72, glass: 0.85 };
+  var TOWER_ORDER = ['pier', 'headland', 'reed', 'quay', 'glass'];
+  var sprites = {};
+  function loadSprite(key, src) {
+    var img = new Image();
+    img.onload = function () { sprites[key] = img; };
+    img.src = src;
+  }
+  loadSprite('tall', 'assets/harbour/towers-16x48.png');
+  loadSprite('tall2', 'assets/harbour/towers-16x48-year2.png');
+  loadSprite('short', 'assets/harbour/towers-16x32.png');
+  loadSprite('short2', 'assets/harbour/towers-16x32-year2.png');
+  loadSprite('bark', 'assets/harbour/bark-48x32.png');
+  loadSprite('sky2', 'assets/harbour/layer-sky-384-year2.png');
+  loadSprite('water2', 'assets/harbour/layer-water-384-year2.png');
+  loadSprite('sand2', 'assets/harbour/layer-sand-384-year2.png');
+  loadSprite('office2', 'assets/harbour/office-48x32-year2.png');
+  loadSprite('shed2', 'assets/harbour/shed-24x24-year2.png');
+  function blit(ctx, img, sx, sy, sw, sh, dx, dy) {
+    if (!img || sw < 1 || sh < 1) return;
+    ctx.drawImage(img, sx, sy, sw, sh, Math.round(dx), Math.round(dy), sw, sh);
+  }
+  function tileStrip(ctx, img, y, srcY, srcH, width) {
+    if (!img || srcH < 1) return;
+    var x = 0;
+    while (x < width) {
+      var dw = Math.min(img.width, width - x);
+      blit(ctx, img, 0, srcY, dw, srcH, x, y);
+      x += img.width;
+    }
+  }
 
   /* Label rows stay a plate apart, including on a short sideways harbour. */
   function laneYs(h, n) {
@@ -95,7 +126,7 @@
       var state = getState();
       var view = getView();
       var rect = canvas.getBoundingClientRect();
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      var dpr = Math.max(1, Math.round(Math.min(2, window.devicePixelRatio || 1)));
       var bw = Math.max(1, Math.round(rect.width * dpr));
       var bh = Math.max(1, Math.round(rect.height * dpr));
       if (canvas.width !== bw || canvas.height !== bh) {
@@ -104,12 +135,18 @@
       }
       var w = rect.width, h = rect.height;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = false;
       var reduce = reduced();
       var bob = function (seed) { return reduce ? 0 : Math.sin(now / 700 + seed) * 1.6; };
 
       var night = !!(state && state.ended);
+      var year2 = !!(state && state.voyageMarked);
       ctx.fillStyle = night ? WATER : SKY;
       ctx.fillRect(0, 0, w, h);
+      if (year2 && sprites.sky2) {
+        var skyH = Math.min(sprites.sky2.height, h);
+        tileStrip(ctx, sprites.sky2, 0, 0, skyH, w);
+      }
       var laneN = 0;
       for (var ln = 0; ln < 4; ln++) if (boatCount(state, ln) > 0) laneN++;
       var lay = sceneLayout(h, laneN);
@@ -129,6 +166,12 @@
       ctx.globalAlpha = 1;
       ctx.fillStyle = SAND;
       ctx.fillRect(0, h * 0.84, w, h * 0.16);
+      if (year2 && sprites.water2 && sprites.sand2 && h >= 48) {
+        var sandH = Math.min(48, sprites.sand2.height, h);
+        var waterH = Math.min(80, sprites.water2.height, Math.max(0, h - sandH));
+        tileStrip(ctx, sprites.water2, h - sandH - waterH, sprites.water2.height - waterH, waterH, w);
+        tileStrip(ctx, sprites.sand2, h - sandH, sprites.sand2.height - sandH, sandH, w);
+      }
 
       var officeX = 28;
       ctx.fillStyle = WATER;
@@ -160,11 +203,24 @@
       ctx.fillRect(w * 0.18, lay.quayY, Math.max(0, quayEnd - w * 0.18), 6);
       var lampR = lay.lampR;
       var lampY = lay.lampY;
-      if ((barks >= 16 || night) && lampY - lampR >= 2) {
-        ctx.fillStyle = LAMP;
-        ctx.beginPath();
-        ctx.arc(w * 0.72, lampY, lampR, 0, Math.PI * 2);
-        ctx.fill();
+      if (year2 && sprites.office2) blit(ctx, sprites.office2, 0, 0, 48, 32, 18, h - 40);
+      if (year2 && sprites.shed2) {
+        for (var sy = 0; sy < Math.min(sheds, 3); sy++) blit(ctx, sprites.shed2, 0, 0, 24, 24, w - 36 - sy * 28, h - 32);
+      }
+      var towerSheet = sprites[(h <= 128 ? 'short' : 'tall') + (year2 ? '2' : '')];
+      var towerH = h <= 128 ? 32 : 48;
+      if (towerSheet) {
+        for (var ti = 0; ti < TOWER_ORDER.length; ti++) {
+          var tid = TOWER_ORDER[ti];
+          var stage = (state.lights && state.lights[tid]) || 0;
+          if (stage < 1) continue;
+          var col = ti * 16;
+          var row = towerH;
+          blit(ctx, towerSheet, col, row, 16, towerH, w * TOWER_X[tid] - 8, waterLine - towerH);
+        }
+      }
+      if (sprites.bark && barks > 0 && h >= 64) {
+        blit(ctx, sprites.bark, 0, 0, 48, 32, w * 0.22 - 24, waterLine - 28);
       }
       if (state.forks && state.forks.quay === 'lamp') {
         ctx.fillStyle = LAMP;
@@ -172,19 +228,21 @@
         ctx.arc(quayEnd - 8, lay.quayY - 8, Math.max(3, lampR * 0.7), 0, Math.PI * 2);
         ctx.fill();
       }
-      var lightIds = ['pier', 'headland', 'reed', 'quay'];
-      for (var li = 0; li < lightIds.length; li++) {
-        var stage = state.lights && state.lights[lightIds[li]] || 0;
-        if (stage < 1 && !night) continue;
-        var lx = w * (0.42 + li * 0.1);
-        var top = Math.max(8, Math.min(h * 0.16, waterLine - 16));
-        ctx.fillStyle = TIMBER;
-        ctx.fillRect(lx, top + 6, 3, Math.max(8, waterLine - top - 6));
-        if (stage >= 2 || night) {
-          ctx.fillStyle = LAMP;
-          ctx.beginPath();
-          ctx.arc(lx + 1.5, top + 2, Math.max(5, h * 0.028), 0, Math.PI * 2);
-          ctx.fill();
+      if (!towerSheet) {
+        var lightIds = ['pier', 'headland', 'reed', 'quay'];
+        for (var li = 0; li < lightIds.length; li++) {
+          var stage = state.lights && state.lights[lightIds[li]] || 0;
+          if (stage < 1 && !night) continue;
+          var lx = w * (0.42 + li * 0.1);
+          var top = Math.max(8, Math.min(h * 0.16, waterLine - 16));
+          ctx.fillStyle = TIMBER;
+          ctx.fillRect(lx, top + 6, 3, Math.max(8, waterLine - top - 6));
+          if (stage >= 1 || night) {
+            ctx.fillStyle = LAMP;
+            ctx.beginPath();
+            ctx.arc(lx + 1.5, top + 2, Math.max(5, h * 0.028), 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
       ctx.font = '14px Georgia, Palatino, serif';

@@ -583,7 +583,98 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   }
   #row.row { margin-top: 0; }
   .purse { padding-bottom: 0; }
-  #choice.choice { max-height: 46vh; }
+  #choice.choice { max-height: none; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }
+.coast-chart {
+  height: 48px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.coast-art {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #e7f0ef url("assets/coast-chart/strip-bg-tile-16.png") left top / 16px 32px repeat-x;
+}
+.coast-chart[data-year="2"] .coast-art {
+  background-image: url("assets/coast-chart/strip-bg-tile-16-year2.png");
+}
+.coast-stop {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.coast-stop img.icon,
+.coast-stop img.connector {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex: none;
+}
+.coast-stop img.icon { width: 24px; height: 24px; }
+.connector-px {
+  position: absolute;
+  right: -8px;
+  top: 12px;
+  width: 16px;
+  height: 8px;
+  background: url("assets/coast-chart/connectors.png") 0 0 / 64px 8px no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 1;
+}
+.coast-captions {
+  height: 16px;
+  margin: 0;
+  padding: 0 6px;
+  list-style: none;
+  display: flex;
+  background: var(--paper);
+  color: var(--ink);
+}
+.coast-captions li {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 16px;
+  line-height: 16px;
+  font-size: 11px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+@media (max-height: 430px), (max-width: 400px) and (max-height: 600px) {
+  .coast-chart { height: 32px; }
+  .coast-captions { display: none; }
+}
+#choice.choice {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  transform: none;
+  width: auto;
+  max-height: none;
+  z-index: auto;
+  box-shadow: none;
+  margin: 0.4rem 0;
+}
+#choice.choice.is-shut #choice-cards { display: none; }
+#choice .choice-bar { display: flex; align-items: center; gap: 0.4rem; }
+#choice .choice-bar h2 { flex: 1 1 auto; margin: 0; }
+#choice-fold { flex: 0 0 auto; min-height: 44px; }
+.route-card, .light-card {
+  height: 11.5rem;
+  min-height: 11.5rem;
+  max-height: 11.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.boat { min-height: 9.5rem; }

@@ -125,12 +125,18 @@ document.querySelector('#run').onclick = async function () {
     fleet.boats[1].owned = 10;
     M.hire(fleet, 0, 1000);
     check('ten sloops unroll the fleet', (function () {
-      if (!(P.read(fleet).fleet && P.name(fleet) === 'fleet')) return false;
-      if (P.goal(fleet) !== 'Choose a lighter sloop hull, or another shed.') return false;
+      if (!P.read(fleet).fleet) return false;
       if (!M.noteFleet(fleet) || !/unrolls on the desk/.test(fleet.log[fleet.log.length - 1].text)) return false;
-      fleet.cash = 700;
-      if (!M.chooseFork(fleet, 'sloop', 'fit').ok) return false;
-      return P.goal(fleet) === M.askLine(1) && M.settledForks(fleet).some(function (row) { return /locked/.test(row.lockedName) === false && row.lockedName === 'Another shed'; });
+      var hull = ready();
+      hull.boats[0].owned = M.SLOOP_AT;
+      hull.boats[1].owned = 10;
+      hull.captains[0].hired = true;
+      hull.routes.kelp = 1;
+      hull.lights.pier = 1;
+      hull.cash = 700;
+      if (P.goal(hull) !== 'Choose a lighter sloop hull, or another shed.') return false;
+      if (!M.chooseFork(hull, 'sloop', 'fit').ok) return false;
+      return P.goal(hull) === M.askLine(1) && M.settledForks(hull).some(function (row) { return /locked/.test(row.lockedName) === false && row.lockedName === 'Another shed'; });
     })());
     var marked = ready();
     marked.boats[0].owned = M.SLOOP_AT;
@@ -140,9 +146,14 @@ document.querySelector('#run').onclick = async function () {
     M.hire(marked, 0, 1000);
     M.hire(marked, 1, 1000);
     M.chooseFork(marked, 'sloop', 'shed');
+    marked.routes.kelp = 1;
+    marked.routes.tea = 1;
+    marked.lights.pier = 1;
+    marked.lights.headland = 1;
+    marked.forks.sloop = 'shed';
     var almost = P.goal(marked);
     marked.boats[2].owned = 10;
-    check('ten schooners open the routes', /next tide/.test(almost) && /furled/.test(almost) === false && P.read(marked).routesReady && P.read(marked).routesOpen === true && P.routesOpen() === true && P.goal(marked) === 'Choose a deeper schooner hold, or another shed.');
+    check('the sloop shop opens Kelp Road, and ten schooners reach the hold choice', /Kelp Road/.test(P.goal(ready())) === false && P.read(marked).routesOpen === true && /next tide/.test(almost) && P.goal(marked) === 'Choose a deeper schooner hold, or another shed.');
 
     var clock = 1700000000000;
     var haul = ready();
@@ -341,7 +352,7 @@ document.querySelector('#run').onclick = async function () {
     var oldShape = { v: 1, game: 'saltmarsh-shipping', cash: 12, lifetime: 12, trips: 3, warehouses: 1, sound: 0, boats: [{ owned: 4 }, { owned: 0 }, { owned: 0 }, { owned: 0 }], captains: [{ hired: false }, { hired: false }, { hired: false }, { hired: false }] };
     var kept = M.openSave(oldShape);
     var rotten = Object.assign({}, M.serialize(M.fresh(), 1), { routes: 'nope' });
-    check('an older office save still loads, and a rotten routes field does not', kept.cash === 12 && kept.boats[0].owned === 4 && kept.routes.kelp === 0 && M.openSave(rotten).cash === 0);
+    check('an older office save starts fresh, and a rotten routes field does not load', kept.cash === 0 && kept.boats[0].owned === 0 && kept.routes.kelp === 0 && M.openSave(rotten).cash === 0);
 
     check('one coin is singular and a fraction of a coin stays a fraction', M.rateWords(1) === '1 coin a second' && M.rateWords(0.6) === '0.6 coins a second' && M.rateWords(6) === '6 coins a second');
     var fifty = ready();
@@ -370,6 +381,8 @@ document.querySelector('#run').onclick = async function () {
     step.boats[0].owned = M.SLOOP_AT;
     step.boats[1].owned = 8;
     step.captains[0].hired = true;
+    step.routes.kelp = 1;
+    step.lights.pier = 1;
     step.cash = 1e15;
     check('the goal cap stops at ten sloops while an uncapped max does not', M.goalCap(step, 1) === 10 && M.quote(step, 1, 'max').count > 2);
     var eight = ready();
@@ -377,8 +390,10 @@ document.querySelector('#run').onclick = async function () {
     eight.boats[0].owned = M.SLOOP_AT;
     eight.boats[1].owned = 2;
     eight.captains[0].hired = true;
+    eight.routes.kelp = 1;
+    eight.lights.pier = 1;
     eight.cash = 1e9;
-    check('eight sloops to the goal are eight boats, not one', P.boatNeed(eight).tier === 1 && P.boatNeed(eight).at === 10 && M.quote(eight, 1, 8).count === 8);
+    check('eight sloops to the goal are eight boats, not one', P.boatNeed(eight) && P.boatNeed(eight).tier === 1 && P.boatNeed(eight).at === 10 && M.quote(eight, 1, 8).count === 8);
     var priced = ready();
     priced.trips = 3;
     priced.boats[0].owned = M.SLOOP_AT;

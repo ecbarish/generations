@@ -1,0 +1,306 @@
+{
+  "cell_24": 24,
+  "cell_32": 32,
+  "stops": [
+    "pier",
+    "headland",
+    "reed",
+    "quay",
+    "voyage",
+    "frost",
+    "glass"
+  ],
+  "states": [
+    "locked",
+    "current",
+    "done"
+  ],
+  "sheets": {
+    "stops-24.png": {
+      "pier-locked": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "headland-locked": {
+        "x": 24,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "reed-locked": {
+        "x": 48,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "quay-locked": {
+        "x": 72,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "voyage-locked": {
+        "x": 96,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "frost-locked": {
+        "x": 120,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "glass-locked": {
+        "x": 144,
+        "y": 0,
+        "w": 24,
+        "h": 24
+      },
+      "pier-current": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "headland-current": {
+        "x": 24,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "reed-current": {
+        "x": 48,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "quay-current": {
+        "x": 72,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "voyage-current": {
+        "x": 96,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "frost-current": {
+        "x": 120,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "glass-current": {
+        "x": 144,
+        "y": 24,
+        "w": 24,
+        "h": 24
+      },
+      "pier-done": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "headland-done": {
+        "x": 24,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "reed-done": {
+        "x": 48,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "quay-done": {
+        "x": 72,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "voyage-done": {
+        "x": 96,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "frost-done": {
+        "x": 120,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      },
+      "glass-done": {
+        "x": 144,
+        "y": 48,
+        "w": 24,
+        "h": 24
+      }
+    },
+    "stops-32.png": {
+      "pier-locked": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "headland-locked": {
+        "x": 32,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "reed-locked": {
+        "x": 64,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "quay-locked": {
+        "x": 96,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "voyage-locked": {
+        "x": 128,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "frost-locked": {
+        "x": 160,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "glass-locked": {
+        "x": 192,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "pier-current": {
+        "x": 0,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "headland-current": {
+        "x": 32,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "reed-current": {
+        "x": 64,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "quay-current": {
+        "x": 96,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "voyage-current": {
+        "x": 128,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "frost-current": {
+        "x": 160,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "glass-current": {
+        "x": 192,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "pier-done": {
+        "x": 0,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "headland-done": {
+        "x": 32,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "reed-done": {
+        "x": 64,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "quay-done": {
+        "x": 96,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "voyage-done": {
+        "x": 128,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "frost-done": {
+        "x": 160,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "glass-done": {
+        "x": 192,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      }
+    }
+  },
+  "connectors": {
+    "cell": [
+      16,
+      8
+    ],
+    "locked": [
+      0,
+      0
+    ],
+    "current": [
+      16,
+      0
+    ],
+    "done": [
+      32,
+      0
+    ],
+    "dot": [
+      48,
+      0
+    ]
+  },
+  "strip_height": 32,
+  "caption_row": 16,
+  "total_height_default": 48,
+  "widths": [
+    320,
+    384,
+    960
+  ]
+}
